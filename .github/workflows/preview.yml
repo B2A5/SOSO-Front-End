@@ -2,24 +2,34 @@ name: PR Preview
 
 on:
   pull_request:
-    branches: [develop] # PR 생길 때마다 Preview
+    branches: [develop] # PR 생성/업데이트 시 실행
 
 jobs:
   vercel-preview:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.ref }}
+
       - name: Install Vercel CLI & PNPM
         run: npm install -g vercel@latest pnpm
+
       - name: Fetch Vercel env
         run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+
       - name: Build artifacts
         run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+
       - id: deploy
+        name: Deploy to Vercel Preview
         run: |
           vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} > vercel-output.txt
           echo "preview_url=$(cat vercel-output.txt)" >> $GITHUB_OUTPUT
-      - name: Comment PR with URL
+
+      - name: Comment PR with Preview URL
         uses: thollander/actions-comment-pull-request@v2
         with:
           message: |

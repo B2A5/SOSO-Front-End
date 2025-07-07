@@ -8,9 +8,14 @@ jobs:
   build_and_sync:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Run build script
-        run: bash ./build.sh
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run build script (copy source)
+        run: sh ./build.sh
+
       - name: Push to personal fork for Vercel
         uses: cpina/github-action-push-to-another-repository@main
         env:
@@ -20,5 +25,5 @@ jobs:
           destination-github-username: DreamPaste
           destination-repository-name: SOSO-Front-End
           user-email: ${{ secrets.OFFICIAL_ACCOUNT_EMAIL }}
-          commit-message: ${{ github.event.commits[0].message }}
+          commit-message: 'sync: ${{ github.sha }}'
           target-branch: develop
