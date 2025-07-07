@@ -1,5 +1,5 @@
-name: 📝 common issue
-description: 기능 개발·버그 수정·리팩터링 등 모든 작업에 쓰이는 기본 템플릿
+name: '📝 common issue'
+description: '기능 개발·버그 수정·리팩터링 등 모든 작업에 쓰이는 기본 템플릿'
 title: '[Feat] 간결한 제목을 작성하세요'
 labels: []
 assignees: []
@@ -13,7 +13,7 @@ body:
   - type: textarea
     id: feature
     attributes:
-      label: 구현할 기능 또는 버그 설명
+      label: '구현할 기능 또는 버그 설명'
       description: '상세 동작·UX 흐름·재현 방법 등을 자유롭게 작성 (필수)'
       placeholder: |
         예) 
@@ -61,10 +61,10 @@ body:
   - type: checkboxes
     id: checklist
     attributes:
-      label: 진행 체크리스트
+      label: '진행 체크리스트'
       options:
-        - label: 관심사 분리 확인
-        - label: 코드 주석 정리
-        - label: 잠재적 사이드 이펙트 점검
-        - label: 단위 테스트 추가/수정
-        - label: /docs 업데이트(필요시)
+        - label: '관심사 분리 확인'
+        - label: '코드 주석 정리'
+        - label: '잠재적 사이드 이펙트 점검'
+        - label: '단위 테스트 추가/수정'
+        - label: '/docs 업데이트(필요시)'
