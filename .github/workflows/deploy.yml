@@ -5,7 +5,7 @@ on:
     branches: [develop] # develop 브랜치 푸시 시 실행
 
 jobs:
-  build_and_sync:
+  sync_source:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -13,17 +13,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Run build script (copy source)
-        run: bash ./build.sh
-
-      - name: Push to personal fork for Vercel
+      - name: Push source to personal fork for Vercel
         uses: cpina/github-action-push-to-another-repository@main
         env:
           API_TOKEN_GITHUB: ${{ secrets.AUTO_ACTIONS }}
         with:
-          source-directory: 'output'
+          source-directory: '.' # 빌드 전 원본 소스 전체
           destination-github-username: DreamPaste
           destination-repository-name: SOSO-Front-End
           user-email: ${{ secrets.OFFICIAL_ACCOUNT_EMAIL }}
-          commit-message: 'sync: ${{ github.sha }}'
+          commit-message: 'sync-src: ${{ github.sha }}'
           target-branch: develop

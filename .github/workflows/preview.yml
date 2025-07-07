@@ -17,17 +17,10 @@ jobs:
       - name: Install Vercel CLI & PNPM
         run: npm install -g vercel@latest pnpm
 
-      - name: Fetch Vercel env
-        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Build artifacts
-        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
-
-      - id: deploy
-        name: Deploy to Vercel Preview
+      - name: Deploy to Vercel Preview
         run: |
-          vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} > vercel-output.txt
-          echo "preview_url=$(cat vercel-output.txt)" >> $GITHUB_OUTPUT
+          vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} --yes
+        id: deploy
 
       - name: Comment PR with Preview URL
         uses: thollander/actions-comment-pull-request@v2
