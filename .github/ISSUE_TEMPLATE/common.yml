@@ -1,4 +1,4 @@
-name: '📝 공용 이슈'
+name: 📝 common issue
 description: 기능 개발·버그 수정·리팩터링 등 모든 작업에 쓰이는 기본 템플릿
 title: '[Feat] 간결한 제목을 작성하세요'
 labels: []
