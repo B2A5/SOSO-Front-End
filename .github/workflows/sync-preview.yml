@@ -39,5 +39,6 @@ jobs:
           destination-github-username: DreamPaste # 포크 소유자
           destination-repository-name: SOSO-Front-End # 포크 레포
           target-branch: develop
+          create-target-branch-if-needed: true
           user-email: ${{ secrets.OFFICIAL_ACCOUNT_EMAIL }}
           commit-message: 'sync: ${{ github.sha }}'
