@@ -1,0 +1,26 @@
+name: PR Preview
+
+on:
+  pull_request:
+    branches: [develop] # PR 생길 때마다 Preview
+
+jobs:
+  vercel-preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Vercel CLI & PNPM
+        run: npm install -g vercel@latest pnpm
+      - name: Fetch Vercel env
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Build artifacts
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+      - id: deploy
+        run: |
+          vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} > vercel-output.txt
+          echo "preview_url=$(cat vercel-output.txt)" >> $GITHUB_OUTPUT
+      - name: Comment PR with URL
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            ✅ PREVIEW ${{ steps.deploy.outputs.preview_url }}
