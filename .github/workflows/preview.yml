@@ -2,7 +2,7 @@ name: PR Preview
 
 on:
   pull_request:
-    branches: [develop] # PR 생성/업데이트 시 실행
+    branches: [develop] # PR 생성/업데이트 시 Vercel Preview 배포
 
 jobs:
   vercel-preview:
@@ -18,9 +18,10 @@ jobs:
         run: npm install -g vercel@latest pnpm
 
       - name: Deploy to Vercel Preview
-        run: |
-          vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} --yes
         id: deploy
+        run: |
+          # monorepo 내 apps/web에서 빌드하도록 cwd 지정
+          vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} --cwd apps/web --yes
 
       - name: Comment PR with Preview URL
         uses: thollander/actions-comment-pull-request@v2

@@ -2,7 +2,7 @@ name: Deploy to Fork & Vercel
 
 on:
   push:
-    branches: [develop] # develop 브랜치 푸시 시 실행
+    branches: [develop] # monorepo develop 푸시 시 개인 포크로 소스 동기화
 
 jobs:
   sync_source:
@@ -18,9 +18,9 @@ jobs:
         env:
           API_TOKEN_GITHUB: ${{ secrets.AUTO_ACTIONS }}
         with:
-          source-directory: '.' # 빌드 전 원본 소스 전체
-          destination-github-username: DreamPaste
-          destination-repository-name: SOSO-Front-End
+          source-directory: '.' # monorepo 전체 소스
+          destination-github-username: DreamPaste # 개인 포크 사용자명
+          destination-repository-name: SOSO-Front-End # 개인 포크 리포지토리명
           user-email: ${{ secrets.OFFICIAL_ACCOUNT_EMAIL }}
           commit-message: 'sync-src: ${{ github.sha }}'
-          target-branch: develop
+          target-branch: develop # 포크의 develop 브랜치
