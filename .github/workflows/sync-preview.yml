@@ -2,7 +2,7 @@ name: CI + Sync to Fork + Vercel Preview
 
 on:
   push:
-    branches: [develop] # 조직 기본 개발 브랜치
+    branches: [develop]
   pull_request:
     branches: [develop]
 
@@ -11,22 +11,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: pnpm/action-setup@v3
         with: { version: 9 }
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm
-
       - run: pnpm install --frozen-lockfile
-      - uses: actions/cache@v4
-        with:
-          path: .turbo
-          key: turbo-${{ runner.os }}-${{ github.sha }}
-          restore-keys: turbo-${{ runner.os }}-
-
-      - run: pnpm turbo run lint typecheck test --cache-dir=".turbo"
+      - run: pnpm turbo run lint test --cache-dir=".turbo"
 
   sync:
     if: github.event_name == 'push'
@@ -35,7 +27,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - run: sh ./build.sh
+      # 빌드 산출물 복사
+      - run: bash ./build.sh
 
       - name: Push to fork
         uses: cpina/github-action-push-to-another-repository@main
@@ -43,8 +36,8 @@ jobs:
           API_TOKEN_GITHUB: ${{ secrets.AUTO_ACTIONS }}
         with:
           source-directory: 'output'
-          destination-github-username: DreamPaste
-          destination-repository-name: SOSO-Front-End
+          destination-github-username: DreamPaste # 포크 소유자
+          destination-repository-name: SOSO-Front-End # 포크 레포
           target-branch: develop
           user-email: ${{ secrets.OFFICIAL_ACCOUNT_EMAIL }}
           commit-message: 'sync: ${{ github.sha }}'

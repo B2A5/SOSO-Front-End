@@ -1,8 +1,9 @@
 name: CI
 
 on:
-  pull_request:
   push:
+    branches: [develop] # 🚩 기본 브랜치
+  pull_request:
     branches: [develop]
 
 jobs:
@@ -12,22 +13,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # 1) pnpm + Node
+      # pnpm + Node
       - uses: pnpm/action-setup@v3
-        with:
-          version: 9
+        with: { version: 9 }
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm
 
-      - name: Install dependencies
+      - name: Install deps
         run: pnpm install --frozen-lockfile
 
-      # 2) Run typed-lint tasks
-      - name: Lint & Typecheck
-        run: pnpm turbo run lint typecheck --cache-dir=".turbo"
+      # Turbo cache
+      - uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-${{ github.sha }}
+          restore-keys: turbo-${{ runner.os }}-
 
-      # # 3) Unit tests (Vitest / Jest)
-      # - name: Tests
-      #   run: pnpm turbo run test --cache-dir=".turbo"
+      # Lint + Test (typecheck 제거)
+      - name: Lint & Test
+        run: pnpm turbo run lint test --cache-dir=".turbo"
