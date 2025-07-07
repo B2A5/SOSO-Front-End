@@ -1,4 +1,4 @@
-name: "\U0001F4DD 공용 이슈"
+name: '📝 공용 이슈'
 description: 기능 개발·버그 수정·리팩터링 등 모든 작업에 쓰이는 기본 템플릿
 title: '[Feat] 간결한 제목을 작성하세요'
 labels: []
@@ -14,7 +14,7 @@ body:
     id: feature
     attributes:
       label: 구현할 기능 또는 버그 설명
-      description: 상세 동작·UX 흐름·재현 방법 등을 자유롭게 작성 (필수)
+      description: '상세 동작·UX 흐름·재현 방법 등을 자유롭게 작성 (필수)'
       placeholder: |
         예) 
         * 로그인 성공 시 리다이렉트가 두 번 발생하는 현상 수정  
@@ -26,21 +26,21 @@ body:
     id: kind
     attributes:
       label: 종류
-      description: 이슈 성격을 선택하세요 (필수)
+      description: '이슈 성격을 선택하세요 (필수)'
       options:
-        - "\U0001F680 Feature"
-        - "\U0001F41B Bug"
-        - "\U0001F4DD Documentation"
-        - "\U0001F527 Refactor"
-        - "\U0001F4CA Chore"
+        - '🚀 Feature'
+        - '🐛 Bug'
+        - '📝 Documentation'
+        - '🔧 Refactor'
+        - '📦 Chore'
     validations:
       required: true
 
   - type: input
     id: due
     attributes:
-      label: 마감일 (YYYY-MM-DD)
-      description: 입력한 날짜로 마일스톤이 자동 생성·연결됩니다.
+      label: '마감일 (YYYY-MM-DD)'
+      description: '입력한 날짜로 마일스톤이 자동 생성·연결됩니다.'
       placeholder: 2025-07-31
     validations:
       required: true
@@ -48,8 +48,8 @@ body:
   - type: textarea
     id: related
     attributes:
-      label: 연관 컴포넌트·사이드 이펙트
-      description: 영향받는 모듈·패키지, 예상되는 부작용 등을 적어 주세요
+      label: '연관 컴포넌트·사이드 이펙트'
+      description: '영향받는 모듈·패키지, 예상되는 부작용 등을 적어 주세요'
       placeholder: |
         예)
         - packages/ui/Button
