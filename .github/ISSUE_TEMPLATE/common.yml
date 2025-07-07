@@ -9,11 +9,12 @@ body:
       value: |
         ## ✨ 구현/수정할 기능
         아래 항목을 채워서 이슈를 명확하게 정의해 주세요.
+
   - type: textarea
     id: feature
     attributes:
-      label: 구현할 기능(또는 버그 설명)
-      description: 상세 동작·UX 흐름·재현 방법 등을 자유롭게 작성
+      label: 구현할 기능 또는 버그 설명
+      description: 상세 동작·UX 흐름·재현 방법 등을 자유롭게 작성 (필수)
       placeholder: |
         예) 
         * 로그인 성공 시 리다이렉트가 두 번 발생하는 현상 수정  
@@ -25,7 +26,7 @@ body:
     id: kind
     attributes:
       label: 종류
-      description: 이슈 성격을 선택하세요(필수)
+      description: 이슈 성격을 선택하세요 (필수)
       options:
         - "\U0001F680 Feature"
         - "\U0001F41B Bug"
@@ -35,14 +36,14 @@ body:
     validations:
       required: true
 
-  - type: dropdown
-    id: milestone
+  - type: input
+    id: due
     attributes:
-      label: 마감 시간
-      description: 연결할 마일스톤(스프린트) 선택(필수)
-      options: [] # GitHub에서 자동으로 프로젝트-마일스톤을 채워줍니다
+      label: 마감일 (YYYY-MM-DD)
+      description: 입력한 날짜로 마일스톤이 자동 생성·연결됩니다.
+      placeholder: 2025-07-31
     validations:
-      required: false
+      required: true
 
   - type: textarea
     id: related
@@ -62,6 +63,8 @@ body:
     attributes:
       label: 진행 체크리스트
       options:
+        - label: 관심사 분리 확인
+        - label: 코드 주석 정리
+        - label: 잠재적 사이드 이펙트 점검
         - label: 단위 테스트 추가/수정
-        - label: 문서(README 또는 /docs) 업데이트
-        - label: ESLint & Prettier 통과 확인
+        - label: /docs 업데이트(필요시)

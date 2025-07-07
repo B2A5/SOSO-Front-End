@@ -1,0 +1,48 @@
+name: Auto-assign milestone from due date
+
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  assign-milestone:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write # create / update milestone & issue
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const {owner, repo} = context.repo;
+            const body = context.payload.issue.body ?? '';
+            // "마감일" 입력란 바로 아래의 YYYY-MM-DD 추출
+            const match = body.match(/마감일.*\r?\n\r?\n(\d{4}-\d{2}-\d{2})/);
+            if (!match) { return console.log('⏭️  No due date'); }
+
+            const due = match[1];                 // 2025-07-31
+            const title = `Sprint ${due}`;        // Sprint 2025-07-31
+
+            // 1️⃣  이미 존재하는지 확인
+            const {data: openMs} = await github.rest.issues.listMilestones({
+              owner, repo, state: 'open'
+            });
+            let milestone = openMs.find(m => m.title === title);
+
+            // 2️⃣  없으면 생성
+            if (!milestone) {
+              const res = await github.rest.issues.createMilestone({
+                owner, repo,
+                title,
+                due_on: `${due}T23:59:59Z`
+              });
+              milestone = res.data;
+              console.log(`🆕 Created milestone #${milestone.number}`);
+            }
+
+            // 3️⃣  이슈에 연결
+            await github.rest.issues.update({
+              owner, repo,
+              issue_number: context.issue.number,
+              milestone: milestone.number
+            });
+            console.log(`🔗 Issue → Milestone #${milestone.number}`);
