@@ -1,25 +1,32 @@
 //src : apps/web/tsconfig.json
 {
   "extends": "../../tsconfig.json",
-
   "compilerOptions": {
     /* Next.js 전용 플러그인 / jsx 처리 */
     "jsx": "preserve",
-    "plugins": [{ "name": "next" }],
-
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
     /* 앱 내부 별칭 → @/… */
     "baseUrl": "./",
-    "paths": { "@/*": ["src/*"] },
-
+    "paths": {
+      "@/*": ["src/*"]
+    },
     /* DOM 타입(+ ESNext) – 질문 ⑤ */
     "lib": ["dom", "dom.iterable", "esnext"],
-
     /* Project References 빌드시 의존성 그래프 작성 – 질문 ④ */
     "composite": true,
-
     /* build 산출물은 Next가 swc로 하므로 tsc는 검사 전용 */
-    "noEmit": true
+    "noEmit": true,
+    "allowJs": true,
+    "skipLibCheck": true,
+    "incremental": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true
   },
-
-  "include": ["next-env.d.ts", "src", ".next/types/**/*.ts"]
+  "include": ["next-env.d.ts", "src", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
 }
