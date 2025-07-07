@@ -27,7 +27,7 @@ echo "▶ Install deps"
 pnpm install --frozen-lockfile --ignore-scripts
 
 echo "▶ Turbo build"
-pnpm turbo run build --filter=apps/web
+pnpm turbo run build --filter=./apps/web
 
 ###############################################################################
 # 3. Copy artifacts                                                           #
