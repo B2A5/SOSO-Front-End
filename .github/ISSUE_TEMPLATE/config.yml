@@ -1,4 +1,0 @@
-blank_issues_enabled: false
-issue_templates:
-  - file: common.yml
-  - file: test.md

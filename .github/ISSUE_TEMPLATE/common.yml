@@ -41,7 +41,7 @@ body:
     attributes:
       label: '마감일 (YYYY-MM-DD)'
       description: '입력한 날짜로 마일스톤이 자동 생성·연결됩니다.'
-      placeholder: 2025-07-31
+      placeholder: '2025-07-31'
     validations:
       required: true
 
