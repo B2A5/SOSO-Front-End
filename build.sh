@@ -1,41 +1,23 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-###############################################################################
-# 0. Ensure pnpm is available                                                 #
-###############################################################################
-if ! command -v pnpm &> /dev/null; then
-  echo "▶ pnpm not found – installing via Corepack"
-  # Node 16.14+ 런타임에는 corepack이 포함되어 있습니다.
-  corepack enable
-  corepack prepare pnpm@9.15.9 --activate   # 원하는 pnpm 버전 지정
-fi
-
-###############################################################################
-# 1. Always run from repo root                                                #
-###############################################################################
+# 1. 항상 스크립트 위치(=레포 루트)에서 실행
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR"
 
-###############################################################################
-# 2. Build                                                                    #
-###############################################################################
-echo "▶ Clean output"
-rm -rf output && mkdir output
+# 2. output 폴더 초기화
+rm -rf output
+mkdir -p output
 
-echo "▶ Install deps"
-pnpm install --frozen-lockfile --ignore-scripts
+# 3. 의존 설치 & 웹앱만 빌드
+pnpm install --frozen-lockfile
+pnpm turbo run build --filter=apps/web
 
-echo "▶ Turbo build"
-pnpm turbo run build --filter=./apps/web
+# 4. 빌드 산출물만 output/dist에 복사
+mkdir -p output/dist
+cp -R apps/web/.next        output/dist/.next
+cp -R apps/web/public       output/dist/public
+cp      apps/web/next.config.js output/dist/next.config.js || true
+cp      apps/web/package.json   output/dist/package.json
 
-###############################################################################
-# 3. Copy artifacts                                                           #
-###############################################################################
-echo "▶ Copy artifacts"
-cp -R apps/web/.next          output/.next
-cp -R apps/web/public         output/public
-cp    apps/web/package.json   output/
-cp    apps/web/next.config.*  output/ || true
-
-echo "✅ output/ ready"
+echo "✅ output/dist 준비 완료"
