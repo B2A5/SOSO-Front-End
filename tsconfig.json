@@ -13,7 +13,7 @@
   },
 
   /* 애플리케이션 소스만 포함 (설정·빌드 파일 제외) */
-  "include": ["apps/**/*.ts", "apps/**/*.tsx"],
+  "include": ["apps/**/*.ts", "apps/**/*.tsx", "packages/**/*.ts", "packages/**/*.tsx"],
 
   /* 타입 정의 패키지 직접 추가 (질문 ①) */
   "typeRoots": ["./packages/types", "./node_modules/@types"]
