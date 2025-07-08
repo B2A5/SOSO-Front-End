@@ -1,40 +1,28 @@
-name: Deploy via Fork to Vercel
+name: Sync develop → Fork for Vercel
 
 on:
   push:
-    branches:
-      - develop # develop 브랜치에 푸시될 때만 실행
+    branches: [develop] # develop 브랜치에 푸시될 때만
 
 jobs:
-  build_and_sync:
+  sync_develop:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repo
+      - name: Checkout upstream/develop
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup PNPM & Node.js
-        uses: pnpm/action-setup@v3
-        with:
-          version: 9
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
-
-      - name: Run build script
-        run: bash ./build.sh
-
-      - name: Push to personal fork for Vercel
+      - name: Push develop to personal fork
         uses: cpina/github-action-push-to-another-repository@main
         env:
           API_TOKEN_GITHUB: ${{ secrets.AUTO_ACTIONS }}
         with:
-          source-directory: 'output/dist'
-          destination-github-username: DreamPaste
-          destination-repository-name: SOSO-Front-End
-          user-email: ${{ secrets.OFFICIAL_ACCOUNT_EMAIL }}
-          commit-message: ${{ github.event.commits[0].message }}
-          target-branch: develop
+          source-directory: '.' # monorepo 루트 전체 복사
+          destination-github-username: DreamPaste # 포크된 계정
+          destination-repository-name: SOSO-Front-End # 포크된 레포
+          target-branch: develop # 포크의 develop 브랜치로
           create-target-branch-if-needed: true
+          user-email: ${{ secrets.OFFICIAL_ACCOUNT_EMAIL }}
+          commit-message: 'ci: sync develop @ ${{ github.sha }}'

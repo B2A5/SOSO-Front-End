@@ -1,32 +1,30 @@
-name: PR Preview
+name: Sync PR → Fork for Preview
 
 on:
   pull_request:
-    branches: [develop] # PR 생성/업데이트 시 트리거
+    branches: [develop]
+    types: [opened, reopened, synchronize]
 
 jobs:
-  vercel-preview:
+  sync_pr:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout source
+      - name: Checkout PR branch
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.ref }}
 
-      - name: Install Vercel CLI & PNPM
-        run: npm install -g vercel@latest pnpm
-
-      - name: Deploy to Vercel Preview
-        id: deploy
-        run: |
-          cd apps/web
-          pnpm install --frozen-lockfile
-          pnpm build
-          vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} --yes
-
-      - name: Comment PR with Preview URL
-        uses: thollander/actions-comment-pull-request@v2
+      - name: Push PR branch to personal fork
+        uses: cpina/github-action-push-to-another-repository@main
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.AUTO_ACTIONS }}
         with:
-          message: |
-            ✅ Preview URL: ${{ steps.deploy.outputs.preview_url }}
+          source-directory: '.' # monorepo 전체
+          destination-github-username: DreamPaste
+          destination-repository-name: SOSO-Front-End
+          target-branch: ${{ github.event.pull_request.head.ref }}
+          create-target-branch-if-needed: true
+          user-email: ${{ secrets.OFFICIAL_ACCOUNT_EMAIL }}
+          commit-message: 'ci: sync PR #${{ github.event.pull_request.number }} @ ${{ github.sha }}'
