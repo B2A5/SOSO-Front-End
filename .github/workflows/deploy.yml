@@ -2,31 +2,26 @@ name: Deploy
 
 on:
   push:
-    branches: ['develop']
+    branches: [develop] # monore포 develop에 푸시될 때 동작
 
 jobs:
-  build:
+  sync_source:
     runs-on: ubuntu-latest
-
-    container: pandoc/latex
-
     steps:
-      - uses: actions/checkout@v2
-      - name: Install mustache (to update the date)
-        run: apk add ruby && gem install mustache
-      - name: creates output
-        run: sh ./build.sh
-      - name: Pushes to another repository
-        id: push_directory
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Push source to personal fork for Vercel
         uses: cpina/github-action-push-to-another-repository@main
         env:
           API_TOKEN_GITHUB: ${{ secrets.AUTO_ACTIONS }}
         with:
-          source-directory: 'output'
-          destination-github-username: DreamPaste
-          destination-repository-name: SOSO-Front-End
+          source-directory: '.' # monorepo 전체 소스
+          destination-github-username: DreamPaste # 개인 포크 사용자명
+          destination-repository-name: SOSO-Front-End # 개인 포크 repo명
           user-email: ${{ secrets.OFFICIAL_ACCOUNT_EMAIL }}
           commit-message: ${{ github.event.commits[0].message }}
-          target-branch: main
-      - name: Test get variable exported by push-to-another-repository
-        run: echo $DESTINATION_CLONED_DIRECTORY
+          target-branch: develop # fork의 develop 브랜치
+          create-target-branch-if-needed: true # 브랜치 없으면 생성
