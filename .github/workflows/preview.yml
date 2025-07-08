@@ -1,30 +1,43 @@
-name: PR Preview
+name: Preview
 
 on:
   pull_request:
-    branches: [develop] # PR 생성/업데이트 시 Vercel Preview 배포
+    branches: ['main']
 
 jobs:
   vercel-preview:
     runs-on: ubuntu-latest
+
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_TEAM_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
     steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.ref }}
-
-      - name: Install Vercel CLI & PNPM
-        run: npm install -g vercel@latest pnpm
-
-      - name: Deploy to Vercel Preview
+      - uses: actions/checkout@v4
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest && npm install --global pnpm
+      - name: Get Vercel Environment Variables
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Build Project Artifacts
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Deploy Project Artifacts to Vercel
         id: deploy
+
         run: |
-          # monorepo 내 apps/web에서 빌드하도록 cwd 지정
-          vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} --cwd apps/web --yes
+
+          vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} > vercel-output.txt
+          echo "preview_url=$(cat vercel-output.txt)" >> $GITHUB_OUTPUT
 
       - name: Comment PR with Preview URL
         uses: thollander/actions-comment-pull-request@v2
         with:
           message: |
             ✅ PREVIEW ${{ steps.deploy.outputs.preview_url }}
+
+permissions:
+  contents: read
+  pages: write
+  deployments: write
+  id-token: write
+  issues: write
+  pull-requests: write
