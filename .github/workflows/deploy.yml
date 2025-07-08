@@ -1,28 +1,32 @@
-name: Sync develop → Fork for Vercel
+name: Deploy
 
 on:
   push:
-    branches: [develop] # develop 브랜치에 푸시될 때만
+    branches: ['develop']
 
 jobs:
-  sync_develop:
+  build:
     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout upstream/develop
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+    container: pandoc/latex
 
-      - name: Push develop to personal fork
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install mustache (to update the date)
+        run: apk add ruby && gem install mustache
+      - name: creates output
+        run: sh ./build.sh
+      - name: Pushes to another repository
+        id: push_directory
         uses: cpina/github-action-push-to-another-repository@main
         env:
           API_TOKEN_GITHUB: ${{ secrets.AUTO_ACTIONS }}
         with:
-          source-directory: '.' # monorepo 루트 전체 복사
-          destination-github-username: DreamPaste # 포크된 계정
-          destination-repository-name: SOSO-Front-End # 포크된 레포
-          target-branch: develop # 포크의 develop 브랜치로
-          create-target-branch-if-needed: true
+          source-directory: 'output'
+          destination-github-username: DreamPaste
+          destination-repository-name: SOSO-Front-End
           user-email: ${{ secrets.OFFICIAL_ACCOUNT_EMAIL }}
-          commit-message: 'ci: sync develop @ ${{ github.sha }}'
+          commit-message: ${{ github.event.commits[0].message }}
+          target-branch: develop
+      - name: Test get variable exported by push-to-another-repository
+        run: echo $DESTINATION_CLONED_DIRECTORY
