@@ -2,26 +2,31 @@ name: Deploy
 
 on:
   push:
-    branches: [develop] # monore포 develop에 푸시될 때 동작
+    branches: ['develop']    # ← develop 브랜치에 푸시될 때 실행
 
 jobs:
-  sync_source:
+  build_and_sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Push source to personal fork for Vercel
+      - name: Run build script
+        run: sh ./build.sh
+
+      - name: Push to personal fork for Vercel
         uses: cpina/github-action-push-to-another-repository@main
-        env:
-          API_TOKEN_GITHUB: ${{ secrets.AUTO_ACTIONS }}
         with:
-          source-directory: '.' # monorepo 전체 소스
-          destination-github-username: DreamPaste # 개인 포크 사용자명
-          destination-repository-name: SOSO-Front-End # 개인 포크 repo명
+          token: ${{ secrets.AUTO_ACTIONS }}              # PAT을 token 입력으로 넘깁니다
+          source-directory: 'output'
+          destination-github-username: DreamPaste
+          destination-repository-name: SOSO-Front-End
           user-email: ${{ secrets.OFFICIAL_ACCOUNT_EMAIL }}
           commit-message: ${{ github.event.commits[0].message }}
-          target-branch: develop # fork의 develop 브랜치
-          create-target-branch-if-needed: true # 브랜치 없으면 생성
+          target-branch: develop                         # ← fork된 repo 의 develop 으로 푸시
+          create-target-branch-if-needed: true
+
+      - name: Debug pushed dir
+        run: echo "Cloned dir: $DESTINATION_CLONED_DIRECTORY"
