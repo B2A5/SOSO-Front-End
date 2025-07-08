@@ -3,7 +3,7 @@ name: Deploy via Fork to Vercel
 on:
   push:
     branches:
-      - develop  # develop 브랜치에 푸시될 때만 실행
+      - develop # develop 브랜치에 푸시될 때만 실행
 
 jobs:
   build_and_sync:
@@ -38,6 +38,3 @@ jobs:
           commit-message: ${{ github.event.commits[0].message }}
           target-branch: develop
           create-target-branch-if-needed: true
-
-      - name: Debug pushed dir
-        run: echo "Cloned dir: $DESTINATION_CLONED_DIRECTORY"
