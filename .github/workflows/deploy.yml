@@ -2,7 +2,7 @@ name: Deploy
 
 on:
   push:
-    branches: ['develop']    # ← develop 브랜치에 푸시될 때 실행
+    branches: ['develop'] # ← develop 브랜치에 푸시될 때 실행
 
 jobs:
   build_and_sync:
@@ -19,14 +19,11 @@ jobs:
       - name: Push to personal fork for Vercel
         uses: cpina/github-action-push-to-another-repository@main
         with:
-          token: ${{ secrets.AUTO_ACTIONS }}              # PAT을 token 입력으로 넘깁니다
+          token: ${{ secrets.AUTO_ACTIONS }} # PAT을 token 입력으로 넘깁니다
           source-directory: 'output'
           destination-github-username: DreamPaste
           destination-repository-name: SOSO-Front-End
           user-email: ${{ secrets.OFFICIAL_ACCOUNT_EMAIL }}
           commit-message: ${{ github.event.commits[0].message }}
-          target-branch: develop                         # ← fork된 repo 의 develop 으로 푸시
+          target-branch: develop # ← fork된 repo 의 develop 으로 푸시
           create-target-branch-if-needed: true
-
-      - name: Debug pushed dir
-        run: echo "Cloned dir: $DESTINATION_CLONED_DIRECTORY"
