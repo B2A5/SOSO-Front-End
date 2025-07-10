@@ -1,0 +1,24 @@
+name: PR branch guard
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+jobs:
+  check-branches:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate base/head
+        env:
+          BASE: ${{ github.event.pull_request.base.ref }}
+          HEAD: ${{ github.event.pull_request.head.ref }}
+        run: |
+          echo "Base=$BASE  Head=$HEAD"
+          # main 보호 – release/* or hotfix/* 만 허용
+          if [[ "$BASE" == "main" && ! "$HEAD" =~ ^(release|hotfix)/.+$ ]]; then
+            echo "❌ main 으로는 release/* 또는 hotfix/* PR만 허용됩니다."
+            exit 1
+          fi
+          # develop 보호 – feature/*|hotfix/*|release/* 만 허용
+          if [[ "$BASE" == "develop" && ! "$HEAD" =~ ^(feature|hotfix|release)/.+$ ]]; then
+            echo "❌ develop 으로는 feature/*·hotfix/*·release/* PR만 허용됩니다."
+            exit 1
+          fi
