@@ -1,36 +1,45 @@
 ---
-title: Welcome to Starlight
-description: Get started building your docs site with Starlight.
+title: SOSO FE Docs
+description: 지역 참여 커뮤니티 플랫폼 프론트엔드 개발 문서
 template: splash
 hero:
-  tagline: Congrats on setting up a new Starlight project!
-  image:
-    file: ../../assets/houston.webp
+  tagline: 주민과 지역을 연결하는 커뮤니티 플랫폼의 프론트엔드 개발 가이드
   actions:
-    - text: Example Guide
-      link: /guides/example/
+    - text: 시작하기
+      link: /start/installation/
       icon: right-arrow
-    - text: Read the Starlight docs
-      link: https://starlight.astro.build
+    - text: 문서 작성 가이드
+      link: /docs/guide/
       icon: external
       variant: minimal
 ---
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
 
-## Next steps
+## 🏘️ 프로젝트 개요
 
-<CardGrid stagger>
-	<Card title="Update content" icon="pencil">
-		Edit `src/content/docs/index.mdx` to see this page change.
+소소(SOSO)는 **지역 참여 커뮤니티**를 통해 주민들의 목소리를 듣고, **창업 아이템 제안 및 리포트**를 제공하며, **포인트 교환 상점**을 운영하는 통합 플랫폼입니다.
+
+## 📚 주요 문서
+
+<CardGrid>
+  <Card title="컴포넌트 가이드" icon="open-book" href="/components/guide">
+    각 기능별 컴포넌트 사용법과 Props API 문서
 	</Card>
-	<Card title="Add new content" icon="add-document">
-		Add Markdown or MDX files to `src/content/docs` to create new pages.
+
+<Card title="스타일 가이드" icon="paintbrush" href="/style/guide">
+  디자인 토큰, 색상, 타이포그래피 가이드
 	</Card>
-	<Card title="Configure your site" icon="setting">
-		Edit your `sidebar` and other config in `astro.config.mjs`.
+
+<Card title="배포 가이드" icon="rocket" href="/deployment/guide">
+  프로덕션 배포 및 CI/CD 파이프라인 설정
 	</Card>
-	<Card title="Read the docs" icon="open-book">
-		Learn more in [the Starlight Docs](https://starlight.astro.build/).
+
+  <Card title="문제 해결" icon="warning" href="/troubleshooting/common">
+    자주 발생하는 문제와 해결 방법
 	</Card>
 </CardGrid>
+
+---
+
+> 💡 **개발 팁**: 각 카드를 클릭하여 상세 문서로 이동할 수 있습니다. 개발 중 궁금한 점이 있다면 해당 섹션의 문서를 참고하세요.

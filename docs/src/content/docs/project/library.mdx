@@ -1,0 +1,599 @@
+---
+title: 라이브러리 가이드
+description: SOSO 프로젝트에서 사용하는 주요 라이브러리들의 선정 기준, 장단점, 핵심 기능 분석
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+# 📚 라이브러리 가이드
+
+SOSO 프로젝트에서 사용하는 주요 라이브러리들의 선정 기준과 핵심 기능을 분석합니다.
+
+## 🎯 라이브러리 선정 기준
+
+<CardGrid>
+  <Card title="🔄 생태계 호환성" >
+    **Next.js 14 + React 18 최적화**
+    - Server Components 지원
+    - TypeScript 네이티브 지원
+    - 트리 쉐이킹 지원
+    - 모바일 확장성 고려
+  </Card>
+  
+  <Card title="📦 성능 우선" >
+    **번들 크기 및 런타임 성능**
+    - 최소한의 런타임 오버헤드
+    - 코드 스플리팅 지원
+    - 캐싱 최적화
+    - 메모리 효율성
+  </Card>
+  
+  <Card title="🚀 개발 경험" >
+    **DX (Developer Experience)**
+    - 직관적인 API 설계
+    - 풍부한 TypeScript 지원
+    - 활발한 커뮤니티
+    - 학습 곡선 고려
+  </Card>
+  
+  <Card title="🛡️ 안정성" >
+    **장기 유지보수성**
+    - 활발한 업데이트 주기
+    - 보안 이슈 대응 속도
+    - 하위 호환성 보장
+    - 기업 지원 여부
+  </Card>
+</CardGrid>
+
+## 🎨 스타일링 - TailwindCSS 4
+
+### 선정 이유
+
+<CardGrid>
+  <Card title="✅ 장점" >
+    **성능 & 생산성**
+    - CSS 번들 크기 최적화 (사용하지 않는 클래스 제거)
+    - 디자인 시스템 일관성 보장
+    - 빠른 프로토타이핑 가능
+    - 반응형 디자인 간편 구현
+    - 커스터마이징 유연성
+  </Card>
+  
+  <Card title="❌ 단점" >
+    **학습 비용 & 제약**
+    - 초기 학습 곡선 존재
+    - HTML 클래스명 길어짐
+    - 디자이너와의 협업 시 소통 필요
+    - 복잡한 애니메이션 제한적
+  </Card>
+</CardGrid>
+
+### 핵심 기능
+
+
+  <Card title="🎯 유틸리티 퍼스트" >
+    **단일 목적 클래스**
+    ```html
+    <!-- 기본 버튼 -->
+    <button class="px-4 py-2 bg-blue-500 text-white rounded">
+      클릭
+    </button>
+    
+    <!-- 반응형 버튼 -->
+    <button class="px-2 py-1 md:px-4 md:py-2 lg:px-6 lg:py-3">
+      반응형
+    </button>
+    ```
+  </Card>
+  
+  <Card title="📱 반응형 시스템" >
+    **모바일 퍼스트 브레이크포인트**
+    ```html
+    <!-- 모바일: 전체 너비, 태블릿: 1/2, 데스크톱: 1/3 -->
+    <div class="w-full md:w-1/2 lg:w-1/3">
+      반응형 컨테이너
+    </div>
+    
+    <!-- 다크 모드 대응 -->
+    <div class="bg-white dark:bg-gray-800">
+      테마 대응
+    </div>
+    ```
+  </Card>
+  
+  <Card title="🎭 컴포넌트 변형" >
+    **class-variance-authority 연동**
+    ```tsx
+    const buttonVariants = cva(
+      'px-4 py-2 rounded transition-colors',
+      {
+        variants: {
+          variant: {
+            primary: 'bg-blue-500 hover:bg-blue-600',
+            danger: 'bg-red-500 hover:bg-red-600'
+          }
+        }
+      }
+    );
+    ```
+  </Card>
+  
+  <Card title="🔧 커스터마이징" >
+    **tailwind.config.js 설정**
+    ```js
+    module.exports = {
+      theme: {
+        extend: {
+          colors: {
+            soso: {
+              primary: '#4f46e5',
+              secondary: '#10b981'
+            }
+          }
+        }
+      }
+    };
+    ```
+  </Card>
+
+
+### TailwindCSS 4 주요 변경사항
+
+
+  <Card title="⚡ 성능 개선" >
+    **빌드 시간 단축**
+    - Rust 기반 엔진으로 10배 빠른 빌드
+    - 증분 빌드 지원
+    - 메모리 사용량 50% 감소
+  </Card>
+  
+  <Card title="🎯 새로운 엔진" >
+    **Oxide 엔진**
+    - CSS 파싱 및 생성 최적화
+    - 더 정확한 클래스 감지
+    - 향상된 에러 메시지
+  </Card>
+  
+  <Card title="📦 설정 간소화" >
+    **Zero-config 접근**
+    ```js
+    // tailwind.config.js - 더 간단해진 설정
+    export default {
+      content: ['./src/**/*.{html,js,ts,jsx,tsx}']
+    };
+    ```
+  </Card>
+  
+  <Card title="🆕 새로운 기능" >
+    **컨테이너 쿼리 지원**
+    ```html
+    <!-- 컨테이너 기반 반응형 -->
+    <div class="@container">
+      <div class="@md:grid-cols-2">
+        컨테이너 쿼리
+      </div>
+    </div>
+    ```
+  </Card>
+
+
+## 🔄 상태 관리 - Zustand
+
+### 선정 이유
+
+<CardGrid>
+  <Card title="✅ 장점" >
+    **간단함 & 성능**
+    - 보일러플레이트 최소화 (Redux 대비 90% 적은 코드)
+    - 번들 크기 작음 (2.4kb gzipped)
+    - TypeScript 완벽 지원
+    - React 18 Concurrent Features 지원
+    - 미들웨어 생태계 풍부
+  </Card>
+  
+  <Card title="❌ 단점" >
+    **기능 제약**
+    - Redux DevTools 제한적 지원
+    - 시간 여행 디버깅 어려움
+    - 복잡한 상태 로직 구조화 어려움
+    - 생태계가 Redux보다 작음
+  </Card>
+</CardGrid>
+
+### 핵심 기능
+
+  <Card title="🐻 기본 스토어">
+    **간단한 상태 생성**
+    ```tsx
+    const useStore = create((set) => ({
+      count: 0,
+      increment: () => set((state) => ({ 
+        count: state.count + 1 
+      }))
+    }));
+    ```
+  </Card>
+  
+  <Card title="💾 영구 저장" >
+    **persist 미들웨어**
+    ```tsx
+    const useAuthStore = create(
+      persist(
+        (set) => ({ user: null }),
+        { name: 'auth-storage' }
+      )
+    );
+    ```
+  </Card>
+  
+  <Card title="🎯 선택적 구독" >
+    **성능 최적화**
+    ```tsx
+    // 특정 값만 구독
+    const userName = useStore(state => state.user?.name);
+    
+    // 여러 값 구독 (shallow 비교)
+    const { user, isLoading } = useStore(
+      state => ({ user: state.user, isLoading: state.isLoading }),
+      shallow
+    );
+    ```
+  </Card>
+
+  <Card title="🔧 미들웨어">
+    **확장 기능**
+    ```tsx
+    const useStore = create(
+      devtools(
+        persist(
+          immer((set) => ({ /* state */ })),
+          { name: 'store' }
+        )
+      )
+    );
+    ```
+  </Card>
+
+
+## 🔍 서버 상태 - TanStack Query
+
+### 선정 이유
+
+<CardGrid>
+  <Card title="✅ 장점" >
+    **서버 상태 특화**
+    - 캐싱 자동화 (메모리 + 백그라운드 업데이트)
+    - 중복 요청 제거
+    - 낙관적 업데이트 지원
+    - 오프라인 지원
+    - 무한 스크롤 내장
+    - 에러 재시도 로직
+  </Card>
+  
+  <Card title="❌ 단점" >
+    **복잡성 증가**
+    - 학습 곡선 존재
+    - 캐시 무효화 전략 복잡
+    - 번들 크기 상대적으로 큼 (15kb)
+    - 과도한 추상화 가능성
+  </Card>
+</CardGrid>
+
+### 핵심 기능
+
+
+  <Card title="📊 쿼리">
+    **데이터 페칭**
+    ```tsx
+    const { data, isLoading, error } = useQuery({
+      queryKey: ['posts'],
+      queryFn: fetchPosts
+    });
+    ```
+  </Card>
+  
+  <Card title="✏️ 뮤테이션">
+    **데이터 변경**
+    ```tsx
+    const mutation = useMutation({
+      mutationFn: createPost,
+      onSuccess: () => {
+        queryClient.invalidateQueries(['posts']);
+      }
+    });
+    ```
+  </Card>
+  
+  <Card title="♾️ 무한 스크롤" >
+    **무한 쿼리**
+    ```tsx
+    const {
+      data,
+      fetchNextPage,
+      hasNextPage
+    } = useInfiniteQuery({
+      queryKey: ['posts'],
+      queryFn: fetchPosts,
+      getNextPageParam: (lastPage) => lastPage.nextCursor
+    });
+    ```
+  </Card>
+  
+  <Card title="⚡ 낙관적 업데이트" >
+    **즉시 UI 반영**
+    ```tsx
+    const mutation = useMutation({
+      mutationFn: updatePost,
+      onMutate: async (newPost) => {
+        // 캐시 즉시 업데이트
+        queryClient.setQueryData(['post', id], newPost);
+      }
+    });
+    ```
+  </Card>
+
+
+## 🌐 HTTP 클라이언트 - Axios
+
+### 선정 이유
+
+<CardGrid>
+  <Card title="✅ 장점">
+    **기능 풍부함**
+    - 요청/응답 인터셉터
+    - 자동 JSON 변환
+    - 타임아웃 설정
+    - 요청 취소 지원
+    - 브라우저/Node.js 호환
+    - 에러 처리 표준화
+  </Card>
+  
+  <Card title="❌ 단점">
+    **번들 크기**
+    - 네이티브 fetch보다 큼 (15kb)
+    - 오버엔지니어링 가능성
+    - 최신 웹 표준 대비 무거움
+  </Card>
+</CardGrid>
+
+### 핵심 기능
+
+<CardGrid>
+  <Card title="🔧 인스턴스 설정" >
+    **기본 설정**
+    ```tsx
+    const apiClient = axios.create({
+      baseURL: process.env.NEXT_PUBLIC_API_URL,
+      timeout: 10000
+    });
+    ```
+  </Card>
+  
+  <Card title="🔄 인터셉터" >
+    **요청/응답 처리**
+    ```tsx
+    // 요청 인터셉터
+    apiClient.interceptors.request.use(config => {
+      config.headers.Authorization = `Bearer ${token}`;
+      return config;
+    });
+    
+    // 응답 인터셉터
+    apiClient.interceptors.response.use(
+      response => response,
+      error => handleError(error)
+    );
+    ```
+  </Card>
+</CardGrid>
+
+## 🎭 유틸리티 라이브러리들
+
+### clsx + tailwind-merge
+
+<CardGrid>
+  <Card title="🔀 clsx" >
+    **조건부 클래스 결합**
+    ```tsx
+    import { clsx } from 'clsx';
+    
+    clsx(
+      'base-class',
+      condition && 'conditional-class',
+      { 'object-class': isActive }
+    );
+    ```
+    
+    **장점:** 직관적인 조건부 로직  
+    **단점:** Tailwind 중복 처리 안됨
+  </Card>
+
+  <Card title="🔄 tailwind-merge" >
+    **Tailwind 클래스 병합**
+    ```tsx
+    import { twMerge } from 'tailwind-merge';
+    
+    // 중복 클래스 자동 해결
+    twMerge('px-2 py-1 px-4') // 결과: 'py-1 px-4'
+    
+    // 조합 사용
+    const cn = (...inputs) => twMerge(clsx(inputs));
+    ```
+    
+    **장점:** Tailwind 충돌 해결  
+    **단점:** 번들 크기 약간 증가
+  </Card>
+</CardGrid>
+
+### class-variance-authority
+
+<CardGrid>
+  <Card title="🎨 CVA" >
+    **컴포넌트 변형 관리**
+    
+    **장점:**
+    - 타입 안전한 변형 정의
+    - 복합 변형 지원
+    - 기본값 설정 가능
+    
+    **단점:**
+    - 추가 학습 필요
+    - 과도한 추상화 위험
+    
+    ```tsx
+    const buttonVariants = cva('base-styles', {
+      variants: {
+        variant: { primary: 'bg-blue-500' },
+        size: { sm: 'px-2 py-1' }
+      }
+    });
+    ```
+  </Card>
+</CardGrid>
+
+### Lucide React
+
+<CardGrid>
+  <Card title="🎯 아이콘 라이브러리">
+    **선정 이유**
+    
+    **장점:**
+    - 1000+ 아이콘 제공
+    - 트리 쉐이킹 완벽 지원
+    - 일관된 디자인
+    - 커스터마이징 용이
+    
+    **단점:**
+    - 스타일이 제한적
+    - 특수 아이콘 부족
+    
+    ```tsx
+    import { MapPin, Heart } from 'lucide-react';
+    
+    <MapPin size={16} color="blue" />
+    ```
+  </Card>
+</CardGrid>
+
+## 🍪 기타 유틸리티
+
+### js-cookie
+
+<CardGrid>
+  <Card title="🍪 쿠키 관리" >
+    **선정 이유**
+    
+    **장점:**
+    - 간단한 API
+    - SSR 안전
+    - 만료 시간 설정 편리
+    
+    **단점:**
+    - 기본 기능만 제공
+    - 대안 가능 (document.cookie)
+    
+    ```tsx
+    import Cookies from 'js-cookie';
+    
+    Cookies.set('token', token, { expires: 7 });
+    const token = Cookies.get('token');
+    ```
+  </Card>
+</CardGrid>
+
+## 🧪 개발 도구
+
+### Vitest
+
+<CardGrid>
+  <Card title="⚡ 테스트 러너" >
+    **vs Jest 비교**
+    
+    **Vitest 장점:**
+    - Vite 기반으로 빠른 실행
+    - ESM 네이티브 지원
+    - TypeScript 즉시 지원
+    
+    **Vitest 단점:**
+    - 상대적으로 새로운 도구
+    - Jest 생태계보다 작음
+    
+    ```tsx
+    import { describe, it, expect } from 'vitest';
+    
+    describe('Button', () => {
+      it('renders correctly', () => {
+        // 테스트 코드
+      });
+    });
+    ```
+  </Card>
+</CardGrid>
+
+## 📊 라이브러리 선택 매트릭스
+
+| 라이브러리 | 번들 크기 | 학습 곡선 | TypeScript | 생태계 | 성능 | 총점 |
+|------------|-----------|-----------|------------|--------|------|------|
+| **TailwindCSS** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | **23/25** |
+| **Zustand** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | **23/25** |
+| **TanStack Query** | ⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | **20/25** |
+| **Axios** | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | **20/25** |
+
+## 🎯 모바일 확장 시 고려사항
+
+### React Native 호환성
+
+<CardGrid>
+  <Card title="✅ 재사용 가능" icon="reuse">
+    **Cross-Platform 라이브러리**
+    - Zustand (상태 관리)
+    - TanStack Query (서버 상태)
+    - Axios (HTTP 클라이언트)
+    - 공통 유틸리티 함수들
+  </Card>
+  
+  <Card title="🔄 대체 필요" icon="replace">
+    **플랫폼별 라이브러리**
+    - TailwindCSS → NativeWind
+    - Lucide React → React Native Vector Icons
+    - js-cookie → AsyncStorage
+    - DOM 관련 라이브러리들
+  </Card>
+</CardGrid>
+
+## 📈 성능 고려사항
+
+<CardGrid>
+  <Card title="📦 번들 최적화" icon="bundle">
+    **Tree Shaking 활용**
+    ```tsx
+    // ✅ 좋은 예
+    import { MapPin } from 'lucide-react';
+    import { create } from 'zustand';
+    
+    // ❌ 나쁜 예
+    import * as Icons from 'lucide-react';
+    import Zustand from 'zustand';
+    ```
+  </Card>
+  
+  <Card title="⚡ 런타임 최적화" icon="runtime">
+    **메모이제이션 활용**
+    ```tsx
+    // 선택적 구독으로 리렌더링 최소화
+    const userName = useStore(state => state.user?.name);
+    
+    // 쿼리 키 안정화
+    const queryKey = useMemo(() => ['posts', filters], [filters]);
+    ```
+  </Card>
+</CardGrid>
+
+---
+
+<div className="bg-green-50 border border-green-200 p-4 rounded-lg">
+  <strong>💡 핵심 원칙:</strong><br/>
+  라이브러리 선택 시 <strong>"문제 해결 능력 > 기능 풍부함"</strong>을 우선시합니다. 
+  각 라이브러리의 장단점을 명확히 이해하고, 프로젝트 요구사항과 
+  팀의 기술 수준에 맞는 <strong>적절한 추상화 레벨</strong>을 선택하는 것이 중요합니다.
+</div>

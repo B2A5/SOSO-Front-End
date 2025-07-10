@@ -12,8 +12,8 @@ export const metadata: Metadata = {
     maximumScale: 1,
     userScalable: false,
   },
-  themeColor: '#FEE500',
-  manifest: '/manifest.json',
+  themeColor: '#4CAF50', //tailwindcss green-500
+  //manifest: '/manifest.json',
   keywords: ['창업', '지역', '소상공인', '아이디어', '투표'],
   authors: [{ name: 'SOSO Team' }],
   appleWebApp: { capable: true, statusBarStyle: 'default', title: 'SoSo' },
@@ -31,8 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head />
       <body className="flex flex-col h-screen">
         <QueryProvider>
-          <main className="flex-1 overflow-auto">{children}</main>
-          {/* NAVBAR */}
+          <main className="w-full max-w-[640px] mx-auto flex-1 overflow-auto">{children}</main>
         </QueryProvider>
       </body>
     </html>

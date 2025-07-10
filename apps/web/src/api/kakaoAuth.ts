@@ -3,7 +3,7 @@ import apiClient from './axios';
 import type { KakaoLoginRequest, LoginResponse } from '@/types/auth';
 
 /**
- * 1) 카카오 인증 URL 생성
+ * 카카오 인증 URL 생성
  */
 export function buildKakaoAuthUrl(params: {
   clientId: string;

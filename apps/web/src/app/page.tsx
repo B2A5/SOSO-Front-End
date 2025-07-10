@@ -4,6 +4,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
+import LogoImage from '@/components/images/LogoImage';
 
 export default function HomePage() {
   const router = useRouter();
@@ -27,7 +28,7 @@ export default function HomePage() {
   // 인증 체크 중일 때 간단한 로딩
   return (
     <div className="flex items-center justify-center">
-      <div>스플래시 컴포넌트</div>
+      <LogoImage />
     </div>
   );
 }

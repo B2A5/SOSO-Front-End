@@ -3,7 +3,7 @@
 
 import { useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import KakaoLoginButton from '@/components/KakaoLoginButton';
+import KakaoLoginButton from '@/components/buttons/KakaoLoginButton';
 import { useAuthStore } from '@/stores/authStore';
 import { Route } from 'next';
 
