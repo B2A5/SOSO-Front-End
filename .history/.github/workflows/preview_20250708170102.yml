@@ -2,7 +2,7 @@ name: Preview
 
 on:
   pull_request:
-    branches: ['dev']
+    branches: ['develop']
 
 jobs:
   vercel-preview:

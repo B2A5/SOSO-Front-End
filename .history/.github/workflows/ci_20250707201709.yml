@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [dev] # 🚩 기본 브랜치
+    branches: [develop] # 🚩 기본 브랜치
   pull_request:
-    branches: [dev]
+    branches: [develop]
 
 jobs:
   ci:
