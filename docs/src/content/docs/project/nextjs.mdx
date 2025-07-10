@@ -1,0 +1,492 @@
+---
+title: Next.js와 App Router
+description: SOSO 프로젝트에서 사용하는 Next.js 14와 App Router의 핵심 개념과 활용법
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+
+SOSO 프로젝트는 **Next.js 14**와 **React 18**, **App Router**를 사용하여 현대적이고 성능 최적화된 웹 애플리케이션을 구축합니다.
+
+## 🚀 Next.js 14 주요 특징
+
+<CardGrid>
+  <Card title="⚡ 서버 컴포넌트" >
+    **React 18 기반**
+    - 서버 사이드 렌더링 최적화
+    - 번들 크기 자동 최적화
+    - SEO 친화적 구조
+  </Card>
+
+  <Card title="🎯 App Router" >
+    **파일 기반 라우팅**
+    - 직관적인 폴더 구조
+    - 레이아웃 중첩 지원
+    - 로딩/에러 상태 관리
+  </Card>
+
+  <Card title="🔥 Turbopack (개발)">
+    **빠른 개발 경험**
+    - Webpack 대비 빠른 HMR
+    - 개발 서버 즉시 시작
+    - 점진적 마이그레이션 지원
+  </Card>
+
+  <Card title="🛡️ 타입 안정성">
+    **TypeScript 네이티브**
+    - 자동 타입 생성
+    - 빌드 시점 에러 검출
+    - 개발자 경험 향상
+  </Card>
+</CardGrid>
+
+## 📁 SOSO 프로젝트 App Router 구조
+
+### 실제 폴더 구조
+
+```
+apps/web/src/app/
+├── 📄 layout.tsx           # 루트 레이아웃
+├── 📄 page.tsx             # 홈페이지 (/)
+├── 📄 globals.css          # 전역 스타일
+├── 🗂️ auth/                # 인증 관련 (/auth)
+│   ├── 📄 page.tsx         # /auth (로그인 메인)
+│   └── 🗂️ kakao/          # 카카오 로그인
+│       └── 📄 page.tsx     # /auth/kakao
+└── 🗂️ main/               # 메인 앱 영역
+    ├── 📄 layout.tsx       # 메인 레이아웃
+    ├── 📄 page.tsx         # /main (메인 대시보드)
+    └── 🗂️ community/      # 커뮤니티 기능
+        └── 📄 page.tsx     # /main/community
+```
+
+### App Router 핵심 개념
+
+App Router는 **폴더와 파일 이름으로 라우트를 결정**하는 시스템입니다.
+
+
+  <Card title="📄 page.tsx">
+    **페이지 컴포넌트**
+    
+    폴더에 `page.tsx`가 있으면 해당 경로로 접근 가능한 페이지가 됩니다.
+    
+    ```
+    app/page.tsx          → /
+    app/auth/page.tsx     → /auth
+    app/main/page.tsx     → /main
+    ```
+  </Card>
+  
+  <Card title="📄 layout.tsx" >
+    **레이아웃 컴포넌트**
+    
+    해당 폴더와 하위 폴더의 모든 페이지에 공통으로 적용되는 레이아웃입니다.
+    
+    ```tsx
+    // app/layout.tsx (모든 페이지에 적용)
+    export default function RootLayout({
+      children,
+    }: {
+      children: React.ReactNode;
+    }) {
+      return (
+        <html lang="ko">
+          <body>{children}</body>
+        </html>
+      );
+    }
+    ```
+  </Card>
+  
+  <Card title="🗂️ 폴더 = 경로" >
+    **URL 경로 생성**
+    
+    폴더 구조가 곧 URL 경로가 됩니다.
+    
+    ```
+    app/
+    ├── auth/
+    │   └── kakao/
+    │       └── page.tsx  → /auth/kakao
+    └── main/
+        ├── community/
+        │   └── page.tsx  → /main/community
+        └── page.tsx      → /main
+    ```
+  </Card>
+  
+  <Card title="🔄 자동 중첩" >
+    **레이아웃 중첩**
+    
+    상위 레이아웃이 하위 페이지를 자동으로 감쌉니다.
+    
+    `/main/community` 접속 시:
+    1. `app/layout.tsx` (루트)
+    2. `app/main/layout.tsx` (메인)
+    3. `app/main/community/page.tsx` (페이지)
+  </Card>
+
+
+## 🎯 서버 컴포넌트와 클라이언트 컴포넌트
+
+
+| 구분 | 서버 컴포넌트 | 클라이언트 컴포넌트 |
+|------|---------------|-------------------|
+| **실행 위치** | 서버에서 렌더링 | 브라우저에서 렌더링 |
+| **번들 크기** | ✅ 포함되지 않음 | ❌ 번들에 포함 |
+| **초기 로딩** | ✅ 빠름 (HTML 즉시 표시) | ❌ 느림 (JS 로드 후 렌더링) |
+| **SEO** | ✅ 완벽 지원 | ❌ 제한적 |
+| **인터랙션** | ❌ 불가능 | ✅ 가능 |
+| **상태 관리** | ❌ useState 불가 | ✅ useState, useEffect 등 |
+| **이벤트 핸들러** | ❌ onClick 등 불가 | ✅ 모든 이벤트 가능 |
+| **브라우저 API** | ❌ 접근 불가 | ✅ 접근 가능 |
+| **데이터 페칭** | ✅ 직접 DB/API 호출 | ✅ useQuery, fetch 등 |
+
+### 서버 컴포넌트 사용 시기
+
+
+  <Card title="📄 정적 콘텐츠" >
+    **데이터 표시가 주목적**
+    ```tsx
+    // app/main/community/page.tsx
+    import { getCommunityData } from '@/api/community';
+    
+    export default async function CommunityPage() {
+      // 서버에서 직접 데이터 페칭
+      const proposals = await getCommunityData();
+      
+      return (
+        <div>
+          <h1>커뮤니티 제안</h1>
+          {proposals.map(proposal => (
+            <div key={proposal.id}>
+              <h2>{proposal.title}</h2>
+              <p>{proposal.description}</p>
+            </div>
+          ))}
+        </div>
+      );
+    }
+    ```
+  </Card>
+  
+  <Card title="🎨 레이아웃" >
+    **공통 UI 구조**
+    ```tsx
+    // app/main/layout.tsx
+    import { Navigation } from '@/components/Navigation';
+    
+    export default function MainLayout({
+      children,
+    }: {
+      children: React.ReactNode;
+    }) {
+      return (
+        <div>
+          <Navigation />
+          <main>{children}</main>
+        </div>
+      );
+    }
+    ```
+  </Card>
+
+
+### 클라이언트 컴포넌트 사용 시기
+
+
+  <Card title="🔄 상태 관리" >
+    **useState, useEffect 필요**
+    ```tsx
+    // components/buttons/KakaoLoginButton.tsx
+    'use client';
+    
+    import { useState } from 'react';
+    import { useKakaoAuth } from '@/hooks/useKakaoAuth';
+    
+    export function KakaoLoginButton() {
+      const [isLoading, setIsLoading] = useState(false);
+      const { login } = useKakaoAuth();
+      
+      const handleLogin = async () => {
+        setIsLoading(true);
+        await login();
+        setIsLoading(false);
+      };
+      
+      return (
+        <button onClick={handleLogin} disabled={isLoading}>
+          {isLoading ? '로그인 중...' : '카카오 로그인'}
+        </button>
+      );
+    }
+    ```
+  </Card>
+  
+  <Card title="🖱️ 이벤트 처리" >
+    **사용자 인터랙션**
+    ```tsx
+    // components/buttons/Button.tsx
+    'use client';
+    
+    interface ButtonProps {
+      children: React.ReactNode;
+      onClick?: () => void;
+      variant?: 'primary' | 'secondary';
+    }
+    
+    export function Button({ children, onClick, variant = 'primary' }: ButtonProps) {
+      return (
+        <button 
+          onClick={onClick}
+          className={`btn btn-${variant}`}
+        >
+          {children}
+        </button>
+      );
+    }
+    ```
+  </Card>
+
+
+## 🏗️ SOSO 프로젝트 실제 구조 분석
+
+### 1. 루트 레이아웃 (app/layout.tsx)
+
+```tsx
+import { QueryProvider } from '@/providers/queryProvider';
+import './globals.css';
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="ko">
+      <body>
+        <QueryProvider>
+          {children}
+        </QueryProvider>
+      </body>
+    </html>
+  );
+}
+```
+
+**역할:**
+- 전체 HTML 구조 정의
+- React Query Provider 제공
+- 전역 스타일 적용
+
+### 2. 메인 레이아웃 (app/main/layout.tsx)
+
+```tsx
+import { Navigation } from '@/components/Navigation';
+
+export default function MainLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="min-h-screen">
+      <Navigation />
+      <main className="container mx-auto px-4 py-8">
+        {children}
+      </main>
+    </div>
+  );
+}
+```
+
+**역할:**
+- `/main` 하위 모든 페이지에 네비게이션 제공
+- 공통 레이아웃 스타일 적용
+
+### 3. 페이지 컴포넌트들
+
+```tsx
+// app/page.tsx - 홈페이지 (/)
+export default function HomePage() {
+  return (
+    <div>
+      <h1>SOSO에 오신 것을 환영합니다</h1>
+      <p>지역 커뮤니티 플랫폼</p>
+    </div>
+  );
+}
+
+// app/auth/page.tsx - 로그인 페이지 (/auth)
+import { KakaoLoginButton } from '@/components/buttons/KakaoLoginButton';
+
+export default function AuthPage() {
+  return (
+    <div className="flex min-h-screen items-center justify-center">
+      <div className="space-y-4">
+        <h1>로그인</h1>
+        <KakaoLoginButton />
+      </div>
+    </div>
+  );
+}
+
+// app/main/community/page.tsx - 커뮤니티 (/main/community)
+export default function CommunityPage() {
+  return (
+    <div>
+      <h1>지역 커뮤니티</h1>
+      <p>주민들의 목소리를 들어보세요</p>
+    </div>
+  );
+}
+```
+
+## 🔄 라우팅 흐름 이해
+
+### URL 접근 시 실행 순서
+
+1. **사용자가 `/main/community` 접속**
+
+2. **Next.js가 컴포넌트 트리 구성:**
+   ```
+   app/layout.tsx (RootLayout)
+   └── app/main/layout.tsx (MainLayout)  
+       └── app/main/community/page.tsx (CommunityPage)
+   ```
+
+3. **최종 렌더링 결과:**
+   ```tsx
+   <html lang="ko">
+     <body>
+       <QueryProvider>
+         <div className="min-h-screen">
+           <Navigation />
+           <main className="container mx-auto px-4 py-8">
+             <div>
+               <h1>지역 커뮤니티</h1>
+               <p>주민들의 목소리를 들어보세요</p>
+             </div>
+           </main>
+         </div>
+       </QueryProvider>
+     </body>
+   </html>
+   ```
+
+## 🎨 상태 관리와 데이터 페칭
+
+### 서버 컴포넌트에서 데이터 페칭
+
+```tsx
+// app/main/community/page.tsx
+import { getCommunityProposals } from '@/api/community';
+
+export default async function CommunityPage() {
+  // 서버에서 직접 데이터 페칭 (빌드 시 또는 요청 시)
+  const proposals = await getCommunityProposals();
+  
+  return (
+    <div>
+      <h1>커뮤니티 제안 ({proposals.length}개)</h1>
+      {proposals.map(proposal => (
+        <ProposalCard key={proposal.id} proposal={proposal} />
+      ))}
+    </div>
+  );
+}
+```
+
+### 클라이언트 컴포넌트에서 상태 관리
+
+```tsx
+// components/community/ProposalCard.tsx
+'use client';
+
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+
+export function ProposalCard({ proposalId }: { proposalId: string }) {
+  const [isVoting, setIsVoting] = useState(false);
+  
+  const { data: proposal } = useQuery({
+    queryKey: ['proposal', proposalId],
+    queryFn: () => getProposal(proposalId),
+  });
+  
+  const handleVote = async () => {
+    setIsVoting(true);
+    // 투표 처리 로직
+    setIsVoting(false);
+  };
+  
+  return (
+    <div>
+      <h3>{proposal?.title}</h3>
+      <button onClick={handleVote} disabled={isVoting}>
+        {isVoting ? '투표 중...' : '투표하기'}
+      </button>
+    </div>
+  );
+}
+```
+
+## 🛠️ 실제 프로젝트 적용 가이드
+
+### 1. 새 페이지 추가하기
+
+```bash
+# 1. 폴더 생성
+mkdir -p apps/web/src/app/main/startup
+
+# 2. 페이지 파일 생성
+touch apps/web/src/app/main/startup/page.tsx
+```
+
+```tsx
+// apps/web/src/app/main/startup/page.tsx
+export default function StartupPage() {
+  return (
+    <div>
+      <h1>창업 아이템</h1>
+      <p>AI가 추천하는 창업 아이템을 확인하세요</p>
+    </div>
+  );
+}
+```
+
+자동으로 `/main/startup` 경로로 접근 가능해집니다!
+
+### 2. 레이아웃 추가하기
+
+```tsx
+// apps/web/src/app/main/startup/layout.tsx
+export default function StartupLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <div className="bg-blue-50 p-4 mb-6">
+        <h2>창업 지원 센터</h2>
+      </div>
+      {children}
+    </div>
+  );
+}
+```
+
+`/main/startup` 하위 모든 페이지에 공통 헤더가 적용됩니다.
+
+### 3. 동적 라우트 (향후 확장)
+
+```
+app/main/community/
+├── page.tsx                    # /main/community
+└── [regionId]/                 # 동적 라우트
+    ├── page.tsx               # /main/community/seoul
+    └── proposals/
+        └── [id]/
+            └── page.tsx       # /main/community/seoul/proposals/123
+```

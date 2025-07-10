@@ -1,0 +1,632 @@
+---
+title: 코드 스타일 및 컨벤션
+description: SOSO 프로젝트의 코딩 표준, 네이밍 전략, 관심사 분리 방법론
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+SOSO 프로젝트의 일관된 코드 품질과 가독성을 위한 코딩 표준을 정의합니다.
+
+## 🎯 코딩 철학
+
+<CardGrid>
+  <Card title="🧩 관심사 분리" icon="puzzle">
+    **명확한 책임 분리**
+    - 비즈니스 로직과 UI 분리
+    - 상태 관리와 컴포넌트 분리
+    - API 호출과 데이터 처리 분리
+  </Card>
+  
+  <Card title="📖 가독성 우선" icon="open-book">
+    **읽기 쉬운 코드**
+    - 명확한 변수/함수명
+    - 적절한 주석과 문서화
+    - 일관된 코드 스타일
+  </Card>
+  
+  <Card title="🔄 재사용성" icon="recycle">
+    **DRY 원칙**
+    - 공통 컴포넌트 활용
+    - 유틸리티 함수 분리
+    - 타입 정의 공유
+  </Card>
+  
+  <Card title="🛡️ 타입 안정성" icon="shield">
+    **TypeScript 활용**
+    - 엄격한 타입 검사
+    - 런타임 에러 방지
+    - 개발자 경험 향상
+  </Card>
+</CardGrid>
+
+## 📁 프로젝트 구조 및 네이밍
+
+### 폴더 구조 (kebab-case)
+
+```
+apps/web/src/
+├── app/                    # Next.js 13+ App Router
+│   ├── (auth)/            # 라우트 그룹 (괄호)
+│   │   ├── login/
+│   │   └── signup/
+│   ├── community/         # 커뮤니티 기능
+│   ├── startup/           # 창업 아이템
+│   └── shop/              # 포인트 상점
+├── components/            # 공통 컴포넌트
+│   ├── Button/              # 버튼 컴포넌트
+│   ├── Modal/               # 모달 컴포넌트
+│   ├── Tooltip/             # 툴팁 컴포넌트
+│   └── Card/                # 카드 컴포넌트
+│
+├── hooks/                # 커스텀 훅
+├── stores/               # 상태 관리 (Zustand)
+├── services/             # API 서비스
+├── types/                # 타입 정의
+├── utils/                # 유틸리티 함수
+└── constants/            # 상수 정의
+```
+
+### 파일 네이밍 규칙
+[내 글 참고: 프론트엔드에서 좋은 이름 작성하기](https://velog.io/@dreampaste/%ED%94%84%EB%A1%A0%ED%8A%B8%EC%97%94%EB%93%9C%EC%97%90%EC%84%9C-%EC%A2%8B%EC%9D%80-%EC%9D%B4%EB%A6%84-%EC%9E%91%EC%84%B1%ED%95%98%EA%B8%B0)
+
+<CardGrid>
+  <Card title="컴포넌트 파일" icon="puzzle">
+    **PascalCase.tsx**
+    ```
+    Button.tsx
+    LoginForm.tsx
+    CommunityMap.tsx
+    VotingSystemCard.tsx
+    ```
+  </Card>
+  
+  <Card title="훅 파일" icon="setting">
+    **camelCase.ts**
+    ```
+    useAuth.ts
+    useLocalStorage.ts
+    useCommunityData.ts
+    useVotingSystem.ts
+    ```
+  </Card>
+  
+  <Card title="유틸리티/서비스" icon="wrench">
+    **camelCase.ts**
+    ```
+    apiClient.ts
+    dateUtils.ts
+    validationHelpers.ts
+    storageService.ts
+    ```
+  </Card>
+  
+  <Card title="타입 정의" icon="document">
+    **camelCase.types.ts**
+    ```
+    auth.types.ts
+    community.types.ts
+    api.types.ts
+    common.types.ts
+    ```
+  </Card>
+</CardGrid>
+
+### 상수 및 열거형
+
+```typescript
+// constants/routes.ts
+export const ROUTES = {
+  HOME: '/',
+  COMMUNITY: '/community',
+  STARTUP: '/startup',
+  SHOP: '/shop',
+  LOGIN: '/login',
+} as const;
+
+// constants/api.ts
+export const API_ENDPOINTS = {
+  AUTH: {
+    LOGIN: '/auth/login',
+    LOGOUT: '/auth/logout',
+    REFRESH: '/auth/refresh',
+  },
+  COMMUNITY: {
+    PROPOSALS: '/community/proposals',
+    VOTES: '/community/votes',
+  },
+} as const;
+
+// types/enums.ts
+export enum UserType {
+  RESIDENT = 'RESIDENT',
+  ENTREPRENEUR = 'ENTREPRENEUR',
+  ADMIN = 'ADMIN',
+}
+
+export enum ProposalStatus {
+  DRAFT = 'DRAFT',
+  ACTIVE = 'ACTIVE',
+  CLOSED = 'CLOSED',
+}
+```
+
+## 🔧 Airbnb 컨벤션 핵심 규칙
+
+### 기본 원칙
+
+SOSO 프로젝트는 **Airbnb JavaScript/React Style Guide**를 기반으로 합니다:
+
+```javascript
+// ✅ 좋은 예: 명확한 함수명과 구조
+const calculateVotingScore = (votes: Vote[], weights: WeightConfig): number => {
+  return votes.reduce((total, vote) => {
+    const weight = weights[vote.type] || 1;
+    return total + (vote.value * weight);
+  }, 0);
+};
+
+// ❌ 나쁜 예: 불명확한 변수명
+const calc = (v: any[], w: any): number => {
+  return v.reduce((t, x) => t + x.value * (w[x.type] || 1), 0);
+};
+```
+
+### React 컴포넌트 구조
+
+```tsx
+/**
+ * 커뮤니티 투표 카드 컴포넌트
+ * @param proposal - 제안 데이터
+ * @param onVote - 투표 처리 핸들러
+ * @param isLoading - 로딩 상태
+ */
+interface VotingCardProps {
+  proposal: Proposal;
+  onVote: (proposalId: string, voteType: VoteType) => Promise<void>;
+  isLoading?: boolean;
+}
+
+export function VotingCard({ 
+  proposal, 
+  onVote, 
+  isLoading = false 
+}: VotingCardProps) {
+  // 1. 상태 정의
+  const [isVoting, setIsVoting] = useState(false);
+  
+  // 2. 커스텀 훅
+  const { user } = useAuth();
+  const { mutate: submitVote } = useVoteMutation();
+  
+  // 3. 파생 상태 계산
+  const hasUserVoted = useMemo(() => 
+    proposal.votes.some(vote => vote.userId === user?.id)
+  , [proposal.votes, user?.id]);
+  
+  // 4. 이벤트 핸들러
+  const handleVote = useCallback(async (voteType: VoteType) => {
+    if (!user || hasUserVoted || isVoting) return;
+    
+    setIsVoting(true);
+    try {
+      await onVote(proposal.id, voteType);
+    } catch (error) {
+      console.error('Vote submission failed:', error);
+    } finally {
+      setIsVoting(false);
+    }
+  }, [user, hasUserVoted, isVoting, onVote, proposal.id]);
+  
+  // 5. JSX 반환
+  return (
+    <Card className="voting-card">
+      <CardHeader>
+        <h3>{proposal.title}</h3>
+        <Badge variant={proposal.status}>
+          {proposal.status}
+        </Badge>
+      </CardHeader>
+      
+      <CardContent>
+        <p>{proposal.description}</p>
+        
+        <div className="voting-actions">
+          <Button
+            onClick={() => handleVote(VoteType.AGREE)}
+            disabled={hasUserVoted || isLoading || isVoting}
+            variant="success"
+          >
+            찬성 ({proposal.agreeCount})
+          </Button>
+          
+          <Button
+            onClick={() => handleVote(VoteType.DISAGREE)}
+            disabled={hasUserVoted || isLoading || isVoting}
+            variant="danger"
+          >
+            반대 ({proposal.disagreeCount})
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+```
+
+### 네이밍 컨벤션
+
+```typescript
+// 변수명: camelCase
+const userProfile = getUserProfile();
+const isAuthenticated = checkAuthStatus();
+const communityProposals = fetchProposals();
+
+// 상수: SCREAMING_SNAKE_CASE
+const MAX_VOTE_COUNT = 100;
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+const DEFAULT_PAGINATION_SIZE = 20;
+
+// 함수명: 동사 + 명사 (camelCase)
+const fetchUserData = () => {};
+const validateFormInput = () => {};
+const calculateVotingScore = () => {};
+
+// 컴포넌트명: PascalCase
+const LoginForm = () => {};
+const CommunityMapView = () => {};
+const StartupItemCard = () => {};
+
+// 타입/인터페이스: PascalCase
+interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+}
+
+type VoteResult = 'AGREE' | 'DISAGREE' | 'ABSTAIN';
+
+// 제네릭: 단일 대문자 또는 명확한 이름
+interface ApiResponse<T> {
+  data: T;
+  success: boolean;
+  message?: string;
+}
+
+interface Repository<TEntity, TId = string> {
+  findById(id: TId): Promise<TEntity | null>;
+  create(entity: Omit<TEntity, 'id'>): Promise<TEntity>;
+}
+```
+
+## 📚 TypeScript 활용 가이드
+
+### 엄격한 타입 정의
+
+```typescript
+// ✅ 명확한 타입 정의
+interface CreateProposalRequest {
+  title: string;
+  description: string;
+  category: ProposalCategory;
+  regionCode: string;
+  attachments?: File[];
+}
+
+interface CreateProposalResponse {
+  proposal: Proposal;
+  message: string;
+}
+
+// API 함수 타입 정의
+const createProposal = async (
+  data: CreateProposalRequest
+): Promise<CreateProposalResponse> => {
+  const response = await apiClient.post('/community/proposals', data);
+  return response.data;
+};
+
+// ✅ Union 타입으로 명확한 상태 관리
+type LoadingState = 
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'success'; data: Proposal[] }
+  | { status: 'error'; error: string };
+
+// ✅ 유틸리티 타입 활용
+type UpdateProposalRequest = Partial<Pick<Proposal, 'title' | 'description'>>;
+type ProposalSummary = Omit<Proposal, 'content' | 'attachments'>;
+```
+
+### 커스텀 훅 타입 정의
+
+```typescript
+/**
+ * 커뮤니티 데이터 관리 훅
+ * @param regionCode - 지역 코드
+ * @returns 커뮤니티 데이터와 관련 함수들
+ */
+interface UseCommunityDataReturn {
+  proposals: Proposal[];
+  votes: Vote[];
+  isLoading: boolean;
+  error: string | null;
+  createProposal: (data: CreateProposalRequest) => Promise<void>;
+  submitVote: (proposalId: string, voteType: VoteType) => Promise<void>;
+  refetch: () => Promise<void>;
+}
+
+export function useCommunityData(regionCode: string): UseCommunityDataReturn {
+  // 구현...
+}
+
+// 사용법
+const CommunityPage = () => {
+  const { 
+    proposals, 
+    isLoading, 
+    createProposal,
+    submitVote 
+  } = useCommunityData('seoul-gangnam');
+  
+  // ...
+};
+```
+
+## 🏗️ 관심사 분리 방법론
+
+### 1. 컴포넌트 계층 분리
+
+```typescript
+// ✅ 프레젠테이션 컴포넌트 (UI만 담당)
+interface ProposalCardProps {
+  proposal: Proposal;
+  onVote: (voteType: VoteType) => void;
+  isVoting: boolean;
+}
+
+export function ProposalCard({ proposal, onVote, isVoting }: ProposalCardProps) {
+  return (
+    <Card>
+      <h3>{proposal.title}</h3>
+      <p>{proposal.description}</p>
+      <div>
+        <Button 
+          onClick={() => onVote('AGREE')} 
+          disabled={isVoting}
+        >
+          찬성
+        </Button>
+        <Button 
+          onClick={() => onVote('DISAGREE')} 
+          disabled={isVoting}
+        >
+          반대
+        </Button>
+      </div>
+    </Card>
+  );
+}
+
+// ✅ 컨테이너 컴포넌트 (로직 담당)
+export function ProposalCardContainer({ proposalId }: { proposalId: string }) {
+  const { proposal, isLoading } = useProposal(proposalId);
+  const { submitVote, isVoting } = useVoting();
+  
+  const handleVote = async (voteType: VoteType) => {
+    await submitVote(proposalId, voteType);
+  };
+  
+  if (isLoading) return <ProposalCardSkeleton />;
+  if (!proposal) return <div>제안을 찾을 수 없습니다.</div>;
+  
+  return (
+    <ProposalCard 
+      proposal={proposal}
+      onVote={handleVote}
+      isVoting={isVoting}
+    />
+  );
+}
+```
+
+### 2. 비즈니스 로직 분리
+
+```typescript
+// services/communityService.ts - 비즈니스 로직
+export class CommunityService {
+  /**
+   * 유사한 제안 검색
+   * @param content - 제안 내용
+   * @returns 유사한 제안 목록
+   */
+  async findSimilarProposals(content: string): Promise<Proposal[]> {
+    const response = await apiClient.post('/community/proposals/similar', {
+      content,
+      threshold: 0.8,
+    });
+    return response.data.proposals;
+  }
+  
+  /**
+   * 제안 생성 전 검증
+   * @param data - 제안 데이터
+   * @throws {ValidationError} 검증 실패 시
+   */
+  async validateProposal(data: CreateProposalRequest): Promise<void> {
+    const similarProposals = await this.findSimilarProposals(data.description);
+    
+    if (similarProposals.length > 0) {
+      throw new ValidationError(
+        '유사한 제안이 이미 존재합니다.',
+        { similarProposals }
+      );
+    }
+  }
+  
+  /**
+   * 투표 권한 검증
+   * @param userId - 사용자 ID
+   * @param proposalId - 제안 ID
+   */
+  async canUserVote(userId: string, proposalId: string): Promise<boolean> {
+    const [userVotes, proposal] = await Promise.all([
+      this.getUserVotes(userId, proposalId),
+      this.getProposal(proposalId),
+    ]);
+    
+    return userVotes.length === 0 && proposal.status === 'ACTIVE';
+  }
+}
+
+// hooks/useCommunityService.ts - 서비스 연결
+export function useCommunityService() {
+  const service = useMemo(() => new CommunityService(), []);
+  
+  const createProposal = useMutation({
+    mutationFn: async (data: CreateProposalRequest) => {
+      await service.validateProposal(data);
+      return service.createProposal(data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['proposals']);
+    },
+  });
+  
+  return {
+    createProposal,
+    findSimilarProposals: service.findSimilarProposals.bind(service),
+  };
+}
+```
+
+### 3. 상태 관리 분리
+
+```typescript
+// stores/authStore.ts - 인증 상태
+interface AuthState {
+  user: User | null;
+  isAuthenticated: boolean;
+  token: string | null;
+}
+
+interface AuthActions {
+  login: (credentials: LoginCredentials) => Promise<void>;
+  logout: () => void;
+  refreshToken: () => Promise<void>;
+  updateProfile: (data: Partial<User>) => Promise<void>;
+}
+
+export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
+  user: null,
+  isAuthenticated: false,
+  token: null,
+  
+  login: async (credentials) => {
+    const response = await authService.login(credentials);
+    set({
+      user: response.user,
+      token: response.token,
+      isAuthenticated: true,
+    });
+  },
+  
+  logout: () => {
+    authService.logout();
+    set({
+      user: null,
+      token: null,
+      isAuthenticated: false,
+    });
+  },
+  
+  // ...기타 액션들
+}));
+
+// stores/communityStore.ts - 커뮤니티 상태  
+interface CommunityState {
+  currentRegion: string;
+  proposals: Proposal[];
+  votes: Vote[];
+  filters: ProposalFilters;
+}
+
+export const useCommunityStore = create<CommunityState>((set) => ({
+  currentRegion: '',
+  proposals: [],
+  votes: [],
+  filters: {
+    category: 'ALL',
+    status: 'ACTIVE',
+    sortBy: 'RECENT',
+  },
+  
+  setCurrentRegion: (region: string) => set({ currentRegion: region }),
+  setFilters: (filters: Partial<ProposalFilters>) => 
+    set((state) => ({ 
+      filters: { ...state.filters, ...filters } 
+    })),
+}));
+```
+
+## 🎨 코드 포맷팅 및 린팅
+
+- ESLint + Prettier 
+-  자동 포맷팅 (Husky + lint-staged)
+
+
+
+## 📝 JSDoc 주석 가이드
+
+```typescript
+/**
+ * 커뮤니티 제안을 생성합니다.
+ * 
+ * @param data - 제안 생성 데이터
+ * @param data.title - 제안 제목 (최대 100자)
+ * @param data.description - 제안 설명 (최대 1000자)
+ * @param data.category - 제안 카테고리
+ * @param data.regionCode - 지역 코드 (예: 'seoul-gangnam')
+ * @param options - 추가 옵션
+ * @param options.validateSimilar - 유사 제안 검증 여부 (기본값: true)
+ * @returns 생성된 제안 정보
+ * @throws {ValidationError} 제안 데이터가 유효하지 않은 경우
+ * @throws {DuplicateError} 유사한 제안이 이미 존재하는 경우
+ * @example
+ * ```typescript
+ * const proposal = await createProposal({
+ *   title: '공원에 운동기구 설치',
+ *   description: '주민들의 건강을 위해...',
+ *   category: 'INFRASTRUCTURE',
+ *   regionCode: 'seoul-gangnam'
+ * });
+ * ```
+ */
+export async function createProposal(
+  data: CreateProposalRequest,
+  options: CreateProposalOptions = {}
+): Promise<Proposal> {
+  // 구현...
+}
+
+/**
+ * 투표 시스템 관리 훅
+ * 
+ * @param proposalId - 제안 ID
+ * @returns 투표 관련 상태와 함수들
+ * @example
+ * ```tsx
+ * function VotingComponent({ proposalId }) {
+ *   const { votes, submitVote, isLoading } = useVoting(proposalId);
+ *   
+ *   return (
+ *     <button onClick={() => submitVote('AGREE')}>
+ *       찬성 ({votes.agreeCount})
+ *     </button>
+ *   );
+ * }
+ * ```
+ */
+export function useVoting(proposalId: string) {
+  // 구현...
+}
+```

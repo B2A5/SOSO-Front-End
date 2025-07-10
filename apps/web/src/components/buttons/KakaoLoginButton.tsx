@@ -2,7 +2,7 @@
 'use client';
 
 import { useKakaoAuth } from '@/hooks/useKakaoAuth';
-
+import Image from 'next/image';
 interface KakaoLoginButtonProps {
   className?: string;
   children?: React.ReactNode;
@@ -12,17 +12,17 @@ interface KakaoLoginButtonProps {
  * PKCE 적용된 카카오 로그인 버튼
  */
 export default function KakaoLoginButton({ children = '카카오로 로그인' }: KakaoLoginButtonProps) {
-  const { startKakaoLogin, isKakaoLoginPending } = useKakaoAuth();
+  const { startKakaoLogin, isKakaoLoginPending: isPending } = useKakaoAuth();
 
   return (
-    <button type="button" onClick={startKakaoLogin} disabled={isKakaoLoginPending}>
-      {isKakaoLoginPending ? (
+    <button type="button" onClick={startKakaoLogin} disabled={isPending} className="relative h-12">
+      {isPending ? (
         <>
-          <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin mr-2" />
+          <div />
           로그인 중...
         </>
       ) : (
-        <>{children}</>
+        <Image src="/icons/KakaoLoginImage.svg" alt={`${children}`} fill className="" />
       )}
     </button>
   );

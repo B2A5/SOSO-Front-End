@@ -9,7 +9,7 @@ import type {
 } from '@/types/auth';
 
 /**
- * 인증 API 클라이언트 (Axios 기반)
+ * 인증 API 클라이언트
  */
 class AuthApi {
   /**
