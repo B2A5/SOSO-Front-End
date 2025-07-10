@@ -1,7 +1,5 @@
 /* 1) reset(Preflight) 불러오기 */
 @import 'tailwindcss/preflight';
-@import /* 2) utilities 레이어만 사용 */ @tailwind
-  utilities;
 
 /* ─── 전역 Base 레이어 ───────────────────────────────────────────────── */
 @layer base {
