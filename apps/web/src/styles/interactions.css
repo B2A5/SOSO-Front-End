@@ -1,0 +1,23 @@
+/* apps/web/src/styles/interaction.css */
+@tailwind utilities;
+
+/* ─── 인터랙션 공통 클래스 ───────────────────────── */
+@layer utilities {
+  .interactive {
+    transition-property: transform;
+    transition-duration: theme(
+      'transitionDuration.tap'
+    );
+    transition-timing-function: theme(
+      'transitionTimingFunction.spring-out'
+    );
+  }
+
+  /* 시스템 접근성: 모션 최소화 */
+  @media (prefers-reduced-motion: reduce) {
+    .interactive {
+      transition: none !important; /* ★ */
+      transform: none !important;
+    }
+  }
+}

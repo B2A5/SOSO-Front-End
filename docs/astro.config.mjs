@@ -28,18 +28,57 @@ export default defineConfig({
         {
           label: '시작하기',
           items: [
-            { label: '환경 설정 및 실행', slug: 'start/installation' },
-            { label: '워크플로우', slug: 'start/workflow' },
-            { label: '코드 스타일 및 컨벤션', slug: 'start/codestyle' },
+            {
+              label: '환경 설정 및 실행',
+              slug: 'start/installation',
+            },
+            {
+              label: '워크플로우',
+              slug: 'start/workflow',
+            },
+            {
+              label: '코드 스타일 및 컨벤션',
+              slug: 'start/codestyle',
+            },
           ],
         },
         {
           label: '프로젝트 이해하기',
           items: [
-            { label: '모노레포 구조', slug: 'project/monorepo' },
-            { label: 'Next.js와 App Router', slug: 'project/nextjs' },
-            { label: '라이브러리 및 프레임워크', slug: 'project/library' },
-            { label: '상태 관리', slug: 'project/state' },
+            {
+              label: '모노레포 구조',
+              slug: 'project/monorepo',
+            },
+            {
+              label: 'Next.js와 App Router',
+              slug: 'project/nextjs',
+            },
+            {
+              label: '라이브러리 및 프레임워크',
+              slug: 'project/library',
+            },
+            {
+              label: '상태 관리',
+              slug: 'project/state',
+            },
+          ],
+        },
+        {
+          label: '주요 라이브러리 학습하기',
+          items: [
+            {
+              label: 'tailwind',
+              slug: 'library/tailwind',
+            },
+          ],
+        },
+        {
+          label: '개발 로그',
+          items: [
+            {
+              label: '폰트 최적화',
+              slug: 'log/font_optimization',
+            },
           ],
         },
         // {

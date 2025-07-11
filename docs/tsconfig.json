@@ -5,7 +5,8 @@
     ".astro/types.d.ts",
     "src/**/*", // ← 여기서 src 경로를 명확히
     "*.config.mjs", // 설정 파일도 타입 체크 대상에 넣거나
-    "*.config.js"
+    "*.config.js",
+    "../apps/web/src/app/hoc"
   ],
   "exclude": ["dist", "node_modules"]
 }

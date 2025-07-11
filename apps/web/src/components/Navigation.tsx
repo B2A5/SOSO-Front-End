@@ -12,11 +12,16 @@ interface BottomNavigationProps {
 /**
  * 하단 네비게이션 바 컴포넌트
  */
-export function Navigation({ currentPath }: BottomNavigationProps) {
+export function Navigation({
+  currentPath,
+}: BottomNavigationProps) {
   // 현재 경로에 따라 활성화된 네비게이션 아이템을 결정하는 함수
   const isActive = (href: string): boolean => {
     if (href === '/main/community') {
-      return currentPath === '/main' || currentPath === '/main/community';
+      return (
+        currentPath === '/main' ||
+        currentPath === '/main/community'
+      );
     }
     return currentPath === href;
   };
@@ -24,24 +29,30 @@ export function Navigation({ currentPath }: BottomNavigationProps) {
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
       <div className="flex items-center justify-around h-16 px-4">
-        {NAVIGATION_ITEMS.map(({ href, label, icon: Icon }) => {
-          const active = isActive(href);
+        {NAVIGATION_ITEMS.map(
+          ({ href, label, icon: Icon }) => {
+            const active = isActive(href);
 
-          return (
-            <Link
-              key={href}
-              href={href as Route<string>} // 타입 이슈 해결
-              className={`
+            return (
+              <Link
+                key={href}
+                href={href as Route<string>} // 타입 이슈 해결
+                className={`
                 flex flex-col items-center justify-center gap-1 py-2 px-3 rounded-lg
                 transition-colors duration-200 min-w-0 flex-1
                 ${active ? 'text-yellow-500' : 'text-gray-500 hover:text-gray-700'}
               `}
-            >
-              <Icon className={`w-5 h-5 ${active ? 'fill-current' : ''}`} />
-              <span className="text-xs font-medium truncate">{label}</span>
-            </Link>
-          );
-        })}
+              >
+                <Icon
+                  className={`w-5 h-5 ${active ? 'fill-current' : ''}`}
+                />
+                <span className="text-xs font-medium truncate">
+                  {label}
+                </span>
+              </Link>
+            );
+          },
+        )}
       </div>
     </nav>
   );

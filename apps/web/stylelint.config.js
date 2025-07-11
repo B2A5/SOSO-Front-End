@@ -1,21 +1,11 @@
+/** apps/web/.stylelintrc.cjs */
 module.exports = {
-  extends: ['stylelint-config-recommended'],
+  extends: [
+    'stylelint-config-standard',
+    'stylelint-config-tailwindcss', // 👈 플러그인+규칙 모두 포함
+    'stylelint-config-prettier', // (선택) Prettier와 충돌 제거
+  ],
   rules: {
-    // Tailwind의 at-rule을 무시
-    'at-rule-no-unknown': [
-      true,
-      {
-        ignoreAtRules: [
-          'import',
-          'tailwind',
-          'layer',
-          'apply',
-          'variants',
-          'responsive',
-          'screen',
-          'theme',
-        ],
-      },
-    ],
+    'selector-class-pattern': null,
   },
 };

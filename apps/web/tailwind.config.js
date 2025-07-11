@@ -1,4 +1,6 @@
 // apps/web/tailwind.config.js
+import plugin from 'tailwindcss/plugin';
+
 const tailwindConfig = {
   content: [
     './src/**/*.{ts,tsx}', // 앱 소스
@@ -15,10 +17,19 @@ const tailwindConfig = {
       },
       fontSize: {
         xs: ['0.75rem', { lineHeight: '1rem' }],
-        sm: ['0.875rem', { lineHeight: '1.25rem' }],
+        sm: [
+          '0.875rem',
+          { lineHeight: '1.25rem' },
+        ],
         base: ['1rem', { lineHeight: '1.5rem' }],
-        lg: ['1.125rem', { lineHeight: '1.75rem' }],
-        xl: ['1.25rem', { lineHeight: '1.75rem' }],
+        lg: [
+          '1.125rem',
+          { lineHeight: '1.75rem' },
+        ],
+        xl: [
+          '1.25rem',
+          { lineHeight: '1.75rem' },
+        ],
         '2xl': ['1.5rem', { lineHeight: '2rem' }],
         // ...필요한 사이즈 추가
       },
@@ -50,7 +61,26 @@ const tailwindConfig = {
           1000: '#1A1A1A',
         },
       },
+      /* ── 애니메이션 토큰 ───────────────────────── */
+      transitionTimingFunction: {
+        'spring-out': spring,
+      },
+      transitionDuration: {
+        tap: '100ms',
+        release: '150ms', // (release를 쓸 경우 대비)
+      },
+      scale: {
+        tap: '0.96',
+      },
     },
   },
+  plugins: [
+    /* ── tap: variant 정의 ──────────────────────── */
+    plugin(({ addVariant }) => {
+      addVariant('tap', [
+        '&:is(:active,[data-pressed="true"])',
+      ]);
+    }),
+  ],
 };
 export default tailwindConfig;
