@@ -1,0 +1,56 @@
+@import 'tailwindcss';
+@import './variables.css'; /* 토큰 먼저 */
+
+/* ─ 전역 reset/base ─ */
+@layer base {
+  *,
+  ::before,
+  ::after {
+    box-sizing: border-box;
+  }
+
+  :focus {
+    outline: 2px solid var(--color-green-500);
+    outline-offset: 2px;
+  }
+
+  html {
+    font-family: var(--font-sans);
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: var(--color-background, #fff);
+    color: var(--color-foreground, #000);
+  }
+
+  a {
+    color: var(--color-green-500);
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--color-green-500);
+    border-radius: 4px;
+  }
+}
+
+/* ─ 컴포넌트 헬퍼 ─ */
+@layer components {
+  .btn-primary {
+    @apply px-4 py-2 rounded-lg text-white bg-green-500 tap:scale-tap;
+
+    transition:
+      transform var(--tap),
+      box-shadow 0.15s ease-out;
+  }
+}
