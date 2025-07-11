@@ -69,6 +69,8 @@ export default defineConfig({
             {
               label: 'tailwind',
               slug: 'library/tailwind',
+            },
+          ],
         },
         {
           label: '개발 로그',

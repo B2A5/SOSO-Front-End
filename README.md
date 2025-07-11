@@ -1,17 +1,171 @@
-# SOSO-Front-End
+SOSO 프론트엔드 개발환경을 설정하고 프로젝트를 실행하는 방법을 안내합니다.
 
-## 프로젝트 초기 설정
+- 배포 링크 : https://soso-front-end-web.vercel.app/
 
-| #      | 항목                            | 세부 작업                                                                                                                                                                                                                                                                                                                                                                                              |
-| ------ | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **1**  | **루트 구조**                   | ✔︎ `pnpm-workspace.yaml`, `turbo.json` 최신 형식 작성                                                                                                                                                                                                                                                                                                                                                 |
-| **2**  | **웹 앱 스캐폴딩**              | ✔︎ `apps/web` Next 15 + TS + Tailwind + App Router + Turbopack 생성                                                                                                                                                                                                                                                                                                                                   |
-| **3**  | **워크스페이스 `package.json`** | ✔︎ `apps/web/package.json` ← Next CLI가 자동 생성<br>▷ `packages/ui`, `packages/api`, `packages/utils` 에도 빈 `package.json` 추가<br> `json<br> { "name": "@soso/ui", "version": "0.0.0", "private": true }<br> `                                                                                                                                                                                    |
-| **4**  | **공통 TS 설정**                | ✔︎ `tools/typescript-config/tsconfig.base.json` 생성<br> `json<br> { "compilerOptions": { "target": "ES2022", "module": "ESNext", "strict": true, "moduleResolution": "node", "jsx": "react-jsx" } }<br> `<br>▷ 각 워크스페이스 `tsconfig.json`에서 `extends: "../../tools/typescript-config/tsconfig.base.json"`                                                                                     |
-| **5**  | **ESLint + Prettier 패키지화**  | ✔︎ `tools/eslint-config/index.js`<br> `js\nmodule.exports = { extends: ['next', 'airbnb', 'airbnb-typescript', 'prettier'], rules: { 'react/react-in-jsx-scope': 'off' } };\n`<br>✔︎ 루트 `package.json` devDeps에 `eslint`, `@typescript-eslint/*`, `eslint-config-airbnb`, `prettier` 등 추가<br>✔︎ 각 워크스페이스 `eslint.config.js` → `module.exports = require('../../tools/eslint-config');` |
-| **6**  | **Husky + lint-staged**         | ▷ `pnpm dlx husky-init && pnpm add -D lint-staged`<br>▷ `.husky/pre-commit`: `pnpm lint-staged`<br>▷ 루트 `package.json` 추가<br> `json\n\"lint-staged\": {\n  \"*.{js,ts,tsx}\": \"eslint --fix\",\n  \"*.{json,md,css}\": \"prettier --write\"\n}\n`                                                                                                                                                 |
-| **7**  | **Tailwind 전역 preset**        | ▷ `packages/config/tailwind-preset/tailwind.config.js` 만들고 `module.exports = { theme:{}, plugins:[] };`<br>▷ `apps/web/tailwind.config.ts`에서 `preset: [require('../../packages/config/tailwind-preset')]`                                                                                                                                                                                         |
-| **8**  | **Turbo tasks 연결**            | ▷ 루트 `package.json` `scripts` 완성<br> `json\n\"scripts\": {\n  \"dev\": \"turbo run dev --parallel\",\n  \"build\": \"turbo run build\",\n  \"lint\": \"turbo run lint\",\n  \"test\": \"turbo run test\"\n}\n`<br>▷ `apps/web/package.json` `scripts.dev` 이미 있음 → Turbo가 인식                                                                                                                 |
-| **9**  | **GitHub CI (front-end)**       | ▷ `.github/workflows/ci.yml`<br> `yaml\nname: CI\non: [push, pull_request]\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: pnpm/action-setup@v2\n        with: { version: 9 }\n      - run: pnpm install --frozen-lockfile\n      - run: pnpm turbo run lint test build --filter=...\n`                                                     |
-| **10** | **Vercel 연동**                 | ▷ 대시보드 → Import ➡ Root `apps/web` 선택<br> Build = `pnpm turbo run build --filter=web`<br> Output = `apps/web/.next`                                                                                                                                                                                                                                                                              |
-| **11** | **Git flow 시작**               | ▷ `develop` 브랜치로 push → `main-protection`, `develop-protection` 룰셋 설정<br>▷ `feat/initial-setup` 브랜치에서 위 설정 파일들 커밋 후 PR                                                                                                                                                                                                                                                           |
+## 📋 사전 요구사항
+
+개발을 시작하기 전에 다음 도구들이 설치되어 있어야 합니다!
+
+#### Node.js 20+
+
+    **필수 버전:** 20.0.0 이상
+
+#### pnpm 9+
+
+    **권장 패키지 매니저** 빠른 설치와 워크스페이스 지원
+
+## 🛠️ 개발 환경 설정
+
+### 1. 레포지토리 클론
+
+```bash
+# HTTPS로 클론
+git clone https://github.com/B2A5/SOSO-Front-End.git
+cd SOSO-Front-End
+```
+
+### 2. pnpm 설치
+
+**npm으로 설치:**
+
+```bash
+npm install -g pnpm@9
+```
+
+**Corepack 사용 (추천):**
+
+```bash
+# Node.js 16.14+ 에 포함된 Corepack 활성화
+corepack enable
+corepack prepare pnpm@9.15.9 --activate
+```
+
+### 3. 의존성 설치
+
+```bash
+# 프로젝트 루트에서 실행
+pnpm install --frozen-lockfile
+```
+
+:::tip[frozen-lockfile이란?]
+`--frozen-lockfile` 옵션은 `pnpm-lock.yaml` 파일을 수정하지 않고 정확히 그 내용대로 설치합니다.
+팀원 간 동일한 의존성 버전을 보장하기 위해 사용합니다.
+:::
+
+### 4. 환경 변수 설정
+
+```bash
+# 웹 앱 환경 변수 파일 생성
+apps/web/.env.local
+```
+
+<div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
+  <strong>⚠️ 주의:</strong> <code>.env.local</code> 파일에 실제 API 키와 설정값을 입력하세요.(FE
+  팀장에게 문의)
+</div>
+
+## 🏃‍♂️ 개발 서버 실행
+
+### 전체 프로젝트 실행
+
+```bash
+# 모든 워크스페이스 개발 서버 동시 실행
+pnpm dev
+```
+
+### 특정 앱만 실행
+
+**웹 앱만 실행:**
+
+```bash
+pnpm --filter web dev
+# 또는
+cd apps/web && pnpm dev
+```
+
+**문서 사이트만 실행:**
+
+```bash
+pnpm --filter docs dev
+# 또는
+cd docs && pnpm dev
+```
+
+실행 후 다음 주소로 접속할 수 있습니다:
+
+- **웹 앱**: [http://localhost:3000](http://localhost:3000)
+- **문서 사이트**: [http://localhost:4321](http://localhost:4321)
+- ...이후 vercel 배포 링크 추가 예정
+
+## 📁 프로젝트 구조 개요
+
+```
+SOSO-Front-End/
+├── apps/
+│   ├── mobile/              # 이후 RN Expo로 개발 예정
+│   └── web/                 # Next.js 14 + React 18 메인 웹 앱
+│
+├── docs/                    # 프론트엔드 문서 사이트 (astro 기반)
+│
+├── packages/                # 추후 앱도 개발할 경우 추상화를 진행합니다.
+│   ├── ui/                  # 공유 UI 컴포넌트(예정)
+│   ├── api/                 # API 클라이언트(예정)
+│   ├── utils/               # 공통 유틸리티(예정)
+│   └── 등등등/               # 추가로 추상화 가능한 목록들...
+│
+├── pnpm-workspace.yaml      # pnpm 워크스페이스 설정
+├── turbo.json              # Turbo 빌드 설정
+├── build.sh                # Vercel Preview용 빌드 스크립트
+└── package.json            # 루트 패키지 설정
+```
+
+## 🧪 개발 명령어
+
+### 자주 사용하는 명령어
+
+```bash
+# 개발 서버 실행
+pnpm dev
+
+# 전체 빌드
+pnpm build
+
+# 린트 검사
+pnpm lint
+
+# 린트 자동 수정
+pnpm lint:fix
+
+# 타입 검사
+pnpm typecheck
+
+# 테스트 실행
+pnpm test
+
+# 테스트 (워치 모드)
+pnpm test:watch
+```
+
+### Turbo 명령어
+
+```bash
+# 특정 앱만 빌드
+pnpm turbo run build --filter=web
+
+# 캐시 정리
+pnpm turbo run clean
+
+# 의존성 그래프 시각화
+pnpm turbo run build --graph
+```
+
+### 권장 확장 프로그램
+
+프로젝트에 도움이 되는 확장 프로그램입니다.
+
+- **ES7+ React/Redux/React-Native snippets** - React 스니펫
+- **Tailwind CSS IntelliSense** - Tailwind 자동완성
+- **TypeScript Importer** - 자동 import
+- **Prettier** - 코드 포맷팅
+- **ESLint** - 린트 검사
+- **MDX** - 문서 작성을 위한 언어 지원
