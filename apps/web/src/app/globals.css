@@ -1,83 +1,26 @@
-/* 1) reset(Preflight) 불러오기 */
-@import 'tailwindcss/preflight';
+@import 'tailwindcss';
+@import '../styles/variables.css'; /* 토큰 먼저 */
 
-/* ─── 전역 Base 레이어 ───────────────────────────────────────────────── */
+/* ─ 전역 reset/base ─ */
 @layer base {
-  /* 1) 글로벌 박스 사이징(모든 요소에 border-box 적용) */
   *,
   ::before,
   ::after {
     box-sizing: border-box;
   }
-
-  /* 2) 접근성: 포커스 시 윤곽선 스타일 */
-  :focus {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
-
-  /* 3) 스크롤바 기본 스타일 (웹 전용) */
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background-color: var(--accent);
-    border-radius: 4px;
-  }
-
-  /* 4) 폰트페이스 등록 (Pretendard) */
-  @font-face {
-    font-family: Pretendard;
-    src: url('/fonts/PretendardVariable.woff2')
-      format('woff2-variations');
-    font-weight: 100 900;
-    font-style: normal;
-    font-display: swap;
-  }
-
-  /* 5) CSS 변수: 테마 & 액센트 & 폰트 */
-  :root {
-    --background: #fff;
-    --foreground: #000;
-    --accent: theme('colors.green.500');
-    --font-sans:
-      'Pretendard', system-ui, sans-serif;
-    --radius: 0.5rem; /* 공통 border-radius 토큰 */
-    --shadow: 0 1px 3px rgb(0 0 0 / 10%);
-  }
-
-  /* 6) 전역 html/body 스타일 */
   html {
-    scroll-behavior: smooth;
     font-family: var(--font-sans);
-    line-height: 1.5;
-  }
-
-  body {
-    background: var(--background);
-    color: var(--foreground);
-  }
-
-  /* 7) 링크 기본 스타일 */
-  a {
-    color: var(--accent);
-    text-decoration: none;
-  }
-
-  a:hover {
-    text-decoration: underline;
+    scroll-behavior: smooth;
   }
 }
 
-/* ─── 다크 모드 변수 재정의 ─────────────────────────────────────────────── */
-@layer base {
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --background: #0a0a0a;
-      --foreground: #ededed;
-      --accent: theme('colors.green.300');
-    }
+/* ─ 컴포넌트 헬퍼 ─ */
+/* @layer components {
+  .btn-primary {
+    @apply px-4 py-2 rounded-lg text-white bg-green-500 tap:scale-tap;
+
+    transition:
+      transform var(--tap),
+      box-shadow 0.15s ease-out;
   }
-}
+} */

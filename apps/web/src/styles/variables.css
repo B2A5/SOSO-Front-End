@@ -1,0 +1,53 @@
+/* ===== Tailwind core + design tokens ===== */
+@import 'tailwindcss';
+
+/* ── ① THEME VARIABLES (generate utilities + CSS vars) ───────── */
+@theme {
+  /* — Color palette (green) — */
+  --color-green-50: #f2fef5;
+  --color-green-100: #b2f7c1;
+  --color-green-200: #6fed8b;
+  --color-green-300: #5de189;
+  --color-green-400: #57dc88;
+  --color-green-500: #49d386;
+  --color-green-600: #2fc182;
+  --color-green-700: #1faa77;
+  --color-green-800: #19825c;
+  --color-green-900: #115f43;
+  --color-green-950: #093324;
+
+  /* — Neutrals (excerpt) — */
+  --color-neutral-0: #f1f1f1;
+  --color-neutral-100: #e1e1e1;
+  /* … */
+
+  /* — Typography & shape — */
+  --font-sans:
+    'Pretendard', system-ui, sans-serif;
+  --text-base: 1rem;
+  --radius: 0.5rem;
+  --shadow-card: 0 1px 3px rgb(0 0 0 / 0.1);
+
+  /* — Animation token — */
+  @keyframes fade-in-scale {
+    0% {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  --animate-fade-in-scale: fade-in-scale 0.3s
+    ease-out;
+}
+
+/* ── ② DARK-MODE OVERRIDES ───────────────────────────────────── */
+@variant dark {
+  :root {
+    --color-background: #0a0a0a;
+    --color-foreground: #ededed;
+    --color-green-500: #5de189; /* brighter accent in dark */
+  }
+}

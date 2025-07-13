@@ -12,6 +12,7 @@
     /* 앱 내부 별칭 → @/… */
     "baseUrl": "./",
     "paths": {
+      "@public/*": ["public/*"],
       "@/*": ["src/*"]
     },
     /* DOM 타입(+ ESNext) – 질문 ⑤ */
@@ -27,6 +28,10 @@
     "resolveJsonModule": true,
     "isolatedModules": true
   },
-  "include": ["next-env.d.ts", "src", ".next/types/**/*.ts"],
+  "include": [
+    "next-env.d.ts",
+    "src",
+    ".next/types/**/*.ts"
+  ],
   "exclude": ["node_modules"]
 }

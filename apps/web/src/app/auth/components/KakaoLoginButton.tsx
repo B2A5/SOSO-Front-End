@@ -2,8 +2,9 @@
 'use client';
 
 import { Button } from '@/components/buttons/Button';
-import KakaoImage from '@/components/images/KakaoImage';
+import KakaoImage from '@/assets/images/KakaoImage';
 import { useKakaoAuth } from '@/hooks/useKakaoAuth';
+import kakaoSubsetFont from '@/assets/fonts/KakaoSubsetFont';
 
 /** PKCE 카카오 로그인 전용 버튼 – 별도 props 없이 그대로 사용 */
 export default function KakaoLoginButton() {
@@ -15,16 +16,9 @@ export default function KakaoLoginButton() {
       onClick={startKakaoLogin}
       isLoading={isKakaoLoginPending}
       loadingText="로그인 중…"
-      fullWidth
       size="lg"
-      startIcon={
-        !isKakaoLoginPending && (
-          <KakaoImage className="mr-2" />
-        )
-      }
-      className="
-       
-      "
+      startIcon={<KakaoImage className="mr-2" />}
+      className={`${kakaoSubsetFont.className}`}
       disabled={isKakaoLoginPending}
     >
       카카오로 로그인
