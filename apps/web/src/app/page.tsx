@@ -4,11 +4,12 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import LogoImage from '@/components/images/LogoImage';
+import LogoImage from '@/assets/images/LogoImage';
 
 export default function HomePage() {
   const router = useRouter();
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading } =
+    useAuth();
 
   useEffect(() => {
     if (isLoading) {

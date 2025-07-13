@@ -1,8 +1,8 @@
 // apps/web/app/layout.tsx
-import '@styles/globals.css';
 import type { Metadata } from 'next';
+import './globals.css';
 import { QueryProvider } from '@/providers/queryProvider';
-import localFont from 'next/font/local';
+import pretendardFont from '@/assets/fonts/PretandardFont';
 
 export const metadata: Metadata = {
   title: 'SoSo – Local Biz Helper',
@@ -30,19 +30,14 @@ export const metadata: Metadata = {
     title: 'SoSo',
   },
   openGraph: {
-    title: 'SoSo – Local Biz Helper',
+    title: 'SoSo',
     description:
       '지역 주민과 함께 만드는 창업 플랫폼',
     type: 'website',
     locale: 'ko_KR',
   },
 };
-const pretendard = localFont({
-  src: '../public/fonts/PretendardVariable.woff2',
-  display: 'swap',
-  weight: '45 920',
-  variable: '--font-pretendard',
-});
+// 전역 폰트 설정
 
 export default function RootLayout({
   children,
@@ -52,11 +47,14 @@ export default function RootLayout({
   return (
     <html
       lang="ko"
-      className={`antialiased ${pretendard.className}`}
+      className={`antialiased ${pretendardFont.className}`}
     >
       <head />
       <body className="flex flex-col h-screen">
         <QueryProvider>
+          <header className="bg-green-500 font-bold">
+            soso
+          </header>
           <main className="w-full max-w-[640px] mx-auto flex-1 overflow-auto">
             {children}
           </main>

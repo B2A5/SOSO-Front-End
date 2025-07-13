@@ -8,8 +8,9 @@ import {
 } from 'next/navigation';
 import { useAuthStore } from '@/stores/authStore';
 import KakaoLoginButton from './components/KakaoLoginButton';
-import LogoImage from '@/components/images/LogoImage';
+import LogoImage from '@/assets/images/LogoImage';
 import type { Route } from 'next';
+import Button from '@/components/buttons/Button';
 
 const MSG: Record<string, string> = {
   kakao_login_failed:
@@ -53,6 +54,7 @@ export default function LoginContents() {
           {errorMsg}
         </p>
       )}
+      <Button>hi</Button>
       <KakaoLoginButton />
     </div>
   );

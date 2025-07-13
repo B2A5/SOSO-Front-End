@@ -6,16 +6,16 @@ import Image, { ImageProps } from 'next/image';
 /** alt(카카오 로고)만 기본 제공, 필요하면 덮어쓸 수 있음 */
 type KakaoImageProps = Omit<
   ImageProps,
-  'src' | 'alt'
+  'src' | 'alt' | 'width' | 'height'
 > & {
-  alt?: string;
+  width?: number;
+  height?: number;
+  alt?: string; // 기본값만 제공, 덮어쓰기 가능
 };
 
 export default function KakaoImage({
   width = 20,
   height = 20,
-  priority = true,
-  alt = '카카오 로고',
   ...rest
 }: KakaoImageProps) {
   return (
@@ -23,8 +23,7 @@ export default function KakaoImage({
       src="/icons/kakao.svg"
       width={width}
       height={height}
-      priority={priority}
-      alt={alt}
+      alt="카카오 로고"
       {...rest}
     />
   );

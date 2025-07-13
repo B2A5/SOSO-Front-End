@@ -15,6 +15,7 @@
     "axios": "^1.10.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "install": "^0.13.0",
     "js-cookie": "^3.0.5",
     "lucide-react": "^0.525.0",
     "next": "^14.2.3",
@@ -27,7 +28,7 @@
     "@eslint/eslintrc": "^3",
     "@stylistic/stylelint-config": "^2.0.0",
     "@stylistic/stylelint-plugin": "^3.1.3",
-    "@tailwindcss/postcss": "^4",
+    "@tailwindcss/postcss": "^4.0.0",
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^20",
     "@types/react": "^18.2.0",
@@ -38,7 +39,7 @@
     "stylelint": "^16.21.1",
     "stylelint-config-standard": "^38.0.0",
     "stylelint-config-tailwindcss": "^1",
-    "tailwindcss": "^4.1",
+    "tailwindcss": "^4.0.0",
     "typescript": "^5.4.2"
   }
 }
