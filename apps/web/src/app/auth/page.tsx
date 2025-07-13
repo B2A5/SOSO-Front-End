@@ -9,7 +9,9 @@ export const metadata = {
 export default function AuthPage() {
   return (
     <Suspense fallback={null}>
-      <LoginContents />
+      <div className="w-full h-full p-layout">
+        <LoginContents />
+      </div>
     </Suspense>
   );
 }

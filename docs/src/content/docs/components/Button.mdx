@@ -1,0 +1,317 @@
+---
+title: Button
+description: SOSO 디자인 시스템의 버튼 컴포넌트입니다. 다양한 변형, 크기, 상태를 지원하며 접근성과 사용자 경험을 고려하여 설계되었습니다.
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Button } from '@soso/web/components/buttons/Button';
+
+# Button
+
+버튼은 사용자가 액션을 수행할 수 있도록 하는 핵심 인터랙션 요소입니다. SOSO의 Button 컴포넌트는 일관된 디자인과 뛰어난 사용자 경험을 제공합니다.
+
+## 주요 특징
+
+- 🎨 **두 가지 변형**: `filled`, `outlined`
+- 📏 **세 가지 크기**: `sm`, `md`, `lg`
+- ⚡ **로딩 상태 지원**: 색상 유지하며 스피너 표시
+- 🎯 **탭 애니메이션**: 클릭 시 부드러운 스케일 피드백
+- ♿ **접근성**: 키보드 네비게이션과 포커스 링 지원
+- 🖼️ **아이콘 지원**: 앞/뒤 아이콘 배치 가능
+
+## 기본 사용법
+
+```tsx
+import { Button } from '@soso/web/components/buttons/Button';
+
+export default function Example() {
+  return (
+    <Button onClick={() => console.log('클릭!')}>기본 버튼</Button>
+  );
+}
+```
+
+<div className="flex justify-center">
+  <Button client:only="react">기본 버튼</Button>
+</div>
+
+## Variants
+
+### Filled와 Outlined
+
+`filled`는 가장 중요한 액션에, `outlined`는 보조 액션에 사용합니다.
+
+```tsx
+<Button variant="filled">Primary Action</Button>
+<Button variant="outlined">Secondary Action</Button>
+```
+
+<div class="demo-container">
+  <div class="flex gap-3">
+    <Button client:only="react" variant="filled">
+      Primary Action
+    </Button>
+    <Button client:only="react" variant="outlined">
+      Secondary Action
+    </Button>
+  </div>
+</div>
+
+## 크기 (Sizes)
+
+세 가지 크기를 제공하여 다양한 UI 컨텍스트에 맞춰 사용할 수 있습니다.
+
+```tsx
+<Button size="sm">Small Button</Button>
+<Button size="md">Medium Button</Button>
+<Button size="lg">Large Button</Button>
+```
+
+<div class="demo-container">
+  <div class="flex items-center justify-evenly gap-3">
+    <Button size="sm">Small</Button>
+    <Button size="md">Medium</Button>
+    <Button size="lg">Large</Button>
+  </div>
+</div>
+
+## 아이콘과 함께 사용
+
+### 아이콘 배치
+
+`startIcon`과 `endIcon` props를 사용하여 텍스트 앞뒤에 아이콘을 배치할 수 있습니다.
+
+```tsx
+import { PlusIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
+
+<Button startIcon={<PlusIcon className="w-4 h-4" />}>
+  항목 추가
+</Button>
+
+<Button endIcon={<ArrowRightIcon className="w-4 h-4" />}>
+  다음 단계
+</Button>
+
+<Button
+  startIcon={<SaveIcon className="w-4 h-4" />}
+  endIcon={<CheckIcon className="w-4 h-4" />}
+>
+  저장하기
+</Button>
+```
+
+<div class="demo-container">
+  <div class="flex flex-col gap-3">
+    <Button client:only="react" startIcon="➕">
+      항목 추가
+    </Button>
+    <Button client:only="react" endIcon="→">
+      다음 단계
+    </Button>
+    <Button client:only="react" startIcon="💾" endIcon="✓">
+      저장하기
+    </Button>
+  </div>
+</div>
+
+## 로딩 상태
+
+로딩 중에도 브랜드 색상을 유지하며, 자동으로 스피너를 표시합니다.
+
+```tsx
+const [isLoading, setIsLoading] = useState(false);
+
+const handleSubmit = async () => {
+  setIsLoading(true);
+  try {
+    await api.submitData();
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+<Button
+  isLoading={isLoading}
+  loadingText="처리 중..."
+  onClick={handleSubmit}
+>
+  제출하기
+</Button>;
+```
+
+<div class="demo-container">
+  <div class="space-y-3">
+    <Button
+      client:only="react"
+      isLoading={true}
+      loadingText="처리 중..."
+    >
+      로딩 중 버튼
+    </Button>
+    <Button
+      client:only="react"
+      variant="outlined"
+      isLoading={true}
+      loadingText="업로드 중..."
+    >
+      아웃라인 로딩
+    </Button>
+  </div>
+</div>
+
+:::note[로딩 상태 특징]
+
+- ✅ 기본 색상 유지 (회색으로 변하지 않음)
+- 🚫 클릭 이벤트 자동 차단 (`pointer-events-none`)
+- ⚡ 스피너 자동 표시
+- 🎯 탭 애니메이션 비활성화
+  :::
+
+## 비활성화 상태
+
+`disabled` prop을 사용하여 버튼을 비활성화할 수 있습니다.
+
+```tsx
+<Button disabled>비활성화된 버튼</Button>
+<Button variant="outlined" disabled>비활성화된 아웃라인</Button>
+```
+
+<div class="demo-container">
+  <div class="flex gap-3 items-center justify-evenly">
+    <Button disabled>비활성화된 버튼</Button>
+    <Button variant="outlined" disabled>
+      비활성화된 아웃라인
+    </Button>
+  </div>
+</div>
+
+## 다양한 조합 예시
+
+### 크기와 변형 조합
+
+<div class="demo-container">
+  <div class="grid grid-cols-2 gap-4">
+    <div class="space-y-2">
+      <h4 class="font-medium text-sm">Filled 변형</h4>
+      <div class="space-y-2">
+        <Button client:only="react" variant="filled" size="sm">
+          Small Filled
+        </Button>
+        <Button client:only="react" variant="filled" size="md">
+          Medium Filled
+        </Button>
+        <Button client:only="react" variant="filled" size="lg">
+          Large Filled
+        </Button>
+      </div>
+    </div>
+    <div class="space-y-2">
+      <h4 class="font-medium text-sm">Outlined 변형</h4>
+      <div class="space-y-2">
+        <Button client:only="react" variant="outlined" size="sm">
+          Small Outlined
+        </Button>
+        <Button client:only="react" variant="outlined" size="md">
+          Medium Outlined
+        </Button>
+        <Button client:only="react" variant="outlined" size="lg">
+          Large Outlined
+        </Button>
+      </div>
+    </div>
+  </div>
+</div>
+
+### 아이콘과 로딩 조합
+
+<div class="demo-container">
+  <div class="grid grid-cols-3 gap-3">
+    <Button client:only="react" startIcon="📄" size="sm">
+      저장
+    </Button>
+    <Button
+      client:only="react"
+      variant="outlined"
+      endIcon="📤"
+      size="md"
+    >
+      내보내기
+    </Button>
+    <Button
+      client:only="react"
+      startIcon="🔄"
+      isLoading={true}
+      loadingText="동기화 중..."
+      size="lg"
+    >
+      동기화
+    </Button>
+  </div>
+</div>
+
+## Props API
+
+| Prop          | Type                          | Default      | Description               |
+| ------------- | ----------------------------- | ------------ | ------------------------- |
+| `variant`     | `'filled' \| 'outlined'`      | `'filled'`   | 버튼의 시각적 변형        |
+| `size`        | `'sm' \| 'md' \| 'lg'`        | `'md'`       | 버튼의 크기               |
+| `isLoading`   | `boolean`                     | `false`      | 로딩 상태 표시 여부       |
+| `loadingText` | `string`                      | `'Loading…'` | 로딩 중 표시될 텍스트     |
+| `startIcon`   | `React.ReactNode`             | -            | 텍스트 앞에 표시될 아이콘 |
+| `endIcon`     | `React.ReactNode`             | -            | 텍스트 뒤에 표시될 아이콘 |
+| `disabled`    | `boolean`                     | `false`      | 버튼 비활성화 여부        |
+| `className`   | `string`                      | -            | 추가 CSS 클래스           |
+| `children`    | `React.ReactNode`             | -            | 버튼 내부 텍스트          |
+| `onClick`     | `(event: MouseEvent) => void` | -            | 클릭 이벤트 핸들러        |
+| `...rest`     | `ButtonHTMLAttributes`        | -            | 기본 button 엘리먼트 속성 |
+
+## 크기별 스펙
+
+| Size | Height | Padding | Font Size | Spinner Size |
+| ---- | ------ | ------- | --------- | ------------ |
+| `sm` | 32px   | 12px    | 14px      | 14px         |
+| `md` | 40px   | 16px    | 16px      | 16px         |
+| `lg` | 48px   | 24px    | 18px      | 20px         |
+
+## 접근성 가이드
+
+### 키보드 네비게이션
+
+- **Tab**: 버튼으로 포커스 이동
+- **Enter/Space**: 버튼 활성화
+- **Shift + Tab**: 역순으로 포커스 이동
+
+### 스크린 리더
+
+```tsx
+// 로딩 상태에 대한 추가 정보 제공
+<Button
+  isLoading={isSubmitting}
+  aria-label={isSubmitting ? "양식을 제출하는 중입니다" : "양식 제출"}
+>
+  제출하기
+</Button>
+
+// 아이콘 버튼의 경우 설명 추가
+<Button
+  startIcon={<DeleteIcon />}
+  aria-label="항목 삭제"
+>
+  삭제
+</Button>
+```
+
+## 애니메이션 세부사항
+
+### 탭 피드백
+
+- **클릭/터치 시**: 버튼이 95% 크기로 축소
+- **지속시간**: 150ms
+- **Easing**: `ease-out`
+- **조건**: 로딩이나 비활성화 상태가 아닐 때만 작동
+
+### 호버 효과
+
+- **색상 변화**: 각 variant별로 정의된 hover 색상으로 전환
+- **지속시간**: 200ms
+- **Easing**: 기본 CSS transition

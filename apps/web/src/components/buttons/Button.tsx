@@ -1,5 +1,6 @@
 import React from 'react';
-import clsx from 'clsx';
+
+import { twMerge } from 'tailwind-merge';
 import { useTap } from '@/hooks/ui/useTap';
 import { Spinner } from '@/components/loadings/Spinner';
 
@@ -14,15 +15,13 @@ export interface ButtonProps
   variant?: Variant;
   /** 크기 */
   size?: Size;
-  /** 전체 폭 */
-  full?: boolean;
   /** 로딩 상태 */
   isLoading?: boolean;
-  /** 로딩 문구 (시각) */
+  /** 로딩 문구  */
   loadingText?: string;
-  /** 아이콘 (앞) */
+  /** 앞에 넣을 아이콘 */
   startIcon?: React.ReactNode;
-  /** 아이콘 (뒤) */
+  /** 뒤에 넣을 아이콘 */
   endIcon?: React.ReactNode;
 }
 
@@ -31,23 +30,30 @@ export interface ButtonProps
 /** 변형별 Tailwind 클래스 */
 const variantMap: Record<Variant, string> = {
   filled:
-    'bg-green-500 text-white hover:bg-green-700 focus-visible:ring-green-500 disabled:bg-green-300',
+    'bg-soso-500 text-white hover:bg-soso-600 focus-visible:ring-soso-500',
   outlined:
-    'bg-transparent text-green-600 border border-green-600 hover:bg-green-600 hover:text-white focus-visible:ring-green-500 disabled:border-green-300 disabled:text-green-300',
+    'bg-transparent text-soso-600 border border-soso-600 hover:bg-soso-600 hover:text-white focus-visible:ring-soso-500',
 };
 
-/** 크기별 Tailwind 클래스 */
+/** 비활성화 상태 클래스 */
+const disabledMap: Record<Variant, string> = {
+  filled: 'disabled:bg-neutral-300 disabled:text-neutral-600',
+  outlined:
+    'disabled:border-neutral-300 disabled:text-neutral-300 disabled:bg-transparent',
+};
+
+/** 크기별 클래스 */
 const sizeMap: Record<Size, string> = {
-  sm: 'h-8 px-3 text-sm space-x-1',
-  md: 'h-10 px-4 text-base space-x-2',
-  lg: 'h-12 px-6 text-lg space-x-3',
+  sm: 'h-8 px-3 text-sm gap-1.5',
+  md: 'h-10 px-4 text-base gap-2',
+  lg: 'h-12 px-6 text-lg gap-2.5',
 };
 
-/** ✅ NEW: 로딩 스피너 크기 클래스 매핑 */
+/** 스피너 크기별 클래스 */
 const spinnerClassMap: Record<Size, string> = {
-  sm: 'w-4 h-4',
+  sm: 'w-3.5 h-3.5',
   md: 'w-4 h-4',
-  lg: 'w-6 h-6',
+  lg: 'w-5 h-5',
 };
 
 /* ---------- 3. 컴포넌트 ---------- */
@@ -58,10 +64,8 @@ export const Button = React.forwardRef<
 >(
   (
     {
-      /** ✅ CHANGED: 기본 variant → 'filled' */
       variant = 'filled',
       size = 'md',
-      full = false,
       isLoading = false,
       loadingText = 'Loading…',
       startIcon,
@@ -76,17 +80,39 @@ export const Button = React.forwardRef<
     /* tap 애니메이션 */
     const [pressed, bind] = useTap();
 
-    const isDisabled = disabled || isLoading;
+    const isDisabled = disabled;
 
-    const classes = clsx(
-      'interactive tap:scale-tap',
-      'inline-flex items-center justify-center rounded-lg transition-transform duration-tap ease-spring-out',
-      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
-      'disabled:pointer-events-none disabled:opacity-50 select-none',
+    // 키보드 및 접근성 클래스
+    const FOCUS_CLASS =
+      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2';
+
+    const classes = twMerge(
+      'inline-flex items-center justify-center rounded-lg font-medium select-none',
+      'transition-transform duration-150 ease-out',
+      FOCUS_CLASS,
+
+      // 기본 variant 스타일
       variantMap[variant],
+
+      // disabled만 회색으로
+      isDisabled && disabledMap[variant],
+      isDisabled && 'disabled:pointer-events-none',
+
+      // 로딩 상태: 포인터 이벤트 막기
+      isLoading && 'pointer-events-none',
+
+      // useTap의 pressed 상태에 따라 버튼 자체 스케일 조정
+      pressed && !isDisabled && !isLoading ? 'scale-95' : 'scale-100',
+
       sizeMap[size],
-      full && 'w-full',
       className,
+    );
+
+    // 내부 콘텐츠 래퍼에 스케일 적용
+    const innerScaleClass = twMerge(
+      'flex items-center justify-center',
+      'transition-transform duration-150 ease-out',
+      pressed && !isDisabled && !isLoading ? 'scale-95' : 'scale-100',
     );
 
     return (
@@ -96,41 +122,41 @@ export const Button = React.forwardRef<
         disabled={isDisabled}
         data-pressed={pressed || undefined}
         className={classes}
-        {...bind}
+        {...(!isLoading && !isDisabled ? bind : {})} // 로딩 및 disabled시 tap 이벤트 비활성화
         {...rest}
       >
-        {/* 로딩 상태 */}
-        {isLoading ? (
-          <>
-            {/* ✅ CHANGED: size prop 제거, className으로 크기 지정 */}
-            <Spinner
-              className={clsx(
-                'shrink-0',
-                spinnerClassMap[size],
+        <div className={innerScaleClass}>
+          {/* 로딩 상태 */}
+          {isLoading ? (
+            <>
+              <Spinner
+                className={twMerge(
+                  'flex-shrink-0',
+                  spinnerClassMap[size],
+                )}
+                color="text-current"
+              />
+              {loadingText && (
+                <span className="ml-2 truncate">{loadingText}</span>
               )}
-              color="text-current"
-            />
-            <span className="truncate">
-              {loadingText}
-            </span>
-          </>
-        ) : (
-          <>
-            {startIcon && (
-              <span className="shrink-0">
-                {startIcon}
-              </span>
-            )}
-            <span className="truncate">
-              {children}
-            </span>
-            {endIcon && (
-              <span className="shrink-0">
-                {endIcon}
-              </span>
-            )}
-          </>
-        )}
+            </>
+          ) : (
+            <>
+              {/* 앞 아이콘 */}
+              {startIcon && (
+                <span className="flex-shrink-0">{startIcon}</span>
+              )}
+
+              {/* 텍스트 */}
+              <span className="truncate">{children}</span>
+
+              {/* 뒤 아이콘 */}
+              {endIcon && (
+                <span className="flex-shrink-0">{endIcon}</span>
+              )}
+            </>
+          )}
+        </div>
       </button>
     );
   },

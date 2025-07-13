@@ -44,7 +44,12 @@ export default function HomePage() {
           </p>
         </div>
         {ready && (
-          <Button onClick={handleStart} full>
+          <Button
+            onClick={handleStart}
+            variant="filled"
+            size="md"
+            className="w-full"
+          >
             소소 시작하기
           </Button>
         )}

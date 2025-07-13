@@ -6,8 +6,7 @@ import pretendardFont from '@/assets/fonts/PretandardFont';
 
 export const metadata: Metadata = {
   title: 'SoSo – Local Biz Helper',
-  description:
-    '지역 주민과 함께 만드는 창업 플랫폼',
+  description: '지역 주민과 함께 만드는 창업 플랫폼',
   viewport: {
     width: 'device-width',
     initialScale: 1,
@@ -16,13 +15,7 @@ export const metadata: Metadata = {
   },
   themeColor: '#4CAF50', //tailwindcss green-500
   //manifest: '/manifest.json',
-  keywords: [
-    '창업',
-    '지역',
-    '소상공인',
-    '아이디어',
-    '투표',
-  ],
+  keywords: ['창업', '지역', '소상공인', '아이디어', '투표'],
   authors: [{ name: 'SOSO Team' }],
   appleWebApp: {
     capable: true,
@@ -31,8 +24,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'SoSo',
-    description:
-      '지역 주민과 함께 만드는 창업 플랫폼',
+    description: '지역 주민과 함께 만드는 창업 플랫폼',
     type: 'website',
     locale: 'ko_KR',
   },

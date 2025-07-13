@@ -38,6 +38,13 @@
   --color-neutral-800: #4c4c4c;
   --color-neutral-900: #373737;
   --color-neutral-1000: #1a1a1a;
+
+  --color-kakao-100: #fee500;
+  --color-kakao-200: #191919;
+}
+/* 패딩 */
+@theme {
+  --padding-layout: 20px;
 }
 
 /* 애니메이션 */

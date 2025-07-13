@@ -8,7 +8,6 @@ module.exports = {
   ignorePatterns: [
     'stylelint.config.js',
     'postcss.config.mjs',
-    'tailwind.config.js',
   ],
   extends: [
     'next',
@@ -20,7 +19,6 @@ module.exports = {
       // 이 패턴에 걸리는 파일은 타입 검사(parserOptions.project) 하지 않음
       files: [
         'next.config.js',
-        'stylelint.config.js',
         'postcss.config.cjs',
         'tailwind.config.js',
         '.eslintrc.js',

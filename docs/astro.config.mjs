@@ -3,20 +3,22 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import react from '@astrojs/react';
-import tailwind from '@astrojs/tailwind';
+import mdx from '@astrojs/mdx';
+import path from 'path';
+import tailwindcss from '@tailwindcss/vite';
 // https://astro.build/config
 export default defineConfig({
   integrations: [
     // React 지원 추가
     react(),
-    // TailwindCSS 지원 추가 (Starlight와 통합)
-    tailwind({
-      // Starlight의 기본 스타일과 충돌하지 않도록 설정
-      applyBaseStyles: false,
-    }),
+
     starlight({
       title: 'SOSO FE Docs',
       description: 'SOSO 프론트엔드 개발 문서',
+      customCss: [
+        // Tailwind CSS를 전역적으로 추가
+        './src/styles/global.css',
+      ],
       social: [
         {
           icon: 'github',
@@ -73,6 +75,15 @@ export default defineConfig({
           ],
         },
         {
+          label: '컴포넌트 소개',
+          items: [
+            {
+              label: 'Button',
+              slug: 'components/button',
+            },
+          ],
+        },
+        {
           label: '개발 로그',
           items: [
             {
@@ -94,15 +105,28 @@ export default defineConfig({
         // },
       ],
     }),
+    mdx({
+      syntaxHighlight: 'shiki',
+      shikiConfig: {
+        theme: 'github-dark',
+        wrap: true,
+      },
+      remarkPlugins: [],
+      rehypePlugins: [],
+    }),
   ],
   vite: {
     optimizeDeps: {
       include: ['react', 'react-dom'],
     },
+
     resolve: {
       alias: {
-        '@soso/web': '../apps/web/src',
+        '@soso/web': path.resolve('../apps/web/src'),
+        '@': path.resolve('../apps/web/src'),
       },
     },
+
+    plugins: [tailwindcss()],
   },
 });

@@ -28,10 +28,6 @@
     "resolveJsonModule": true,
     "isolatedModules": true
   },
-  "include": [
-    "next-env.d.ts",
-    "src",
-    ".next/types/**/*.ts"
-  ],
+  "include": ["next-env.d.ts", "src", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
 }

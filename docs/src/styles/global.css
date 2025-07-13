@@ -1,0 +1,47 @@
+@import 'tailwindcss';
+
+/* ─ 전역 reset/base ─ */
+
+/* 컬러 */
+@theme {
+  --color-soso-50: #f2fef5;
+  --color-soso-100: #b2f7c1;
+  --color-soso-200: #6fed8b;
+  --color-soso-300: #5de189;
+  --color-soso-400: #57dc88;
+  --color-soso-500: #49d386;
+  --color-soso-600: #2fc182;
+  --color-soso-700: #1faa77;
+  --color-soso-800: #19825c;
+  --color-soso-900: #115f43;
+  --color-soso-950: #093324;
+
+  --color-neutral-0: #f1f1f1;
+  --color-neutral-100: #e1e1e1;
+  --color-neutral-200: #cdcdcd;
+  --color-neutral-300: #b8b8b8;
+  --color-neutral-400: #a1a1a1;
+  --color-neutral-500: #8d8d8d;
+  --color-neutral-600: #767676;
+  --color-neutral-700: #606060;
+  --color-neutral-800: #4c4c4c;
+  --color-neutral-900: #373737;
+  --color-neutral-1000: #1a1a1a;
+
+  --color-kakao-100: #fee500;
+  --color-kakao-200: #191919;
+}
+
+/* 애니메이션 */
+@theme {
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
