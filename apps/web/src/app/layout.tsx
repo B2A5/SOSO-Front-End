@@ -50,12 +50,11 @@ export default function RootLayout({
       className={`antialiased ${pretendardFont.className}`}
     >
       <head />
-      <body className="flex flex-col h-screen">
+      {/* 다크 모드 배경 지원 */}
+      <body className="flex flex-col h-screen bg-gradient-to-br from-neutral-0 to-neutral-100 dark:from-neutral-1000 dark:to-neutral-900">
         <QueryProvider>
-          <header className="bg-green-500 font-bold">
-            soso
-          </header>
-          <main className="w-full max-w-[640px] mx-auto flex-1 overflow-auto">
+          {/*  */}
+          <main className="w-full max-w-screen-md md:mx-auto flex-1 overflow-auto">
             {children}
           </main>
         </QueryProvider>

@@ -15,7 +15,7 @@ export interface ButtonProps
   /** 크기 */
   size?: Size;
   /** 전체 폭 */
-  fullWidth?: boolean;
+  full?: boolean;
   /** 로딩 상태 */
   isLoading?: boolean;
   /** 로딩 문구 (시각) */
@@ -61,7 +61,7 @@ export const Button = React.forwardRef<
       /** ✅ CHANGED: 기본 variant → 'filled' */
       variant = 'filled',
       size = 'md',
-      fullWidth = false,
+      full = false,
       isLoading = false,
       loadingText = 'Loading…',
       startIcon,
@@ -85,7 +85,7 @@ export const Button = React.forwardRef<
       'disabled:pointer-events-none disabled:opacity-50 select-none',
       variantMap[variant],
       sizeMap[size],
-      fullWidth && 'w-full',
+      full && 'w-full',
       className,
     );
 

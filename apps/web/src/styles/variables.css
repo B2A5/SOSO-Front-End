@@ -1,51 +1,46 @@
 @import 'tailwindcss';
 
+/* 컬러 */
 @theme {
-  /* — Color palette (green) — */
-  --color-green-50: #f2fef5;
-  --color-green-100: #b2f7c1;
-  --color-green-200: #6fed8b;
-  --color-green-300: #5de189;
-  --color-green-400: #57dc88;
-  --color-green-500: #49d386;
-  --color-green-600: #2fc182;
-  --color-green-700: #1faa77;
-  --color-green-800: #19825c;
-  --color-green-900: #115f43;
-  --color-green-950: #093324;
+  --color-soso-50: #f2fef5;
+  --color-soso-100: #b2f7c1;
+  --color-soso-200: #6fed8b;
+  --color-soso-300: #5de189;
+  --color-soso-400: #57dc88;
+  --color-soso-500: #49d386;
+  --color-soso-600: #2fc182;
+  --color-soso-700: #1faa77;
+  --color-soso-800: #19825c;
+  --color-soso-900: #115f43;
+  --color-soso-950: #093324;
 
-  /* — Neutrals (excerpt) — */
   --color-neutral-0: #f1f1f1;
   --color-neutral-100: #e1e1e1;
-  /* … */
+  --color-neutral-200: #cdcdcd;
+  --color-neutral-300: #b8b8b8;
+  --color-neutral-400: #a1a1a1;
+  --color-neutral-500: #8d8d8d;
+  --color-neutral-600: #767676;
+  --color-neutral-700: #606060;
+  --color-neutral-800: #4c4c4c;
+  --color-neutral-900: #373737;
+  --color-neutral-1000: #1a1a1a;
+}
 
-  /* — Typography & shape — */
-  --font-sans:
-    'Pretendard', system-ui, sans-serif;
-  --text-base: 1rem;
-  --radius: 0.5rem;
-  --shadow-card: 0 1px 3px rgb(0 0 0 / 0.1);
-
-  /* — Animation token — */
-  @keyframes fade-in-scale {
+/* 애니메이션 */
+@theme {
+  @keyframes fadeIn {
     0% {
       opacity: 0;
-      transform: scale(0.95);
+      transform: translateY(10px);
     }
     100% {
       opacity: 1;
-      transform: scale(1);
+      transform: translateY(0);
     }
   }
-  --animate-fade-in-scale: fade-in-scale 0.3s
-    ease-out;
 }
 
-/* ── ② DARK-MODE OVERRIDES ───────────────────────────────────── */
-@variant dark {
-  :root {
-    --color-background: #0a0a0a;
-    --color-foreground: #ededed;
-    --color-green-500: #5de189; /* brighter accent in dark */
-  }
+@theme {
+  --font-sans: 'Pretendard', sans-serif;
 }
