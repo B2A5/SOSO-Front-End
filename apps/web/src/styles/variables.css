@@ -1,7 +1,5 @@
-/* ===== Tailwind core + design tokens ===== */
 @import 'tailwindcss';
 
-/* ── ① THEME VARIABLES (generate utilities + CSS vars) ───────── */
 @theme {
   /* — Color palette (green) — */
   --color-green-50: #f2fef5;
