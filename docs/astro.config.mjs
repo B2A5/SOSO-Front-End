@@ -6,6 +6,7 @@ import react from '@astrojs/react';
 import mdx from '@astrojs/mdx';
 import path from 'path';
 import tailwindcss from '@tailwindcss/vite';
+
 // https://astro.build/config
 export default defineConfig({
   integrations: [
@@ -15,10 +16,7 @@ export default defineConfig({
     starlight({
       title: 'SOSO FE Docs',
       description: 'SOSO 프론트엔드 개발 문서',
-      customCss: [
-        // Tailwind CSS를 전역적으로 추가
-        './src/styles/global.css',
-      ],
+      customCss: ['./src/styles/global.css'],
       social: [
         {
           icon: 'github',

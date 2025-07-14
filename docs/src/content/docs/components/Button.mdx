@@ -5,6 +5,8 @@ description: SOSO 디자인 시스템의 버튼 컴포넌트입니다. 다양한
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 import { Button } from '@soso/web/components/buttons/Button';
+import { tailwind } from '@astrojs/starlight-tailwind';
+import '../../../styles/global.css';
 
 # Button
 
@@ -46,15 +48,13 @@ export default function Example() {
 <Button variant="outlined">Secondary Action</Button>
 ```
 
-<div class="demo-container">
-  <div class="flex gap-3">
-    <Button client:only="react" variant="filled">
-      Primary Action
-    </Button>
-    <Button client:only="react" variant="outlined">
-      Secondary Action
-    </Button>
-  </div>
+<div class="demo-container flex justify-evenly">
+  <Button client:only="react" variant="filled">
+    Primary Action
+  </Button>
+  <Button client:only="react" variant="outlined">
+    Secondary Action
+  </Button>
 </div>
 
 ## 크기 (Sizes)
@@ -100,18 +100,16 @@ import { PlusIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
 </Button>
 ```
 
-<div class="demo-container">
-  <div class="flex flex-col gap-3">
-    <Button client:only="react" startIcon="➕">
-      항목 추가
-    </Button>
-    <Button client:only="react" endIcon="→">
-      다음 단계
-    </Button>
-    <Button client:only="react" startIcon="💾" endIcon="✓">
-      저장하기
-    </Button>
-  </div>
+<div class="demo-container flex justify-evenly">
+  <Button client:only="react" startIcon="➕">
+    항목 추가
+  </Button>
+  <Button client:only="react" endIcon="→">
+    다음 단계
+  </Button>
+  <Button client:only="react" startIcon="💾" endIcon="✓">
+    저장하기
+  </Button>
 </div>
 
 ## 로딩 상태
@@ -139,24 +137,22 @@ const handleSubmit = async () => {
 </Button>;
 ```
 
-<div class="demo-container">
-  <div class="space-y-3">
-    <Button
-      client:only="react"
-      isLoading={true}
-      loadingText="처리 중..."
-    >
-      로딩 중 버튼
-    </Button>
-    <Button
-      client:only="react"
-      variant="outlined"
-      isLoading={true}
-      loadingText="업로드 중..."
-    >
-      아웃라인 로딩
-    </Button>
-  </div>
+<div class="demo-container flex justify-evenly">
+  <Button
+    client:only="react"
+    isLoading={true}
+    loadingText="처리 중..."
+  >
+    로딩 중 버튼
+  </Button>
+  <Button
+    client:only="react"
+    variant="outlined"
+    isLoading={true}
+    loadingText="업로드 중..."
+  >
+    아웃라인 로딩
+  </Button>
 </div>
 
 :::note[로딩 상태 특징]
@@ -176,77 +172,13 @@ const handleSubmit = async () => {
 <Button variant="outlined" disabled>비활성화된 아웃라인</Button>
 ```
 
-<div class="demo-container">
-  <div class="flex gap-3 items-center justify-evenly">
+<div class="demo-container flex justify-evenly">
+  
     <Button disabled>비활성화된 버튼</Button>
     <Button variant="outlined" disabled>
       비활성화된 아웃라인
     </Button>
-  </div>
-</div>
 
-## 다양한 조합 예시
-
-### 크기와 변형 조합
-
-<div class="demo-container">
-  <div class="grid grid-cols-2 gap-4">
-    <div class="space-y-2">
-      <h4 class="font-medium text-sm">Filled 변형</h4>
-      <div class="space-y-2">
-        <Button client:only="react" variant="filled" size="sm">
-          Small Filled
-        </Button>
-        <Button client:only="react" variant="filled" size="md">
-          Medium Filled
-        </Button>
-        <Button client:only="react" variant="filled" size="lg">
-          Large Filled
-        </Button>
-      </div>
-    </div>
-    <div class="space-y-2">
-      <h4 class="font-medium text-sm">Outlined 변형</h4>
-      <div class="space-y-2">
-        <Button client:only="react" variant="outlined" size="sm">
-          Small Outlined
-        </Button>
-        <Button client:only="react" variant="outlined" size="md">
-          Medium Outlined
-        </Button>
-        <Button client:only="react" variant="outlined" size="lg">
-          Large Outlined
-        </Button>
-      </div>
-    </div>
-  </div>
-</div>
-
-### 아이콘과 로딩 조합
-
-<div class="demo-container">
-  <div class="grid grid-cols-3 gap-3">
-    <Button client:only="react" startIcon="📄" size="sm">
-      저장
-    </Button>
-    <Button
-      client:only="react"
-      variant="outlined"
-      endIcon="📤"
-      size="md"
-    >
-      내보내기
-    </Button>
-    <Button
-      client:only="react"
-      startIcon="🔄"
-      isLoading={true}
-      loadingText="동기화 중..."
-      size="lg"
-    >
-      동기화
-    </Button>
-  </div>
 </div>
 
 ## Props API
