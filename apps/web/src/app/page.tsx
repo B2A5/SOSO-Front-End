@@ -10,8 +10,7 @@ import Button from '@/components/buttons/Button';
 export default function HomePage() {
   const router = useRouter();
   // 사용자 인증 상태를 가져옵니다.
-  const { isAuthenticated, isLoading } =
-    useAuth();
+  const { isAuth, isLoading } = useAuth();
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -19,17 +18,13 @@ export default function HomePage() {
   }, [isLoading]);
 
   const handleStart = () => {
-    router.replace(
-      isAuthenticated ? '/main' : '/auth',
-    );
+    router.replace(isAuth ? '/main' : '/auth');
   };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center">
       <h1 className="text-xl font-semibold animate-fadeIn text-neutral-900 dark:text-neutral-100">
-        {ready
-          ? '소소에 오신 것을 환영합니다'
-          : ''}
+        {ready ? '소소에 오신 것을 환영합니다' : ''}
       </h1>
       <div className="animate-fadeIn flex flex-col items-center  space-y-4">
         <div className="my-20">
@@ -38,9 +33,7 @@ export default function HomePage() {
 
         <div className="space-y-4">
           <p className="text-neutral-600 dark:text-neutral-400 text-sm">
-            {ready
-              ? '일상의 소소한 순간들을 기록해보세요'
-              : ' '}
+            {ready ? '일상의 소소한 순간들을 기록해보세요' : ' '}
           </p>
         </div>
         {ready && (

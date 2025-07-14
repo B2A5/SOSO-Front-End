@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { QueryProvider } from '@/providers/queryProvider';
 import pretendardFont from '@/assets/fonts/PretandardFont';
+import { ToastContainer } from '@/components/toast/ToastContainer';
 
 export const metadata: Metadata = {
   title: 'SoSo – Local Biz Helper',
@@ -39,15 +40,20 @@ export default function RootLayout({
   return (
     <html
       lang="ko"
+      suppressHydrationWarning
       className={`antialiased ${pretendardFont.className}`}
     >
       <head />
       {/* 다크 모드 배경 지원 */}
-      <body className="flex flex-col h-screen bg-gradient-to-br from-neutral-0 to-neutral-100 dark:from-neutral-1000 dark:to-neutral-900">
+      <body
+        suppressHydrationWarning
+        className="flex flex-col h-screen bg-gradient-to-br from-white to-white dark:from-neutral-1000 dark:to-neutral-900"
+      >
         <QueryProvider>
           {/*  */}
           <main className="w-full max-w-screen-md md:mx-auto flex-1 overflow-auto">
             {children}
+            <ToastContainer />
           </main>
         </QueryProvider>
       </body>

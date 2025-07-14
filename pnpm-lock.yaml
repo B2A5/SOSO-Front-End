@@ -159,15 +159,12 @@ importers:
       '@astrojs/starlight':
         specifier: ^0.34.4
         version: 0.34.5(astro@5.11.0(@types/node@20.19.7)(jiti@2.4.2)(lightningcss@1.30.1)(rollup@4.45.0)(typescript@5.8.3)(yaml@2.8.0))
-      '@tailwindcss/vite':
-        specifier: ^4.1.11
-        version: 4.1.11(vite@6.3.5(@types/node@20.19.7)(jiti@2.4.2)(lightningcss@1.30.1)(yaml@2.8.0))
+      '@astrojs/starlight-tailwind':
+        specifier: ^4.0.1
+        version: 4.0.1(@astrojs/starlight@0.34.5(astro@5.11.0(@types/node@20.19.7)(jiti@2.4.2)(lightningcss@1.30.1)(rollup@4.45.0)(typescript@5.8.3)(yaml@2.8.0)))(tailwindcss@4.1.11)
       astro:
         specifier: ^5.6.1
         version: 5.11.0(@types/node@20.19.7)(jiti@2.4.2)(lightningcss@1.30.1)(rollup@4.45.0)(typescript@5.8.3)(yaml@2.8.0)
-      clsx:
-        specifier: ^2.1.0
-        version: 2.1.1
       react:
         specifier: ^18.2.0
         version: 18.3.1
@@ -177,22 +174,25 @@ importers:
       sharp:
         specifier: ^0.34.2
         version: 0.34.3
-      tailwind-merge:
-        specifier: ^2.2.0
-        version: 2.6.0
-      tailwindcss:
-        specifier: ^4.1.11
-        version: 4.1.11
       web:
         specifier: workspace:*
         version: link:../apps/web
     devDependencies:
+      '@tailwindcss/vite':
+        specifier: ^4.1.11
+        version: 4.1.11(vite@6.3.5(@types/node@20.19.7)(jiti@2.4.2)(lightningcss@1.30.1)(yaml@2.8.0))
       '@types/react':
         specifier: ^18.2.0
         version: 18.3.23
       '@types/react-dom':
         specifier: ^18.2.0
         version: 18.3.7(@types/react@18.3.23)
+      tailwind-merge:
+        specifier: ^2.6.0
+        version: 2.6.0
+      tailwindcss:
+        specifier: ^4.1.11
+        version: 4.1.11
 
   packages/ui: {}
 
@@ -238,6 +238,12 @@ packages:
 
   '@astrojs/sitemap@3.4.1':
     resolution: {integrity: sha512-VjZvr1e4FH6NHyyHXOiQgLiw94LnCVY4v06wN/D0gZKchTMkg71GrAHJz81/huafcmavtLkIv26HnpfDq6/h/Q==}
+
+  '@astrojs/starlight-tailwind@4.0.1':
+    resolution: {integrity: sha512-AOOEWTGqJ7fG66U04xTmZQZ40oZnUYe4Qljpr+No88ozKywtsD1DiXOrGTeHCnZu0hRtMbRtBGB1fZsf0L62iw==}
+    peerDependencies:
+      '@astrojs/starlight': '>=0.34.0'
+      tailwindcss: ^4.0.0
 
   '@astrojs/starlight@0.34.5':
     resolution: {integrity: sha512-Pkojl6csiP+RKwBwIeS4YnnFNrBUT/4r8+bJo+zJpPlGYRx3X7+ZEOvCrWwsj7D9WLMorLbyoLD6u9SG0COfXQ==}
@@ -4880,6 +4886,11 @@ snapshots:
       sitemap: 8.0.0
       stream-replace-string: 2.0.0
       zod: 3.25.76
+
+  '@astrojs/starlight-tailwind@4.0.1(@astrojs/starlight@0.34.5(astro@5.11.0(@types/node@20.19.7)(jiti@2.4.2)(lightningcss@1.30.1)(rollup@4.45.0)(typescript@5.8.3)(yaml@2.8.0)))(tailwindcss@4.1.11)':
+    dependencies:
+      '@astrojs/starlight': 0.34.5(astro@5.11.0(@types/node@20.19.7)(jiti@2.4.2)(lightningcss@1.30.1)(rollup@4.45.0)(typescript@5.8.3)(yaml@2.8.0))
+      tailwindcss: 4.1.11
 
   '@astrojs/starlight@0.34.5(astro@5.11.0(@types/node@20.19.7)(jiti@2.4.2)(lightningcss@1.30.1)(rollup@4.45.0)(typescript@5.8.3)(yaml@2.8.0))':
     dependencies:

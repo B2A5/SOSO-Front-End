@@ -8,6 +8,7 @@ export default function LogoImage() {
         alt="SOSO 로고"
         width={200}
         height={150}
+        priority
         className="h-auto"
       />
     </div>

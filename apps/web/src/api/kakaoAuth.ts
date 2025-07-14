@@ -1,6 +1,9 @@
 // apps/web/src/api/kakaoAuth.ts
 import apiClient from './axios';
-import type { KakaoLoginRequest, LoginResponse } from '@/types/auth';
+import type {
+  KakaoLoginRequest,
+  LoginResponse,
+} from '@/types/auth.types';
 
 /**
  * 카카오 인증 URL 생성
@@ -36,6 +39,9 @@ export async function requestKakaoToken(request: {
     redirectUri: request.redirectUri,
     state: request.state,
   };
-  const { data } = await apiClient.post<LoginResponse>('/auth/kakao/login', body);
+  const { data } = await apiClient.post<LoginResponse>(
+    '/auth/kakao/login',
+    body,
+  );
   return data;
 }

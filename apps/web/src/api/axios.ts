@@ -1,64 +1,51 @@
-// apps/web/src/api/axios.ts
-import axios, { AxiosInstance, AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
-import { ApiError } from '@/types/error';
+import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 import { useAuthStore } from '@/stores/authStore';
+import { ApiErrorResponse } from '@/types/error';
 
 interface RetryConfig extends AxiosRequestConfig {
   _retry?: boolean;
 }
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8080/api';
+const BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8080/api';
 
-export const apiClient: AxiosInstance = axios.create({
+export const apiClient = axios.create({
   baseURL: BASE_URL,
-  timeout: 10_000,
+  timeout: 10000,
   headers: { 'Content-Type': 'application/json' },
+  withCredentials: true, // refresh 쿠키 위해
 });
 
-// ── 1) 요청 인터셉터: accessToken 자동 주입 ───────────────────────
+// 요청 인터셉터: Access Token 자동 주입
 apiClient.interceptors.request.use((config) => {
-  const { tokens } = useAuthStore.getState();
-  if (tokens?.accessToken && config.headers) {
-    config.headers.Authorization = `Bearer ${tokens.accessToken}`;
+  const token = useAuthStore.getState().accessToken;
+  if (token && config.headers) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
 
-// ── 2) 응답 인터셉터: 401 → refresh → 재시도, 그 외는 ApiError ─────
+// 응답 인터셉터: ACCESS_TOKEN_EXPIRED 일 때만 refresh → 재시도
 apiClient.interceptors.response.use(
-  (res: AxiosResponse) => res,
-  async (err: AxiosError & { config?: RetryConfig }) => {
-    const original = err.config!;
-    const { tokens, login, clearAuth } = useAuthStore.getState();
-
-    // 401 && 리프레시 가능 && 아직 retry 하지 않음
-    if (err.response?.status === 401 && !original._retry && tokens?.refreshToken) {
+  (res) => res,
+  async (
+    error: AxiosError<ApiErrorResponse> & { config?: RetryConfig },
+  ) => {
+    const original = error.config!;
+    const data = error.response?.data;
+    if (
+      data?.message === 'ACCESS_TOKEN_EXPIRED' &&
+      !original._retry
+    ) {
       original._retry = true;
-      try {
-        // ① 토큰 갱신
-        const { data } = await axios.post(
-          `${BASE_URL}/auth/refresh`,
-          { refreshToken: tokens.refreshToken },
-          { headers: { 'Content-Type': 'application/json' } },
-        );
-        // ② 스토어 업데이트
-        login(data.user, data.tokens);
-        // ③ 원래 요청 헤더 갱신 후 재시도
-        original.headers = original.headers ?? {};
-        original.headers.Authorization = `Bearer ${data.tokens.accessToken}`;
-        return apiClient(original);
-      } catch {
-        // 갱신 실패 → 로그아웃 & 리다이렉트
-        clearAuth();
-        if (typeof window !== 'undefined') {
-          window.location.href = '/auth?error=session_expired';
-        }
-        return Promise.reject(err);
-      }
+      // Refresh Token 쿠키와 함께 호출
+      await axios.post(`${BASE_URL}/auth/refresh`, null, {
+        withCredentials: true,
+      });
+      // 기존 요청 재시도
+      return apiClient(original);
     }
-
-    // 나머지 경우는 ApiError로 래핑
-    throw new ApiError(err);
+    return Promise.reject(error);
   },
 );
 

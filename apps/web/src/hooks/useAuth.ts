@@ -8,43 +8,45 @@ import { authApi } from '@/api/auth';
 import { retryFn, retryDelayFn } from '@/utils/query';
 
 /**
- * 인증 상태 관리 훅 (Axios 기반)
+ * 인증 관련 훅
+ * - 사용자 프로필 조회 쿼리
+ * - 인증 상태 관리
  */
 export function useAuth() {
-  const { user, isAuthenticated, tokens, login, isTokenExpired } = useAuthStore();
+  const {
+    user,
+    setUser,
+    accessToken,
+    isAuth,
+    isLoading: isAuthLoading,
+  } = useAuthStore();
 
-  /**
-   * 사용자 프로필 조회 쿼리
-   */
+  // 프로필 조회 쿼리
   const {
     data: profile,
-    isLoading,
+    isLoading: isProfileLoading,
     error,
     refetch,
   } = useQuery({
     queryKey: ['auth', 'profile'],
     queryFn: () => authApi.getProfile(),
-    enabled: isAuthenticated && !isTokenExpired(),
-    staleTime: 5 * 60 * 1000, // 5분
-    // 401 에러는 재시도하지 않음 (토큰 만료)
-    retry: (failureCount: number, error: unknown) => retryFn(failureCount, error),
-    retryDelay: (attemptIndex: number) => retryDelayFn(attemptIndex),
+    enabled: isAuth && !!accessToken, // 인증된 상태에서만 호출(엑세스 토큰이 있을 때)
+    staleTime: 5 * 60 * 1000, // 5분간 캐시 유지
+    retry: (count, err) => retryFn(count, err),
+    retryDelay: retryDelayFn,
   });
 
-  /**
-   * 프로필 정보 동기화
-   * 로그인 상태가 변경되거나 프로필이 업데이트되면 호출됩니다.
-   */
+  // 프로필이 내려오면 store 에 동기화
   useEffect(() => {
-    if (profile && (!user || user.id !== profile.id)) {
-      login(profile, tokens!);
+    if (profile && (!user || profile.id !== user.id)) {
+      setUser(profile);
     }
-  }, [profile, user, tokens, login]);
+  }, [profile, user, setUser]);
 
   return {
     user,
-    isAuthenticated,
-    isLoading,
+    isAuth,
+    isLoading: isAuthLoading || isProfileLoading,
     error,
     refetch,
   };

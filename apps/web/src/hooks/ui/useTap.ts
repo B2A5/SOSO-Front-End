@@ -1,4 +1,5 @@
 // apps/web/src/hooks/useTap.ts
+'use client';
 import { useState, useCallback } from 'react';
 
 /**
@@ -10,14 +11,8 @@ export function useTap() {
   const [pressed, setPressed] = useState(false);
 
   /* 포인터(터치·마우스) 이벤트 처리 */
-  const handleDown = useCallback(
-    () => setPressed(true),
-    [],
-  );
-  const handleUp = useCallback(
-    () => setPressed(false),
-    [],
-  );
+  const handleDown = useCallback(() => setPressed(true), []);
+  const handleUp = useCallback(() => setPressed(false), []);
 
   return [
     pressed,
