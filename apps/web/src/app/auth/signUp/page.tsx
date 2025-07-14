@@ -1,5 +1,5 @@
 //회원가입 초기 시작 페이지
-// apps/web/src/app/auth/signUp/Page.tsx
+// apps/web/src/app/auth/signup/Page.tsx
 
 export default function SignUpPage() {
   return (

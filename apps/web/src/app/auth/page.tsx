@@ -20,7 +20,7 @@ export default function AuthPage() {
             <Button
               size="lg"
               className="w-full bg-black"
-              onClick={() => router.push('/auth/signUp')}
+              onClick={() => router.push('/auth/signup')}
             >
               구글로 로그인
             </Button>

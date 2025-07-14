@@ -1,4 +1,4 @@
-// apps/web/src/hooks/useTap.ts
+// apps/web/src/hooks/ui/useTap.ts
 'use client';
 import { useState, useCallback } from 'react';
 

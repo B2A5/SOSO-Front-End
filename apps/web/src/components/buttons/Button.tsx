@@ -1,5 +1,5 @@
+'use client';
 import React from 'react';
-
 import { twMerge } from 'tailwind-merge';
 import { useTap } from '@/hooks/ui/useTap';
 import { Spinner } from '@/components/loadings/Spinner';

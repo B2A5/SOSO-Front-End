@@ -52,7 +52,7 @@ export function useKakaoAuth() {
 
       if (data.isNewUser) {
         // 신규 유저는 회원가입 페이지로 리다이렉트
-        router.push('/auth/signUp');
+        router.push('/auth/signup');
         // 기존 유저는 로그인 상태로 유지
       } else if (data.accessToken) {
         // 기존 유저는 로그인 처리
