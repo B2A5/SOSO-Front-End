@@ -12,11 +12,10 @@ export default defineConfig({
   integrations: [
     // React 지원 추가
     react(),
-
     starlight({
       title: 'SOSO FE Docs',
       description: 'SOSO 프론트엔드 개발 문서',
-      customCss: ['./src/styles/global.css'],
+      customCss: ['../apps/web/src/app/globals.css'],
       social: [
         {
           icon: 'github',
@@ -103,6 +102,7 @@ export default defineConfig({
         // },
       ],
     }),
+
     mdx({
       syntaxHighlight: 'shiki',
       shikiConfig: {

@@ -3,12 +3,10 @@ title: Button
 description: SOSO 디자인 시스템의 버튼 컴포넌트입니다. 다양한 변형, 크기, 상태를 지원하며 접근성과 사용자 경험을 고려하여 설계되었습니다.
 ---
 
-import { Tabs, TabItem } from '@astrojs/starlight/components';
+import '@soso/web/app/globals.css';
+import { Spinner } from '@soso/web/components/loadings/Spinner';
+import { useTap } from '@soso/web/hooks/ui/useTap';
 import { Button } from '@soso/web/components/buttons/Button';
-import { tailwind } from '@astrojs/starlight-tailwind';
-import '../../../styles/global.css';
-
-# Button
 
 버튼은 사용자가 액션을 수행할 수 있도록 하는 핵심 인터랙션 요소입니다. SOSO의 Button 컴포넌트는 일관된 디자인과 뛰어난 사용자 경험을 제공합니다.
 
@@ -33,8 +31,8 @@ export default function Example() {
 }
 ```
 
-<div className="flex justify-center">
-  <Button client:only="react">기본 버튼</Button>
+<div class="not-content" className="flex justify-center">
+  <Button>기본 버튼</Button>
 </div>
 
 ## Variants
