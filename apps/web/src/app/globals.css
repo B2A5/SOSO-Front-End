@@ -15,18 +15,19 @@
 
 /* 컬러 */
 @theme {
-  --color-soso-50: #f2fef5;
-  --color-soso-100: #b2f7c1;
-  --color-soso-200: #6fed8b;
-  --color-soso-300: #5de189;
-  --color-soso-400: #57dc88;
-  --color-soso-500: #49d386;
-  --color-soso-600: #2fc182;
-  --color-soso-700: #1faa77;
-  --color-soso-800: #19825c;
-  --color-soso-900: #115f43;
-  --color-soso-950: #093324;
-
+  /* soso 브랜드 색상 */
+  --color-soso-0: #f6fefa;
+  --color-soso-100: #ecfdf5;
+  --color-soso-200: #d1fae5;
+  --color-soso-300: #a7f3d0;
+  --color-soso-400: #6ee7b7;
+  --color-soso-500: #34d399;
+  --color-soso-600: #10b981;
+  --color-soso-700: #059669;
+  --color-soso-800: #047857;
+  --color-soso-900: #065f46;
+  --color-soso-1000: #064e3b;
+  /* 뉴트럴 색상 */
   --color-neutral-0: #f1f1f1;
   --color-neutral-100: #e1e1e1;
   --color-neutral-200: #cdcdcd;
@@ -38,15 +39,59 @@
   --color-neutral-800: #4c4c4c;
   --color-neutral-900: #373737;
   --color-neutral-1000: #1a1a1a;
-
+  /* 카카오 색상 */
   --color-kakao-100: #fee500;
   --color-kakao-200: #191919;
+
+  /* 폰트 색상 */
+  --color-fontColor-black: #000000;
+  --color-fontColor-white: #ffffff;
+  --color-fontColor-lightgray: #f4f3f3;
+  --color-fontColor-gray1: #c4c3c3;
+  --color-fontColor-gray2: #8d8d8d;
+  --color-fontColor-gray3: #4f4c4c;
+
+  /* 백그라운드 색상 */
+  --color-modal: rgba(255, 255, 255, 0.95);
+  --color-overlay: rgba(0, 0, 0, 0.6);
+
+  /* 에러 색상 */
+  --color-error-normal: #f44336;
+  --color-error-normal-hover: #dc3c31;
+  --color-error-normal-active: #c3362b;
 }
 /* 패딩 */
 @theme {
   --padding-layout: 20px;
 }
 
+@theme {
+  --text-hero: 2rem; /* 32px */
+  --text-header1: 1.75rem; /* 28px */
+  --text-header2: 1.5rem; /* 24px */
+  --text-title1: 1.25rem; /* 20px */
+  --text-title2: 1.125rem; /* 18px */
+  --text-body: 1rem; /* 16px */
+  --text-body2: 0.875rem; /* 14px */
+  --text-input: 1rem; /* 16px */
+  --text-input2: 0.75rem; /* 12px */
+  --text-caption1: 0.7rem; /* 11px */
+  --text-caption2: 0.625rem; /* 10px */
+  --text-caption3: 0.5rem; /* 8px */
+  --text-textBox: 1rem; /* 16px */
+  --text-h2: 1.875rem; /* 30px */
+}
+/* 행간 */
+@theme {
+  --line-height-hero: 1.2; /* 120% */
+  --line-height-header: 1.45; /* 145% */
+  --line-height-textBox: 1.6; /* 160% */
+}
+/* 자간 */
+@theme {
+  --letter-spacing-hero: -0.6px; /* -0.6px */
+  --letter-spacing-textBox: -0.3px; /* -0.3px */
+}
 /* 애니메이션 */
 @theme {
   @keyframes fadeIn {
