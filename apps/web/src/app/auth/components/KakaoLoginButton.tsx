@@ -12,6 +12,7 @@ export default function KakaoLoginButton({
 }: {
   className: string;
 }) {
+  //startKakaoLogin을 호출하여 카카오 로그인 프로세스를 시작합니다.
   const { startKakaoLogin, isPending } = useKakaoAuth();
 
   return (

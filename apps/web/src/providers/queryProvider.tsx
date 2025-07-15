@@ -6,11 +6,7 @@ import {
   QueryClientProvider,
 } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import {
-  isAuthError,
-  isNetworkError,
-  isServerError,
-} from '@/types/error';
+import { ApiError } from '@/api/error';
 
 interface QueryProviderProps {
   children: ReactNode;
@@ -28,8 +24,17 @@ export function QueryProvider({ children }: QueryProviderProps) {
             refetchOnReconnect: true, // 네트워크가 다시 연결될 때 자동으로 다시 가져오기
             // 에러 발생 시 재시도 설정
             retry: (failureCount, error) => {
-              if (isAuthError(error)) return false; // 인증 에러는 재시도하지 않음
-              if (isNetworkError(error) || isServerError(error)) {
+              let apiErr: ApiError;
+              try {
+                apiErr = ApiError.wrap(error);
+              } catch {
+                // AxiosError가 아닌 경우 재시도하지 않음
+                return false;
+              }
+              // 401 (인증 실패)이면 재시도 금지
+              if (apiErr.isAuthError()) return false;
+              // 네트워크/서버 오류면 최대 2회 재시도
+              if (apiErr.isNetworkError() || apiErr.isServerError()) {
                 return failureCount < 2;
               }
               return false;

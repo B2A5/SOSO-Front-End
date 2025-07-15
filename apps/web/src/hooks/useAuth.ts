@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { useAuthStore } from '@/stores/authStore';
 import { authApi } from '@/api/auth';
 import { retryFn, retryDelayFn } from '@/utils/query';
+import { ApiError } from '@/api/error';
 
 /**
  * 인증 관련 훅
@@ -31,8 +32,7 @@ export function useAuth() {
     queryKey: ['auth', 'profile'],
     queryFn: () => authApi.getProfile(),
     enabled: isAuth && !!accessToken, // 인증된 상태에서만 호출(엑세스 토큰이 있을 때)
-    staleTime: 5 * 60 * 1000, // 5분간 캐시 유지
-    retry: (count, err) => retryFn(count, err),
+    retry: (count, err) => retryFn(count, err as ApiError),
     retryDelay: retryDelayFn,
   });
 

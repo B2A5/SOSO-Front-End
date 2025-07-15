@@ -1,6 +1,6 @@
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 import { useAuthStore } from '@/stores/authStore';
-import { ApiErrorResponse } from '@/types/error';
+import { ApiErrorResponse } from '@/api/error';
 
 interface RetryConfig extends AxiosRequestConfig {
   _retry?: boolean;

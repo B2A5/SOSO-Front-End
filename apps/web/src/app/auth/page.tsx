@@ -22,7 +22,7 @@ export default function AuthPage() {
               className="w-full bg-black"
               onClick={() => router.push('/auth/signup')}
             >
-              구글로 로그인
+              애플로 로그인
             </Button>
           </div>
           <p className="text-center text-neutral-500">
