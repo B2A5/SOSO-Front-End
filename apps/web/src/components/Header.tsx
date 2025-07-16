@@ -25,15 +25,19 @@ export default function Header({
     <header className="w-full flex justify-between items-center py-[6px] px-5">
       <div className="flex-1">
         {leftButtonType === 'back' && (
-          <Button onClick={() => router.back()}>이전</Button>
+          <Button variant="ghost" onClick={() => router.back()}>
+            이전
+          </Button>
         )}
         {leftButtonType === 'cancel' && (
-          <Button onClick={() => router.back()}>취소</Button>
+          <Button variant="ghost" onClick={() => router.back()}>
+            취소
+          </Button>
         )}
       </div>
       <h1 className="text-body1 font-bold text-center">{title}</h1>
       <div className="flex justify-end flex-1">
-        {showSearch && <Button>검색</Button>}
+        {showSearch && <Button variant="ghost">검색</Button>}
       </div>
     </header>
   );
