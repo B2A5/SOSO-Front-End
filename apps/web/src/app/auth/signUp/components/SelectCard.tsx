@@ -4,14 +4,18 @@ export function SelectCard({
   title,
   description,
   onClick,
+  isSelected = false,
 }: {
   title: string;
   description: string;
   onClick: () => void;
+  isSelected?: boolean;
 }) {
   return (
     <Card
-      className="w-full max-w-md flex gap-4 items-center p-10"
+      className={`w-full max-w-md flex gap-4 items-center p-10 cursor-pointer ${
+        isSelected ? 'border-2 border-soso-700' : ''
+      }`}
       onClick={onClick}
     >
       <div className="size-20 bg-neutral-200"></div>

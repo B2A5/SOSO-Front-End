@@ -1,4 +1,5 @@
 'use client';
+
 import React, {
   createContext,
   useContext,
@@ -7,16 +8,16 @@ import React, {
 } from 'react';
 import type { UserType } from '@/api/signup';
 
-interface SignUpState {
+interface UserTypeState {
   userType: UserType | null;
   setUserType: (type: UserType) => void;
 }
 
-const SignUpContext = createContext<SignUpState | undefined>(
+const UserTypeContext = createContext<UserTypeState | undefined>(
   undefined,
 );
 
-export function SignUpProvider({
+export function UserTypeProvider({
   children,
 }: {
   children: ReactNode;
@@ -24,17 +25,17 @@ export function SignUpProvider({
   const [userType, setUserType] = useState<UserType | null>(null);
 
   return (
-    <SignUpContext.Provider value={{ userType, setUserType }}>
+    <UserTypeContext.Provider value={{ userType, setUserType }}>
       {children}
-    </SignUpContext.Provider>
+    </UserTypeContext.Provider>
   );
 }
 
-export function useSignUp() {
-  const context = useContext(SignUpContext);
+export function useUserType() {
+  const context = useContext(UserTypeContext);
   if (!context)
     throw new Error(
-      'useSignUp 훅은 SignUpProvider 안에서만 사용할 수 있습니다.',
+      'useUserType 훅은 UserTypeProvider 안에서만 사용할 수 있습니다.',
     );
   return context;
 }
