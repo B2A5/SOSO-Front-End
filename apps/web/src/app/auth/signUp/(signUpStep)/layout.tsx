@@ -1,6 +1,7 @@
 'use client';
 import { useUserType } from '@/app/auth/signup/UserTypeContext';
 import Header from '@/components/Header';
+
 export default function SignUpStepLayout({
   children,
 }: {
@@ -15,6 +16,7 @@ export default function SignUpStepLayout({
     }
     return '주민';
   };
+
   return (
     <div className="flex flex-col items-center h-full">
       <Header
@@ -22,7 +24,8 @@ export default function SignUpStepLayout({
         showSearch={false}
         leftButtonType="back"
       />
-      <div className="w-full flex-1 h-full">{children}</div>
+
+      <div className="w-full flex-1 h-full p-layout">{children}</div>
     </div>
   );
 }

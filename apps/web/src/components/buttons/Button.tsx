@@ -4,9 +4,28 @@ import { twMerge } from 'tailwind-merge';
 import { useTap } from '@/hooks/ui/useTap';
 import { Spinner } from '@/components/loadings/Spinner';
 
+/**
+ * Button 컴포넌트
+ * 사용자 정의 버튼 컴포넌트로, 다양한 변형(variant)과 크기(size)를 지원합니다.
+ * 로딩 상태와 아이콘을 지원하며, 접근성 고려한 키보드 포커스 스타일을 포함합니다.
+ *
+ * @component
+ * @param {Object} props - 컴포넌트 속성
+ * @param {Variant} [props.variant='filled'] - 버튼의 변형 스타일
+ * @param {Size} [props.size='md'] - 버튼의 크기
+ * @param {boolean} [props.isLoading=false] - 로딩 상태 여부
+ * @param {string} [props.loadingText='Loading…'] - 로딩 중 표시할 텍스트
+ * @param {React.ReactNode} [props.startIcon] - 버튼 앞에 표시할 아이콘
+ * @param {React.ReactNode} [props.endIcon] - 버튼 뒤에 표시할 아이콘
+ * @param {string} [props.className] - 추가적인 클래스 이름
+ * @param {boolean} [props.disabled=false] - 버튼 비활성화 여부
+ * @param {React.ButtonHTMLAttributes<HTMLButtonElement>} rest - 기타 HTML 속성
+ * @returns {JSX.Element} - 렌더링된 버튼 컴포넌트
+ */
+
 /* ---------- 1. 타입 ---------- */
 
-type Variant = 'filled' | 'outlined' | 'ghost';
+type Variant = 'filled' | 'outlined' | 'bottom';
 type Size = 'sm' | 'md' | 'lg';
 
 export interface ButtonProps
@@ -32,8 +51,8 @@ const variantMap: Record<Variant, string> = {
   filled: 'bg-soso-500 text-white hover:bg-soso-600',
   outlined:
     'bg-white text-soso-600 border border-soso-600 hover:bg-soso-600 hover:text-white',
-  ghost:
-    'bg-transparent text-fontColor-gray2 hover:bg-neutral-100 active:ring-neutral-600',
+  bottom:
+    'bg-white text-fontColor-gray2 hover:bg-neutral-100 active:text-fontColor-gray3 active:ring-neutral-600',
 };
 
 /** 비활성화 상태 클래스 */
@@ -41,7 +60,7 @@ const disabledMap: Record<Variant, string> = {
   filled: 'disabled:bg-neutral-300 disabled:text-neutral-600',
   outlined:
     'disabled:border-neutral-300 disabled:text-neutral-300 disabled:bg-transparent',
-  ghost: 'disabled:bg-neutral-0 disabled:text-fontColor-gray1',
+  bottom: 'disabled:bg-neutral-0 disabled:text-fontColor-gray1',
 };
 
 /** 크기별 클래스 */
