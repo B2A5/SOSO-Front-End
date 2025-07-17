@@ -18,16 +18,6 @@ export interface AsideButtonProps {
   onClick?: (value: string) => void;
 }
 
-/* AsideButton 컴포넌트의 목업 데이터 */
-export const mockAsideButtonData: AsideButtonProps[] = [
-  { value: 'button-1', label: '버튼 1' },
-  { value: 'button-2', label: '버튼 2' },
-  { value: 'button-3', label: '버튼 3' },
-  { value: 'button-4', label: '버튼 4' },
-  { value: 'button-5', label: '버튼 5' },
-  { value: 'button-6', label: '버튼 6' },
-];
-
 /*  클릭 이벤트 핸들러 */
 export const handleButtonClick = (
   value: string,
