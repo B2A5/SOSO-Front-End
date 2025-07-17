@@ -69,20 +69,6 @@ export default function FloatingButton() {
       >
         +
       </button>
-      {/* 오버레이 */}
-      {isMounted && (
-        <div
-          onClick={() => setIsOpen(false)}
-          className={twMerge(`
-            fixed inset-0 z-40 backdrop-blur-sm bg-black/30
-            ${isOpen ? 'fade-in' : 'fade-out pointer-events-none'}
-          `)}
-          onAnimationEnd={() => {
-            handleAnimationEnd();
-          }}
-          aria-hidden="true"
-        />
-      )}
     </aside>
   );
 }
