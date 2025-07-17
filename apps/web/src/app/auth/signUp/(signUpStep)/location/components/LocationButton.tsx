@@ -1,3 +1,4 @@
+'use client';
 import { twMerge } from 'tailwind-merge';
 import { useDaumPostcodePopup } from 'react-daum-postcode';
 import { DaumPostcodeResponse } from '@/types/daumPostcode.types';
@@ -6,8 +7,10 @@ import { DaumPostcodeResponse } from '@/types/daumPostcode.types';
 
 export function LocationButton({
   onAddressSelect,
+  selectedAddress,
 }: {
   onAddressSelect: (address: string) => void;
+  selectedAddress: string | null;
 }) {
   const open = useDaumPostcodePopup(
     'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js',
@@ -37,20 +40,24 @@ export function LocationButton({
   const handleClick = () => {
     open({ onComplete: handleComplete });
   };
-  const LayoutClass = 'max-w-[200px] w-full h-11 px-5 py-3 flex';
+  const LayoutClass = ' h-11 px-5 py-3 flex items-center';
   const StyleClass =
-    'bg-white hover:ring-soso-600 active:ring-soso-600 rounded-full';
+    'bg-white ring hover:ring-soso-600 active:ring-soso-600 rounded-full justify-between';
+  const SelectedClass = selectedAddress
+    ? 'text-black'
+    : 'text-input1 text-neutral-200 hover:text-neutral-400 active:text-neutral-700';
   return (
     <button
-      className={twMerge(LayoutClass, StyleClass)}
+      className={twMerge(LayoutClass, StyleClass, SelectedClass)}
       onClick={handleClick}
     >
-      <svg className="fill-neutral-200 hover:fill-neutral-400 active:fill-neutral-700 w-5 h-5">
-        <use href="icons/LocationIcon.svg" />
+      <svg className=" fill-neutral-200 hover:fill-neutral-400 active:fill-neutral-700 w-5 h-5">
+        <use href="/icons/LocationIcon.svg" />
       </svg>
-      <span className="text-input1 text-neutral-200 hover:text-neutral-400 active:text-neutral-700">
-        동명(읍,면) 으로 검색 (ex.삼성동)
-      </span>
+      <p className="flex-1 ">
+        {selectedAddress ?? '동명(읍,면) 으로 검색 (ex.삼성동)'}
+      </p>
+      <div />
     </button>
   );
 }
