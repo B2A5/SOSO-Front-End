@@ -5,6 +5,7 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/buttons/Button';
+import Image from 'next/image';
 
 type LeftButtonType = 'back' | 'cancel';
 
@@ -25,9 +26,18 @@ export default function Header({
     <header className="w-full flex justify-between items-center py-[6px] px-5">
       <div className="flex-1">
         {leftButtonType === 'back' && (
-          <Button variant="ghost" onClick={() => router.back()}>
-            이전
-          </Button>
+          <Button
+            variant="ghost"
+            onClick={() => router.back()}
+            startIcon={
+              <Image
+                src="/icons/UndoIcon.svg"
+                alt="뒤로가기"
+                width={24}
+                height={24}
+              />
+            }
+          />
         )}
         {leftButtonType === 'cancel' && (
           <Button variant="ghost" onClick={() => router.back()}>

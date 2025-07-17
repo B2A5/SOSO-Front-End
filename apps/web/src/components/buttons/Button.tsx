@@ -25,7 +25,7 @@ import { Spinner } from '@/components/loadings/Spinner';
 
 /* ---------- 1. 타입 ---------- */
 
-type Variant = 'filled' | 'outlined' | 'bottom';
+type Variant = 'filled' | 'outlined' | 'bottom' | 'ghost';
 type Size = 'sm' | 'md' | 'lg';
 
 export interface ButtonProps
@@ -53,6 +53,9 @@ const variantMap: Record<Variant, string> = {
     'bg-white text-soso-600 border border-soso-600 hover:bg-soso-600 hover:text-white',
   bottom:
     'bg-white text-fontColor-gray2 hover:bg-neutral-100 active:text-fontColor-gray3 active:ring-neutral-600',
+
+  ghost:
+    'bg-transparent rounded-1 text-fontColor-gray1 hover:text-fontColor-gray2 active:text-black',
 };
 
 /** 비활성화 상태 클래스 */
@@ -61,6 +64,8 @@ const disabledMap: Record<Variant, string> = {
   outlined:
     'disabled:border-neutral-300 disabled:text-neutral-300 disabled:bg-transparent',
   bottom: 'disabled:bg-neutral-0 disabled:text-fontColor-gray1',
+
+  ghost: 'bg-neutral-0 text-fontColor-gray1',
 };
 
 /** 크기별 클래스 */

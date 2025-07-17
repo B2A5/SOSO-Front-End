@@ -2,7 +2,7 @@
 import Button from '@/components/buttons/Button';
 import ProgressBar from '@/components/loadings/ProgressBar';
 
-export function profilesPage() {
+export default function profilesPage() {
   return (
     <div>
       <ProgressBar startStep={2} endStep={3} totalStep={5} />
