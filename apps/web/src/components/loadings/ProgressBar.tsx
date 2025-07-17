@@ -12,9 +12,9 @@ export default function ProgressBar({
   startStep,
   endStep,
   totalStep,
-  durationMs = 800,
+  durationMs = 500,
 }: ProgressBarProps) {
-  // 1) 퍼센트 계산
+  // 1️⃣ 퍼센트 계산
   const startPercent =
     totalStep > 0
       ? Math.max(0, Math.min(100, (startStep / totalStep) * 100))
@@ -24,25 +24,27 @@ export default function ProgressBar({
       ? Math.max(0, Math.min(100, (endStep / totalStep) * 100))
       : 0;
 
-  // 2) 내부 상태로 관리할 width (%)
+  // 2️⃣ 내부 상태로 관리할 width (%)
   const [width, setWidth] = useState(startPercent);
 
   useEffect(() => {
-    // 다음 틱에서 endPercent로 업데이트하여 애니메이션 트리거
-    const id = requestAnimationFrame(() => {
+    // 3️⃣ 다음 프레임에서 endPercent로 업데이트하여 CSS transition 트리거
+    //   ⏩ requestAnimationFrame 사용
+    const raf = requestAnimationFrame(() => {
       setWidth(endPercent);
     });
-    return () => cancelAnimationFrame(id);
-  }, [endPercent]);
+    return () => cancelAnimationFrame(raf);
+  }, [startPercent, endPercent]); // startStep 변화 시에도 리셋 후 애니메이션
 
   return (
     <div className="relative w-full h-2 bg-neutral-0 rounded-full overflow-hidden">
       <div
-        className={`
-          absolute left-0 top-0 h-full bg-soso-500
-          transition-[width] duration-[${durationMs}ms] ease-in-out
-        `}
-        style={{ width: `${width}%` }}
+        className="absolute left-0 top-0 h-full bg-soso-500"
+        style={{
+          width: `${width}%`,
+          // ⚡ 변경된 위치: inline style로 transition 적용
+          transition: `width ${durationMs}ms ease-in-out`,
+        }}
       />
     </div>
   );
