@@ -47,12 +47,13 @@ export default function AsideButton({
   const router = useRouter();
 
   const className = twMerge(`
-    w-25 h-12 px-4 text-body rounded-3xl transition-colors duration-150 ease-in-out
-    border border-transparent focus:outline-none focus-visible:ring-2 focus-visible:ring-soso-500
-    hover:bg-soso-0 hover:text-soso-600
-    focus-visible:bg-soso-0 focus-visible:text-soso-600
-    ${pressed ? 'bg-soso-0 text-soso-600' : 'bg-white text-fontColor-gray3'}
-  `);
+  w-25 h-12 px-4 text-body rounded-3xl transition-colors duration-150 ease-in-out
+  border border-transparent
+  focus:outline-none
+  focus:bg-soso-0 focus:text-soso-600
+  hover:bg-soso-0 hover:text-soso-600
+  ${pressed ? 'bg-soso-0 text-soso-600' : 'bg-white text-fontColor-gray3'}
+`);
 
   return (
     <button
