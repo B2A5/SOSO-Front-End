@@ -51,7 +51,7 @@ export default function RootLayout({
       >
         <QueryProvider>
           {/*  */}
-          <main className="w-full max-w-screen-md md:mx-auto flex-1 overflow-auto">
+          <main className="w-full h-full max-w-screen-md md:mx-auto flex-1 overflow-auto">
             {children}
             <ToastContainer />
           </main>
