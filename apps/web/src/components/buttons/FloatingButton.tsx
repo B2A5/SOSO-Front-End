@@ -4,6 +4,8 @@ import { useState } from 'react';
 import AsideButton from './AsideButton';
 import { CATEGORY_LIST } from './constant';
 import { twMerge } from 'tailwind-merge';
+import FloatingOpenIcon from '@/assets/images/FloatingOpenImage';
+import FloatingCloseIcon from '@/assets/images/FloatingCloseImage';
 
 /** * 플로팅 버튼 컴포넌트
  * - AsideButton을 사용하여 카테고리 목록을 표시
@@ -67,7 +69,11 @@ export default function FloatingButton() {
         `)}
         onClick={handleFloatingButtonClick}
       >
-        +
+        {isOpen ? (
+          <FloatingCloseIcon /> // 닫기용 아이콘
+        ) : (
+          <FloatingOpenIcon /> // 열기용 아이콘
+        )}
       </button>
     </aside>
   );
