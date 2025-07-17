@@ -38,7 +38,7 @@ export default function FloatingButton() {
           role="menu"
           aria-hidden={!isOpen}
           className={twMerge(`
-            z-50 
+            z-300 
             grid grid-cols-2 gap-4 w-max
             transition-all duration-300 ease-out
             ${isOpen ? 'fade-in ' : 'fade-out pointer-events-none'}
@@ -61,7 +61,7 @@ export default function FloatingButton() {
         aria-controls="floating-menu" // 연결된 메뉴의 id 속성값
         aria-expanded={isOpen}
         className={twMerge(`
-          z-50
+          z-300
           w-12 h-12 rounded-full text-white shadow-lg border-2 border-soso-600 transition-colors duration-200
           ${isOpen ? 'bg-soso-600' : 'bg-white text-soso-600 '}
         `)}
