@@ -13,12 +13,12 @@ import { twMerge } from 'tailwind-merge';
  */
 export default function FloatingButton() {
   const [isOpen, setIsOpen] = useState(false); //애니메이션 제어 전용
-  const [isVisible, setIsVisible] = useState(false); // 렌더링 제어 전용
+  const [isMounted, setIsMounted] = useState(false); // 렌더링 제어 전용
 
   //플로팅 버튼 클릭시 상태를 변경하는 이벤트 핸들러
   const handleFloatingButtonClick = () => {
     if (!isOpen) {
-      setIsVisible(true); // 바로 렌더링
+      setIsMounted(true); // 바로 렌더링
       setIsOpen(true); // fade-in 바로 작동
     } else {
       setIsOpen(false); // fade-out 클래스 붙이기
@@ -26,13 +26,13 @@ export default function FloatingButton() {
   };
 
   const handleAnimationEnd = () => {
-    if (!isOpen) setIsVisible(false);
+    if (!isOpen) setIsMounted(false);
   };
 
   return (
     <aside className="fixed bottom-20 right-4 flex flex-col items-end gap-5">
       {/* 플로팅 메뉴 */}
-      {isVisible && (
+      {isMounted && (
         <ul
           id="floating-menu"
           role="menu"
@@ -70,7 +70,7 @@ export default function FloatingButton() {
         +
       </button>
       {/* 오버레이 */}
-      {isVisible && (
+      {isMounted && (
         <div
           onClick={() => setIsOpen(false)}
           className={twMerge(`
