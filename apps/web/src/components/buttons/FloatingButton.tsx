@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import AsideButton from './AsideButton';
 import { CATEGORY_LIST } from './constant';
 import { twMerge } from 'tailwind-merge';
@@ -17,7 +17,9 @@ import FloatingCloseIcon from '@/assets/images/FloatingCloseImage';
 export default function FloatingButton() {
   const [isOpen, setIsOpen] = useState(false); //애니메이션 제어 전용
   const [isMounted, setIsMounted] = useState(false); // 렌더링 제어 전용
+  const floatingButtonRef = useRef<HTMLButtonElement>(null); // 포커스 제어용 플로팅 버튼 참조
 
+  /*  키보드 접근성 관련  */
   // 메뉴 열릴 때 첫 번째 버튼에 포커스
   useEffect(() => {
     if (isOpen) {
@@ -33,6 +35,7 @@ export default function FloatingButton() {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setIsOpen(false);
+        floatingButtonRef.current?.focus(); //플로팅 버튼에 포커스 이동동
       }
     };
 
@@ -112,7 +115,7 @@ export default function FloatingButton() {
             z-300 
             grid grid-cols-2 gap-4 w-max
             transition-all duration-300 ease-out
-            ${isOpen ? 'fade-in ' : 'fade-out pointer-events-none'}
+            ${isOpen ? 'fade-in ' : 'fade-out '}
           `)}
           onAnimationEnd={() => {
             handleAnimationEnd();
@@ -132,6 +135,7 @@ export default function FloatingButton() {
         aria-haspopup="menu" // 메뉴를 여는 토글 버튼임을 명시
         aria-controls="floating-menu" // 연결된 메뉴의 id 속성값
         aria-expanded={isOpen}
+        ref={floatingButtonRef}
         className={twMerge(`
           z-300
           w-12 h-12 rounded-full text-white shadow-lg border-2 border-soso-600 transition-colors duration-200
