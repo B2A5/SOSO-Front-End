@@ -10,7 +10,6 @@ import FloatingCloseIcon from '@/assets/images/FloatingCloseImage';
 /** * 플로팅 버튼 컴포넌트
  * - AsideButton을 사용하여 카테고리 목록을 표시
  * - 버튼 클릭 시 AsideButton이 열리고 닫히는 기능 포함
- * - 외부 클릭 시 AsideButton 닫힘
  * - 애니메이션 효과 적용
  * - 키보드 접근성
  */
