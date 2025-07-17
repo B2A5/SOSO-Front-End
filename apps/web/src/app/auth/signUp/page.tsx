@@ -1,26 +1,26 @@
 //회원가입 초기 시작 페이지
 // apps/web/src/app/auth/signup/Page.tsx
 'use client';
-import React from 'react';
+import React, { useState } from 'react';
 import { UserType, postUserType } from '@/api/signup';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/buttons/Button';
 import { SelectCard } from './components/SelectCard';
-import { useUserType } from './UserTypeContext';
+
 import { useToast } from '@/hooks/ui/useToast';
 export default function SignUpPage() {
   const router = useRouter();
   const toast = useToast();
-  const { userType, setUserType } = useUserType();
-
+  const [userType, setUserType] = useState<UserType | null>(null);
   // 선택한 유저 타입을 서버에 전송하는 mutation
   const { mutate, isPending } = useMutation({
     mutationFn: postUserType,
     onSuccess: () => {
       // 성공 시 처리 로직
       console.log('유저 타입이 성공적으로 저장되었습니다.');
-      router.push('/auth/signup/location');
+      const type = userType === 'FOUNDER' ? 'founder' : 'inhabitant';
+      router.push(`/auth/signup/${type}/region`);
     },
     onError: (error) => {
       // 에러 처리 로직
@@ -65,9 +65,9 @@ export default function SignUpPage() {
         <SelectCard
           title="주민"
           description="우리 동네에 필요한 가게를 제안하고 싶어요"
-          isSelected={userType === 'REGION'}
+          isSelected={userType === 'INHABITANT'}
           onClick={() => {
-            handleSelect('REGION');
+            handleSelect('INHABITANT');
           }}
         />
       </section>
@@ -80,7 +80,6 @@ export default function SignUpPage() {
           className="w-full mt-1"
           onClick={handleNextButton}
           isLoading={isPending}
-          loadingText="다음으로 넘어가는중.."
           disabled={!userType}
         >
           다음

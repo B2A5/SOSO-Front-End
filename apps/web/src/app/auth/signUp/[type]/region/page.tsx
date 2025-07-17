@@ -4,10 +4,24 @@ import Button from '@/components/buttons/Button';
 import { LocationButton } from './components/LocationButton';
 import { useMutation } from '@tanstack/react-query';
 import { postRegion } from '@/api/signup';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { useToast } from '@/hooks/ui/useToast';
-export default function LocationPage() {
+import type { UserType } from '@/api/signup';
+
+export default function RegionPage() {
   const router = useRouter();
+  const params = useParams();
+  const rawType = Array.isArray(params.type)
+    ? params.type[0]
+    : params.type;
+  const paramType = rawType?.toLowerCase();
+
+  const derivedUserType: UserType | null =
+    paramType === 'founder'
+      ? 'FOUNDER'
+      : paramType === 'inhabitant'
+        ? 'INHABITANT'
+        : null;
   const toast = useToast();
   const [address, setAddress] = useState<string | null>(null);
 
@@ -15,7 +29,7 @@ export default function LocationPage() {
     mutationFn: postRegion,
     onSuccess: () => {
       console.log('지역이 성공적으로 저장되었습니다.');
-      router.push('/auth/signup/details/1');
+      router.push(`/auth/signup/${derivedUserType}/details`);
     },
     onError: (error) => {
       console.error('지역 저장에 실패했습니다.', error);
@@ -55,7 +69,6 @@ export default function LocationPage() {
         size="lg"
         disabled={!address}
         isLoading={isPending}
-        loadingText="로딩 중..."
         onClick={handleNextButtonClick}
       >
         다음

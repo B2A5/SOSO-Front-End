@@ -1,7 +1,4 @@
-import {
-  useMutation,
-  UseMutationResult,
-} from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import type { AxiosResponse } from 'axios';
 
 import {
@@ -58,17 +55,16 @@ interface StepResponseMap {
 export function useSignupStep<Step extends keyof StepRequestMap>(
   step: Step,
 ): {
-  /** 해당 스텝의 API 호출을 수행합니다. */
-  submit: (value: StepRequestMap[Step]) => void;
-  /** 요청 진행 중인지 알려주는 boolean */
-  isLoading: boolean;
-  /** React Query useMutation 결과 객체 */
-  mutation: UseMutationResult<
-    AxiosResponse<StepResponseMap[Step]>,
-    unknown,
-    StepRequestMap[Step],
-    unknown
-  >;
+  /** API 호출을 트리거하는 함수 */
+  mutate: (
+    value: StepRequestMap[Step],
+    options?: {
+      onSuccess?: () => void;
+      onError?: (error: unknown) => void;
+    },
+  ) => void;
+  /** 요청 진행 중 여부 */
+  isPending: boolean;
 } {
   // 3️⃣ 스텝에 따라 적절한 API 호출 분기
   const mutationFn = (
@@ -86,28 +82,16 @@ export function useSignupStep<Step extends keyof StepRequestMap>(
       case 5:
         return postExperience(value as StepRequestMap[5]);
       default:
-        return Promise.reject(new Error('Invalid step'));
+        return Promise.reject(new Error('잘못된 스텝 번호입니다.')); // 예외 처리
     }
   };
 
   // 4️⃣ React Query mutation 설정
-  const mutation = useMutation<
-    AxiosResponse<StepResponseMap[Step]>,
-    unknown,
-    StepRequestMap[Step],
-    unknown
-  >({
+  const { mutate, isPending } = useMutation({
     mutationFn: mutationFn as (
       val: StepRequestMap[Step],
     ) => Promise<AxiosResponse<StepResponseMap[Step]>>,
   });
 
-  // 5️⃣ submit 래퍼: mutation 호출
-  const submit = (value: StepRequestMap[Step]) => {
-    mutation.mutate(value);
-  };
-
-  const isLoading = mutation.isPending;
-
-  return { submit, isLoading, mutation };
+  return { mutate, isPending };
 }
