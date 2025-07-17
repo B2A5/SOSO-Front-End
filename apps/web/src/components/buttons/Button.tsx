@@ -6,7 +6,7 @@ import { Spinner } from '@/components/loadings/Spinner';
 
 /* ---------- 1. 타입 ---------- */
 
-type Variant = 'filled' | 'outlined';
+type Variant = 'filled' | 'outlined' | 'ghost';
 type Size = 'sm' | 'md' | 'lg';
 
 export interface ButtonProps
@@ -29,10 +29,11 @@ export interface ButtonProps
 
 /** 변형별 Tailwind 클래스 */
 const variantMap: Record<Variant, string> = {
-  filled:
-    'bg-soso-500 text-white hover:bg-soso-600 focus-visible:ring-soso-500',
+  filled: 'bg-soso-500 text-white hover:bg-soso-600',
   outlined:
-    'bg-transparent text-soso-600 border border-soso-600 hover:bg-soso-600 hover:text-white focus-visible:ring-soso-500',
+    'bg-white text-soso-600 border border-soso-600 hover:bg-soso-600 hover:text-white',
+  ghost:
+    'bg-transparent text-fontColor-gray2 hover:bg-neutral-100 active:ring-neutral-600',
 };
 
 /** 비활성화 상태 클래스 */
@@ -40,6 +41,7 @@ const disabledMap: Record<Variant, string> = {
   filled: 'disabled:bg-neutral-300 disabled:text-neutral-600',
   outlined:
     'disabled:border-neutral-300 disabled:text-neutral-300 disabled:bg-transparent',
+  ghost: 'disabled:bg-neutral-0 disabled:text-fontColor-gray1',
 };
 
 /** 크기별 클래스 */
