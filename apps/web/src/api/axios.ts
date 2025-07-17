@@ -1,6 +1,6 @@
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 import { useAuthStore } from '@/stores/authStore';
-import { ApiErrorResponse } from '@/api/error';
+import { ApiErrorResponse, ApiError } from '@/api/error';
 
 interface RetryConfig extends AxiosRequestConfig {
   _retry?: boolean;
@@ -31,6 +31,9 @@ apiClient.interceptors.response.use(
   async (
     error: AxiosError<ApiErrorResponse> & { config?: RetryConfig },
   ) => {
+    const apiErr = ApiError.wrap(error);
+    console.error('[API ERROR]', apiErr.code, apiErr.message);
+
     const original = error.config!;
     const data = error.response?.data;
     if (

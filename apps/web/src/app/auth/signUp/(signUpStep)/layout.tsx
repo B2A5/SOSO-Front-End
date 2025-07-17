@@ -1,7 +1,8 @@
+// src/app/auth/signup/(signUpStep)/layout.tsx
 'use client';
 import { useUserType } from '@/app/auth/signup/UserTypeContext';
 import Header from '@/components/Header';
-
+import { useRouter } from 'next/navigation';
 export default function SignUpStepLayout({
   children,
 }: {
@@ -9,8 +10,12 @@ export default function SignUpStepLayout({
 }) {
   // Context에서 유저 타입을 가져옵니다.
   const { userType } = useUserType();
+  const router = useRouter();
   // 유저 타입에 따라 페이지 제목을 설정합니다.
   const getUserType = () => {
+    if (userType == null) {
+      router.replace('/auth/signup');
+    }
     if (userType === 'FOUNDER') {
       return '창업자';
     }
