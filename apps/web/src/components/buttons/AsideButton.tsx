@@ -15,7 +15,6 @@ import { twMerge } from 'tailwind-merge';
 export interface AsideButtonProps {
   value: string;
   label: string;
-  onClick?: (value: string) => void;
 }
 
 /*  클릭 이벤트 핸들러 */
@@ -23,7 +22,6 @@ export const handleButtonClick = (
   value: string,
   router: ReturnType<typeof useRouter>,
 ) => {
-  console.log(`Button clicked: ${value}`);
   router.push(`/write?type=${value}`);
 };
 
@@ -31,7 +29,6 @@ export const handleButtonClick = (
 export default function AsideButton({
   value,
   label,
-  onClick,
 }: AsideButtonProps) {
   const [pressed, bind] = useTap();
   const router = useRouter();
@@ -51,9 +48,7 @@ export default function AsideButton({
       {...bind}
       className={className}
       value={value}
-      onClick={() =>
-        onClick ? onClick(value) : handleButtonClick(value, router)
-      }
+      onClick={() => handleButtonClick(value, router)}
     >
       {label}
     </button>
