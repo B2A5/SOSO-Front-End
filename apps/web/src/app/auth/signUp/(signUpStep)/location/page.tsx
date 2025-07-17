@@ -15,7 +15,7 @@ export default function LocationPage() {
     mutationFn: postRegion,
     onSuccess: () => {
       console.log('지역이 성공적으로 저장되었습니다.');
-      router.push('/auth/signup/profiles');
+      router.push('/auth/signup/details/1');
     },
     onError: (error) => {
       console.error('지역 저장에 실패했습니다.', error);

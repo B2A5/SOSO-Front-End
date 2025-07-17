@@ -27,14 +27,16 @@ import {
  *   - mutation: React Query useMutation 결과 객체
  */
 
-// 1️⃣ 스텝별 요청 파라미터 타입 매핑
-interface StepRequestMap {
+// 스텝별 요청 파라미터 타입 매핑
+export interface StepRequestMap {
   1: Parameters<typeof postAgeRange>[0]; // AgeRange
   2: Parameters<typeof postGender>[0]; // Gender
   3: Parameters<typeof postInterests>[0]; // Interest[]
   4: Parameters<typeof postBudget>[0]; // Budget | null
   5: Parameters<typeof postExperience>[0]; // Experience
 }
+
+export type SignupStep = keyof StepRequestMap;
 
 // 2️⃣ 스텝별 응답 데이터 타입 매핑
 interface StepResponseMap {

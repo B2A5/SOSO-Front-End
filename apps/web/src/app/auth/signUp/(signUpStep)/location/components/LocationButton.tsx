@@ -2,8 +2,13 @@
 import { twMerge } from 'tailwind-merge';
 import { useDaumPostcodePopup } from 'react-daum-postcode';
 import { DaumPostcodeResponse } from '@/types/daumPostcode.types';
-// 인풋처럼 보이지만 버튼 역할을 하는 컴포넌트
-// 클릭하면 다음 주소 검색 페이지로 이동
+/**
+ * 주소 검색 버튼 컴포넌트
+ * 인풋처럼 보이지만 버튼 역할을 하는 컴포넌트
+ * 클릭하면 다음 주소 검색 페이지로 이동
+ * 주소 선택 후 onAddressSelect 콜백 함수 호출
+ * 선택된 주소는 selectedAddress로 표시
+ */
 
 export function LocationButton({
   onAddressSelect,
