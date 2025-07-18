@@ -40,7 +40,7 @@ export default function SignUpCompletePage() {
       <div className="flex-1 w-full flex justify-center items-center">
         <CompleteImg />
       </div>
-      <Button className="w-full ">SOSO 시작하기</Button>
+      <Button className="w-full">SOSO 시작하기</Button>
     </div>
   );
 }
