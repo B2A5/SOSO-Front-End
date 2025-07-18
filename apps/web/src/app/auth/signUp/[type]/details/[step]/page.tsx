@@ -85,7 +85,10 @@ export default function DetailsPage() {
             `/auth/signup/${derivedUserType!.toLowerCase()}/details/${step + 1}`,
           );
         } else {
-          console.log('회원가입 완료');
+          console.log('회원가입 완료!');
+          router.push(
+            `/auth/signup/${derivedUserType!.toLowerCase()}/complete`,
+          );
         }
       },
       onError: (err) => {

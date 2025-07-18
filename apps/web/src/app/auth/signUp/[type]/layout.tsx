@@ -45,7 +45,7 @@ export default function SignUpStepLayout({
   if (derivedUserType == null) return null;
 
   // 4) 헤더 타이틀
-  const title = derivedUserType === 'FOUNDER' ? '창업자' : '주민';
+  const title = derivedUserType === 'FOUNDER' ? '창업자' : '주민으';
 
   return (
     <div className="flex flex-col items-center h-full">

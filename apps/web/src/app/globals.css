@@ -165,3 +165,31 @@
 @theme {
   --font-sans: 'Pretendard', sans-serif;
 }
+
+@theme {
+  --animate-slotHighlight: slotHighlight 1s ease-out forwards;
+  @keyframes slotHighlight {
+    0% {
+      opacity: 0;
+      transform: scale(0.9);
+      filter: brightness(1);
+    }
+    60% {
+      opacity: 1;
+      transform: scale(1.08);
+      filter: brightness(1.25);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+      filter: brightness(1);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slot--reduced-motion .slot-reel {
+    transition: none !important;
+    transform: translate3d(0, 0, 0) !important;
+  }
+}
