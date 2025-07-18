@@ -24,8 +24,7 @@ export default function SignUpCompletePage() {
     : params.type;
   const paramType = rawType?.toLowerCase();
   const userType = paramType === 'founder' ? '예비 창업자' : '주민';
-  const [nickname, setNickname] = useState<User | null>(null);
-  const targetText = nickname?.nickname ?? '';
+  const [nickname, setNickname] = useState<string | null>(null);
   const words = [
     '행복한 문어',
     '쓸쓸한 문어',
@@ -50,7 +49,10 @@ export default function SignUpCompletePage() {
       const { JwtAccessToken } = data;
 
       if (nickname) {
-        login({ user: nickname, accessToken: JwtAccessToken });
+        login({
+          user: nickname as unknown as User,
+          accessToken: JwtAccessToken,
+        });
         console.log('로그인이 완료되었습니다:', { data, nickname });
       } else {
         console.error('닉네임 정보가 없어 로그인할 수 없습니다.');
@@ -80,7 +82,7 @@ export default function SignUpCompletePage() {
           {userType}
           <RandomTextSpan
             options={words}
-            targetText={targetText}
+            targetText={nickname!}
             className="min-w-[10ch]" // 가장 긴 텍스트 기준 폭 확보
           />
           님의 앞날을 응원할게요!

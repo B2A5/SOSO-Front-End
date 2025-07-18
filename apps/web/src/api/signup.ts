@@ -1,5 +1,4 @@
 // src/api/signup.ts
-import { User } from '@/types/auth.types';
 import apiClient from './axios';
 
 /** 1️⃣ 유저 타입 입력 */
@@ -70,7 +69,7 @@ export function postExperience(experience: Experience) {
 /** 8️⃣ 닉네임 자동 생성 */
 export async function postNickname() {
   // 요청 바디 없음
-  const response = await apiClient.post<User>('/signup/nickname');
+  const response = await apiClient.post<string>('/signup/nickname');
   return response.data;
 }
 

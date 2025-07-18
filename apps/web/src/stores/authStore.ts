@@ -10,6 +10,7 @@ export interface AuthState {
   isLoading: boolean;
 
   setUser: (user: User) => void;
+  getUser: () => User | null;
   setToken: (token: string) => void;
   setLoading: (loading: boolean) => void;
   login: ({
@@ -25,13 +26,14 @@ export interface AuthState {
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       accessToken: null,
       isAuth: false,
       isLoading: false,
 
       setUser: (user) => set({ user, isAuth: true }),
+      getUser: () => get().user,
       setToken: (accessToken) => set({ accessToken }),
       setLoading: (isLoading) => set({ isLoading }),
 
@@ -46,6 +48,7 @@ export const useAuthStore = create<AuthState>()(
           isAuth: false,
           isLoading: false,
         });
+        console.log('로그아웃 되었습니다.');
       },
 
       clear: () => {
