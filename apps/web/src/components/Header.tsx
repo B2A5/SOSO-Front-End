@@ -33,6 +33,7 @@ export default function Header({
               <Image
                 src="/icons/UndoIcon.svg"
                 alt="뒤로가기"
+                className="object-center h-auto w-auto"
                 width={24}
                 height={24}
               />

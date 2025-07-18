@@ -1,3 +1,4 @@
+// RandomTextSpan.tsx
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { twMerge } from 'tailwind-merge';
@@ -20,21 +21,25 @@ export function RandomTextSpan({
   options,
   targetText,
   className = '',
-  duration = 2500,
+  duration = 2000,
   speed = 100,
 }: RandomTextSpanProps) {
   const [currentIndex, setCurrentIndex] = useState<number>(() => {
     // 타겟 텍스트가 아닌 다른 옵션으로 시작
-    const targetIndex = options.findIndex(
-      (option) => option === targetText,
-    );
-    return targetIndex === 0 ? 1 : 0;
+    const idx = options.findIndex((opt) => opt === targetText);
+    return idx === 0 ? 1 : 0;
   });
 
   const [isAnimating, setIsAnimating] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const targetRef = useRef<string>(targetText);
+
+  // targetText 변경 시 ref 업데이트
+  useEffect(() => {
+    targetRef.current = targetText;
+  }, [targetText]);
 
   /**
    * 애니메이션 시작
@@ -47,43 +52,40 @@ export function RandomTextSpan({
     const startTime = Date.now();
 
     const animate = () => {
-      const elapsed = Date.now() - startTime;
-      const progress = elapsed / duration;
+      const now = Date.now();
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const targetIdx = options.findIndex(
+        (opt) => opt === targetRef.current,
+      );
 
-      if (progress < 1) {
-        // 점진적으로 속도 감소
-        const currentSpeed = speed + progress * speed * 2;
-
-        setCurrentIndex((prev) => (prev + 1) % options.length);
-        timeoutRef.current = setTimeout(animate, currentSpeed);
-      } else {
-        // 타겟 텍스트로 완료
-        const targetIndex = options.findIndex(
-          (option) => option === targetText,
-        );
-        if (targetIndex !== -1) {
-          setCurrentIndex(targetIndex);
-        }
+      // duration 경과 후 targetText가 옵션에 있으면 멈춤
+      if (elapsed >= duration && targetIdx !== -1) {
+        setCurrentIndex(targetIdx);
         setIsAnimating(false);
         setIsComplete(true);
+        return;
       }
+
+      // 회전: 경과에 따라 속도 감소
+      const currentSpeed = speed + progress * speed * 2;
+      setCurrentIndex((prev) => (prev + 1) % options.length);
+      timeoutRef.current = setTimeout(animate, currentSpeed);
     };
 
     animate();
   };
 
+  // 마운트 또는 targetText 변경 시 애니메이션 시작
   useEffect(() => {
     const timer = setTimeout(startAnimation, 500);
-
     return () => {
       clearTimeout(timer);
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
-  }, []);
+  }, [targetText]);
 
-  // 초기에는 보이지 않음
+  // 초기 렌더 시 공간 확보용 투명 텍스트
   if (!isVisible) {
     return (
       <span

@@ -1,4 +1,5 @@
 // src/api/signup.ts
+import { User } from '@/types/auth.types';
 import apiClient from './axios';
 
 /** 1️⃣ 유저 타입 입력 */
@@ -67,16 +68,20 @@ export function postExperience(experience: Experience) {
 }
 
 /** 8️⃣ 닉네임 자동 생성 */
-export function postNickname() {
+export async function postNickname() {
   // 요청 바디 없음
-  return apiClient.post<string>('/signup/nickname');
+  const response = await apiClient.post<User>('/signup/nickname');
+  return response.data;
 }
 
 /** 9️⃣ 최종 회원가입 완료 */
 export interface SignupCompleteResponse {
   JwtAccessToken: string;
 }
-export function postSignupComplete() {
+export async function postSignupComplete() {
   // 요청 바디 없음
-  return apiClient.post<SignupCompleteResponse>('/signup/complete');
+  const response = await apiClient.post<SignupCompleteResponse>(
+    '/signup/complete',
+  );
+  return response.data;
 }
