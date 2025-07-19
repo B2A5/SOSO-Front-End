@@ -23,6 +23,9 @@ export const metadata: Metadata = {
     statusBarStyle: 'default',
     title: 'SoSo',
   },
+  other: {
+    'mobile-web-app-capable': 'yes',
+  },
   openGraph: {
     title: 'SoSo',
     description: '지역 주민과 함께 만드는 창업 플랫폼',
@@ -51,7 +54,7 @@ export default function RootLayout({
       >
         <QueryProvider>
           {/*  */}
-          <main className="w-full max-w-screen-md md:mx-auto flex-1 overflow-auto">
+          <main className="w-full h-full max-w-screen-md md:mx-auto flex-1 overflow-auto">
             {children}
             <ToastContainer />
           </main>

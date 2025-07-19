@@ -9,7 +9,7 @@
 /** 서비스 내 회원 정보를 나타내는 타입 */
 export interface User {
   /** 내부 고유 회원번호 */
-  id: number;
+  id?: number;
   /** 이메일 (카카오 등 OAuth 제공자에서 받은 경우) */
   email?: string;
   /** 사용자 닉네임 */
@@ -19,11 +19,11 @@ export interface User {
   // /** 인증 제공자 종류: kakao | google | naver */
   // provider: 'kakao' | 'google' | 'naver';
   /** 제공자로부터 발급된 사용자 고유 ID */
-  providerId: string;
+  providerId?: string;
   /** 계정 생성 일시 (ISO 8601) */
-  createdAt: string;
+  createdAt?: string;
   /** 계정 정보 최신화 일시 (ISO 8601) */
-  updatedAt: string;
+  updatedAt?: string;
 }
 
 /**

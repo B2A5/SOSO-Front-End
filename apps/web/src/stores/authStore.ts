@@ -3,33 +3,41 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { User } from '@/types/auth.types';
 
-interface AuthState {
+export interface AuthState {
   user: User | null;
   accessToken: string | null;
   isAuth: boolean;
   isLoading: boolean;
 
   setUser: (user: User) => void;
+  getUser: () => User | null;
   setToken: (token: string) => void;
   setLoading: (loading: boolean) => void;
-  login: (user: User, token: string) => void;
+  login: ({
+    user,
+    accessToken,
+  }: {
+    user: User;
+    accessToken: string;
+  }) => void;
   logout: () => void;
   clear: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       accessToken: null,
       isAuth: false,
       isLoading: false,
 
       setUser: (user) => set({ user, isAuth: true }),
+      getUser: () => get().user,
       setToken: (accessToken) => set({ accessToken }),
       setLoading: (isLoading) => set({ isLoading }),
 
-      login: (user, accessToken) => {
+      login: ({ user, accessToken }) => {
         set({ user, accessToken, isAuth: true, isLoading: false });
       },
 
@@ -40,6 +48,7 @@ export const useAuthStore = create<AuthState>()(
           isAuth: false,
           isLoading: false,
         });
+        console.log('로그아웃 되었습니다.');
       },
 
       clear: () => {

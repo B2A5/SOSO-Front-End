@@ -22,7 +22,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center">
+    <div className="h-full flex flex-col items-center justify-center">
       <h1 className="text-xl font-semibold animate-fadeIn text-neutral-900 dark:text-neutral-100">
         {ready ? '소소에 오신 것을 환영합니다' : ''}
       </h1>
@@ -40,7 +40,6 @@ export default function HomePage() {
           <Button
             onClick={handleStart}
             variant="filled"
-            size="md"
             className="w-full"
           >
             소소 시작하기
