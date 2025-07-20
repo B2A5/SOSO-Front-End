@@ -21,6 +21,7 @@ export function buildKakaoAuthUrl(params: {
   url.searchParams.set('state', params.state);
   url.searchParams.set('code_challenge', params.codeChallenge);
   url.searchParams.set('code_challenge_method', 'S256');
+  //url.searchParams.set('scope', 'account_email profile_image'); // 강제적으로 받아야 하는 경우만 사용
   return url.toString();
 }
 
