@@ -5,8 +5,8 @@ import { ReactNode } from 'react';
 
 // 오버레이 옵션 타입 정의
 export interface OverlayOptions {
-  disableInteraction?: boolean; // true면 배경 스크롤 차단
-  fullScreen?: boolean; // true면 전면 배경 반투명 처리
+  blockScroll?: boolean; // true면 배경 스크롤 차단
+  backdrop?: boolean; // true면 전면 배경 반투명 처리
 }
 
 // 스토어에서 관리할 상태 타입
