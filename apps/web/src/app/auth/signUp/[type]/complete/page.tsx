@@ -51,7 +51,7 @@ export default function SignUpCompletePage() {
 
       if (nickname) {
         login({
-          user: nickname as unknown as User,
+          user: { nickname } as User,
           accessToken: JwtAccessToken,
         });
         console.log('로그인이 완료되었습니다:', { data, nickname });
@@ -67,7 +67,7 @@ export default function SignUpCompletePage() {
   const handleButtonClick = () => {
     // 회원가입 완료 로직
     completeSignup();
-    router.replace('/');
+    router.replace('/main');
   };
 
   useEffect(() => {

@@ -22,7 +22,7 @@ export function useKakaoAuth() {
   const router = useRouter();
   const params = useSearchParams();
   const toast = useToast();
-  const { setToken, setLoading } = useAuthStore();
+  const { login, setLoading } = useAuthStore();
 
   const REDIRECT_URI = process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI!;
   const KAKAO_API_KEY = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY!;
@@ -64,9 +64,12 @@ export function useKakaoAuth() {
       if (data.isNewUser) {
         router.push('/auth/signup');
       }
-      // 기존 유저는 메인 페이지로
+      // 기존 유저는 로그인하고 메인 페이지로
       else if (data.accessToken) {
-        setToken(data.accessToken);
+        login({
+          user: { nickname: '어저찌고 문어' },
+          accessToken: data.accessToken,
+        });
         router.push('/main');
       }
       // 로그인 정보가 유효하지 않은 경우
