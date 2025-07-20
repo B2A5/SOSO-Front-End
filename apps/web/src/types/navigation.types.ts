@@ -1,5 +1,10 @@
 // apps/web/src/types/navigation.ts
-import { MessageCircle, Map, Lightbulb, User } from 'lucide-react';
+import {
+  MessagesSquare,
+  MapPin,
+  Sprout,
+  CircleUser,
+} from 'lucide-react';
 
 /**
  * 네비게이션 아이템 인터페이스
@@ -17,21 +22,22 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
   {
     href: '/main/community',
     label: '커뮤니티',
-    icon: MessageCircle,
-  },
-  {
-    href: '/main/map',
-    label: '지도',
-    icon: Map,
+    icon: MessagesSquare,
   },
   {
     href: '/main/founder',
     label: '창업 도우미',
-    icon: Lightbulb,
+    icon: Sprout,
   },
+  {
+    href: '/main/map',
+    label: '지도',
+    icon: MapPin,
+  },
+
   {
     href: '/main/profile',
     label: '마이페이지',
-    icon: User,
+    icon: CircleUser,
   },
 ] as const;

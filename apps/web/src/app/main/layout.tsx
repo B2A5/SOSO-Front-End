@@ -3,7 +3,6 @@
 
 import { usePathname } from 'next/navigation';
 import { Navigation } from '@/components/Navigation';
-import { useAuthStore } from '@/stores/authStore';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -14,13 +13,9 @@ interface MainLayoutProps {
  */
 export default function MainLayout({ children }: MainLayoutProps) {
   const pathname = usePathname();
-  const user = useAuthStore((state) => state.getUser());
 
   return (
     <div className="flex flex-col h-screen bg-white">
-      <header>
-        <span>안녕하세요, {user?.nickname}님</span>
-      </header>
       {/* 메인 콘텐츠 영역 */}
       <main className="flex-1 overflow-auto pb-16">{children}</main>
 
