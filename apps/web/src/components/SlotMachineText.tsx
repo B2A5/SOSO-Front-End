@@ -1,5 +1,10 @@
 'use client';
-import { useState, useEffect, useRef, useCallback } from 'react';
+import {
+  useState,
+  useRef,
+  useCallback,
+  useLayoutEffect,
+} from 'react';
 import { twMerge } from 'tailwind-merge';
 
 /**
@@ -24,16 +29,13 @@ export function SlotMachineText({
   targetText,
   className = '',
 }: SlotMachineTextProps) {
-  const [isMounted, setIsMounted] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [currentOffset, setCurrentOffset] = useState(0);
 
   const animationRef = useRef<number | null>(null);
-  const containerRef = useRef<HTMLSpanElement>(null);
   const startTimeRef = useRef<number>(0);
   const animationTextRef = useRef<string[]>([]);
-  const lastTargetRef = useRef<string | null>(null);
 
   // 애니메이션용 텍스트 배열 생성
   const createAnimationTexts = useCallback(() => {
@@ -68,7 +70,7 @@ export function SlotMachineText({
       if (!startTimeRef.current) {
         startTimeRef.current = timestamp;
       }
-
+      // 애니메이션 시작 후 경과 시간 계산
       const elapsed = timestamp - startTimeRef.current;
 
       // targetText가 있으면 3초 후 종료, 없으면 무한 반복
@@ -149,54 +151,25 @@ export function SlotMachineText({
     setIsComplete(false);
     setCurrentOffset(0);
     startTimeRef.current = 0;
-
-    // 애니메이션 시작
-    setTimeout(() => {
-      animationRef.current = requestAnimationFrame(animate);
-    }, 100);
+    animationRef.current = requestAnimationFrame(animate);
   }, [createAnimationTexts, animate]);
 
-  // 컴포넌트 마운트 감지 (hydration 이후)
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  // targetText 변경 감지 및 애니메이션 재시작
-  useEffect(() => {
-    if (!isMounted) return;
-
-    // targetText가 변경되었을 때만 애니메이션 재시작
-    if (lastTargetRef.current !== targetText) {
-      lastTargetRef.current = targetText;
-      startAnimation();
-    }
-
+  // targetText 변경될 때마다 바로 시작 (레이아웃 단계)
+  useLayoutEffect(() => {
+    startAnimation();
     return () => {
-      if (animationRef.current) {
+      if (animationRef.current)
         cancelAnimationFrame(animationRef.current);
-      }
     };
-  }, [targetText, isMounted, startAnimation]);
+  }, [targetText, startAnimation]);
 
-  // 현재 표시할 텍스트 계산
-  const getCurrentDisplayText = (): string => {
-    if (!isAnimating && isComplete && targetText) {
-      return targetText;
-    }
-
-    // 애니메이션 중이거나 대기 중일 때는 빈 문자열 (스택에서 처리)
-    if (isAnimating) {
-      return '';
-    }
-
-    return targetText || '•••';
-  };
+  const displayText =
+    !isAnimating && isComplete && targetText ? targetText : '';
 
   return (
     <span
-      ref={containerRef}
       className={twMerge(
-        'inline-flex relative min-w-[10ch] text-center items-center', // h-12로 높이 증가
+        'inline-flex relative min-w-[8ch] text-center items-center',
         className,
       )}
       style={{
@@ -204,74 +177,69 @@ export function SlotMachineText({
         clipPath: 'inset(0)',
       }}
     >
-      {/* Hydration 완료 후에만 애니메이션 렌더링 */}
-      {isMounted && (
-        <>
-          {/* 마스킹 컨테이너 - 애니메이션 영역 제한 */}
+      {/* 마스킹 컨테이너 - 애니메이션 영역 제한 */}
+      <span
+        className="absolute inset-0 z-10 block"
+        style={{
+          overflow: 'hidden',
+          maskImage:
+            'linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)',
+          WebkitMaskImage:
+            'linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)',
+        }}
+      >
+        {/* 애니메이션용 텍스트 스택 */}
+        {isAnimating && (
           <span
-            className="absolute inset-0 z-10 block"
+            className="flex flex-col items-center w-full"
             style={{
-              overflow: 'hidden',
-              maskImage:
-                'linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)',
-              WebkitMaskImage:
-                'linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)',
+              transform: `translateY(calc(-${currentOffset}rem + 50%))`,
+              transition: 'none',
+              position: 'relative',
+              top: '50%',
             }}
           >
-            {/* 애니메이션용 텍스트 스택 */}
-            {isAnimating && (
+            {animationTextRef.current.map((text, index) => (
               <span
-                className="flex flex-col items-center w-full"
+                key={`${text}-${index}`}
+                className="flex-shrink-0 h-12 flex items-center justify-center w-full text-gray-400" // h-12로 간격 증가
                 style={{
-                  transform: `translateY(calc(-${currentOffset}rem + 50%))`,
-                  transition: 'none',
-                  position: 'relative',
-                  top: '50%',
+                  filter: 'blur(0.5px)',
                 }}
               >
-                {animationTextRef.current.map((text, index) => (
-                  <span
-                    key={`${text}-${index}`}
-                    className="flex-shrink-0 h-12 flex items-center justify-center w-full text-gray-400" // h-12로 간격 증가
-                    style={{
-                      filter: 'blur(0.5px)',
-                    }}
-                  >
-                    {text}
-                  </span>
-                ))}
+                {text}
               </span>
-            )}
+            ))}
           </span>
+        )}
+      </span>
 
-          {/* 최종 결과 텍스트 - 애니메이션 완전히 종료 후에만 표시 */}
-          <span
-            className={twMerge(
-              'absolute inset-0 flex items-center justify-center z-20 transition-all duration-300',
-              !isAnimating && isComplete
-                ? 'opacity-100'
-                : 'opacity-0',
-              isComplete
-                ? 'text-green-600 font-bold scale-105'
-                : 'text-gray-400',
-            )}
-            style={{
-              textShadow: isComplete
-                ? '0 0 8px rgba(34, 197, 94, 0.2)'
-                : 'none',
-            }}
-          >
-            {getCurrentDisplayText()}
-          </span>
-        </>
-      )}
+      {/* 최종 결과 텍스트 - 애니메이션 완전히 종료 후에만 표시 */}
+      <span
+        className={twMerge(
+          'absolute inset-0 flex items-center justify-center z-20 transition-all duration-300',
+          !isAnimating && isComplete ? 'opacity-100' : 'opacity-0',
+          isComplete
+            ? 'text-green-600 font-bold scale-105'
+            : 'text-gray-400',
+        )}
+        style={{
+          textShadow: isComplete
+            ? '0 0 8px rgba(34, 197, 94, 0.2)'
+            : 'none',
+        }}
+      >
+        {displayText}
+      </span>
+
+      {/* )} */}
 
       {/* 공간 확보용 숨김 텍스트 */}
       <span
         className="opacity-0 pointer-events-none select-none"
         aria-hidden="true"
       >
-        {targetText || '••••••••••'}
+        {targetText || '••••••••'}
       </span>
     </span>
   );
