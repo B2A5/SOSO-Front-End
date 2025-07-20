@@ -148,7 +148,10 @@ export default function DetailsPage() {
       </div>
       <div className="w-full flex flex-col gap-2 items-center p-1">
         {!isRequired && (
-          <TextButton className="text-sm" onClick={handleSkip}>
+          <TextButton
+            className="text-sm text-neutral-300"
+            onClick={handleSkip}
+          >
             건너뛰기
           </TextButton>
         )}
