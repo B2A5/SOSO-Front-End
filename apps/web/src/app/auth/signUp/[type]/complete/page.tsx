@@ -76,17 +76,15 @@ export default function SignUpCompletePage() {
 
   return (
     <div className="p-layout w-full h-full flex flex-col items-center justify-between pt-[90px]">
-      <div className="flex flex-col items-center gap-4 max-w-[240px]">
+      <div className="flex flex-col items-center gap-4 max-w-[270px] w-full">
         <h1 className="text-hero dark:text-white">
           가입이 완료됐어요!
         </h1>
         <p className="text-body1 text-center dark:text-white">
-          <span className="text-bold dark:text-white">
-            &quot;SOSO&quot;
-          </span>
-          의 {userType}
+          &quot;SOSO&quot;의 {userType}
           <SlotMachineText options={words} targetText={nickname!} />
-          님의 앞날을 응원할게요!
+          님의 <br />
+          앞날을 응원할게요!
         </p>
       </div>
       <div className="flex-1 w-full flex justify-center items-center">

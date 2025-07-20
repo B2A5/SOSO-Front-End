@@ -8,7 +8,7 @@ export default function CompleteImg({
   return (
     <div
       className={twMerge(
-        'relative max-w-[375px] max-h-[250px] w-full h-full',
+        'relative max-w-[375px] max-h-[250px] w-full h-full  flex items-center justify-center',
         className,
       )}
     >
@@ -17,7 +17,7 @@ export default function CompleteImg({
         alt="가입 완료 이미지 배경"
         fill
         priority
-        className="absolute object-cover animate-fadeInOpacity animate-bgGrow"
+        className="absolute object-cover animate-bgGrow"
       />
       <Image
         src="/somoon/complete_somoon.svg"
@@ -25,7 +25,7 @@ export default function CompleteImg({
         width="375"
         height="200"
         priority
-        className="absolute object-cover top-8 h-auto w-auto"
+        className="absolute object-cover top-16 h-auto w-auto"
       />
     </div>
   );
