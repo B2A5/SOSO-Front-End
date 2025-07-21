@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/buttons/Button';
 import { useParams } from 'next/navigation';
-import { RandomTextSpan } from '@/components/RandomTextSpan';
+import { SlotMachineText } from '@/components/SlotMachineText';
 import CompleteImg from './components/CompleteImg';
 import { useMutation } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/authStore';
@@ -37,6 +37,7 @@ export default function SignUpCompletePage() {
     mutationFn: postNickname,
     onSuccess: (data) => {
       setNickname(data);
+      console.log('닉네임이 성공적으로 생성되었습니다:', data);
     },
     onError: (error) => {
       console.error('Error saving nickname:', error);
@@ -75,17 +76,15 @@ export default function SignUpCompletePage() {
 
   return (
     <div className="p-layout w-full h-full flex flex-col items-center justify-between pt-[90px]">
-      <div className="flex flex-col items-center gap-4 max-w-[240px]">
-        <h1 className="text-hero">가입이 완료됐어요!</h1>
-        <p className="text-body1 text-center">
-          <span className="text-bold">&quot;SOSO&quot;</span>의{' '}
-          {userType}
-          <RandomTextSpan
-            options={words}
-            targetText={nickname!}
-            className="min-w-[10ch]" // 가장 긴 텍스트 기준 폭 확보
-          />
-          님의 앞날을 응원할게요!
+      <div className="flex flex-col items-center gap-4 max-w-[270px] w-full">
+        <h1 className="text-hero dark:text-white">
+          가입이 완료됐어요!
+        </h1>
+        <p className="text-body1 text-center dark:text-white">
+          &quot;SOSO&quot;의 {userType}
+          <SlotMachineText options={words} targetText={nickname!} />
+          님의 <br />
+          앞날을 응원할게요!
         </p>
       </div>
       <div className="flex-1 w-full flex justify-center items-center">

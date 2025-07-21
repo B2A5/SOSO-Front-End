@@ -52,7 +52,7 @@ export default function Contents<Step extends SignupStep>({
   );
 
   return (
-    <div className="w-full flex-col items-start justify-start">
+    <div className="w-full flex-col items-start justify-start animate-fadeIn">
       <h2 className="text-xl font-semibold mb-4">{title}</h2>
       <div className="flex flex-col gap-6">
         {contents.map(({ label, value }) => {

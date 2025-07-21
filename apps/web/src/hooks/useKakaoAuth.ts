@@ -79,9 +79,15 @@ export function useKakaoAuth() {
       }
     },
     onError(err) {
+      clearKakaoAuthData();
       setLoading(false);
       console.error(err);
       toast('카카오 로그인에 실패했습니다.', 'error');
+
+      // URL에서 code, state 제거
+      const cleanUrl =
+        window.location.origin + window.location.pathname;
+      window.history.replaceState({}, '', cleanUrl);
       throw new Error(
         '카카오 로그인 실패: ' + ApiError.getErrorMessage(err),
       );
