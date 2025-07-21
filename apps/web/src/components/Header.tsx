@@ -5,7 +5,7 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/buttons/Button';
-import Image from 'next/image';
+import { Search, ChevronLeft } from 'lucide-react';
 
 type LeftButtonType = 'back' | 'cancel';
 
@@ -23,22 +23,12 @@ export default function Header({
   const router = useRouter();
 
   return (
-    <header className="w-full flex justify-between items-center py-[6px] px-5">
+    <header className="w-full flex justify-between items-center py-[6px] px-5 border-b border-neutral-100">
       <div className="flex-1">
         {leftButtonType === 'back' && (
-          <Button
-            variant="ghost"
-            onClick={() => router.back()}
-            startIcon={
-              <Image
-                src="/icons/UndoIcon.svg"
-                alt="뒤로가기"
-                className="object-center h-auto w-auto"
-                width={24}
-                height={24}
-              />
-            }
-          />
+          <Button variant="ghost" onClick={() => router.back()}>
+            <ChevronLeft className="w-5 h-5" />
+          </Button>
         )}
         {leftButtonType === 'cancel' && (
           <Button variant="ghost" onClick={() => router.back()}>
@@ -48,7 +38,11 @@ export default function Header({
       </div>
       <h1 className="text-body1 font-bold text-center">{title}</h1>
       <div className="flex justify-end flex-1">
-        {showSearch && <Button variant="ghost">검색</Button>}
+        {showSearch && (
+          <Button variant="ghost" onClick={() => console.log('검색')}>
+            <Search className="w-5 h-5" />
+          </Button>
+        )}
       </div>
     </header>
   );
