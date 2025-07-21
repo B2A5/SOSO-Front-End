@@ -34,7 +34,6 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     label: '지도',
     icon: MapPin,
   },
-
   {
     href: '/main/profile',
     label: '마이페이지',
