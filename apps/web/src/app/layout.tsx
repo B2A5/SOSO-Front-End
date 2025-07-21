@@ -4,6 +4,7 @@ import './globals.css';
 import { QueryProvider } from '@/providers/queryProvider';
 import pretendardFont from '@/assets/fonts/PretandardFont';
 import { ToastContainer } from '@/components/toast/ToastContainer';
+import { OverlayPortal } from '@/components/overlayPortal';
 
 export const metadata: Metadata = {
   title: 'SoSo – Local Biz Helper',
@@ -58,6 +59,7 @@ export default function RootLayout({
             {children}
             <ToastContainer />
           </main>
+          <OverlayPortal />
         </QueryProvider>
       </body>
     </html>
