@@ -32,6 +32,7 @@ export function SlotMachineText({
   const [isAnimating, setIsAnimating] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [currentOffset, setCurrentOffset] = useState(0);
+  // state를 사용하면 렌더링이 자주 발생할 수 있어 js DOM element를 사용
 
   const animationRef = useRef<number | null>(null);
   const startTimeRef = useRef<number>(0);
