@@ -24,7 +24,6 @@ export function Navigation({ currentPath }: BottomNavigationProps) {
         currentPath.startsWith(`${href}/`)
       );
     }
-    // 나머지 메뉴도 기본 + 하위 경로 체크
     return currentPath === href || currentPath.startsWith(`${href}/`);
   };
 

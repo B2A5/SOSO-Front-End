@@ -5,6 +5,7 @@ import React, {
   useEffect,
   useCallback,
 } from 'react';
+import { twMerge } from 'tailwind-merge';
 
 /**
  * 탭 컴포넌트의 언더라인 스타일 타입
@@ -151,10 +152,10 @@ export function Tab({
 
       {/* 언더바 */}
       <div
-        className={`
-          absolute bottom-0 h-0.5 bg-gray-900 transition-all duration-300 ease-out
-          ${!isInitialized ? 'opacity-0' : 'opacity-100'}
-        `}
+        className={twMerge(
+          'absolute bottom-0 h-0.5 bg-gray-900 transition-all duration-300 ease-out',
+          !isInitialized ? 'opacity-0' : 'opacity-100',
+        )}
         style={underlineStyle}
         aria-hidden="true"
       />
