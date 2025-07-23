@@ -30,7 +30,7 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     icon: Sprout,
   },
   {
-    href: '/main/map',
+    href: '/main/maps',
     label: '지도',
     icon: MapPin,
   },

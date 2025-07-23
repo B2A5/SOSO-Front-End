@@ -17,11 +17,15 @@ export function Navigation({ currentPath }: BottomNavigationProps) {
   // 현재 경로에 따라 활성화된 네비게이션 아이템을 결정하는 함수
   const isActive = (href: string): boolean => {
     if (href === '/main/community') {
+      // /main 또는 /main/community, 또는 그 하위 경로 모두 활성화
       return (
-        currentPath === '/main' || currentPath === '/main/community'
+        currentPath === '/main' ||
+        currentPath === href ||
+        currentPath.startsWith(`${href}/`)
       );
     }
-    return currentPath === href;
+    // 나머지 메뉴도 기본 + 하위 경로 체크
+    return currentPath === href || currentPath.startsWith(`${href}/`);
   };
 
   return (
