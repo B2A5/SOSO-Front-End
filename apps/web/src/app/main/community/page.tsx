@@ -4,6 +4,9 @@ import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import Card from '@/components/Card';
 import { CommunityHeader } from './components/CommunityHeader';
+
+import { HeroCard } from './components/HeroCard';
+
 /**
  * 커뮤니티 메인 페이지
  *
@@ -11,14 +14,20 @@ import { CommunityHeader } from './components/CommunityHeader';
 export default function CommunityPage() {
   return (
     <div className="flex flex-col h-full w-full">
-      <div className="flex flex-col items-center h-30">
+      <div className="flex flex-col items-center h-120 bg-linear-to-b from-soso-400 ">
         {/* 상단 헤더 영역 */}
-        <CommunityHeader />
+        <CommunityHeader className="sticky top-0 z-100" />
+        <div className="flex flex-col items-center justify-center h-full text-center">
+          <div>
+            <p>우리 동네 소식 한눈에 보기</p>
+            <p>다같이 함께 만드는 더 나은 동네</p>
+          </div>
+
+          <HeroCard />
+        </div>
       </div>
       {/* 커뮤니티 내용 영역 */}
       <div className="flex-1 w-full gap-4 px-4 pt-6">
-        {/* 검색 입력창: 입력 받는게 아니라 검색 팝업 */}
-
         <div className="flex flex-col gap-5">
           <div className="flex flex-col gap-5">
             {/* 진행중인 아이디어 이동 */}
