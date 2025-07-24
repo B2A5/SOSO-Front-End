@@ -55,7 +55,7 @@ const variantMap: Record<Variant, string> = {
     'bg-white text-fontColor-gray2 hover:bg-neutral-100 active:text-fontColor-gray3 active:ring-neutral-600',
 
   ghost:
-    'bg-transparent rounded-1 text-fontColor-gray1 hover:text-fontColor-gray2 active:text-black',
+    'bg-transparent rounded-1 text-neutral-500 hover:text-neutral-400 active:text-neutral-700',
 };
 
 /** 비활성화 상태 클래스 */

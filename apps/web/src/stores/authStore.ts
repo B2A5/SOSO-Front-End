@@ -60,6 +60,8 @@ export const useAuthStore = create<AuthState>()(
         });
       },
     }),
+    // 임시로 로컬 스토리지에 저장
+    // 추후 서버 세션 관리, 메모리 등으로 변경 예정
     {
       name: 'auth-storage',
       storage: createJSONStorage(() => localStorage),

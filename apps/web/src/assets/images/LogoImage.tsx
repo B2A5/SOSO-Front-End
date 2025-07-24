@@ -1,6 +1,11 @@
 import Image from 'next/image';
+import { twMerge } from 'tailwind-merge';
 
-export default function LogoImage() {
+export default function LogoImage({
+  className = '',
+}: {
+  className?: string;
+}) {
   return (
     <div className="flex justify-center">
       <Image
@@ -9,7 +14,7 @@ export default function LogoImage() {
         width={200}
         height={150}
         priority
-        className="h-auto"
+        className={twMerge('max-w-[200px] w-auto h-auto', className)}
       />
     </div>
   );
