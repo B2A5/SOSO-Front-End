@@ -32,7 +32,7 @@ export default function CommunityPage() {
           <div className="flex flex-col gap-5">
             {/* 진행중인 아이디어 이동 */}
             <div className="flex justify-between items-center ">
-              <h3 className="text-title1">진행중인 아이디어</h3>
+              <h3 className="text-title1">지금 인기 콘텐츠</h3>
               <Link
                 href="/main/community/votes"
                 className="flex items-center gap-2 hover:text-soso-600 active:text-soso-600"
