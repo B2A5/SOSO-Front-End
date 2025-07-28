@@ -7,7 +7,7 @@ interface RetryConfig extends AxiosRequestConfig {
 }
 
 const BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8080/api';
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://35.216.2.203:8080';
 
 export const apiClient = axios.create({
   baseURL: BASE_URL,
@@ -31,20 +31,40 @@ apiClient.interceptors.response.use(
   async (
     error: AxiosError<ApiErrorResponse> & { config?: RetryConfig },
   ) => {
+    //API 오류 메시지 처리
     const apiErr = ApiError.wrap(error);
     console.error('[API ERROR]', apiErr.code, apiErr.message);
 
     const original = error.config!;
     const data = error.response?.data;
+    // Access Token 만료 시
     if (
       data?.message === 'ACCESS_TOKEN_EXPIRED' &&
       !original._retry
     ) {
       original._retry = true;
-      // Refresh Token 쿠키와 함께 호출
-      await axios.post(`${BASE_URL}/auth/refresh`, null, {
-        withCredentials: true,
-      });
+      try {
+        // 새 Access Token 발급 요청
+        const newTokenResponse = await axios.post(
+          `${BASE_URL}/auth/refresh`,
+          null,
+          {
+            withCredentials: true,
+          },
+        );
+        // 새 토큰 저장
+        const accessToken = newTokenResponse.data.jwtAccessToken;
+        if (accessToken) {
+          useAuthStore.getState().setToken(accessToken);
+        }
+        // 새 토큰으로 원래 요청 재시도
+        return apiClient(original);
+      } catch (err) {
+        console.error('[Refresh Error]', err);
+        useAuthStore.getState().logout(); // 토큰 갱신 실패 시 로그아웃 처리
+        return Promise.reject(err);
+      }
+
       // 기존 요청 재시도
       return apiClient(original);
     }

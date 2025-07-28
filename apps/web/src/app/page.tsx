@@ -10,7 +10,7 @@ import Button from '@/components/buttons/Button';
 export default function HomePage() {
   const router = useRouter();
   // 사용자 인증 상태를 가져옵니다.
-  const { isAuth, isLoading } = useAuth();
+  const { getIsAuth, isLoading } = useAuth();
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -18,7 +18,7 @@ export default function HomePage() {
   }, [isLoading]);
 
   const handleStart = () => {
-    router.replace(isAuth ? '/main' : '/auth');
+    router.replace(getIsAuth() ? '/main' : '/auth');
   };
 
   return (

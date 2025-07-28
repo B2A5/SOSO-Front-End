@@ -11,6 +11,11 @@ export const TAB_LIST = [
   '동네소식',
 ];
 
+// const SORT_TYPES: { label: string; value: string }[] = [
+//   { label: '최신순', value: 'latest' },
+//   { label: '인기순', value: 'popular' },
+// ];
+
 export default function CommunityPage() {
   const [currentTab, setCurrentTab] = useState('전체');
   return (

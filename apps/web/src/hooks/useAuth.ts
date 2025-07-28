@@ -18,8 +18,8 @@ export function useAuth() {
     user,
     setUser,
     accessToken,
-    isAuth,
     isLoading: isAuthLoading,
+    getIsAuth,
   } = useAuthStore();
 
   // 프로필 조회 쿼리
@@ -31,7 +31,7 @@ export function useAuth() {
   } = useQuery({
     queryKey: ['auth', 'profile'],
     queryFn: () => authApi.getProfile(),
-    enabled: isAuth && !!accessToken, // 인증된 상태에서만 호출(엑세스 토큰이 있을 때)
+    enabled: getIsAuth() && !!accessToken, // 인증된 상태에서만 호출(엑세스 토큰이 있을 때)
     retry: (count, err) => retryFn(count, err as ApiError),
     retryDelay: retryDelayFn,
   });
@@ -45,7 +45,7 @@ export function useAuth() {
 
   return {
     user,
-    isAuth,
+    getIsAuth,
     isLoading: isAuthLoading || isProfileLoading,
     error,
     refetch,
