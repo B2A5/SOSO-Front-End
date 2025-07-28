@@ -45,3 +45,10 @@ export interface LoginResponse {
   /** 기존 유저일 때만 내려오는 Access Token */
   accessToken?: string;
 }
+/**
+ * 토큰 갱신 응답 타입
+ * - Access Token이 만료되었을 때 서버에서 새로 발급합니다.
+ */
+export interface RefreshResponse {
+  jwtAccessToken: string; // 새로 발급된 Access Token
+}

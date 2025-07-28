@@ -17,8 +17,8 @@ export default function CommunityPage() {
       <div className="flex flex-col items-center h-120 bg-linear-to-b from-soso-400 ">
         {/* 상단 헤더 영역 */}
         <CommunityHeader className="sticky top-0 z-100" />
-        <div className="flex flex-col items-center justify-center h-full text-center">
-          <div>
+        <div className="w-full flex flex-col items-center justify-center h-full text-center gap-10 p-10">
+          <div className="text-xs">
             <p>우리 동네 소식 한눈에 보기</p>
             <p>다같이 함께 만드는 더 나은 동네</p>
           </div>
@@ -32,7 +32,7 @@ export default function CommunityPage() {
           <div className="flex flex-col gap-5">
             {/* 진행중인 아이디어 이동 */}
             <div className="flex justify-between items-center ">
-              <h3 className="text-title1">지금 인기 콘텐츠</h3>
+              <h3 className="text-title2">지금 인기 콘텐츠</h3>
               <Link
                 href="/main/community/votes"
                 className="flex items-center gap-2 hover:text-soso-600 active:text-soso-600"
