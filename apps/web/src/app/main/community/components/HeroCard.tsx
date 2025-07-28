@@ -24,20 +24,20 @@ export function HeroCard({ className }: { className?: string } = {}) {
       </div>
       <div className="w-full flex justify-between items-center">
         <div className="flex flex-col">
-          <p className="text-input2 text-soso-600">
+          <p className="text-input2 text-soso-600 font-bold">
             {MockData.participants}
           </p>
           <p className="text-caption3">참여자</p>
         </div>
         <div className="flex flex-col">
-          <p className="text-input2 text-soso-600">
+          <p className="text-input2 text-soso-600 font-bold">
             {' '}
             {MockData.activityRate}%
           </p>
           <p className="text-caption3">활동 지수</p>
         </div>
         <div className="flex flex-col">
-          <p className="text-input2 text-soso-600">
+          <p className="text-input2 text-soso-600 font-bold">
             {' '}
             {MockData.postsThisWeek}
           </p>
