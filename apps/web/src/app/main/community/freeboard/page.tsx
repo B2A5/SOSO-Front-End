@@ -4,6 +4,8 @@ import Header from '@/components/Header';
 import { Tab } from '@/components/Tab';
 import { SortOption } from '@/types/options.types';
 import { FilterHeader } from '../components/FilterHeader';
+//import Contents from './Contents';
+import FloatingButton from '@/components/buttons/FloatingButton';
 
 export const TAB_LIST = [
   '전체',
@@ -35,9 +37,8 @@ export default function CommunityPage() {
         onFilterChange={setSortType}
         filterValue={sortType}
       />
-      <div>
-        현재 탭: {currentTab}, 정렬: {sortType}
-      </div>
+      <div>{/* <Contents /> */}</div>
+      <FloatingButton />
     </div>
   );
 }

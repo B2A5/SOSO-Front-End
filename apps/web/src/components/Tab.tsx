@@ -133,7 +133,7 @@ export function Tab({
             onKeyDown={(event) => handleKeyDown(event, tab)}
             className={`
               flex-shrink-0 px-4 py-3 text-sm font-medium transition-colors duration-200 whitespace-nowrap
-              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset
+            
               ${
                 activeTab === tab
                   ? 'text-gray-900'
@@ -153,7 +153,7 @@ export function Tab({
       {/* 언더바 */}
       <div
         className={twMerge(
-          'absolute bottom-0 h-0.5 bg-gray-900 transition-all duration-300 ease-out',
+          'absolute bottom-0 h-0.5 bg-soso-600 transition-all duration-300 ease-out',
           !isInitialized ? 'opacity-0' : 'opacity-100',
         )}
         style={underlineStyle}

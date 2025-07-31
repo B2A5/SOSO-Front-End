@@ -60,7 +60,7 @@ const variantMap: Record<Variant, string> = {
 
 /** 비활성화 상태 클래스 */
 const disabledMap: Record<Variant, string> = {
-  filled: 'disabled:bg-neutral-300 disabled:text-neutral-600',
+  filled: 'disabled:bg-neutral-0 disabled:text-neutral-600',
   outlined:
     'disabled:border-neutral-300 disabled:text-neutral-300 disabled:bg-transparent',
   bottom: 'disabled:bg-neutral-0 disabled:text-fontColor-gray1',
