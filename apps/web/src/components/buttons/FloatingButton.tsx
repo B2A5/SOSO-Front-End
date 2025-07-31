@@ -6,7 +6,6 @@ import { CATEGORY_LIST } from './constant';
 import { twMerge } from 'tailwind-merge';
 import FloatingOpenIcon from '@/assets/images/FloatingOpenImage';
 import FloatingCloseIcon from '@/assets/images/FloatingCloseImage';
-import { useOverlay } from '@/hooks/ui/useOverlay';
 
 /** * 플로팅 버튼 컴포넌트
  * - AsideButton을 사용하여 카테고리 목록을 표시
@@ -18,7 +17,6 @@ export default function FloatingButton() {
   const [isOpen, setIsOpen] = useState(false); //애니메이션 제어 전용
   const [isMounted, setIsMounted] = useState(false); // 렌더링 제어 전용
   const floatingButtonRef = useRef<HTMLButtonElement>(null); // 포커스 제어용 플로팅 버튼 참조
-  const { openOverlay, closeOverlay } = useOverlay(); // 오버레이 제어 훅
 
   /*  키보드 접근성 관련  */
   // 메뉴 열릴 때 첫 번째 버튼에 포커스
@@ -36,8 +34,7 @@ export default function FloatingButton() {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setIsOpen(false);
-        floatingButtonRef.current?.focus(); //플로팅 버튼에 포커스 이동동
-        openOverlay(<></>, { backdrop: true }); // 오버레이 열기
+        floatingButtonRef.current?.focus(); //플로팅 버튼에 포커스 이동
       }
     };
 
@@ -95,10 +92,8 @@ export default function FloatingButton() {
     if (!isOpen) {
       setIsMounted(true); // 바로 렌더링
       setIsOpen(true); // fade-in 바로 작동
-      openOverlay(<></>, { backdrop: true }); // 오버레이 열기
     } else {
       setIsOpen(false); // fade-out 클래스 붙이기
-      closeOverlay(); // 오버레이 닫기
     }
   };
 
@@ -142,8 +137,7 @@ export default function FloatingButton() {
         ref={floatingButtonRef}
         className={twMerge(`
           z-3000
-          w-12 h-12 rounded-full text-white shadow-lg border-2 border-soso-600 transition-colors duration-200
-          ${isOpen ? 'bg-soso-600' : 'bg-white text-soso-600 '}
+          w-12 h-12 rounded-full text-white shadow-lg border-2 border-soso-600 transition-colors duration-200 bg-soso-600
         `)}
         onClick={handleFloatingButtonClick}
       >
