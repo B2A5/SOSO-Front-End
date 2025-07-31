@@ -19,7 +19,7 @@ function ContentButton({
   // 선택된 상태에 따라 클래스 변경
   const SelectClass = selected
     ? 'bg-soso-500 ring-soso-500 text-bold text-white'
-    : 'border-neutral-300 text-fontColor-gray2 ';
+    : 'border-neutral-300 text-fontColor-gray2 dark:text-fontColor-gray1 dark:bg-neutral-800 hover:bg-soso-500 hover:text-soso-100 active:ring-neutral-600';
 
   return (
     <Button

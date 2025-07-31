@@ -28,7 +28,7 @@ export function Navigation({ currentPath }: BottomNavigationProps) {
   };
 
   return (
-    <nav className=" bg-white border-t border-gray-200 z-50">
+    <nav className=" bg-white dark:bg-neutral-800 border-t border-gray-200 z-50">
       <div className="flex items-center justify-around h-16 px-4">
         {NAVIGATION_ITEMS.map(({ href, label, icon: Icon }) => {
           const active = isActive(href);

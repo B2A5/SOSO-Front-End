@@ -54,6 +54,7 @@ export function useKakaoAuth() {
         state,
       });
     },
+    retry: 0, // 에러 발생 시 재시도하지 않음
     onSuccess(data) {
       // 세션 데이터 제거
       clearKakaoAuthData();

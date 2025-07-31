@@ -110,7 +110,7 @@ export const Button = React.forwardRef<
 
     // 키보드 및 접근성 클래스
     const FOCUS_CLASS =
-      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2';
+      'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2';
 
     const classes = twMerge(
       'inline-flex items-center justify-center rounded-lg font-medium select-none',
@@ -122,7 +122,8 @@ export const Button = React.forwardRef<
 
       // disabled만 회색으로
       isDisabled && disabledMap[variant],
-      isDisabled && 'disabled:pointer-events-none',
+      isDisabled &&
+        'disabled:pointer-events-none disabled:cursor-not-allowed',
 
       // 로딩 상태: 포인터 이벤트 막기
       isLoading && 'pointer-events-none',

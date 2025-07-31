@@ -1,52 +1,57 @@
+// src/components/CommunityCard.tsx
 import Card from '@/components/Card';
 import { CategoryBadge } from './CategoryBadge';
 import { Category } from '@/constants/categorys';
-
 import { relativeTime } from '@/utils/relativeTime';
 import { Heart, MessageSquareMore } from 'lucide-react';
+
+import type { PostSummary } from '@/api/posts';
+
 export interface CommunityCardProps {
-  title: string; // 제목
-  description: string; // 콘텐츠 내용
-  likeCount: number; //좋아요 수
-  isLiked: boolean; // 내가 좋아요를 눌렀는지 여부
-  commentCount: number; // 댓글 수
-  isCommented: boolean; // 내가 댓글을 남겼는지 여부
-  createdAt: string; // 생성일
-  userName: string; // 작성자 이름
-  category: Category; // 카테고리
+  post: PostSummary; // 변경: 개별 필드 대신 post 하나로
   isBadge?: boolean; // 배지 표시 여부
 }
 
-export function CommunityCard(props: CommunityCardProps) {
+export function CommunityCard({
+  post,
+  isBadge = false,
+}: CommunityCardProps) {
+  const {
+    title,
+    content, // 이전의 description → content 로 변경
+    category,
+    likeCount,
+    commentCount,
+    createdAt,
+    user: { nickname },
+  } = post;
+
   return (
-    <Card className="w-full max-w-[316px]">
-      <div className="flex flex-col items-center gap-3">
-        {props.isBadge && (
+    <Card className="w-full">
+      <div className="flex flex-col gap-2">
+        {isBadge && (
           <div className="flex items-center gap-1">
-            <CategoryBadge category={props.category} />
+            <CategoryBadge category={category as Category} />
           </div>
         )}
-        <h3 className="text-title2">{props.title}</h3>
-        <p className="text-body">{props.description}</p>
+        <h3 className="text-title2">{title}</h3>
+        <p className="text-body">{content}</p>
       </div>
-      <div className="flex justify-between items-center ">
-        {/* 날짜 및 이름 */}
+      <div className="flex justify-between items-center">
+        {/* 작성자 · 시간 */}
         <label className="text-neutral-500 text-xs">
-          {props.userName} · {relativeTime(props.createdAt)}
+          {nickname} · {relativeTime(createdAt)}
         </label>
-        {/* 오른쪽 라벨 */}
         <div className="flex items-center gap-2">
-          {/* 좋아요 수 */}
+          {/* 좋아요 */}
           <div className="flex items-center gap-1">
-            <Heart
-              className={`w-4 h-4 ${props.isLiked ? 'text-red-500' : 'text-neutral-500'}`}
-            />
-            <span className="text-xs">{props.likeCount}</span>
+            <Heart className="w-4 h-4 text-neutral-500" />
+            <span className="text-xs">{likeCount}</span>
           </div>
-          {/* 댓글 수 */}
+          {/* 댓글 */}
           <div className="flex items-center gap-1">
             <MessageSquareMore className="w-4 h-4 text-neutral-500" />
-            <span className="text-xs">{props.commentCount}</span>
+            <span className="text-xs">{commentCount}</span>
           </div>
         </div>
       </div>

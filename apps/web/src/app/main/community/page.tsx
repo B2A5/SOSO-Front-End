@@ -4,9 +4,10 @@ import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import Card from '@/components/Card';
 import { CommunityHeader } from './components/CommunityHeader';
-
 import { HeroCard } from './components/HeroCard';
-
+import { mockPosts } from '@/api/postQuery.mock';
+import { CommunityCard } from './components/CommunityCard';
+import CalloutCard from './components/CalloutCard';
 /**
  * 커뮤니티 메인 페이지
  *
@@ -24,6 +25,7 @@ export default function CommunityPage() {
           </div>
 
           <HeroCard />
+          <CalloutCard content="오늘 00동에서 많이 본 글은 ...입니다." />
         </div>
       </div>
       {/* 커뮤니티 내용 영역 */}
@@ -64,15 +66,10 @@ export default function CommunityPage() {
               </Link>
             </div>
             {/* 게시글 카드 목록 */}
-            <div className="grid grid-cols-1 gap-4">
-              <Card>
-                <h4 className="text-title2">게시글 제목</h4>
-                <p className="text-body">게시글 설명</p>
-              </Card>
-              <Card>
-                <h4 className="text-title2">게시글 제목</h4>
-                <p className="text-body">게시글 설명</p>
-              </Card>
+            <div className="w-full grid grid-cols-1 gap-4">
+              {mockPosts.map((post) => (
+                <CommunityCard key={post.postId} post={post} />
+              ))}
             </div>
           </div>
         </div>

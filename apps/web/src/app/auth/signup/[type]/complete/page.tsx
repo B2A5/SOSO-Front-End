@@ -92,7 +92,7 @@ export default function SignUpCompletePage() {
       </div>
       <Button
         isLoading={isPending}
-        className="w-full"
+        className="w-full animate-pulse"
         onClick={handleButtonClick}
       >
         SOSO 시작하기

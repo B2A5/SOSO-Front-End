@@ -7,8 +7,13 @@ import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/buttons/Button';
 import { SelectCard } from './components/SelectCard';
-
 import { useToast } from '@/hooks/ui/useToast';
+
+/**
+ *  회원가입 초기 페이지
+ * - 유저 타입 선택
+ * @returns
+ */
 export default function SignUpPage() {
   const router = useRouter();
   const toast = useToast();
@@ -58,6 +63,7 @@ export default function SignUpPage() {
           title="예비 창업자"
           description="창업할 지역과 아이템을 계획 중이에요"
           isSelected={userType === 'FOUNDER'}
+          imageUrl="/somoon/founder.svg"
           onClick={() => {
             handleSelect('FOUNDER');
           }}
@@ -66,6 +72,7 @@ export default function SignUpPage() {
           title="주민"
           description="우리 동네에 필요한 가게를 제안하고 싶어요"
           isSelected={userType === 'INHABITANT'}
+          imageUrl="/somoon/friends.svg"
           onClick={() => {
             handleSelect('INHABITANT');
           }}
