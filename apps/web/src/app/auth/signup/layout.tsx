@@ -1,17 +1,23 @@
-//회원가입 레이아웃
 // apps/web/src/app/auth/signup/layout.tsx
+import RedirectIfAuthed from './components/RedirectIfAuthed';
+/**
+ * 회원가입 레이아웃
+ */
 
 export const metadata = {
   title: '회원가입',
 };
+interface SignUpLayoutProps {
+  children: React.ReactNode;
+}
 export default function SignUpLayout({
   children,
-}: {
-  children: React.ReactNode;
-}) {
+}: SignUpLayoutProps) {
   return (
     <div className="flex flex-col items-center h-full">
-      <div className="w-full flex-1 h-full">{children}</div>
+      <RedirectIfAuthed className="w-full flex-1 h-full">
+        {children}
+      </RedirectIfAuthed>
     </div>
   );
 }

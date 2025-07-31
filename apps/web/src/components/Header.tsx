@@ -23,7 +23,7 @@ export default function Header({
   const router = useRouter();
 
   return (
-    <header className="w-full flex justify-between items-center py-[6px] px-5 border-b border-neutral-100">
+    <header className="w-full flex justify-between items-center py-[6px] px-5 border-b border-neutral-100 dark:border-neutral-800">
       <div className="flex-1">
         {leftButtonType === 'back' && (
           <Button variant="ghost" onClick={() => router.back()}>
@@ -36,7 +36,9 @@ export default function Header({
           </Button>
         )}
       </div>
-      <h1 className="text-body1 font-bold text-center">{title}</h1>
+      <h1 className="text-body1 font-bold text-center dark:text-fontColor-gray1">
+        {title}
+      </h1>
       <div className="flex justify-end flex-1">
         {showSearch && (
           <Button variant="ghost" onClick={() => console.log('검색')}>

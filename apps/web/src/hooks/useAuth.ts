@@ -1,12 +1,12 @@
 // apps/web/src/hooks/useAuth.ts
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { useAuthStore } from '@/stores/authStore';
-import { authApi } from '@/api/auth';
-import { retryFn, retryDelayFn } from '@/utils/query';
-import { ApiError } from '@/api/error';
+
+import type { RefreshResponse } from '@/types/auth.types';
+import { refreshToken, getProfile } from '@/api/auth';
 
 /**
  * 인증 관련 훅
@@ -17,10 +17,33 @@ export function useAuth() {
   const {
     user,
     setUser,
+    setToken,
     accessToken,
-    isAuth,
+    logout,
     isLoading: isAuthLoading,
+    getIsAuth,
+    setLoading,
   } = useAuthStore();
+
+  // 새로 고침시 인증 상태 복원
+  const { mutate: refresh } = useMutation<RefreshResponse, Error>({
+    mutationFn: refreshToken,
+    onSuccess: (data) => {
+      setToken(data.jwtAccessToken);
+      setLoading(false);
+    },
+    onError: (error) => {
+      console.error('토큰 갱신 실패:', error);
+      logout(); // 갱신 실패 시 로그아웃 처리
+    },
+    onSettled: () => {
+      setLoading(false);
+    },
+  });
+  useEffect(() => {
+    setLoading(true);
+    refresh();
+  }, [setLoading, refresh]);
 
   // 프로필 조회 쿼리
   const {
@@ -30,10 +53,8 @@ export function useAuth() {
     refetch,
   } = useQuery({
     queryKey: ['auth', 'profile'],
-    queryFn: () => authApi.getProfile(),
-    enabled: isAuth && !!accessToken, // 인증된 상태에서만 호출(엑세스 토큰이 있을 때)
-    retry: (count, err) => retryFn(count, err as ApiError),
-    retryDelay: retryDelayFn,
+    queryFn: () => getProfile(),
+    enabled: getIsAuth() && !!accessToken, // 인증된 상태에서만 호출(엑세스 토큰이 있을 때)
   });
 
   // 프로필이 내려오면 store 에 동기화
@@ -45,7 +66,7 @@ export function useAuth() {
 
   return {
     user,
-    isAuth,
+    getIsAuth,
     isLoading: isAuthLoading || isProfileLoading,
     error,
     refetch,

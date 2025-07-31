@@ -145,7 +145,7 @@ export default function SelectDropdown<T extends string | number>({
         aria-label={ariaLabel}
         onClick={toggleDropdown}
         className={twMerge(
-          'inline-flex justify-between items-center w-full px-4 py-2 bg-white border border-neutral-100 rounded-md text-fontColor-gray3 hover:bg-gray-50',
+          'inline-flex justify-between items-center w-full px-4 py-2 bg-white rounded-md text-fontColor-gray3 hover:bg-gray-50',
         )}
       >
         <span

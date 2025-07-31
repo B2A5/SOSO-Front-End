@@ -15,7 +15,8 @@ export default function CompleteImg({
       <Image
         src="/somoon/complete_background.svg"
         alt="가입 완료 이미지 배경"
-        fill
+        width="375"
+        height="250"
         priority
         className="absolute object-cover animate-bgGrow"
       />

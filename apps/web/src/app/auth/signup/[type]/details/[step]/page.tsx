@@ -161,6 +161,7 @@ export default function DetailsPage() {
           size="lg"
           onClick={handleNext}
           isLoading={isPending}
+          disabled={selectedValue == null}
         >
           다음
         </Button>

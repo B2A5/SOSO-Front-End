@@ -51,7 +51,7 @@ export default function RegionPage() {
   return (
     <div className="w-full h-full flex flex-col items-center justify-center">
       <div className=" pt-12 w-full h-full flex flex-col gap-[30px]">
-        <h1 className=" text-header1">
+        <h1 className=" text-header1 dark:text-fontColor-gray1">
           {address
             ? '해당 지역이 맞으신가요?'
             : '지역을 선택해 주세요'}
