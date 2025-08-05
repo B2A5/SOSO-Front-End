@@ -1,11 +1,10 @@
 'use client';
 
-import { useToast } from '@/hooks/ui/useToast';
-import { Plus, X } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
+import { Plus, X } from 'lucide-react';
+import { useToast } from '@/hooks/ui/useToast';
 
 interface ImageInputProps {
-  /** 선택된 이미지 파일들을 상위 컴포넌트로 전달 */
   onFileSelect?: (files: File[]) => void;
 }
 
@@ -13,8 +12,8 @@ interface ImageInputProps {
  * ImageInput - 다중 이미지 업로드 컴포넌트
  *
  * - 최대 4장까지 이미지 업로드 가능
- * - 이미지 선택 시 미리보기로 표시됨
- * - 같은 파일을 다시 선택해도 반응함
+ * - 이미지 선택 시 미리보기로 표시
+ * - 같은 파일 다시 선택해도 반응
  */
 export function ImageInput({ onFileSelect }: ImageInputProps) {
   const [images, setImages] = useState<File[]>([]);
@@ -22,16 +21,10 @@ export function ImageInput({ onFileSelect }: ImageInputProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const toast = useToast();
 
-  const handleImageClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  /** 이미지 → 미리보기 URL 생성 후 상태 업데이트 */
+  // 이미지 → 미리보기 URL 생성
   useEffect(() => {
-    // 기존 URL 메모리 해제
     previewUrls.forEach((url) => URL.revokeObjectURL(url));
 
-    // 새로운 이미지 파일들에 대한 미리보기 URL 생성
     const newUrls = images
       .filter((file): file is File => file instanceof File)
       .map((file) => URL.createObjectURL(file));
@@ -39,19 +32,25 @@ export function ImageInput({ onFileSelect }: ImageInputProps) {
     setPreviewUrls(newUrls);
   }, [images]);
 
-  /** 파일이 선택되었을 때 실행되는 핸들러 */
+  const handleImageClick = () => {
+    fileInputRef.current?.click();
+  };
+
   const handleFileChange = (
     e: React.ChangeEvent<HTMLInputElement>,
   ) => {
     if (!e.target.files) return;
 
-    // 파일 목록 → File[] 로 변환
     const files = Array.from(e.target.files).filter(
       (file): file is File => file instanceof File,
     );
 
-    const allowedTypes = ['image/png', 'image/jpeg', 'image/webp'];
-
+    const allowedTypes = [
+      'image/png',
+      'image/jpeg',
+      'image/webp',
+      'image/gif',
+    ];
     const allValid = files.every((file) =>
       allowedTypes.includes(file.type),
     );
@@ -63,7 +62,6 @@ export function ImageInput({ onFileSelect }: ImageInputProps) {
     }
 
     const total = images.length + files.length;
-
     if (total > 4) {
       toast('이미지는 최대 4장까지만 업로드할 수 있어요.', 'error');
       e.target.value = '';
@@ -72,15 +70,13 @@ export function ImageInput({ onFileSelect }: ImageInputProps) {
 
     const newImages = [...images, ...files].slice(0, 4);
     setImages(newImages);
-
-    e.target.value = ''; // 같은 파일 다시 선택 가능하게 초기화
     onFileSelect?.(newImages);
+    e.target.value = ''; // 같은 파일 다시 선택 가능하도록 초기화
   };
 
-  /** 이미지 제거 핸들러 */
   const handleFileRemove = (index: number) => {
     const newImages = [...images];
-    newImages.splice(images.length - 1 - index, 1); // reverse 상태 고려
+    newImages.splice(images.length - 1 - index, 1); // reverse된 index 고려
 
     const removedUrl = previewUrls[index];
     if (removedUrl) {
@@ -92,8 +88,8 @@ export function ImageInput({ onFileSelect }: ImageInputProps) {
   };
 
   return (
-    <div className="flex items-start gap-2">
-      {/* 이미지 추가 버튼 (4개 미만일 때만) */}
+    <div className="flex flex-col items-start gap-2">
+      {/* 이미지 추가 버튼 (4개 미만일 때만 노출) */}
       {images.length < 4 && (
         <div
           onClick={handleImageClick}
@@ -103,18 +99,17 @@ export function ImageInput({ onFileSelect }: ImageInputProps) {
         </div>
       )}
 
-      {/* 실제 파일 input (숨김) */}
       <input
         type="file"
-        accept=".png, .jpg, .jpeg, .webp"
+        accept=".png, .jpg, .jpeg, .webp, .gif"
         onChange={handleFileChange}
         ref={fileInputRef}
         className="hidden"
         multiple
       />
 
-      {/* 미리보기 영역 */}
-      <div className="flex gap-2 flex-wrap justify-start">
+      {/* 미리보기 이미지 영역 */}
+      <div className="flex gap-2 flex-wrap justify-start items-start">
         {previewUrls
           .slice()
           .reverse()
@@ -130,8 +125,8 @@ export function ImageInput({ onFileSelect }: ImageInputProps) {
               />
               <button
                 type="button"
-                className="absolute -top-1 -right-1 bg-black bg-opacity-50 rounded-full p-1 text-white hover:bg-opacity-70 cursor-pointer"
                 onClick={() => handleFileRemove(idx)}
+                className="absolute -top-1 -right-1 bg-black bg-opacity-50 rounded-full p-1 text-white hover:bg-opacity-70 cursor-pointer"
               >
                 <X size={12} />
               </button>
