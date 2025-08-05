@@ -55,6 +55,7 @@
   /* 백그라운드 색상 */
   --color-modal: rgba(255, 255, 255, 0.95);
   --color-overlay: rgba(0, 0, 0, 0.6);
+  --color-light-gray: #fafafa;
 
   /* 에러 색상 */
   --color-error-normal: #f44336;

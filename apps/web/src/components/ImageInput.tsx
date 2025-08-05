@@ -1,6 +1,8 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import { useToast } from '@/hooks/ui/useToast';
+import { Plus } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface ImageInputProps {
   /** 선택된 이미지 파일들을 상위 컴포넌트로 전달 */
@@ -15,13 +17,32 @@ interface ImageInputProps {
  * - 같은 파일을 다시 선택해도 반응함
  */
 export function ImageInput({ onFileSelect }: ImageInputProps) {
-  // 선택된 이미지 파일 배열 상태
   const [images, setImages] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const toast = useToast();
 
   const handleImageClick = () => {
     fileInputRef.current?.click();
   };
+
+  /** 이미지 → 미리보기 URL 생성 후 상태 업데이트 */
+  useEffect(() => {
+    // 기존 URL 메모리 해제
+    previewUrls.forEach((url) => URL.revokeObjectURL(url));
+
+    // 새로운 이미지 파일들에 대한 미리보기 URL 생성
+    const newUrls = images
+      .filter((file): file is File => file instanceof File)
+      .map((file) => URL.createObjectURL(file));
+
+    setPreviewUrls(newUrls);
+
+    // 컴포넌트 언마운트 시 URL 해제
+    return () => {
+      newUrls.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [images]);
 
   /** 파일이 선택되었을 때 실행되는 핸들러 */
   const handleFileChange = (
@@ -29,30 +50,51 @@ export function ImageInput({ onFileSelect }: ImageInputProps) {
   ) => {
     if (!e.target.files) return;
 
-    // 선택된 파일들을 배열로 변환
-    const files = Array.from(e.target.files);
+    // 파일 목록 → File[] 로 변환
+    const files = Array.from(e.target.files).filter(
+      (file): file is File => file instanceof File,
+    );
+
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/webp'];
+
+    const allValid = files.every((file) =>
+      allowedTypes.includes(file.type),
+    );
+
+    if (!allValid) {
+      toast('지원하지 않는 파일 형식입니다.', 'error');
+      e.target.value = '';
+      return;
+    }
+
+    const total = images.length + files.length;
+
+    if (total > 4) {
+      toast('이미지는 최대 4장까지만 업로드할 수 있어요.', 'error');
+      e.target.value = '';
+      return;
+    }
+
     const newImages = [...images, ...files].slice(0, 4);
     setImages(newImages);
 
-    // 같은 파일을 다시 선택할 수 있도록 input 초기화
-    e.target.value = '';
-
+    e.target.value = ''; // 같은 파일 다시 선택 가능하게 초기화
     onFileSelect?.(newImages);
   };
 
   return (
     <div className="flex items-start gap-2">
-      {/* "이미지 추가" 버튼 (이미지가 4개 미만일 때만 표시) */}
+      {/* 이미지 추가 버튼 (4개 미만일 때만) */}
       {images.length < 4 && (
         <div
           onClick={handleImageClick}
-          className="w-[100px] h-[100px] bg-gray-100 rounded-md cursor-pointer flex items-center justify-center"
+          className="w-20 h-20 bg-light-gray rounded-[10px] cursor-pointer flex items-center justify-center"
         >
-          <span className="text-gray-500 text-sm">이미지 추가</span>
+          <Plus className="w-6 h-6 text-neutral-200" />
         </div>
       )}
 
-      {/* 실제 파일 업로드 input (숨겨짐) */}
+      {/* 실제 파일 input (숨김) */}
       <input
         type="file"
         accept=".png, .jpg, .jpeg, .webp"
@@ -62,25 +104,23 @@ export function ImageInput({ onFileSelect }: ImageInputProps) {
         multiple
       />
 
-      {/* 미리보기 썸네일 영역 */}
+      {/* 미리보기 영역 */}
       <div className="flex gap-2 flex-wrap justify-start">
-        {images
+        {previewUrls
           .slice()
           .reverse()
-          .map((file, idx) => {
-            // 브라우저에서 파일 미리보기를 위한 URL 생성
-            const url = URL.createObjectURL(file);
-
-            return (
-              <div key={idx} className="w-24 h-24 relative">
-                <img
-                  src={url}
-                  alt={`미리보기 ${idx + 1}`}
-                  className="w-full h-full object-cover rounded-md"
-                />
-              </div>
-            );
-          })}
+          .map((url, idx) => (
+            <div
+              key={idx}
+              className="w-20 h-20 rounded-[10px] relative"
+            >
+              <img
+                src={url}
+                alt={`미리보기 ${idx + 1}`}
+                className="w-full h-full object-cover rounded-md"
+              />
+            </div>
+          ))}
       </div>
     </div>
   );
