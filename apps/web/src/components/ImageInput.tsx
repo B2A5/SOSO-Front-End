@@ -89,15 +89,21 @@ export function ImageInput({ onFileSelect }: ImageInputProps) {
 
   return (
     <div className="flex flex-col items-start gap-2">
-      {/* 이미지 추가 버튼 (4개 미만일 때만 노출) */}
-      {images.length < 4 && (
-        <div
-          onClick={handleImageClick}
-          className="w-20 h-20 bg-light-gray rounded-[10px] cursor-pointer flex items-center justify-center"
-        >
-          <Plus className="w-6 h-6 text-neutral-200" />
-        </div>
-      )}
+      {/* 이미지 추가 버튼 (항상 렌더링, 4장일 때는 disabled 스타일 + 클릭 방지) */}
+      <div
+        onClick={() => {
+          if (images.length >= 4) return;
+          handleImageClick();
+        }}
+        className={`w-20 h-20 rounded-[10px] flex items-center justify-center transition 
+      ${
+        images.length >= 4
+          ? 'bg-gray-100 cursor-not-allowed opacity-50'
+          : 'bg-light-gray hover:bg-gray-200 cursor-pointer'
+      }`}
+      >
+        <Plus className="w-6 h-6 text-neutral-200" />
+      </div>
 
       <input
         type="file"
