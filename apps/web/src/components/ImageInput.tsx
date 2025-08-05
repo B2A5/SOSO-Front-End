@@ -1,7 +1,7 @@
 'use client';
 
 import { useToast } from '@/hooks/ui/useToast';
-import { Plus } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 
 interface ImageInputProps {
@@ -37,11 +37,6 @@ export function ImageInput({ onFileSelect }: ImageInputProps) {
       .map((file) => URL.createObjectURL(file));
 
     setPreviewUrls(newUrls);
-
-    // 컴포넌트 언마운트 시 URL 해제
-    return () => {
-      newUrls.forEach((url) => URL.revokeObjectURL(url));
-    };
   }, [images]);
 
   /** 파일이 선택되었을 때 실행되는 핸들러 */
@@ -82,6 +77,20 @@ export function ImageInput({ onFileSelect }: ImageInputProps) {
     onFileSelect?.(newImages);
   };
 
+  /** 이미지 제거 핸들러 */
+  const handleFileRemove = (index: number) => {
+    const newImages = [...images];
+    newImages.splice(images.length - 1 - index, 1); // reverse 상태 고려
+
+    const removedUrl = previewUrls[index];
+    if (removedUrl) {
+      URL.revokeObjectURL(removedUrl);
+    }
+
+    setImages(newImages);
+    onFileSelect?.(newImages);
+  };
+
   return (
     <div className="flex items-start gap-2">
       {/* 이미지 추가 버튼 (4개 미만일 때만) */}
@@ -119,6 +128,13 @@ export function ImageInput({ onFileSelect }: ImageInputProps) {
                 alt={`미리보기 ${idx + 1}`}
                 className="w-full h-full object-cover rounded-md"
               />
+              <button
+                type="button"
+                className="absolute -top-1 -right-1 bg-black bg-opacity-50 rounded-full p-1 text-white hover:bg-opacity-70 cursor-pointer"
+                onClick={() => handleFileRemove(idx)}
+              >
+                <X size={12} />
+              </button>
             </div>
           ))}
       </div>
