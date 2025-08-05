@@ -29,6 +29,7 @@ export const handleButtonClick = (
 export default function AsideButton({
   value,
   label,
+  ...props
 }: AsideButtonProps) {
   const [pressed, bind] = useTap();
   const router = useRouter();
@@ -49,6 +50,7 @@ export default function AsideButton({
       className={className}
       value={value}
       onClick={() => handleButtonClick(value, router)}
+      {...props}
     >
       {label}
     </button>

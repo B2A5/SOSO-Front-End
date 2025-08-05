@@ -21,6 +21,14 @@ const SORT_OPTIONS: SortOption[] = [
   { label: '댓글순', value: 'COMMENT' },
 ];
 
+const CATEGORY_LIST = [
+  { value: 'daily', label: '일상' },
+  { value: 'hobby', label: '취미' },
+  { value: 'restaurant', label: '맛집' },
+  { value: 'lifestyle', label: '생활' },
+  { value: 'local', label: '동네소식' },
+];
+
 export default function CommunityPage() {
   const [currentTab, setCurrentTab] = useState('전체');
   const [sortType, setSortType] = useState(SORT_OPTIONS[0].value);
@@ -38,7 +46,7 @@ export default function CommunityPage() {
         filterValue={sortType}
       />
       <div>{/* <Contents /> */}</div>
-      <FloatingButton />
+      <FloatingButton categories={CATEGORY_LIST} />
     </div>
   );
 }
