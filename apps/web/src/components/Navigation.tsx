@@ -38,13 +38,14 @@ export function Navigation({ currentPath }: BottomNavigationProps) {
               key={href}
               href={href as Route<string>} // 타입 이슈 해결
               className={twMerge(
-                'flex flex-col items-center justify-center gap-1 py-2 px-3 rounded-lg transition-colors transition-scale duration-200 min-w-0 flex-1',
+                'flex flex-col items-center justify-center gap-1 py-2 px-3 rounded-lg ',
+                'transition-colors transition-scale duration-200 min-w-0 flex-1',
                 'text-neutral-400 ',
-                active ? 'text-white bg-soso-600 scale-95' : '',
+                active ? 'text-black dark:text-white scale-95' : '',
               )}
             >
               <Icon
-                className={`w-5 h-5 ${active ? 'fill-current' : ''}`}
+                className={`w-7 h-7 ${active ? 'fill-soso-600 stroke-soso-600' : ''}`}
               />
               <span className="text-xs font-medium truncate">
                 {label}
