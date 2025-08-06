@@ -5,7 +5,6 @@ import { twMerge } from 'tailwind-merge';
 import { Tab } from '@/components/tabs/Tab';
 import { TabItem } from '@/types/tab.types';
 import { useRouter, usePathname, useParams } from 'next/navigation';
-import { useOverlay } from '@/hooks/ui/useOverlay';
 import Header from '@/components/Header';
 
 /**
@@ -28,7 +27,6 @@ export function CommunityHeader({
   onRightButtonClick,
 }: CommunityHeaderProps) {
   const router = useRouter();
-  const { openOverlay } = useOverlay();
   const pathname = usePathname() || '';
   const params = useParams();
 
@@ -43,7 +41,7 @@ export function CommunityHeader({
   };
 
   const handleSearchClick = () => {
-    openOverlay(<div>Search Overlay</div>);
+    console.log('Search clicked');
   };
 
   // 경로에 따른 헤더 타입 결정

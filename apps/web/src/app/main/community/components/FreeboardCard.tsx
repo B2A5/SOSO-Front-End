@@ -7,15 +7,15 @@ import { Heart, MessageSquareMore } from 'lucide-react';
 
 import type { PostSummary } from '@/api/posts';
 
-export interface CommunityCardProps {
+export interface FreeBoardCardProps {
   post: PostSummary; // 변경: 개별 필드 대신 post 하나로
   isBadge?: boolean; // 배지 표시 여부
 }
 
-export function CommunityCard({
+export function FreeBoardCard({
   post,
   isBadge = false,
-}: CommunityCardProps) {
+}: FreeBoardCardProps) {
   const {
     title,
     content, // 이전의 description → content 로 변경
