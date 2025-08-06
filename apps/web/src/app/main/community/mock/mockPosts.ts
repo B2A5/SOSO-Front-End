@@ -1,16 +1,53 @@
-import { PostSummary, PostCursorResponse, CursorDto } from '@/api/posts';
+import {
+  PostSummary,
+  PostCursorResponse,
+  CursorDto,
+} from '@/api/posts';
+import { Category } from '@/constants/categories';
 
 // 목업 사용자 데이터
 const mockUsers = [
-  { nickname: '김철수', location: '서울시 강남구', profileImageUrl: '', userType: 'GENERAL' },
-  { nickname: '이영희', location: '부산시 해운대구', profileImageUrl: '', userType: 'PREMIUM' },
-  { nickname: '박민수', location: '대구시 중구', profileImageUrl: '', userType: 'GENERAL' },
-  { nickname: '정수진', location: '인천시 송도', profileImageUrl: '', userType: 'PREMIUM' },
-  { nickname: '최동원', location: '광주시 서구', profileImageUrl: '', userType: 'GENERAL' },
+  {
+    nickname: '김철수',
+    location: '서울시 강남구',
+    profileImageUrl: '',
+    userType: 'GENERAL',
+  },
+  {
+    nickname: '이영희',
+    location: '부산시 해운대구',
+    profileImageUrl: '',
+    userType: 'PREMIUM',
+  },
+  {
+    nickname: '박민수',
+    location: '대구시 중구',
+    profileImageUrl: '',
+    userType: 'GENERAL',
+  },
+  {
+    nickname: '정수진',
+    location: '인천시 송도',
+    profileImageUrl: '',
+    userType: 'PREMIUM',
+  },
+  {
+    nickname: '최동원',
+    location: '광주시 서구',
+    profileImageUrl: '',
+    userType: 'GENERAL',
+  },
 ];
 
 // 목업 카테고리
-const mockCategories = ['DAILY', 'HOBBY', 'TECH', 'FOOD', 'TRAVEL'];
+const mockCategories: Category[] = [
+  'daily-hobby',
+  'restaurant',
+  'living-convenience',
+  'neighborhood-news',
+  'startup',
+  'others',
+];
 
 // 목업 제목과 내용
 const mockTitles = [
@@ -23,7 +60,7 @@ const mockTitles = [
   '운동 시작하려고 하는데 조언 부탁해요',
   '책 추천해주세요',
   '영화 리뷰 나눠요',
-  '요리 레시피 공유해요'
+  '요리 레시피 공유해요',
 ];
 
 const mockContents = [
@@ -36,20 +73,26 @@ const mockContents = [
   '건강을 위해서 운동을 시작하려고 하는데, 초보자에게 좋은 운동이 뭐가 있을까요?',
   '요즘 읽을 책을 찾고 있어요. 재밌게 읽으신 책 있으시면 추천 부탁드려요!',
   '어제 본 영화가 너무 인상깊었어요. 다들 최근에 본 좋은 영화 있나요?',
-  '집에서 간단하게 만들 수 있는 요리 레시피가 있다면 공유해주세요!'
+  '집에서 간단하게 만들 수 있는 요리 레시피가 있다면 공유해주세요!',
 ];
 
 // 목업 게시글 생성 함수
 function generateMockPost(id: number): PostSummary {
-  const randomUser = mockUsers[Math.floor(Math.random() * mockUsers.length)];
-  const randomCategory = mockCategories[Math.floor(Math.random() * mockCategories.length)];
-  const randomTitle = mockTitles[Math.floor(Math.random() * mockTitles.length)];
-  const randomContent = mockContents[Math.floor(Math.random() * mockContents.length)];
-  
+  const randomUser =
+    mockUsers[Math.floor(Math.random() * mockUsers.length)];
+  const randomCategory =
+    mockCategories[Math.floor(Math.random() * mockCategories.length)];
+  const randomTitle =
+    mockTitles[Math.floor(Math.random() * mockTitles.length)];
+  const randomContent =
+    mockContents[Math.floor(Math.random() * mockContents.length)];
+
   // 랜덤 날짜 생성 (최근 30일 내)
   const now = new Date();
   const randomDays = Math.floor(Math.random() * 30);
-  const randomDate = new Date(now.getTime() - randomDays * 24 * 60 * 60 * 1000);
+  const randomDate = new Date(
+    now.getTime() - randomDays * 24 * 60 * 60 * 1000,
+  );
 
   return {
     postId: id,
@@ -66,11 +109,11 @@ function generateMockPost(id: number): PostSummary {
 // 목업 커서 페이지네이션 응답 생성
 export function generateMockPostsPage(
   cursor?: string,
-  size: number = 10
+  size: number = 10,
 ): PostCursorResponse {
   const startId = cursor ? parseInt(cursor) : 1;
   const endId = startId + size;
-  
+
   const posts: PostSummary[] = [];
   for (let i = startId; i < endId; i++) {
     posts.push(generateMockPost(i));
@@ -98,10 +141,10 @@ export const mockGetPostsByCursor = async (params: {
   size?: number;
 }): Promise<PostCursorResponse> => {
   // 실제 API 호출 시뮬레이션을 위한 지연
-  await new Promise(resolve => setTimeout(resolve, 800));
-  
+  await new Promise((resolve) => setTimeout(resolve, 800));
+
   const size = params.size || 10;
   const cursor = params.cursor || '1';
-  
+
   return generateMockPostsPage(cursor, size);
 };

@@ -71,9 +71,9 @@ export default function ContentsList({
 
   return (
     <div className={twMerge('flex flex-col gap-4', className)}>
-      {/* 게시글 카드 리스트 (나중에 투표 타입 추가) */}
+      {/* 게시글 카드 리스트 (@todo: 나중에 투표 타입 추가) */}
       {posts.map((post) => (
-        <FreeBoardCard key={post.postId} post={post} isBadge={true} />
+        <FreeBoardCard key={post.postId} post={post} isChip={true} />
       ))}
 
       {/* 무한스크롤 트리거 요소 */}

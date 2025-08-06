@@ -1,7 +1,7 @@
 // src/components/CommunityCard.tsx
 import Card from '@/components/Card';
-import { CategoryBadge } from './CategoryBadge';
-import { Category } from '@/constants/categorys';
+import { CategoryChip } from '@/components/chips/CategoryChip';
+import { Category } from '@/constants/categories';
 import { relativeTime } from '@/utils/relativeTime';
 import { Heart, MessageSquareMore } from 'lucide-react';
 
@@ -9,12 +9,12 @@ import type { PostSummary } from '@/api/posts';
 
 export interface FreeBoardCardProps {
   post: PostSummary; // 변경: 개별 필드 대신 post 하나로
-  isBadge?: boolean; // 배지 표시 여부
+  isChip?: boolean; // 칩 표시 여부
 }
 
 export function FreeBoardCard({
   post,
-  isBadge = false,
+  isChip = false,
 }: FreeBoardCardProps) {
   const {
     title,
@@ -29,9 +29,9 @@ export function FreeBoardCard({
   return (
     <Card className="w-full">
       <div className="flex flex-col gap-2">
-        {isBadge && (
+        {isChip && (
           <div className="flex items-center gap-1">
-            <CategoryBadge category={category as Category} />
+            <CategoryChip category={category as Category} />
           </div>
         )}
         <h3 className="text-title2">{title}</h3>
