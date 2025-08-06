@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { CategoryTab } from '@/components/tabs/CategoryTab';
 import { Categories } from '@/types/tab.types';
-import { CATEGORIES } from '../constants/categories';
+import { CATEGORIES } from '../../../../constants/categories';
 import { FilterHeader } from '../components/FilterHeader';
 import { SortValue } from '@/types/options.types';
 import { SORT_OPTIONS } from '../constants/sortOptions';

@@ -86,7 +86,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
      */
     const getBorderClass = (state: InputState): string => {
       const borderClasses = {
-        default: 'border-neutral-300 hover:border-soso-600',
+        default: 'border-neutral-100 hover:border-soso-600',
         focus: 'border-soso-600 ring-2 ring-soso-300',
         error: 'border-red-500 ring-2 ring-red-100',
         success: 'border-soso-500 ring-2 ring-green-300',
@@ -175,7 +175,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             onFocus={handleFocus}
             onBlur={handleBlur}
             className={twMerge(
-              'w-full rounded-full border px-4 py-3 text-sm transition-all duration-200',
+              'w-full rounded-xl border px-4 py-3 text-sm transition-all duration-200',
               'placeholder:text-gray-400 focus:outline-none',
               // 아이콘 위치에 따른 패딩
               leftIcon && 'pl-10',

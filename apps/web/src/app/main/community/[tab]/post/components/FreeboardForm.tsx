@@ -1,7 +1,14 @@
 import React, { useMemo } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
+import {
+  useSearchParams,
+  useRouter,
+  usePathname,
+} from 'next/navigation';
 import Input from '@/components/inputs/Input';
 import { PostFormData, GetPostResponse } from '@/api/posts';
+import { CATEGORIES, Category } from '@/constants/categories';
+import SelectDropdown from '@/components/dropdown/SelectDropdown';
 
 export interface FreeboardFormProps {
   postData: GetPostResponse | null;
@@ -10,26 +17,61 @@ export interface FreeboardFormProps {
 export function FreeboardForm({
   postData = null,
 }: FreeboardFormProps) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const queryCategory = searchParams.get('category') as Category;
   const defaultVals = useMemo<PostFormData>(
     () =>
       postData ?? {
         title: '',
         content: '',
-        category: '',
+        category: queryCategory ?? CATEGORIES[0].value,
         images: [],
       },
-    [postData],
+    [postData, queryCategory],
   );
-  const { register } = useForm<PostFormData>({
+  const { register, control } = useForm<PostFormData>({
     mode: 'onChange',
     reValidateMode: 'onBlur',
     defaultValues: defaultVals,
   });
+
+  // 드롭다운 변경 시 URL 업데이트
+  const handleCategoryChange = (value: Category) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('category', value);
+    router.replace(`${pathname}?${params.toString()}`);
+  };
   return (
     <div className="flex flex-col h-full w-full">
       <h1 className="text-2xl font-bold mb-4">자유 글 작성</h1>
 
-      <form className="space-y-4">
+      <form
+        className="space-y-4"
+        onSubmit={(e) => e.preventDefault()}
+      >
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            카테고리
+          </label>
+          <Controller
+            name="category"
+            control={control}
+            render={({ field }) => (
+              <SelectDropdown
+                options={CATEGORIES}
+                placeholder="원하는 카테고리를 선택하세요"
+                onChange={(value) => {
+                  field.onChange(value);
+                  handleCategoryChange(value as Category);
+                }}
+                className="w-full"
+                value={field.value}
+              />
+            )}
+          />
+        </div>
         <Input
           label="제목"
           {...register('title', {

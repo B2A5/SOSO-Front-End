@@ -5,20 +5,23 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/buttons/Button';
-import { Search, ChevronLeft } from 'lucide-react';
+import { Search, ChevronLeft, EllipsisVertical } from 'lucide-react';
 
 type LeftButtonType = 'back' | 'cancel';
+type RightButtonType = 'search' | 'none' | 'menu';
 
 interface HeaderProps {
   title: string; // 페이지 제목
-  showSearch?: boolean; // 검색 버튼 표시 여부
   leftButtonType?: LeftButtonType; // 좌측 버튼 타입
+  rightButtonType?: RightButtonType; // 우측 버튼 타입
+  onRightButtonClick?: () => void; // 우측 버튼 클릭 핸들러
 }
 
 export default function Header({
   title,
-  showSearch = false,
   leftButtonType = 'back', // 기본값은 'back'
+  rightButtonType = 'none', // 기본값은 'none'
+  onRightButtonClick,
 }: HeaderProps) {
   const router = useRouter();
 
@@ -40,9 +43,14 @@ export default function Header({
         {title}
       </h1>
       <div className="flex justify-end flex-1">
-        {showSearch && (
-          <Button variant="ghost" onClick={() => console.log('검색')}>
+        {rightButtonType === 'search' && (
+          <Button variant="ghost" onClick={onRightButtonClick}>
             <Search className="w-5 h-5" />
+          </Button>
+        )}
+        {rightButtonType === 'menu' && (
+          <Button variant="ghost" onClick={onRightButtonClick}>
+            <EllipsisVertical className="w-5 h-5" />
           </Button>
         )}
       </div>
