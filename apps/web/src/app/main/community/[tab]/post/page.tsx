@@ -26,5 +26,9 @@ export default function PostPage() {
     }
   };
 
-  return <div className="container mx-auto p-4">{renderForm()}</div>;
+  return (
+    <div className="container w-full h-full p-layout">
+      {renderForm()}
+    </div>
+  );
 }

@@ -5,11 +5,19 @@ import {
   useRouter,
   usePathname,
 } from 'next/navigation';
+import { useMutation } from '@tanstack/react-query';
 import Input from '@/components/inputs/Input';
-import { PostFormData, GetPostResponse } from '@/api/posts';
+import {
+  PostFormData,
+  GetPostResponse,
+  createPost,
+} from '@/api/posts';
 import { CATEGORIES, Category } from '@/constants/categories';
 import SelectDropdown from '@/components/dropdown/SelectDropdown';
 import TextArea from '@/components/inputs/TextArea';
+import { ImageInput } from '@/components/ImageInput';
+import { Button } from '@/components/buttons/Button';
+import { useToast } from '@/hooks/ui/useToast';
 
 export interface FreeboardFormProps {
   postData: GetPostResponse | null;
@@ -35,12 +43,16 @@ export function FreeboardForm({
   const {
     register,
     control,
-    formState: { errors, touchedFields },
+    setValue,
+    handleSubmit,
+    formState: { errors, touchedFields, isSubmitting, isValid },
   } = useForm<PostFormData>({
-    mode: 'onChange',
-    reValidateMode: 'onBlur',
+    mode: 'onChange', // 실시간 validation을 위해 onChange로 변경
+    reValidateMode: 'onChange',
     defaultValues: defaultVals,
   });
+
+  const toast = useToast();
 
   // 드롭다운 변경 시 URL 업데이트
   const handleCategoryChange = (value: Category) => {
@@ -48,11 +60,43 @@ export function FreeboardForm({
     params.set('category', value);
     router.replace(`${pathname}?${params.toString()}`);
   };
+
+  // 이미지 선택 핸들러
+  const handleImageSelect = (files: File[]) => {
+    setValue('images', files, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  };
+
+  // 게시글 작성 mutation
+  const createPostMutation = useMutation({
+    mutationFn: createPost,
+    onSuccess: () => {
+      toast('게시글이 성공적으로 작성되었습니다!', 'success');
+      // 작성 완료 후 해당 게시글로 이동 또는 목록으로 이동
+      router.push(`/main/community/`);
+    },
+    onError: (error) => {
+      console.error('게시글 작성 실패:', error);
+      toast(
+        '게시글 작성에 실패했습니다. 다시 시도해주세요.',
+        'error',
+      );
+    },
+  });
+
+  // form 제출 핸들러
+  const onSubmit = (data: PostFormData) => {
+    createPostMutation.mutate(data);
+  };
+
   return (
-    <div className="flex flex-col h-full w-full">
+    <div className="relative flex flex-col h-full w-full">
       <form
-        className="flex flex-col gap-5 w-full"
-        onSubmit={(e) => e.preventDefault()}
+        id="freeboard-form"
+        className="flex flex-col gap-5 w-full h-full overflow-auto p-1 transition-transform duration-300 ease-in-out"
+        onSubmit={handleSubmit(onSubmit)}
       >
         <div>
           <label className="block text-sm font-medium text-neutral-1000 dark:text-neutral-200 mb-2">
@@ -82,6 +126,8 @@ export function FreeboardForm({
           errorMessage={errors.title?.message}
           {...register('title', {
             required: '제목은 필수입니다.',
+            validate: (value) =>
+              value?.trim().length > 0 || '제목을 입력해주세요.',
             maxLength: {
               value: 20,
               message: '제목은 최대 20자까지 입력 가능합니다.',
@@ -98,6 +144,9 @@ export function FreeboardForm({
           placeholder="내용을 입력하세요..."
           {...register('content', {
             required: '내용은 필수입니다.',
+            validate: (value) =>
+              value?.trim().length >= 5 ||
+              '내용을 5자 이상 입력해주세요.',
             minLength: {
               value: 5,
               message: '내용은 최소 5자 이상 입력해야 합니다.',
@@ -108,7 +157,26 @@ export function FreeboardForm({
             },
           })}
         />
+
+        {/* 이미지 업로드 */}
+        <div className="flex flex-col">
+          <label className="block text-sm font-medium text-neutral-1000 dark:text-neutral-200 mb-2">
+            사진 첨부 (선택)
+          </label>
+          <ImageInput onFileSelect={handleImageSelect} />
+        </div>
       </form>
+      <Button
+        type="submit"
+        form="freeboard-form"
+        disabled={!isValid}
+        isLoading={isSubmitting}
+        loadingText="게시글 작성 중..."
+        className="absolute bottom-0 w-full"
+        onClick={handleSubmit(onSubmit)}
+      >
+        저장하기
+      </Button>
     </div>
   );
 }
