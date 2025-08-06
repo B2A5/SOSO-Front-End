@@ -9,6 +9,7 @@ import Input from '@/components/inputs/Input';
 import { PostFormData, GetPostResponse } from '@/api/posts';
 import { CATEGORIES, Category } from '@/constants/categories';
 import SelectDropdown from '@/components/dropdown/SelectDropdown';
+import TextArea from '@/components/inputs/TextArea';
 
 export interface FreeboardFormProps {
   postData: GetPostResponse | null;
@@ -31,7 +32,11 @@ export function FreeboardForm({
       },
     [postData, queryCategory],
   );
-  const { register, control } = useForm<PostFormData>({
+  const {
+    register,
+    control,
+    formState: { errors, touchedFields },
+  } = useForm<PostFormData>({
     mode: 'onChange',
     reValidateMode: 'onBlur',
     defaultValues: defaultVals,
@@ -74,11 +79,34 @@ export function FreeboardForm({
         </div>
         <Input
           label="제목"
+          isError={!!errors.title}
+          isSuccess={touchedFields.title && !errors.title}
+          errorMessage={errors.title?.message}
           {...register('title', {
             required: '제목은 필수입니다.',
             maxLength: {
               value: 20,
               message: '제목은 최대 20자까지 입력 가능합니다.',
+            },
+          })}
+        />
+        <TextArea
+          label="내용"
+          maxLength={500}
+          rows={8}
+          isError={!!errors.content}
+          isSuccess={touchedFields.content && !errors.content}
+          errorMessage={errors.content?.message}
+          placeholder="내용을 입력하세요..."
+          {...register('content', {
+            required: '내용은 필수입니다.',
+            minLength: {
+              value: 10,
+              message: '내용은 최소 10자 이상 입력해야 합니다.',
+            },
+            maxLength: {
+              value: 500,
+              message: '내용은 최대 500자까지 입력 가능합니다.',
             },
           })}
         />
