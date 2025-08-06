@@ -4,6 +4,7 @@ import Image from 'next/image';
 import type { GetPostResponse } from '@/api/posts';
 import { relativeTime } from '@/utils/relativeTime';
 import LikeButton from '@/components/buttons/LikeButton';
+import ImageSlider from '@/components/ImageSlider';
 
 const dummyPost: GetPostResponse = {
   postId: 1,
@@ -11,7 +12,11 @@ const dummyPost: GetPostResponse = {
   content:
     'It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using "Content here, content here", making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for "lorem ipsum" will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).',
   category: '맛집',
-  imageUrls: [],
+  imageUrls: [
+    'https://picsum.photos/id/1015/600/400', // 자연
+    'https://picsum.photos/id/1025/600/400', // 동물
+    'https://picsum.photos/id/1035/600/400', // 도시
+  ],
   likeCount: 5,
   isLiked: false,
   createdAt: '2025-08-06T10:00:00Z',
@@ -75,11 +80,16 @@ export default function PostPage() {
         {/* 본문 */}
         <div className="flex flex-col space-y-6">
           <h1 className="text-2xl font-bold">Q. {post.title}</h1>
+          {post.imageUrls.length > 0 && (
+            <ImageSlider
+              images={post.imageUrls}
+              className="w-full min-h-[200px]"
+            />
+          )}
           <p className="text-textBox text-neutral-1000">
             {post.content}
           </p>
         </div>
-
         {/* 좋아요/조회수  TODO-백엔드 조회수 추가시 변경*/}
         <div className="flex justify-between items-center mt-4">
           <LikeButton
