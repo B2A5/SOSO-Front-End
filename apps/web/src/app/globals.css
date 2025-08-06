@@ -61,6 +61,13 @@
   --color-error-normal-hover: #dc3c31;
   --color-error-normal-active: #c3362b;
 }
+@theme {
+  --color-gradient-dark: linear-gradient(
+    to bottom right,
+    var(--color-neutral-1000),
+    var(--color-neutral-900)
+  );
+}
 /* 패딩 */
 @theme {
   --padding-layout: 20px;

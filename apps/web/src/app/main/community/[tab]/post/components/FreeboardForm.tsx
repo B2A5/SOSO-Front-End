@@ -50,8 +50,6 @@ export function FreeboardForm({
   };
   return (
     <div className="flex flex-col h-full w-full">
-      <h1 className="text-2xl font-bold mb-4">자유 글 작성</h1>
-
       <form
         className="space-y-4"
         onSubmit={(e) => e.preventDefault()}
@@ -71,7 +69,7 @@ export function FreeboardForm({
                   field.onChange(value);
                   handleCategoryChange(value as Category);
                 }}
-                className="w-full"
+                className="w-full border border-gray-300 rounded-lg"
                 value={field.value}
               />
             )}

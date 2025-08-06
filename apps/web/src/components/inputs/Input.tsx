@@ -175,7 +175,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             onFocus={handleFocus}
             onBlur={handleBlur}
             className={twMerge(
-              'w-full rounded-xl border px-4 py-3 text-sm transition-all duration-200',
+              'w-full rounded-lg border px-4 py-3 text-sm transition-all duration-200',
               'placeholder:text-gray-400 focus:outline-none',
               // 아이콘 위치에 따른 패딩
               leftIcon && 'pl-10',

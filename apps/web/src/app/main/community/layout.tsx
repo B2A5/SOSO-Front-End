@@ -16,7 +16,6 @@ export default function CommunityLayout({
   return (
     <div className="flex flex-col h-full w-full">
       <CommunityHeader className="w-full" />
-
       {children}
     </div>
   );

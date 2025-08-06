@@ -26,7 +26,7 @@ export default function Header({
   const router = useRouter();
 
   return (
-    <header className="w-full flex justify-between items-center py-[6px] px-5 border-b border-neutral-100 dark:border-neutral-800">
+    <header className="w-full flex justify-between items-center py-[6px] px-5 border-b border-neutral-100 dark:border-neutral-800 bg-transparent">
       <div className="flex-1">
         {leftButtonType === 'back' && (
           <Button variant="ghost" onClick={() => router.back()}>

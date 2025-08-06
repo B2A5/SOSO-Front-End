@@ -15,7 +15,7 @@ import Header from '@/components/Header';
  * - view 페이지에서는 이전 버튼과 메뉴 버튼을 표시
  */
 export const TAB_LIST: TabItem[] = [
-  { title: '튜표 게시판', value: 'votesboard' },
+  { title: '투표 게시판', value: 'votesboard' },
   { title: '자유 게시판', value: 'freeboard' },
 ];
 
@@ -91,7 +91,7 @@ export function CommunityHeader({
   return (
     <div
       className={twMerge(
-        'flex items-center justify-between w-full h-[50px] px-5 py-4 bg-transparent ',
+        'flex items-center justify-between w-full h-[50px] px-5 py-4 bg-transparent',
         className,
       )}
     >

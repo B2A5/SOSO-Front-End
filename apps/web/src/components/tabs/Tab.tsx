@@ -115,9 +115,7 @@ export function Tab({
   };
 
   return (
-    <div
-      className={`relative bg-white border-b border-gray-100 ${className}`}
-    >
+    <div className={`relative bg-transparent  ${className}`}>
       {/* 탭 컨테이너 */}
       <div
         ref={containerRef}
@@ -133,12 +131,12 @@ export function Tab({
             onClick={() => handleTabClick(tab.value)}
             onKeyDown={(event) => handleKeyDown(event, tab.value)}
             className={`
-              flex-shrink-0 px-4 py-3 text-sm font-medium transition-colors duration-200 whitespace-nowrap
-            
+              flex-shrink-0 px-4 py-3 text-md font-bold transition-colors duration-200 whitespace-nowrap
+             
               ${
                 activeTab === tab.value
-                  ? 'text-gray-900'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'text-gray-900 dark:text-neutral-100'
+                  : 'text-gray-500 hover:text-gray-700 dark:text-neutral-500 dark:hover:text-gray-300'
               }
             `}
             role="tab"

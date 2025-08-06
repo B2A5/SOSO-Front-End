@@ -161,7 +161,7 @@ const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
             onBlur={handleBlur}
             onChange={handleChange} // ✨ 변경된 부분
             className={twMerge(
-              'w-full rounded-xl border px-4 py-3 text-sm transition-all duration-200',
+              'w-full rounded-lg border px-4 py-3 text-sm transition-all duration-200',
               'placeholder:text-gray-400 focus:outline-none',
               leftIcon && 'pl-10',
               rightIcon && 'pr-10',
