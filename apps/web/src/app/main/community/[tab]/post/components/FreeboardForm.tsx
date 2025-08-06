@@ -19,6 +19,11 @@ import { ImageInput } from '@/components/ImageInput';
 import { Button } from '@/components/buttons/Button';
 import { useToast } from '@/hooks/ui/useToast';
 
+/**
+ * FreeboardForm 컴포넌트
+ * 자유게시판 게시글 작성 및 수정 폼
+ *
+ */
 export interface FreeboardFormProps {
   postData: GetPostResponse | null;
 }

@@ -11,6 +11,16 @@ import ContentsList from '../components/ContentsList';
 import { mockGetPostsByCursor } from '../mock/mockPosts';
 import type { PostCursorResponse } from '@/api/posts';
 
+/**
+ * 커뮤니티 탭 페이지
+ * - 카테고리별 게시글 목록을 보여주는 페이지
+ * - 무한스크롤 기능 포함
+ * - 카테고리 및 정렬 옵션 선택 가능
+ * @todo: 목업 데이터를 실제 데이터로 교체
+ *
+ *
+ */
+
 export default function CommunityTabPage() {
   const [category, setCategory] = useState<Categories>(CATEGORIES[0]);
   const [sortOption, setSortOption] = useState<SortValue>(
