@@ -6,6 +6,7 @@ import React, {
   useCallback,
 } from 'react';
 import { twMerge } from 'tailwind-merge';
+import { TabItem } from '@/types/tab.types';
 
 /**
  * 탭 컴포넌트의 언더라인 스타일 타입
@@ -20,11 +21,11 @@ interface UnderlineStyle {
  */
 export interface TabProps {
   /** 탭 목록 배열 */
-  tabs?: string[];
+  tabs?: TabItem[];
   /** 현재 활성화된 탭 */
-  activeTab?: string;
+  activeTab?: TabItem['value'];
   /** 탭 변경 시 호출될 콜백 함수 */
-  onTabChange?: (tab: string) => void;
+  onTabChange?: (tab: TabItem['value']) => void;
   /** 추가 CSS 클래스명 */
   className?: string;
 }
@@ -33,8 +34,8 @@ export interface TabProps {
  * 커뮤니티 탭 컴포넌트
  */
 export function Tab({
-  tabs = ['전체'],
-  activeTab = '전체',
+  tabs = [{ title: '전체', value: 'all' }],
+  activeTab = 'all',
   onTabChange,
   className = '',
 }: TabProps) {
@@ -51,9 +52,9 @@ export function Tab({
    * 언더바 위치 업데이트 함수
    */
   const updateUnderlinePosition = useCallback(() => {
-    const validActiveTab = tabs.includes(activeTab)
+    const validActiveTab = tabs.find((tab) => tab.value === activeTab)
       ? activeTab
-      : tabs[0];
+      : tabs[0].value;
     const activeTabElement = tabRefs.current[validActiveTab];
 
     if (activeTabElement && containerRef.current) {
@@ -125,27 +126,27 @@ export function Tab({
       >
         {tabs.map((tab) => (
           <button
-            key={tab}
+            key={tab.value}
             ref={(element) => {
-              tabRefs.current[tab] = element;
+              tabRefs.current[tab.value] = element;
             }}
-            onClick={() => handleTabClick(tab)}
-            onKeyDown={(event) => handleKeyDown(event, tab)}
+            onClick={() => handleTabClick(tab.value)}
+            onKeyDown={(event) => handleKeyDown(event, tab.value)}
             className={`
               flex-shrink-0 px-4 py-3 text-sm font-medium transition-colors duration-200 whitespace-nowrap
             
               ${
-                activeTab === tab
+                activeTab === tab.value
                   ? 'text-gray-900'
                   : 'text-gray-500 hover:text-gray-700'
               }
             `}
             role="tab"
-            tabIndex={activeTab === tab ? 0 : -1}
-            aria-selected={activeTab === tab}
-            aria-controls={`tabpanel-${tab}`}
+            tabIndex={activeTab === tab.value ? 0 : -1}
+            aria-selected={activeTab === tab.value}
+            aria-controls={`tabpanel-${tab.value}`}
           >
-            {tab}
+            {tab.title}
           </button>
         ))}
       </div>

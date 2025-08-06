@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { useOverlay } from '@/hooks/ui/useOverlay';
 import Pressable from '../Pressable';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { X } from 'lucide-react';
 
 /**
@@ -46,6 +46,7 @@ export default function FloatingMenu({
     null,
   );
   const router = useRouter();
+  const params = useParams();
   const { closeOverlay } = useOverlay();
   /**
    * 컴포넌트 마운트 시 첫 번째 버튼에 포커스
@@ -95,7 +96,10 @@ export default function FloatingMenu({
 
   const handleButtonClick = (value: string) => {
     closeOverlay();
-    router.push(`/category/${value}`);
+    const currentTab = params.tab || 'freeboard';
+    router.push(
+      `/main/community/${currentTab}/post?category=${value}`,
+    );
   };
 
   /**
@@ -162,7 +166,7 @@ export default function FloatingMenu({
         aria-label="카테고리 메뉴"
         className={twMerge(
           'grid grid-cols-2 gap-4 w-max p-4',
-          'animate-fade-in-up',
+          'animate-fadeIn',
           className,
         )}
         onKeyDown={handleArrowKeyNavigation}

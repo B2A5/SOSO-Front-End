@@ -54,6 +54,7 @@ export default function FloatingButton({
         'shadow-lg hover:shadow-xl',
         // 애니메이션 및 상호작용
         'transition-all duration-200 ease-in-out',
+
         'hover:scale-105 active:scale-95',
         // 포커스 스타일
         'focus:outline-none focus:ring-2 focus:ring-soso-300',
