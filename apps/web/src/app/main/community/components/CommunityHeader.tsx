@@ -1,4 +1,5 @@
 'use client';
+
 import { Button } from '@/components/buttons/Button';
 import { Search } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
@@ -6,6 +7,10 @@ import { Tab } from '@/components/tabs/Tab';
 import { TabItem } from '@/types/tab.types';
 import { useRouter, usePathname, useParams } from 'next/navigation';
 import Header from '@/components/Header';
+import { useOverlay } from '@/hooks/ui/useOverlay';
+import BottomSheetMenu, {
+  MenuAction,
+} from '@/components/BottomSheet';
 
 /**
  * 커뮤니티 페이지에 따른 동적 헤더를 제공합니다.
@@ -29,6 +34,7 @@ export function CommunityHeader({
   const router = useRouter();
   const pathname = usePathname() || '';
   const params = useParams();
+  const { openOverlay } = useOverlay();
 
   // URL 세그먼트에서 현재 탭 value 추출 (defaults to first)
   const currentTab =
@@ -40,8 +46,25 @@ export function CommunityHeader({
     router.push(`/main/community/${value}`);
   };
 
+  // 바텀시트 테스트용
+  const menuAction: MenuAction[] = [
+    {
+      label: '설정',
+      onClick: () => console.log('Settings clicked'),
+    },
+    {
+      label: '도움말',
+      onClick: () => console.log('Help clicked'),
+    },
+  ];
   const handleSearchClick = () => {
     console.log('Search clicked');
+    openOverlay(
+      <BottomSheetMenu isOpen={true} actions={menuAction} />,
+      {
+        backdrop: true,
+      },
+    );
   };
 
   // 경로에 따른 헤더 타입 결정

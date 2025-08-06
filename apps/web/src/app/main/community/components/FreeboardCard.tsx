@@ -27,15 +27,19 @@ export function FreeBoardCard({
   } = post;
 
   return (
-    <Card className="w-full">
-      <div className="flex flex-col gap-2">
+    <Card className="w-full flex flex-col gap-3">
+      <div className="flex flex-col gap-1">
         {isChip && (
           <div className="flex items-center gap-1">
             <CategoryChip category={category as Category} />
           </div>
         )}
-        <h3 className="text-title2">{title}</h3>
-        <p className="text-body">{content}</p>
+        <h3 className="text-title2 truncate" title={title}>
+          {title}
+        </h3>
+        <p className="text-body truncate" title={content}>
+          {content}
+        </p>
       </div>
       <div className="flex justify-between items-center">
         {/* 작성자 · 시간 */}

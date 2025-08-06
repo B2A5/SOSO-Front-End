@@ -12,7 +12,20 @@
     scroll-behavior: smooth;
   }
 }
-
+/* z-index */
+@theme {
+  --z-toast: 1000;
+  --z-modal: 500;
+  --z-bottom-sheet: 400;
+  --z-floating-button: 300;
+  --z-overlay: 200;
+  --z-header: 100;
+  --z-navigation: 100;
+  --z-comment-input: 100;
+  --z-tab: 50;
+  --z-sub-tab: 50;
+  --z-dropdown: 50;
+}
 /* 컬러 */
 @theme {
   /* soso 브랜드 색상 */
