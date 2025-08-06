@@ -3,6 +3,7 @@ import { Eye, Home, Sprout } from 'lucide-react';
 import Image from 'next/image';
 import type { GetPostResponse } from '@/api/posts';
 import { relativeTime } from '@/utils/relativeTime';
+import LikeButton from '@/components/buttons/LikeButton';
 
 const dummyPost: GetPostResponse = {
   postId: 1,
@@ -74,13 +75,18 @@ export default function PostPage() {
         {/* 본문 */}
         <div className="flex flex-col space-y-6">
           <h1 className="text-2xl font-bold">Q. {post.title}</h1>
-          <p className="text-textBox">{post.content}</p>
+          <p className="text-textBox text-neutral-1000">
+            {post.content}
+          </p>
         </div>
 
-        {/* 좋아요/조회수 */}
+        {/* 좋아요/조회수  TODO-백엔드 조회수 추가시 변경*/}
         <div className="flex justify-between items-center mt-4">
-          <div>❤️ 좋아요 {post.likeCount}</div>
-          <div className="flex items-center gap-2">
+          <LikeButton
+            isLiked={post.isLiked}
+            likeCount={post.likeCount}
+          />
+          <div className="flex items-center gap-1.5">
             <Eye className="inline w-6 h-6 text-neutral-200" />
             <span className="text-neutral-500 text-input2">30</span>
           </div>
