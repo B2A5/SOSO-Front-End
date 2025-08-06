@@ -2,6 +2,7 @@ import Header from '@/components/Header';
 import { Eye, Home, Sprout } from 'lucide-react';
 import Image from 'next/image';
 import type { GetPostResponse } from '@/api/posts';
+import { relativeTime } from '@/utils/relativeTime';
 
 const dummyPost: GetPostResponse = {
   postId: 1,
@@ -26,7 +27,8 @@ export default function PostPage() {
 
   return (
     <div>
-      <Header title={post.title} />
+      {/* TODO 헤더 타이틀 변경 필요*/}
+      <Header title="자유글 상세" />
       <main className="p-layout space-y-6 border-b border-neutral-0">
         {/* 카테고리 뱃지 - TODO 스타일 확인 필요*/}
         <div className="flex flex-col space-y-2">
@@ -62,8 +64,8 @@ export default function PostPage() {
                   )}
                 </div>
               </div>
-              <p className="text-xs text-neutral-500">
-                {post.user.location}
+              <p className="text-sm text-neutral-500">
+                {post.user.location} · {relativeTime(post.createdAt)}
               </p>
             </div>
           </div>
