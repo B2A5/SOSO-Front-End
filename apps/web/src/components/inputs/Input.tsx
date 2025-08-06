@@ -86,7 +86,8 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
      */
     const getBorderClass = (state: InputState): string => {
       const borderClasses = {
-        default: 'border-neutral-100 hover:border-neutral-700',
+        default:
+          'border-neutral-100 hover:border-neutral-700 dark:border-neutral-700 dark:hover:border-neutral-500',
         focus: 'border-none ring-1 ring-neutral-700',
         error: 'border-none ring-1 ring-red-300',
         success: 'border-none ring-1 ring-soso-500',
@@ -136,7 +137,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <label
             htmlFor={id}
             className={twMerge(
-              'mb-2 text-sm font-medium text-gray-700',
+              'mb-2 text-sm font-medium text-neutral-1000 dark:text-neutral-200',
               disabled && 'text-gray-400',
             )}
           >
@@ -177,6 +178,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             className={twMerge(
               'w-full rounded-lg border px-4 py-3 text-sm transition-all duration-200',
               'placeholder:text-gray-400 focus:outline-none',
+              'dark:bg-neutral-900 dark:text-neutral-200',
               // 아이콘 위치에 따른 패딩
               leftIcon && 'pl-10',
               rightIcon && 'pr-10',

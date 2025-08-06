@@ -146,6 +146,7 @@ export default function SelectDropdown<T extends string | number>({
         onClick={toggleDropdown}
         className={twMerge(
           'inline-flex justify-between items-center w-full px-4 py-2 bg-white rounded-md text-fontColor-gray3 hover:bg-gray-50',
+          'dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700',
         )}
       >
         <span
@@ -169,14 +170,17 @@ export default function SelectDropdown<T extends string | number>({
           onKeyDown={handleKeyDown}
           onTransitionEnd={handleTransitionEnd}
           className={twMerge(
-            'absolute right-0 z-10 mt-[-1px] w-full bg-white border border-neutral-100 rounded-md text-sm origin-top-right transition-transform duration-200',
+            'absolute right-0 z-10 mt-[1px] w-full rounded-md text-sm origin-top-right ',
+            'transition-transform duration-200',
+            ' bg-white border border-neutral-100 ',
+            'dark:bg-neutral-800 dark:text-neutral-200 dark:border-neutral-700',
             isOpen
               ? 'scale-100 opacity-100'
               : 'scale-95 opacity-0 pointer-events-none',
           )}
         >
           {options.map((opt) => (
-            <li key={String(opt.value)}>
+            <li key={String(opt.value)} className="px-1 py-1">
               <button
                 role="menuitem"
                 tabIndex={opt.value === value ? 0 : -1}
@@ -185,10 +189,11 @@ export default function SelectDropdown<T extends string | number>({
                   setIsOpen(false);
                 }}
                 className={twMerge(
-                  'w-full text-left px-4 py-2 transition-colors hover:bg-gray-100 focus:bg-gray-100',
+                  'w-full text-left px-4 py-2 transition-colors hover:bg-gray-100  focus:bg-gray-100 rounded-lg',
+                  'dark:hover:bg-neutral-500 dark:hover:text-neutral-1000',
                   'focus:outline-none',
                   opt.value === value &&
-                    'font-semibold text-fontColor-gray3',
+                    'font-semibold text-fontColor-gray3 dark:text-fontColor-gray3 dark:bg-gray-100',
                 )}
               >
                 {opt.label}

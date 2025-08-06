@@ -51,11 +51,11 @@ export function FreeboardForm({
   return (
     <div className="flex flex-col h-full w-full">
       <form
-        className="space-y-4"
+        className="flex flex-col gap-5 w-full"
         onSubmit={(e) => e.preventDefault()}
       >
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-neutral-1000 dark:text-neutral-200 mb-2">
             카테고리
           </label>
           <Controller
@@ -69,7 +69,7 @@ export function FreeboardForm({
                   field.onChange(value);
                   handleCategoryChange(value as Category);
                 }}
-                className="w-full border border-gray-300 rounded-lg"
+                className="w-full border border-gray-300 dark:border-neutral-700 rounded-lg"
                 value={field.value}
               />
             )}
@@ -99,8 +99,8 @@ export function FreeboardForm({
           {...register('content', {
             required: '내용은 필수입니다.',
             minLength: {
-              value: 10,
-              message: '내용은 최소 10자 이상 입력해야 합니다.',
+              value: 5,
+              message: '내용은 최소 5자 이상 입력해야 합니다.',
             },
             maxLength: {
               value: 500,
