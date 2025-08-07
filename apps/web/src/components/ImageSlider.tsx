@@ -60,7 +60,7 @@ export default function ImageSlider({
       {/* 스켈레톤 로딩 */}
       <div
         className={twMerge(
-          'absolute inset-0 h-[200px] rounded-lg bg-neutral-100 animate-pulse transition-opacity duration-300',
+          'absolute inset-0 h-[200px] md:h-[300px] rounded-lg bg-neutral-100 animate-pulse transition-opacity duration-300',
           loaded && 'opacity-0 pointer-events-none',
         )}
       />
