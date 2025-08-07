@@ -2,6 +2,7 @@
 import {
   MessagesSquare,
   MapPin,
+  Home,
   Sprout,
   CircleUser,
 } from 'lucide-react';
@@ -25,15 +26,21 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     icon: MessagesSquare,
   },
   {
-    href: '/main/founder',
-    label: '창업 도우미',
-    icon: Sprout,
-  },
-  {
     href: '/main/maps',
     label: '지도',
     icon: MapPin,
   },
+  {
+    href: '/main/home',
+    label: '홈',
+    icon: Home,
+  },
+  {
+    href: '/main/founder',
+    label: '창업 도우미',
+    icon: Sprout,
+  },
+
   {
     href: '/main/profile',
     label: '마이페이지',

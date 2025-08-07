@@ -4,50 +4,31 @@ import React, { useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 /**
- * Input 컴포넌트의 상태 타입
+ * TextArea 컴포넌트의 상태 타입
  */
 type InputState = 'default' | 'focus' | 'error' | 'success';
 
 /**
- * Input 컴포넌트 Props 인터페이스
+ * TextArea 컴포넌트 Props 인터페이스
  */
-interface InputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {
-  /** 라벨 텍스트 */
+interface TextAreaProps
+  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
-  /** 좌측 아이콘 컴포넌트 */
   leftIcon?: React.ReactNode;
-  /** 우측 아이콘 컴포넌트 */
   rightIcon?: React.ReactNode;
-  /** 에러 상태 여부 */
   isError?: boolean;
-  /** 성공 상태 여부 */
   isSuccess?: boolean;
-  /** 에러 메시지 */
   errorMessage?: string;
-  /** 헬프 메시지 */
   helpMessage?: string;
-  /** 추가 클래스명 */
   className?: string;
-  /** 입력 필드 추가 클래스명 */
   inputClassName?: string;
-  /** 좌측 아이콘 클릭 핸들러 */
   onLeftIconClick?: () => void;
-  /** 우측 아이콘 클릭 핸들러 */
   onRightIconClick?: () => void;
+  /** 최대 글자 수 */
+  maxLength?: number;
 }
 
-/**
- * 공통 Input 컴포넌트
- *
- * @description
- * - 좌측/우측 아이콘 지원
- * - 상태별 스타일링 (default, focus, error, success)
- * - 에러/헬프 메시지 표시
- * - 완전한 접근성 지원
- *
- */
-const Input = React.forwardRef<HTMLInputElement, InputProps>(
+const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
   (
     {
       label,
@@ -65,15 +46,26 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       onRightIconClick,
       onFocus,
       onBlur,
+      onChange,
+      maxLength, // ✨ 추가된 prop
+      value, // 컨트롤드 사용 시
+      defaultValue, // 언컨트롤드 초기값
       ...props
     },
     ref,
   ) => {
     const [isFocused, setIsFocused] = useState(false);
+    // ✨ 현재 글자 수 상태
+    const [valueLength, setValueLength] = useState(
+      // 초기값: value 혹은 defaultValue 기반
+      typeof value === 'string'
+        ? value.length
+        : typeof defaultValue === 'string'
+          ? defaultValue.length
+          : 0,
+    );
 
-    /**
-     * 현재 Input 상태를 계산합니다
-     */
+    // InputState 계산
     const getInputState = (): InputState => {
       if (isError) return 'error';
       if (isSuccess) return 'success';
@@ -81,9 +73,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       return 'default';
     };
 
-    /**
-     * 상태별 border 클래스를 반환합니다
-     */
+    // 상태별 border/ring 클래스
     const getBorderClass = (state: InputState): string => {
       const borderClasses = {
         default:
@@ -92,33 +82,28 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         error: 'border-none ring-1 ring-red-300',
         success: 'border-none ring-1 ring-soso-500',
       };
-
       return borderClasses[state];
     };
 
-    /**
-     * Focus 이벤트 핸들러
-     */
     const handleFocus = (
-      event: React.FocusEvent<HTMLInputElement>,
+      e: React.FocusEvent<HTMLTextAreaElement>,
     ) => {
       setIsFocused(true);
-      onFocus?.(event);
+      onFocus?.(e);
     };
-
-    /**
-     * Blur 이벤트 핸들러
-     */
-    const handleBlur = (
-      event: React.FocusEvent<HTMLInputElement>,
-    ) => {
+    const handleBlur = (e: React.FocusEvent<HTMLTextAreaElement>) => {
       setIsFocused(false);
-      onBlur?.(event);
+      onBlur?.(e);
     };
 
-    /**
-     * 아이콘 클릭 핸들러 (disabled 상태일 때 무시)
-     */
+    // 글자 수 변경 핸들러
+    const handleChange = (
+      e: React.ChangeEvent<HTMLTextAreaElement>,
+    ) => {
+      setValueLength(e.target.value.length);
+      onChange?.(e);
+    };
+
     const handleIconClick = (handler?: () => void) => {
       if (disabled) return;
       handler?.();
@@ -145,7 +130,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           </label>
         )}
 
-        {/* Input Container */}
+        {/* TextArea Container (상대 위치 지정) */}
         <div className="relative">
           {/* Left Icon */}
           {leftIcon && (
@@ -154,7 +139,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               disabled={disabled || !onLeftIconClick}
               aria-label="Left icon button"
               className={twMerge(
-                'absolute top-1/2 left-3 z-10 -translate-y-1/2 transform',
+                'absolute top-3 left-3 z-10',
                 'rounded p-1 transition-transform',
                 onLeftIconClick && !disabled
                   ? 'cursor-pointer'
@@ -168,25 +153,27 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             </button>
           )}
 
-          {/* Input Field */}
-          <input
+          {/* TextArea Field */}
+          <textarea
             ref={ref}
             id={id}
             disabled={disabled}
             onFocus={handleFocus}
             onBlur={handleBlur}
+            onChange={handleChange} // ✨ 변경된 부분
             className={twMerge(
               'w-full rounded-lg border px-4 py-3 text-sm transition-all duration-200',
               'placeholder:text-gray-400 focus:outline-none',
               'dark:bg-neutral-900 dark:text-neutral-200',
-              // 아이콘 위치에 따른 패딩
               leftIcon && 'pl-10',
               rightIcon && 'pr-10',
-              // 상태 스타일
               borderClass,
               disabledClass,
               inputClassName,
             )}
+            maxLength={maxLength} // ✨ 최대 글자 수 설정
+            value={value}
+            defaultValue={defaultValue}
             {...props}
           />
 
@@ -197,7 +184,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               disabled={disabled || !onRightIconClick}
               aria-label="Right icon button"
               className={twMerge(
-                'absolute top-1/2 right-3 z-10 -translate-y-1/2 transform',
+                'absolute top-3 right-3 z-10',
                 'rounded p-1 transition-transform',
                 onRightIconClick && !disabled
                   ? 'cursor-pointer'
@@ -210,17 +197,23 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               {rightIcon}
             </button>
           )}
+
+          {/* ✨ 글자 수 표시 */}
+          {maxLength != null && (
+            <div className="absolute bottom-4 right-4 text-xs text-gray-400">
+              {valueLength} / {maxLength}
+            </div>
+          )}
         </div>
 
-        {/* Message */}
+        {/* 에러/헬프 메시지 */}
         {(errorMessage || helpMessage) && (
           <div className="mt-1 min-h-[1.25rem]">
-            {errorMessage && (
+            {errorMessage ? (
               <p className="flex items-center gap-1 text-xs text-red-600">
                 {errorMessage}
               </p>
-            )}
-            {!errorMessage && helpMessage && (
+            ) : (
               <p className="text-xs text-gray-500">{helpMessage}</p>
             )}
           </div>
@@ -230,6 +223,6 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
   },
 );
 
-Input.displayName = 'Input';
+TextArea.displayName = 'TextArea';
 
-export default Input;
+export default TextArea;
