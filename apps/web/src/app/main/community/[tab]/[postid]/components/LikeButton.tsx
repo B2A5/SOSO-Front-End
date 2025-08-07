@@ -15,7 +15,7 @@ interface LikeButtonProps {
  *
  * 게시글의 좋아요 버튼을 렌더링합니다.
  * 클릭 시 좋아요 상태를 낙관적 업데이트 방식으로 반영하며,
- * 실제 API 호출은 추후 연결 필요요
+ * 실제 API 호출은 추후 연결 필요
  */
 export default function LikeButton({
   isLiked,

@@ -1,9 +1,8 @@
-import Header from '@/components/Header';
 import { Eye, Home, Sprout } from 'lucide-react';
 import Image from 'next/image';
 import type { GetPostResponse } from '@/api/posts';
 import { relativeTime } from '@/utils/relativeTime';
-import LikeButton from '@/components/buttons/LikeButton';
+import LikeButton from '@/app/main/community/[tab]/[postid]/components/LikeButton';
 import ImageSlider from '@/components/ImageSlider';
 
 const dummyPost: GetPostResponse = {
@@ -44,9 +43,6 @@ export default function PostPage() {
 
   return (
     <div>
-      {/* 페이지 헤더 (상단 바) */}
-      <Header title="자유글 상세" />
-
       <main className="p-layout space-y-6 border-b border-neutral-0">
         {/* 카테고리 및 유저 정보 */}
         <div className="flex flex-col space-y-2">
