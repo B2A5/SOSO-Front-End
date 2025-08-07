@@ -5,6 +5,7 @@ import KakaoLoginButton from './components/KakaoLoginButton';
 import LogoImage from '@/assets/images/LogoImage';
 import { Button } from '@/components/buttons/Button';
 import { useRouter } from 'next/navigation';
+import { Suspense } from 'react';
 
 export default function AuthPage() {
   const router = useRouter();
@@ -14,21 +15,23 @@ export default function AuthPage() {
         <div className="my-8">
           <LogoImage />
         </div>
-        <div className="flex flex-col gap-5">
-          <div className="flex flex-col gap-4">
-            <KakaoLoginButton className="w-full" />
-            <Button
-              size="lg"
-              className="w-full bg-black"
-              onClick={() => router.push('/auth/signup')}
-            >
-              애플로 로그인
-            </Button>
+        <Suspense fallback={null}>
+          <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-4">
+              <KakaoLoginButton className="w-full" />
+              <Button
+                size="lg"
+                className="w-full bg-black"
+                onClick={() => router.push('/auth/signup')}
+              >
+                애플로 로그인
+              </Button>
+            </div>
+            <p className="text-center text-neutral-500">
+              전화번호로 시작하기
+            </p>
           </div>
-          <p className="text-center text-neutral-500">
-            전화번호로 시작하기
-          </p>
-        </div>
+        </Suspense>
       </div>
     </div>
   );
