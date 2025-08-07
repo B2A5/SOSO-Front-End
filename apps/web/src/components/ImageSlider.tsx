@@ -78,7 +78,7 @@ export default function ImageSlider({
         {images.map((url, index) => (
           <div
             key={index}
-            className="keen-slider__slide relative h-[200px]"
+            className="keen-slider__slide relative h-[200px] md:h-[300px]"
           >
             <Image
               src={url}
