@@ -1,8 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Edit3, Trash2, Flag, Share, Bookmark, UserPlus } from 'lucide-react';
-import BottomSheetMenu, { MenuAction } from '@/components/BottomSheet';
+import BottomSheetMenu, {
+  MenuAction,
+} from '@/components/BottomSheet';
 
 interface PostActionsBottomSheetProps {
   isOpen: boolean;
@@ -18,7 +19,6 @@ interface PostActionsBottomSheetProps {
 
 export default function PostActionsBottomSheet({
   isOpen,
-  onClose,
   isMyPost,
   onEdit,
   onDelete,
@@ -34,7 +34,6 @@ export default function PostActionsBottomSheet({
     if (onShare) {
       commonActions.push({
         label: '공유하기',
-        icon: <Share className="w-5 h-5" />,
         onClick: onShare,
       });
     }
@@ -43,7 +42,6 @@ export default function PostActionsBottomSheet({
     if (onBookmark) {
       commonActions.push({
         label: '저장하기',
-        icon: <Bookmark className="w-5 h-5" />,
         onClick: onBookmark,
       });
     }
@@ -53,7 +51,6 @@ export default function PostActionsBottomSheet({
       if (onEdit) {
         commonActions.push({
           label: '수정하기',
-          icon: <Edit3 className="w-5 h-5" />,
           onClick: onEdit,
         });
       }
@@ -61,7 +58,6 @@ export default function PostActionsBottomSheet({
       if (onDelete) {
         commonActions.push({
           label: '삭제하기',
-          icon: <Trash2 className="w-5 h-5" />,
           onClick: onDelete,
           destructive: true,
         });
@@ -71,7 +67,6 @@ export default function PostActionsBottomSheet({
       if (onFollowUser) {
         commonActions.push({
           label: '팔로우하기',
-          icon: <UserPlus className="w-5 h-5" />,
           onClick: onFollowUser,
         });
       }
@@ -79,7 +74,6 @@ export default function PostActionsBottomSheet({
       if (onReport) {
         commonActions.push({
           label: '신고하기',
-          icon: <Flag className="w-5 h-5" />,
           onClick: onReport,
           destructive: true,
         });
@@ -89,11 +83,5 @@ export default function PostActionsBottomSheet({
     return commonActions;
   };
 
-  return (
-    <BottomSheetMenu
-      isOpen={isOpen}
-      onClose={onClose}
-      actions={getActions()}
-    />
-  );
+  return <BottomSheetMenu isOpen={isOpen} actions={getActions()} />;
 }
