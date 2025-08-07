@@ -15,9 +15,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
   const pathname = usePathname();
 
   return (
-    <div className="flex flex-col h-screen bg-white">
+    <div className="flex flex-col h-screen bg-white dark:bg-gradient-dark">
       {/* 메인 콘텐츠 영역 */}
-      <main className="flex-1 overflow-auto pb-16">{children}</main>
+      <main className="flex-1 overflow-auto">{children}</main>
 
       {/* 하단 네비게이션 */}
       <Navigation currentPath={pathname} />

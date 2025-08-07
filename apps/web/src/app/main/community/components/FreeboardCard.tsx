@@ -1,21 +1,21 @@
 // src/components/CommunityCard.tsx
 import Card from '@/components/Card';
-import { CategoryBadge } from './CategoryBadge';
-import { Category } from '@/constants/categorys';
+import { CategoryChip } from '@/components/chips/CategoryChip';
+import { Category } from '@/constants/categories';
 import { relativeTime } from '@/utils/relativeTime';
 import { Heart, MessageSquareMore } from 'lucide-react';
 
 import type { PostSummary } from '@/api/posts';
 
-export interface CommunityCardProps {
+export interface FreeBoardCardProps {
   post: PostSummary; // 변경: 개별 필드 대신 post 하나로
-  isBadge?: boolean; // 배지 표시 여부
+  isChip?: boolean; // 칩 표시 여부
 }
 
-export function CommunityCard({
+export function FreeBoardCard({
   post,
-  isBadge = false,
-}: CommunityCardProps) {
+  isChip = false,
+}: FreeBoardCardProps) {
   const {
     title,
     content, // 이전의 description → content 로 변경
@@ -27,15 +27,19 @@ export function CommunityCard({
   } = post;
 
   return (
-    <Card className="w-full">
-      <div className="flex flex-col gap-2">
-        {isBadge && (
+    <Card className="w-full flex flex-col gap-3">
+      <div className="flex flex-col gap-1">
+        {isChip && (
           <div className="flex items-center gap-1">
-            <CategoryBadge category={category as Category} />
+            <CategoryChip category={category as Category} />
           </div>
         )}
-        <h3 className="text-title2">{title}</h3>
-        <p className="text-body">{content}</p>
+        <h3 className="text-title2 truncate" title={title}>
+          {title}
+        </h3>
+        <p className="text-body truncate" title={content}>
+          {content}
+        </p>
       </div>
       <div className="flex justify-between items-center">
         {/* 작성자 · 시간 */}

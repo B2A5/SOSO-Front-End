@@ -49,11 +49,7 @@ export default function SignUpStepLayout({
 
   return (
     <div className="flex flex-col items-center h-full">
-      <Header
-        title={`${title}로 회원가입`}
-        showSearch={false}
-        leftButtonType="back"
-      />
+      <Header title={`${title}로 회원가입`} leftButtonType="back" />
       <div className="w-full flex-1 h-full p-layout">{children}</div>
     </div>
   );

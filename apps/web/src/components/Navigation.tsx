@@ -28,7 +28,7 @@ export function Navigation({ currentPath }: BottomNavigationProps) {
   };
 
   return (
-    <nav className=" bg-white dark:bg-neutral-800 border-t border-gray-200 z-50">
+    <nav className=" bg-white dark:bg-neutral-900 border-t border-gray-200 dark:border-neutral-700 z-50">
       <div className="flex items-center justify-around h-16 px-4">
         {NAVIGATION_ITEMS.map(({ href, label, icon: Icon }) => {
           const active = isActive(href);
@@ -38,13 +38,15 @@ export function Navigation({ currentPath }: BottomNavigationProps) {
               key={href}
               href={href as Route<string>} // 타입 이슈 해결
               className={twMerge(
-                'flex flex-col items-center justify-center gap-1 py-2 px-3 rounded-lg transition-colors transition-scale duration-200 min-w-0 flex-1',
+                'flex flex-col items-center justify-center gap-1 py-2 px-3 rounded-lg ',
+                'transition-colors transition-scale duration-200 min-w-0 flex-1',
                 'text-neutral-400 ',
-                active ? 'text-white bg-soso-600 scale-95' : '',
+                active ? 'text-black dark:text-white scale-95' : '',
               )}
             >
+              {/* todo: 아이콘 그냥 가져와야하나? 루시드 리엑트 stroke issue */}
               <Icon
-                className={`w-5 h-5 ${active ? 'fill-current' : ''}`}
+                className={`w-7 h-7 ${active ? 'fill-soso-600 stroke-white' : ''}`}
               />
               <span className="text-xs font-medium truncate">
                 {label}
