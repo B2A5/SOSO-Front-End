@@ -16,21 +16,26 @@ interface ImageSliderProps {
   className?: string;
 }
 
-/**
- * ImageSlider - 이미지 슬라이더 컴포넌트
- *
- * KeenSlider를 기반으로 한 반응형 이미지 슬라이더
- * 로딩 시 skeleton을 표시 및 페이지네이션 버튼으로 슬라이드 이동이 가능
- *
- * @param {ImageSliderProps} props
- * @returns {JSX.Element}
- */
+// url과 UUID를 함께 담는 타입 정의
+interface SliderImage {
+  url: string;
+  id: string;
+}
+
 export default function ImageSlider({
   images,
   className,
 }: ImageSliderProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [loaded, setLoaded] = useState(false);
+
+  // images prop을 한 번만 매핑해서 id 부여
+  const [sliderImages] = useState<SliderImage[]>(() =>
+    images.map((url) => ({
+      url,
+      id: crypto.randomUUID(),
+    })),
+  );
 
   const [sliderRef, instanceRef] = useKeenSlider<HTMLDivElement>({
     loop: true,
@@ -47,10 +52,6 @@ export default function ImageSlider({
     },
   });
 
-  /**
-   * goToSlide - 페이지네이션 버튼 클릭 시 해당 슬라이드로 이동
-   * @param {number} index - 이동할 슬라이드 인덱스
-   */
   const goToSlide = (index: number) => {
     instanceRef.current?.moveToIdx(index);
   };
@@ -75,14 +76,14 @@ export default function ImageSlider({
             : 'opacity-100 scale-100 translate-y-0',
         )}
       >
-        {images.map((url, index) => (
+        {sliderImages.map((img) => (
           <div
-            key={index}
+            key={img.id}
             className="keen-slider__slide relative h-[200px] md:h-[300px]"
           >
             <Image
-              src={url}
-              alt={`슬라이드 이미지 ${index + 1}`}
+              src={img.url}
+              alt="슬라이드 이미지"
               fill
               sizes="(max-width: 768px) 100vw, 600px"
               className="w-full h-[200px] object-cover"
@@ -93,14 +94,14 @@ export default function ImageSlider({
 
       {/* 페이지네이션 */}
       <div className="flex justify-center gap-2 mt-[12px] min-h-[12px] transition-opacity duration-500">
-        {images.length > 1 &&
-          images.map((_, index) => (
+        {sliderImages.length > 1 &&
+          sliderImages.map((_, idx) => (
             <button
-              key={index}
-              onClick={() => goToSlide(index)}
+              key={sliderImages[idx].id}
+              onClick={() => goToSlide(idx)}
               className={twMerge(
                 'w-1.5 h-1.5 rounded-full bg-neutral-300 transition-all duration-300',
-                currentSlide === index && 'bg-soso-600',
+                currentSlide === idx && 'bg-soso-600',
                 !loaded
                   ? 'opacity-0 pointer-events-none scale-75'
                   : 'opacity-100 scale-100',
