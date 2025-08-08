@@ -1,10 +1,13 @@
 'use client';
 
 import 'keen-slider/keen-slider.min.css';
-import { useKeenSlider } from 'keen-slider/react';
+import {
+  useKeenSlider,
+  type KeenSliderInstance,
+} from 'keen-slider/react';
 import Image from 'next/image';
 import { twMerge } from 'tailwind-merge';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 /**
  * ImageSliderProps - 이미지 슬라이더 컴포넌트의 props
@@ -37,20 +40,26 @@ export default function ImageSlider({
     })),
   );
 
-  const [sliderRef, instanceRef] = useKeenSlider<HTMLDivElement>({
-    loop: true,
-    drag: true,
-    slides: {
-      perView: 1,
-      spacing: 8,
-    },
-    created() {
-      setLoaded(true);
-    },
-    slideChanged(slider) {
-      setCurrentSlide(slider.track.details.rel);
-    },
-  });
+  const sliderOptions = useMemo(
+    () => ({
+      loop: true,
+      drag: true,
+      slides: {
+        perView: 1,
+        spacing: 8,
+      },
+      created() {
+        setLoaded(true);
+      },
+      slideChanged(slider: KeenSliderInstance) {
+        setCurrentSlide(slider.track.details.rel);
+      },
+    }),
+    [],
+  );
+
+  const [sliderRef, instanceRef] =
+    useKeenSlider<HTMLDivElement>(sliderOptions);
 
   const goToSlide = (index: number) => {
     instanceRef.current?.moveToIdx(index);
