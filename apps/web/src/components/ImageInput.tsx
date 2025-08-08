@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Plus, X } from 'lucide-react';
 import { useToast } from '@/hooks/ui/useToast';
 
@@ -8,6 +8,11 @@ interface ImageInputProps {
   onFileSelect?: (files: File[]) => void;
 }
 
+interface ImageItem {
+  file: File;
+  preview: string;
+  id: string;
+}
 /**
  * ImageInput - 다중 이미지 업로드 컴포넌트
  *
@@ -16,26 +21,9 @@ interface ImageInputProps {
  * - 같은 파일 다시 선택해도 반응
  */
 export function ImageInput({ onFileSelect }: ImageInputProps) {
-  const [images, setImages] = useState<File[]>([]);
-  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [images, setImages] = useState<ImageItem[]>([]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const toast = useToast();
-
-  // 이미지 → 미리보기 URL 생성
-  useEffect(() => {
-    // 1) images 배열에 따라 새로 Object URL 생성
-    const newUrls = images
-      .filter((file): file is File => file instanceof File)
-      .map((file) => URL.createObjectURL(file));
-
-    // 2) 화면에 보여줄 URL 상태 업데이트
-    setPreviewUrls(newUrls);
-
-    // 3) cleanup: images가 바뀌거나 언마운트될 때 이전 newUrls를 모두 해제
-    return () => {
-      newUrls.forEach((url) => URL.revokeObjectURL(url));
-    };
-  }, [images]);
 
   const handleImageClick = () => {
     fileInputRef.current?.click();
@@ -73,23 +61,29 @@ export function ImageInput({ onFileSelect }: ImageInputProps) {
       return;
     }
 
-    const newImages = [...images, ...files].slice(0, 4);
-    setImages(newImages);
-    onFileSelect?.(newImages);
-    e.target.value = ''; // 같은 파일 다시 선택 가능하도록 초기화
+    // File -> ImageItem으로 매핑
+    const items = files.map((file) => ({
+      file,
+      preview: URL.createObjectURL(file), // 미리보기 URL 생성
+      id: crypto.randomUUID(), // 고유 ID 생성
+    }));
+
+    // 최대 4장 제한 + onFileSelect에 File[]만 전달
+    setImages((prev) => {
+      const merged = [...prev, ...items].slice(0, 4);
+      onFileSelect?.(merged.map((item) => item.file));
+      return merged;
+    });
+
+    e.target.value = ''; // 같은 파일 다시 선택 가능
   };
 
-  const handleFileRemove = (index: number) => {
-    const newImages = [...images];
-    newImages.splice(images.length - 1 - index, 1); // reverse된 index 고려
-
-    const removedUrl = previewUrls[index];
-    if (removedUrl) {
-      URL.revokeObjectURL(removedUrl);
-    }
-
-    setImages(newImages);
-    onFileSelect?.(newImages);
+  const handleFileRemove = (removeId: string) => {
+    setImages((prev) => {
+      const filtered = prev.filter((item) => item.id !== removeId);
+      onFileSelect?.(filtered.map((item) => item.file));
+      return filtered;
+    });
   };
 
   return (
@@ -121,22 +115,22 @@ export function ImageInput({ onFileSelect }: ImageInputProps) {
 
       {/* 미리보기 이미지 영역 */}
       <div className="flex gap-2 flex-wrap justify-start items-start">
-        {previewUrls
+        {images
           .slice()
           .reverse()
-          .map((url, idx) => (
+          .map((item) => (
             <div
-              key={idx}
+              key={item.id}
               className="w-20 h-20 rounded-[10px] relative"
             >
               <img
-                src={url}
-                alt={`미리보기 ${idx + 1}`}
+                src={item.preview}
+                alt={`미리보기`}
                 className="w-full h-full object-cover rounded-md"
               />
               <button
                 type="button"
-                onClick={() => handleFileRemove(idx)}
+                onClick={() => handleFileRemove(item.id)}
                 className="absolute -top-1 -right-1 bg-black bg-opacity-50 rounded-full p-1 text-white hover:bg-opacity-70 cursor-pointer"
               >
                 <X size={12} />
