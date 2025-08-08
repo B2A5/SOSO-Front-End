@@ -23,13 +23,18 @@ export function ImageInput({ onFileSelect }: ImageInputProps) {
 
   // 이미지 → 미리보기 URL 생성
   useEffect(() => {
-    previewUrls.forEach((url) => URL.revokeObjectURL(url));
-
+    // 1) images 배열에 따라 새로 Object URL 생성
     const newUrls = images
       .filter((file): file is File => file instanceof File)
       .map((file) => URL.createObjectURL(file));
 
+    // 2) 화면에 보여줄 URL 상태 업데이트
     setPreviewUrls(newUrls);
+
+    // 3) cleanup: images가 바뀌거나 언마운트될 때 이전 newUrls를 모두 해제
+    return () => {
+      newUrls.forEach((url) => URL.revokeObjectURL(url));
+    };
   }, [images]);
 
   const handleImageClick = () => {
