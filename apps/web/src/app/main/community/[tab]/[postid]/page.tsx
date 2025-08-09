@@ -1,9 +1,8 @@
-import { Eye, Home, Sprout } from 'lucide-react';
-import Image from 'next/image';
+import { Eye } from 'lucide-react';
 import type { GetPostResponse } from '@/api/posts';
-import { relativeTime } from '@/utils/relativeTime';
 import LikeButton from '@/app/main/community/[tab]/[postid]/components/LikeButton';
 import ImageSlider from '@/components/ImageSlider';
+import UserProfile from './components/UserProfile';
 
 const dummyPost: GetPostResponse = {
   postId: 1,
@@ -52,41 +51,13 @@ export default function PostPage() {
           </span>
 
           {/* 유저 프로필 */}
-          <div className="flex items-center gap-2">
-            <Image
-              src={post.user.profileImageUrl}
-              alt="유저 프로필 이미지"
-              className="w-[45px] h-[45px] rounded-full overflow-hidden bg-neutral-50 p-1"
-              width={45}
-              height={45}
-            />
-            <div>
-              {/* 닉네임 + 유저타입 뱃지 */}
-              <div className="flex items-center gap-2">
-                <h2 className="text-body font-bold">
-                  {post.user.nickname}
-                </h2>
-                <div className="text-[8px] px-1 py-0.5 rounded-full text-white bg-soso-600 flex gap-0.5 items-center">
-                  {post.user.userType === 'founder' ? (
-                    <>
-                      창업자
-                      <Sprout className="w-2 h-2" />
-                    </>
-                  ) : (
-                    <>
-                      주민
-                      <Home className="w-2 h-2" />
-                    </>
-                  )}
-                </div>
-              </div>
-
-              {/* 위치 + 작성 시간 */}
-              <p className="text-sm text-neutral-500">
-                {post.user.location} · {relativeTime(post.createdAt)}
-              </p>
-            </div>
-          </div>
+          <UserProfile
+            nickname={post.user.nickname}
+            profileImageUrl={post.user.profileImageUrl}
+            userType={post.user.userType as 'founder' | 'resident'}
+            location={post.user.location}
+            createdAt={post.createdAt}
+          />
         </div>
 
         {/* 본문 */}
