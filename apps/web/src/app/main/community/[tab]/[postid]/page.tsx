@@ -1,19 +1,24 @@
-import { Eye } from 'lucide-react';
+// PostPage.tsx (사용 예시) — relativeTime import/수동계산 제거!
+'use client';
+
+import { Eye, MoreVertical } from 'lucide-react';
 import type { GetPostResponse } from '@/api/posts';
 import LikeButton from '@/app/main/community/[tab]/[postid]/components/LikeButton';
 import ImageSlider from '@/components/ImageSlider';
-import UserProfile from './components/UserProfile';
+import PostProfile from './components/PostProfile';
+import CommentProfile from './components/CommentProfile';
 
+// 게시글 더미
 const dummyPost: GetPostResponse = {
   postId: 1,
   title: 'Lorem Ipsum Dolor Sit Amet',
   content:
-    'It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using "Content here, content here", making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for "lorem ipsum" will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).',
+    'It is a long established fact that a reader will be distracted by the readable content...',
   category: '맛집',
   imageUrls: [
-    'https://picsum.photos/id/1015/600/400', // 자연
-    'https://picsum.photos/id/1025/600/400', // 동물
-    'https://picsum.photos/id/1035/600/400', // 도시
+    'https://picsum.photos/id/1015/600/400',
+    'https://picsum.photos/id/1025/600/400',
+    'https://picsum.photos/id/1035/600/400',
   ],
   likeCount: 5,
   isLiked: false,
@@ -25,17 +30,48 @@ const dummyPost: GetPostResponse = {
     userType: 'resident',
   },
 };
-/**
- * PostPage 컴포넌트
- *
- * 게시글 상세 페이지를 렌더링합니다. 게시글의 제목, 내용, 이미지 슬라이더,
- * 작성자 정보, 좋아요 수, 조회 수 등을 표시합니다.
- * 정적인 dummy 데이터를 기반으로 구성되어 있습니다.
- *
- * TODO:
- * - 헤더 타이틀을 실제 게시글 타입에 따라 변경 필요
- * - 백엔드 연동 시 조회수 및 좋아요 기능 연결 필요
- */
+
+// 댓글 더미
+type CommentUser = {
+  nickname: string;
+  profileImageUrl: string;
+  userType: 'founder' | 'resident';
+};
+
+type Comment = {
+  id: number;
+  user: CommentUser;
+  content: string;
+  likeCount: number;
+  edited?: boolean;
+  createdAt: string;
+};
+
+const dummyComments: Comment[] = [
+  {
+    id: 11,
+    user: {
+      nickname: '민수',
+      profileImageUrl: '/somoon/default_somoon.svg',
+      userType: 'resident',
+    },
+    content: '오 여기 가봤는데 줄 길더라구요. 꿀팁 감사!',
+    likeCount: 3,
+    createdAt: '2025-08-07T03:00:00Z',
+  },
+  {
+    id: 12,
+    user: {
+      nickname: '앨리스',
+      profileImageUrl: '/somoon/default_somoon.svg',
+      userType: 'founder',
+    },
+    content: '사진 보니 또 가고 싶네요 :)',
+    likeCount: 1,
+    edited: true,
+    createdAt: '2025-08-07T05:40:00Z',
+  },
+];
 
 export default function PostPage() {
   const post = dummyPost;
@@ -45,13 +81,11 @@ export default function PostPage() {
       <main className="p-layout space-y-6 border-b border-neutral-0">
         {/* 카테고리 및 유저 정보 */}
         <div className="flex flex-col space-y-2">
-          {/* 카테고리 뱃지 */}
           <span className="inline-block text-xs font-bold text-green-950 pl-1">
             {post.category}
           </span>
 
-          {/* 유저 프로필 */}
-          <UserProfile
+          <PostProfile
             nickname={post.user.nickname}
             profileImageUrl={post.user.profileImageUrl}
             userType={post.user.userType as 'founder' | 'resident'}
@@ -62,10 +96,8 @@ export default function PostPage() {
 
         {/* 본문 */}
         <div className="flex flex-col space-y-6">
-          {/* 제목 */}
           <h1 className="text-2xl font-bold">Q. {post.title}</h1>
 
-          {/* 이미지 슬라이더 */}
           {post.imageUrls.length > 0 && (
             <ImageSlider
               images={post.imageUrls}
@@ -73,7 +105,6 @@ export default function PostPage() {
             />
           )}
 
-          {/* 게시글 내용 */}
           <p className="text-textBox text-neutral-1000">
             {post.content}
           </p>
@@ -90,6 +121,24 @@ export default function PostPage() {
             <span className="text-neutral-500 text-input2">30</span>
           </div>
         </div>
+
+        {/* 댓글 리스트 */}
+        <section className="pt-6 space-y-4">
+          {dummyComments.map((comment) => (
+            <CommentProfile
+              key={comment.id}
+              nickname={comment.user.nickname}
+              profileImageUrl={comment.user.profileImageUrl}
+              userType={comment.user.userType}
+              likeCount={comment.likeCount}
+              edited={comment.edited}
+              createdAt={comment.createdAt}
+              action={<MoreVertical className="w-4 h-4" />}
+            >
+              {comment.content}
+            </CommentProfile>
+          ))}
+        </section>
       </main>
     </div>
   );
