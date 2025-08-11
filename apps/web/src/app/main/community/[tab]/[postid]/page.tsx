@@ -1,4 +1,3 @@
-// PostPage.tsx (사용 예시) — relativeTime import/수동계산 제거!
 'use client';
 
 import { Eye, MoreVertical } from 'lucide-react';
