@@ -2,11 +2,10 @@
 
 import { useRef } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { MoreVertical } from 'lucide-react';
-import CommentProfile from './CommentProfile';
 import type { Comment } from '@/types/comment.types';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { mockGetCommentsByCursor } from './mock/mockComments';
+import CommentItem from './CommentItem';
 
 interface CommentListProps {
   postId: number;
@@ -53,17 +52,7 @@ export default function CommentList({ postId }: CommentListProps) {
   return (
     <section className="pt-6 space-y-4">
       {allComments.map((comment) => (
-        <CommentProfile
-          key={comment.id}
-          nickname={comment.user.nickname}
-          profileImageUrl={comment.user.profileImageUrl}
-          userType={comment.user.userType}
-          likeCount={comment.likeCount}
-          createdAt={comment.createdAt}
-          action={<MoreVertical className="w-4 h-4" />}
-        >
-          {comment.content}
-        </CommentProfile>
+        <CommentItem key={comment.id} comment={comment} />
       ))}
 
       {/* Intersection Observer용 타겟 */}
