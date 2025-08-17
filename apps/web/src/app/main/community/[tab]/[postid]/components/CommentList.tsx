@@ -1,69 +1,80 @@
-// components/CommentList.tsx
 'use client';
 
-import { UserType } from '@/types/user.types';
-import CommentProfile from './CommentProfile';
+import { useRef } from 'react';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { MoreVertical } from 'lucide-react';
+import CommentProfile from './CommentProfile';
+import type { Comment } from '@/types/comment.types';
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
+import { mockGetCommentsByCursor } from './mock/mockComments';
 
-type CommentUser = {
-  nickname: string;
-  profileImageUrl: string;
-  userType: UserType;
-};
+interface CommentListProps {
+  postId: number;
+}
 
-type Comment = {
-  id: number;
-  user: CommentUser;
-  content: string;
-  likeCount: number;
-  edited?: boolean;
-  createdAt: string;
-};
+/**
+ * 댓글 리스트를 무한 스크롤로 렌더링하는 컴포넌트입니다.
+ * - 커서 기반 페이지네이션 방식 사용
+ * - mock API 기반 데이터 사용
+ *
+ * @param {number} postId - 댓글을 불러올 게시글 ID
+ */
+export default function CommentList({ postId }: CommentListProps) {
+  const observerRef = useRef<HTMLDivElement | null>(null);
 
-// 목업 댓글 데이터
-const dummyComments: Comment[] = [
-  {
-    id: 11,
-    user: {
-      nickname: '민수',
-      profileImageUrl: '/somoon/default_somoon.svg',
-      userType: 'resident',
-    },
-    content: '오 여기 가봤는데 줄 길더라구요. 꿀팁 감사!',
-    likeCount: 3,
-    createdAt: '2025-08-07T03:00:00Z',
-  },
-  {
-    id: 12,
-    user: {
-      nickname: '앨리스',
-      profileImageUrl: '/somoon/default_somoon.svg',
-      userType: 'founder',
-    },
-    content: '사진 보니 또 가고 싶네요 :)',
-    likeCount: 1,
-    edited: true,
-    createdAt: '2025-08-07T05:40:00Z',
-  },
-];
+  const { data, fetchNextPage, hasNextPage, isFetching } =
+    useInfiniteQuery({
+      queryKey: ['comments', postId],
+      queryFn: ({ pageParam }) =>
+        mockGetCommentsByCursor({
+          postId,
+          cursor: pageParam,
+          size: 10,
+        }),
+      initialPageParam: '1',
+      getNextPageParam: (lastPage) =>
+        lastPage.nextCursor.hasNext
+          ? lastPage.nextCursor.cursor
+          : undefined,
+    });
 
-export default function CommentList() {
+  // Intersection Observer로 무한스크롤 트리거 설정
+  useInfiniteScroll({
+    targetRef: observerRef,
+    hasNextPage: !!hasNextPage,
+    fetchNextPage,
+    isFetching,
+    threshold: 0.3,
+  });
+
+  const allComments: Comment[] =
+    data?.pages.flatMap((page) => page.comments) ?? [];
+
   return (
     <section className="pt-6 space-y-4">
-      {dummyComments.map((comment) => (
+      {allComments.map((comment) => (
         <CommentProfile
           key={comment.id}
           nickname={comment.user.nickname}
           profileImageUrl={comment.user.profileImageUrl}
           userType={comment.user.userType}
           likeCount={comment.likeCount}
-          edited={comment.edited}
           createdAt={comment.createdAt}
           action={<MoreVertical className="w-4 h-4" />}
         >
           {comment.content}
         </CommentProfile>
       ))}
+
+      {/* Intersection Observer용 타겟 */}
+      <div ref={observerRef} className="h-4" />
+
+      {/* 로딩 상태 표시 */}
+      {isFetching && (
+        <p className="text-center text-sm text-neutral-500">
+          댓글 불러오는 중...
+        </p>
+      )}
     </section>
   );
 }

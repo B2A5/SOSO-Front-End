@@ -80,7 +80,7 @@ export default function PostPage() {
         </div>
 
         {/* 댓글 리스트 */}
-        <CommentList />
+        <CommentList postId={post.postId} />
       </main>
     </div>
   );
