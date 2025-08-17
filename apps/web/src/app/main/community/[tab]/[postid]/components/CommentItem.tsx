@@ -3,8 +3,9 @@
 import UserProfileBase from './UserProfileBase';
 import { UserTypeBadge } from './UserTypeBadge';
 import { relativeTime } from '@/utils/relativeTime';
-import { MoreVertical } from 'lucide-react';
+import { MoreVertical, ThumbsUp } from 'lucide-react';
 import type { Comment } from '@/types/comment.types';
+import LikeButton from './LikeButton';
 
 interface CommentItemProps {
   /** 댓글 객체 (내용, 작성자, 작성일, 좋아요 수 등 포함) */
@@ -50,7 +51,11 @@ export default function CommentItem({
 
       {/* 메타 정보 (좋아요 수 / 작성 시간 등) */}
       <div className="mt-2 flex justify-between text-xs text-neutral-500">
-        <span>좋아요 {likeCount}</span>
+        <LikeButton
+          isLiked={false}
+          likeCount={likeCount}
+          icon={ThumbsUp}
+        />
         <span>{metaRight}</span>
       </div>
     </UserProfileBase>
