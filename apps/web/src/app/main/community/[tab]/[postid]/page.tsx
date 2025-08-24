@@ -35,52 +35,56 @@ export default function PostPage() {
 
   return (
     <div>
-      <main className="p-layout space-y-6 border-b border-neutral-0">
-        {/* 카테고리 및 유저 정보 */}
-        <div className="flex flex-col space-y-2">
-          <span className="inline-block text-xs font-bold text-green-950 pl-1">
-            {post.category}
-          </span>
+      <main className="space-y-6 ">
+        <div className="p-5 border-b flex flex-col space-y-4 border-neutral-0">
+          {/* 카테고리 및 유저 정보 */}
+          <div className="flex flex-col space-y-2 ">
+            <span className="inline-block text-xs font-bold text-green-950 pl-1">
+              {post.category}
+            </span>
 
-          <PostProfile
-            nickname={post.user.nickname}
-            profileImageUrl={post.user.profileImageUrl}
-            userType={post.user.userType as 'founder' | 'resident'}
-            location={post.user.location}
-            createdAt={post.createdAt}
-          />
-        </div>
-
-        {/* 본문 */}
-        <div className="flex flex-col space-y-6">
-          <h1 className="text-2xl font-bold">Q. {post.title}</h1>
-
-          {post.imageUrls.length > 0 && (
-            <ImageSlider
-              images={post.imageUrls}
-              className="w-full min-h-[200px]"
+            <PostProfile
+              nickname={post.user.nickname}
+              profileImageUrl={post.user.profileImageUrl}
+              userType={post.user.userType as 'founder' | 'resident'}
+              location={post.user.location}
+              createdAt={post.createdAt}
             />
-          )}
+          </div>
 
-          <p className="text-textBox text-neutral-1000">
-            {post.content}
-          </p>
-        </div>
+          {/* 본문 */}
+          <div className="flex flex-col space-y-6">
+            <h1 className="text-2xl font-bold">Q. {post.title}</h1>
 
-        {/* 좋아요 / 조회수 */}
-        <div className="flex justify-between items-center mt-4">
-          <LikeButton
-            isLiked={post.isLiked}
-            likeCount={post.likeCount}
-          />
-          <div className="flex items-center gap-1.5">
-            <Eye className="inline w-6 h-6 text-neutral-200" />
-            <span className="text-neutral-500 text-input2">30</span>
+            {post.imageUrls.length > 0 && (
+              <ImageSlider
+                images={post.imageUrls}
+                className="w-full min-h-[200px]"
+              />
+            )}
+
+            <p className="text-textBox text-neutral-1000">
+              {post.content}
+            </p>
+          </div>
+
+          {/* 좋아요 / 조회수 */}
+          <div className="flex justify-between items-center mt-4">
+            <LikeButton
+              isLiked={post.isLiked}
+              likeCount={post.likeCount}
+            />
+            <div className="flex items-center gap-1.5">
+              <Eye className="inline w-6 h-6 text-neutral-200" />
+              <span className="text-neutral-500 text-input2">30</span>
+            </div>
           </div>
         </div>
 
         {/* 댓글 리스트 */}
-        <CommentList postId={post.postId} />
+        <div className="px-5">
+          <CommentList postId={post.postId} />
+        </div>
       </main>
     </div>
   );

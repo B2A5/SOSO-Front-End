@@ -28,7 +28,7 @@ export function UserTypeBadge({
 
   return (
     <span
-      className={`inline-flex items-center gap-0.5 rounded-full bg-soso-600 px-2 py-1 text-[10px] text-white ${className}`}
+      className={`inline-flex items-center gap-0.5 rounded-full bg-soso-600 px-1 py-0.5 text-[8px] text-white ${className}`}
       aria-label={label}
     >
       {label}

@@ -36,6 +36,7 @@ export default function CommentItem({
   const timeText = createdAt ? relativeTime(createdAt) : '';
   const metaRight = [timeText].filter(Boolean).join(' · '); // 우측 메타 표시용
 
+  //Todo: 케밥 메뉴 클릭 시 바텀시트 열기 등 추가 기능 구현 필요
   return (
     <UserProfileBase
       nickname={nickname}
@@ -47,7 +48,9 @@ export default function CommentItem({
       action={action ?? <MoreVertical className="w-4 h-4" />} // 기본 케밥 메뉴
     >
       {/* 댓글 내용 */}
-      <div className="mt-0.5">{content}</div>
+      <div className="mt-0.5 text-[14px] text-neutral-800">
+        {content}
+      </div>
 
       {/* 메타 정보 (좋아요 수 / 작성 시간 등) */}
       <div className="mt-2 flex justify-between text-xs text-neutral-500">
