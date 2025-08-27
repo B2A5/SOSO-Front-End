@@ -6,6 +6,7 @@ import LikeButton from '@/app/main/community/[tab]/[postid]/components/LikeButto
 import ImageSlider from '@/components/ImageSlider';
 import PostProfile from './components/PostProfile';
 import CommentList from './components/CommentList';
+import CommentInput from './components/CommentInput';
 
 // 게시글 더미
 const dummyPost: GetPostResponse = {
@@ -82,10 +83,26 @@ export default function PostPage() {
         </div>
 
         {/* 댓글 리스트 */}
-        <div className="px-5">
+        <div className="px-5 space-y-4">
           <CommentList postId={post.postId} />
         </div>
       </main>
+
+      <div className="fixed inset-x-0 bottom-16 z-50 bg-neutral-5">
+        <CommentInput
+          postId={post.postId}
+          onSubmit={async (pid, content) => {
+            // TODO: API 연동 지점
+            // await api.post(`/posts/${pid}/comments`, { content });
+            console.log('댓글 등록:', pid, content);
+
+            // TODO: 성공 후 목록 갱신 (리패치 or 낙관적 업데이트)
+            // queryClient.invalidateQueries({ queryKey: ['comments', pid] });
+          }}
+        />
+        {/* iOS 안전 영역 보정 */}
+        <div className="h-[env(safe-area-inset-bottom)]" />
+      </div>
     </div>
   );
 }
