@@ -7,6 +7,8 @@ import {
   CircleUser,
 } from 'lucide-react';
 
+//import Community from 'public/icons/appbar-community.svg';
+
 /**
  * 네비게이션 아이템 인터페이스
  */
