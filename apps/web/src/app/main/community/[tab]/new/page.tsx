@@ -1,6 +1,6 @@
 'use client';
 
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { FreeboardForm } from './components/FreeboardForm';
 import { VotesboardForm } from './components/VotesboardForm';
 
@@ -11,18 +11,20 @@ import { VotesboardForm } from './components/VotesboardForm';
  */
 export default function PostPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
 
   const tab = params.tab as string;
+  const category = searchParams.get('category') || undefined;
 
   // 탭에 따라 다른 폼 컴포넌트 렌더링
   const renderForm = () => {
     switch (tab) {
       case 'freeboard':
-        return <FreeboardForm postData={null} />;
+        return <FreeboardForm postData={null} initialCategory={category} />;
       case 'votesboard':
-        return <VotesboardForm postData={null} />;
+        return <VotesboardForm postData={null} initialCategory={category} />;
       default:
-        return <FreeboardForm postData={null} />;
+        return <FreeboardForm postData={null} initialCategory={category} />;
     }
   };
 

@@ -98,7 +98,7 @@ export default function FloatingMenu({
     closeOverlay();
     const currentTab = params.tab || 'freeboard';
     router.push(
-      `/main/community/${currentTab}/post?category=${value}`,
+      `/main/community/${currentTab}/new?category=${value}`,
     );
   };
 

@@ -26,24 +26,27 @@ import { useToast } from '@/hooks/ui/useToast';
  */
 export interface FreeboardFormProps {
   postData: GetPostResponse | null;
+  initialCategory?: string;
 }
 
 export function FreeboardForm({
   postData = null,
+  initialCategory,
 }: FreeboardFormProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
   const queryCategory = searchParams.get('category') as Category;
+  const selectedCategory = initialCategory || queryCategory || CATEGORIES[0].value;
   const defaultVals = useMemo<PostFormData>(
     () =>
       postData ?? {
         title: '',
         content: '',
-        category: queryCategory ?? CATEGORIES[0].value,
+        category: selectedCategory as Category,
         images: [],
       },
-    [postData, queryCategory],
+    [postData, selectedCategory],
   );
   const {
     register,

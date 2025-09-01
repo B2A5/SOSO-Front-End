@@ -5,20 +5,22 @@ import { PostFormData, GetPostResponse } from '@/api/posts';
 
 export interface VotesboardFormProps {
   postData: GetPostResponse | null;
+  initialCategory?: string;
 }
 
 export function VotesboardForm({
   postData = null,
+  initialCategory,
 }: VotesboardFormProps) {
   const defaultVals = useMemo<PostFormData>(
     () =>
       postData ?? {
         title: '',
         content: '',
-        category: '',
+        category: initialCategory || '',
         images: [],
       },
-    [postData],
+    [postData, initialCategory],
   );
   const { register } = useForm<PostFormData>({
     mode: 'onChange',
