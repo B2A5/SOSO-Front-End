@@ -2,7 +2,6 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
-import TextArea from '@/components/inputs/TextArea';
 
 /**
  * 댓글 입력 컴포넌트
@@ -25,21 +24,15 @@ interface CommentInputProps {
   ) => Promise<void> | void;
   /**
    * 입력 가능한 최대 글자 수(기본 300)
-   * - TextArea에는 넘기지 않고 handleChange에서 강제로 자름름
+   * - TextArea에는 넘기지 않고 handleChange에서 강제로 자름
    */
   limit?: number;
-  /** 바깥 컨테이너 스타일 합성용 클래스 */
-  className?: string;
-  /** 내부 TextArea(inputClassName)에 합성할 클래스 */
-  inputClassName?: string;
 }
 
 export default function CommentInput({
   postId,
   onSubmit,
   limit = 300,
-  className,
-  inputClassName,
 }: CommentInputProps) {
   /** 현재 입력 값(컨트롤드) */
   const [value, setValue] = useState('');
@@ -104,24 +97,17 @@ export default function CommentInput({
 
   return (
     <div
-      className={twMerge(
-        'mx-auto w-full max-w-screen-md px-5 py-3 ',
-        className,
-      )}
+      className={twMerge('mx-auto w-full max-w-screen-md px-5 py-3 ')}
     >
-      {/* 
-        래퍼: 패딩/둥근모서리/배경/포커스 링 담당
-        - pill 형태(rounded-full)는 높이가 늘어나면 비율상 어색해질 수 있음
-          -> 필요 시 높이가 커지면 rounded-xl로 전환하는 로직을 붙일 수 있다(별도 상태로 제어)
-      */}
+      {/* 래퍼: 패딩/둥근모서리/배경/포커스 링 담당 */}
       <div
         className={twMerge(
-          'rounded-full bg-white',
+          'rounded-3xl bg-white',
           'transition-shadow focus-within:ring-1 ring-neutral-700',
           'px-4 py-3', // 바깥 패딩(상하/좌우) -> 시각적 1줄 높이에 포함
         )}
       >
-        <TextArea
+        <textarea
           ref={taRef}
           rows={1} // 1줄 기준 시작
           placeholder="댓글을 입력하세요"
@@ -137,14 +123,11 @@ export default function CommentInput({
             }
           }}
           disabled={submitting}
-          isError={!!error}
-          errorMessage={error}
-          inputClassName={twMerge(
+          className={twMerge(
             '!border-0 hover:!border-0 focus:!border-0 focus:!ring-0 focus:!outline-none',
             'bg-transparent py-0 px-1',
             // 자동 확장 + 내부 스크롤 허용 (여기선 3줄 제한 같은 별도 clamp는 안 함)
-            'resize-none overflow-y-auto max-h-[64px]',
-            inputClassName,
+            'resize-none overflow-y-auto max-h-[64px] w-full',
           )}
         />
       </div>
