@@ -46,12 +46,9 @@ export default function CommentInput({
 
   /**
    * 입력 길이 변화에 따라 높이를 자동으로 맞춘다.
-   * 1) 먼저 height='auto'로 리셋 (shrink 허용)
-   * 2) 다음 height=scrollHeight로 확장 (expand)
+   * 1. height='auto'로 리셋 (shrink 허용)
+   * 2. height=scrollHeight로 확장 (expand)
    *
-   * ⚠️ 주의: 일부 환경에서는 'auto'보다 '0px'로 리셋할 때 더 안정적일 수 있다.
-   *   el.style.height = '0px'; 로 바꾸면 shrink가 확실히 반영된다.
-   *   (동작 바꾸고 싶지 않다고 했으니 여기선 그대로 'auto' 유지)
    */
   useEffect(() => {
     const el = taRef.current;
@@ -103,8 +100,8 @@ export default function CommentInput({
       <div
         className={twMerge(
           'rounded-3xl bg-white',
-          'transition-shadow focus-within:ring-1 ring-neutral-700',
-          'px-4 py-3', // 바깥 패딩(상하/좌우) -> 시각적 1줄 높이에 포함
+          'transition-shadow focus-within:ring-1 ring-neutral-400',
+          'px-4 pt-3 pb-2', // 바깥 패딩(상하/좌우) -> 시각적 1줄 높이에 포함
         )}
       >
         <textarea
@@ -125,9 +122,11 @@ export default function CommentInput({
           disabled={submitting}
           className={twMerge(
             '!border-0 hover:!border-0 focus:!border-0 focus:!ring-0 focus:!outline-none',
-            'bg-transparent py-0 px-1',
-            // 자동 확장 + 내부 스크롤 허용 (여기선 3줄 제한 같은 별도 clamp는 안 함)
-            'resize-none overflow-y-auto max-h-[64px] w-full',
+            'bg-transparent px-1',
+            // 자동 확장
+            'resize-none max-h-[68px] w-full',
+            '[scrollbar-width:none]', // Firefox에서 스크롤바 숨김
+            '[&::-webkit-scrollbar]:hidden', // Webkit (Chrome/Safari)에서 스크롤바 숨김
           )}
         />
       </div>
