@@ -119,6 +119,9 @@ jobs:
             const testSuccessRate = '${{ steps.test-analysis.outputs.TEST_SUCCESS_RATE }}' || '0';
             const coverageLines = '${{ steps.test-analysis.outputs.COVERAGE_LINES }}' || '0';
 
+            // 번들 권장사항
+            const bundleRecommendations = `${{ steps.bundle-recommendations.outputs.BUNDLE_RECOMMENDATIONS }}` || '';
+
             // 성능 점수 계산 함수
             function calculatePerformanceScore(testSuccessRate, coverageLines, bundleSize) {
               const testScore = Math.min(parseFloat(testSuccessRate) || 0, 100) * 0.4;
@@ -183,6 +186,8 @@ jobs:
             </details>
 
             ${testMarkdown}
+
+            ${bundleRecommendations}
 
             ### 🏆 전체 품질 점수
 

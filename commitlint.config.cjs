@@ -21,7 +21,7 @@ module.exports = {
     ],
     // 제목 길이 제한
     'subject-max-length': [2, 'always', 100],
-    'subject-min-length': [2, 'always', 10],
+    'subject-min-length': [2, 'always', 5],
     // 제목 케이스 (소문자로 시작)
     'subject-case': [2, 'always', 'lower-case'],
     // 제목 끝에 마침표 허용
