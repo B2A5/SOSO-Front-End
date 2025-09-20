@@ -2,21 +2,48 @@ name: CI
 
 on:
   push:
-    branches: [dev] # 🚩 기본 브랜치
+    branches: [dev]
+    # 변경 없으면 스킵 (선택)
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
   pull_request:
     branches: [dev]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+
+# 같은 브랜치에서 이전 실행 취소 (중복 러너 낭비 방지)
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# 최소 권한 (보안)
+permissions:
+  contents: read
 
 jobs:
   ci:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    # (선택) Turbo Remote Cache 사용 시 주석 해제 + 시크릿 설정
+    # env:
+    #   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+    #   TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout (full history for affected calc) # CHANGED: fetch-depth=0
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      # pnpm + Node
-      - uses: pnpm/action-setup@v3
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
         with: { version: 9 }
-      - uses: actions/setup-node@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm
@@ -24,13 +51,63 @@ jobs:
       - name: Install deps
         run: pnpm install --frozen-lockfile
 
-      # Turbo cache
-      - uses: actions/cache@v4
+      # CHANGED: Turbo cache key to lockfile/config hash (commit 간 재사용 ↑)
+      - name: Restore Turbo Cache
+        uses: actions/cache@v4
         with:
-          path: .turbo
-          key: turbo-${{ runner.os }}-${{ github.sha }}
-          restore-keys: turbo-${{ runner.os }}-
+          path: |
+            .turbo
+            node_modules/.cache
+          key: turbo-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml', '**/turbo.json') }}
+          restore-keys: |
+            turbo-${{ runner.os }}-
 
-      # Lint + Typecheck + Build + Test
-      - name: Lint & Typecheck & Build & Test
-        run: pnpm turbo run lint typecheck build test:coverage --cache-dir=".turbo"
+      # (선택) Next.js 빌드 캐시
+      - name: Restore Next.js build cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            apps/**/.next/cache
+          key: next-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            next-${{ runner.os }}-
+      # PR의 base SHA 계산
+      - name: Compute affected base (PR only)
+        id: affected
+        if: ${{ github.event_name == 'pull_request' }}
+        run: |
+          git fetch origin ${{ github.base_ref }} --depth=1
+          BASE_SHA=$(git merge-base HEAD origin/${{ github.base_ref }})
+          echo "BASE_SHA=$BASE_SHA"
+          echo "filter=--filter=...[$BASE_SHA]" >> $GITHUB_OUTPUT
+
+        # 린트 → 타입체크 → 빌드 → 테스트
+      - name: Lint
+        run: |
+          FILTER="${{ steps.affected.outputs.filter }}"
+          pnpm turbo run lint --cache-dir=".turbo" ${FILTER}
+
+      - name: Typecheck
+        run: |
+          FILTER="${{ steps.affected.outputs.filter }}"
+          pnpm turbo run typecheck --cache-dir=".turbo" ${FILTER}
+
+      - name: Build
+        run: |
+          FILTER="${{ steps.affected.outputs.filter }}"
+          pnpm turbo run build --cache-dir=".turbo" ${FILTER}
+
+      - name: Test (coverage)
+        run: |
+          FILTER="${{ steps.affected.outputs.filter }}"
+          pnpm turbo run test:coverage --cache-dir=".turbo" ${FILTER}
+
+      # 커버리지/빌드 산출물 업로드
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: |
+            **/coverage/**
+          if-no-files-found: ignore
