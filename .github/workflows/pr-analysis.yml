@@ -1,29 +1,35 @@
 name: 📊 PR 분석 및 리포트
 
 on:
+  workflow_run:
+    workflows: ['CI']
+    types:
+      - completed
   pull_request:
     types: [opened, synchronize]
 
 concurrency:
-  group: pr-analysis-${{ github.event.pull_request.number }}
+  group: pr-analysis-${{ github.event.pull_request.number || github.event.workflow_run.pull_requests[0].number }}
   cancel-in-progress: true
 
 jobs:
   analyze:
     name: 🔍 번들 분석 및 성능 측정
     runs-on: ubuntu-latest
+    # CI 성공 시에만 실행
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'pull_request' }}
     permissions:
       contents: read
       pull-requests: write
+      actions: read
 
     steps:
       - name: 📥 Checkout
         uses: actions/checkout@v4
 
       - name: 📦 Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
+        uses: pnpm/action-setup@v3
+        with: { version: 9 }
 
       - name: 🏗️ Setup Node.js
         uses: actions/setup-node@v4
@@ -31,48 +37,113 @@ jobs:
           node-version: '20'
           cache: 'pnpm'
 
-      - name: 📂 Install dependencies
+      - name: 📂 Install dependencies (분석 도구만)
         run: pnpm install --frozen-lockfile
 
-      - name: ⚡ TypeScript 타입 체크
-        run: pnpm turbo typecheck --filter=web
+      - name: 📥 CI 빌드 결과 다운로드
+        if: github.event_name == 'workflow_run'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: ${{ github.event.workflow_run.id }},
+            });
 
-      - name: 🧪 테스트 실행 및 커버리지 생성
-        run: pnpm turbo test:coverage --filter=web
+            const buildArtifact = artifacts.data.artifacts.find(artifact => artifact.name === 'build-outputs');
+            const coverageArtifact = artifacts.data.artifacts.find(artifact => artifact.name === 'coverage-reports');
 
-      - name: 🏗️ 프로덕션 빌드
-        run: pnpm turbo build --filter=web
+            if (buildArtifact) {
+              const download = await github.rest.actions.downloadArtifact({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                artifact_id: buildArtifact.id,
+                archive_format: 'zip',
+              });
 
-      - name: 📊 번들 사이즈 분석
+              const fs = require('fs');
+              fs.writeFileSync('build-outputs.zip', Buffer.from(download.data));
+
+              const { execSync } = require('child_process');
+              execSync('unzip -q build-outputs.zip && rm build-outputs.zip');
+            }
+
+            if (coverageArtifact) {
+              const download = await github.rest.actions.downloadArtifact({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                artifact_id: coverageArtifact.id,
+                archive_format: 'zip',
+              });
+
+              const fs = require('fs');
+              fs.writeFileSync('coverage-reports.zip', Buffer.from(download.data));
+
+              const { execSync } = require('child_process');
+              execSync('unzip -q coverage-reports.zip && rm coverage-reports.zip');
+            }
+
+      - name: 📥 직접 실행 시 아티팩트 다운로드
+        if: github.event_name == 'pull_request'
+        uses: actions/download-artifact@v4
+        with:
+          name: build-outputs
+          path: ./
+        continue-on-error: true
+
+      - name: 📥 직접 실행 시 커버리지 다운로드
+        if: github.event_name == 'pull_request'
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-reports
+          path: ./
+        continue-on-error: true
+
+      - name: 📊 번들 분석 리포트 생성 (추가 빌드)
         run: |
           cd apps/web
+          # 번들 분석을 위한 추가 빌드 (분석 플래그 포함)
           ANALYZE=true pnpm build
-          echo "Bundle analysis completed"
+          echo "Bundle analysis with analyzer completed"
 
       - name: 📈 번들 사이즈 리포트 생성
         id: bundle-analysis
         run: |
           cd apps/web
+
+          # CI 빌드 결과와 분석 빌드 결과 모두 확인
+          BUILD_DIR=""
           if [ -d ".next/static" ]; then
+            BUILD_DIR=".next"
+          elif [ -d "apps/web/.next/static" ]; then
+            BUILD_DIR="apps/web/.next"
+          fi
+
+          if [ -n "$BUILD_DIR" ] && [ -d "$BUILD_DIR/static" ]; then
             # 번들 사이즈 정보 추출
-            BUNDLE_SIZE=$(du -sh .next/static | cut -f1)
+            BUNDLE_SIZE=$(du -sh $BUILD_DIR/static | cut -f1)
             echo "BUNDLE_SIZE=$BUNDLE_SIZE" >> $GITHUB_OUTPUT
 
             # JS 파일 크기 정보
-            TOTAL_JS_SIZE=$(find .next/static -name "*.js" -exec du -ch {} + | grep total | cut -f1)
+            TOTAL_JS_SIZE=$(find $BUILD_DIR/static -name "*.js" -exec du -ch {} + | grep total | cut -f1)
             echo "TOTAL_JS_SIZE=$TOTAL_JS_SIZE" >> $GITHUB_OUTPUT
 
             # 주요 청크 정보 추출
             echo "BUNDLE_CHUNKS<<EOF" >> $GITHUB_OUTPUT
-            find .next/static/chunks -name "*.js" -exec ls -lh {} \; | head -10 | awk '{print $9 " - " $5}' | sed 's|.*/||' >> $GITHUB_OUTPUT
+            find $BUILD_DIR/static/chunks -name "*.js" -exec ls -lh {} \; 2>/dev/null | head -10 | awk '{print $9 " - " $5}' | sed 's|.*/||' >> $GITHUB_OUTPUT
             echo "EOF" >> $GITHUB_OUTPUT
 
             # 페이지별 번들 정보
-            if [ -d ".next/static/chunks/pages" ]; then
+            if [ -d "$BUILD_DIR/static/chunks/pages" ]; then
               echo "PAGE_BUNDLES<<EOF" >> $GITHUB_OUTPUT
-              find .next/static/chunks/pages -name "*.js" -exec ls -lh {} \; | awk '{print $9 " - " $5}' | sed 's|.*/||' >> $GITHUB_OUTPUT
+              find $BUILD_DIR/static/chunks/pages -name "*.js" -exec ls -lh {} \; 2>/dev/null | awk '{print $9 " - " $5}' | sed 's|.*/||' >> $GITHUB_OUTPUT
               echo "EOF" >> $GITHUB_OUTPUT
             fi
+
+            echo "✅ 번들 분석 완료: $BUILD_DIR"
+          else
+            echo "❌ 빌드 결과를 찾을 수 없습니다"
           fi
 
       - name: 🧪 테스트 결과 상세 분석
@@ -96,11 +167,22 @@ jobs:
             const fs = require('fs');
             const path = require('path');
 
+            // PR 번호 확인
+            let prNumber;
+            if (context.issue && context.issue.number) {
+              prNumber = context.issue.number;
+            } else if (context.payload.workflow_run && context.payload.workflow_run.pull_requests[0]) {
+              prNumber = context.payload.workflow_run.pull_requests[0].number;
+            } else {
+              console.log('PR 번호를 찾을 수 없습니다.');
+              return;
+            }
+
             // 기존 봇 댓글 찾기
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: context.issue.number,
+              issue_number: prNumber,
             });
 
             const botComment = comments.find(comment =>
@@ -230,7 +312,7 @@ jobs:
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                issue_number: context.issue.number,
+                issue_number: prNumber,
                 body: commentBody
               });
             }
