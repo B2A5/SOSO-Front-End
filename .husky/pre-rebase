@@ -4,23 +4,23 @@
 # $1: upstream branch
 # $2: rebased branch (optional)
 
-echo "🔄 Pre-rebase safety check..."
+echo "🔄 리베이스 전 안전성 검사를 시작합니다..."
 
 # main이나 dev 브랜치는 리베이스 금지
 current_branch=$(git branch --show-current)
 if [[ "$current_branch" =~ ^(main|dev)$ ]]; then
-  echo "❌ Cannot rebase protected branch: $current_branch"
-  echo "🛡️  Protected branches should not be rebased"
+  echo "❌ 보호된 브랜치는 리베이스할 수 없습니다: $current_branch"
+  echo "🛡️  main, dev 브랜치는 리베이스하지 않는 것이 좋습니다."
   exit 1
 fi
 
 # 커밋되지 않은 변경사항 확인
 if [ -n "$(git status --porcelain)" ]; then
-  echo "❌ You have uncommitted changes:"
+  echo "❌ 커밋되지 않은 변경사항이 있습니다:"
   git status --short
   echo ""
-  echo "💡 Please commit or stash your changes before rebasing"
+  echo "💡 리베이스하기 전에 변경사항을 커밋하거나 stash해주세요."
   exit 1
 fi
 
-echo "✅ Pre-rebase checks passed!"
+echo "✅ 리베이스 전 검사를 통과했습니다!"

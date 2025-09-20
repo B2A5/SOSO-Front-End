@@ -1,11 +1,11 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-echo "🔍 Validating commit message..."
+echo "🔍 커밋 메시지가 Conventional Commit 규칙을 따르는지 검증 중..."
 pnpm commitlint --edit $1
 
 if [ $? -ne 0 ]; then
-  echo "❌ Commit message does not follow conventional commit format!"
+  echo "❌ 커밋 메시지가 규칙을 따르지 않습니다!"
   echo ""
   echo "📝 Expected format: <type>(<scope>): <subject>"
   echo ""
