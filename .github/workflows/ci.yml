@@ -31,6 +31,6 @@ jobs:
           key: turbo-${{ runner.os }}-${{ github.sha }}
           restore-keys: turbo-${{ runner.os }}-
 
-      # Lint + Test (typecheck 제거)
-      - name: Lint & Test
-        run: pnpm turbo run lint test --cache-dir=".turbo"
+      # Lint + Typecheck + Build + Test
+      - name: Lint & Typecheck & Build & Test
+        run: pnpm turbo run lint typecheck build test:coverage --cache-dir=".turbo"

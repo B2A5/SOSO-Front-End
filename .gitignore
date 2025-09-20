@@ -142,3 +142,11 @@ vite.config.ts.timestamp-*
 .next/
 .env*
 
+# Turborepo
+.turbo/
+**/.turbo/
+
+# Test coverage reports
+coverage/
+**/coverage/
+
