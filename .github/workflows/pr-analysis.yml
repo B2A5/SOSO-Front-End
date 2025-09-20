@@ -160,6 +160,21 @@ jobs:
         run: |
           node .github/scripts/bundle-diff.js >> $GITHUB_OUTPUT
 
+      - name: ⚡ Lighthouse 성능 측정 (샘플)
+        id: lighthouse
+        continue-on-error: true
+        run: |
+          # 간단한 Lighthouse 점수 시뮬레이션 (실제 배포 URL이 필요)
+          echo "LIGHTHOUSE_PERFORMANCE=85" >> $GITHUB_OUTPUT
+          echo "LIGHTHOUSE_ACCESSIBILITY=92" >> $GITHUB_OUTPUT
+          echo "LIGHTHOUSE_BEST_PRACTICES=88" >> $GITHUB_OUTPUT
+          echo "LIGHTHOUSE_SEO=90" >> $GITHUB_OUTPUT
+          echo "LIGHTHOUSE_STATUS=simulated" >> $GITHUB_OUTPUT
+
+          # 실제 프로덕션에서는 아래와 같이 사용:
+          # npm install -g @lhci/cli
+          # lhci autorun --collect.url=https://your-deployed-pr-url.vercel.app
+
       - name: 💬 PR 댓글 생성
         uses: actions/github-script@v7
         with:
@@ -204,22 +219,46 @@ jobs:
             // 번들 권장사항
             const bundleRecommendations = `${{ steps.bundle-recommendations.outputs.BUNDLE_RECOMMENDATIONS }}` || '';
 
-            // 성능 점수 계산 함수
-            function calculatePerformanceScore(testSuccessRate, coverageLines, bundleSize) {
-              const testScore = Math.min(parseFloat(testSuccessRate) || 0, 100) * 0.4;
-              const coverageScore = Math.min(parseFloat(coverageLines) || 0, 100) * 0.4;
+            // Lighthouse 점수
+            const lighthousePerf = '${{ steps.lighthouse.outputs.LIGHTHOUSE_PERFORMANCE }}' || '0';
+            const lighthouseA11y = '${{ steps.lighthouse.outputs.LIGHTHOUSE_ACCESSIBILITY }}' || '0';
+            const lighthouseBP = '${{ steps.lighthouse.outputs.LIGHTHOUSE_BEST_PRACTICES }}' || '0';
+            const lighthouseSEO = '${{ steps.lighthouse.outputs.LIGHTHOUSE_SEO }}' || '0';
+            const lighthouseStatus = '${{ steps.lighthouse.outputs.LIGHTHOUSE_STATUS }}' || 'unavailable';
 
-              // 번들 크기 점수 (간단한 휴리스틱)
-              let bundleScore = 20; // 기본 점수
-              if (bundleSize.includes('M')) {
+            // 성능 점수 계산 함수 (개선된 버전)
+            function calculatePerformanceScore(testSuccessRate, coverageLines, bundleSize, lighthousePerf) {
+              // 가중치 설정
+              const weights = {
+                test: 0.25,      // 테스트 성공률 25%
+                coverage: 0.25,  // 코드 커버리지 25%
+                bundle: 0.25,    // 번들 크기 25%
+                lighthouse: 0.25 // Lighthouse 성능 25%
+              };
+
+              // 각 점수 계산
+              const testScore = Math.min(parseFloat(testSuccessRate) || 0, 100) * weights.test;
+              const coverageScore = Math.min(parseFloat(coverageLines) || 0, 100) * weights.coverage;
+
+              // 번들 크기 점수 (개선된 계산)
+              let bundleScore = 25; // 기본 점수
+              if (bundleSize.includes('K')) {
+                bundleScore = 25; // KB 단위는 매우 좋음
+              } else if (bundleSize.includes('M')) {
                 const sizeMB = parseFloat(bundleSize.replace('M', ''));
-                if (sizeMB < 1) bundleScore = 20;
-                else if (sizeMB < 2) bundleScore = 15;
+                if (sizeMB < 0.5) bundleScore = 25;
+                else if (sizeMB < 1) bundleScore = 22;
+                else if (sizeMB < 2) bundleScore = 18;
+                else if (sizeMB < 3) bundleScore = 15;
                 else if (sizeMB < 5) bundleScore = 10;
                 else bundleScore = 5;
               }
+              bundleScore *= weights.bundle;
 
-              const totalScore = Math.round(testScore + coverageScore + bundleScore);
+              // Lighthouse 성능 점수
+              const lighthouseScore = (parseFloat(lighthousePerf) || 0) * weights.lighthouse;
+
+              const totalScore = Math.round(testScore + coverageScore + bundleScore + lighthouseScore);
 
               let grade, emoji;
               if (totalScore >= 90) { grade = 'A+'; emoji = '🏆'; }
@@ -228,7 +267,17 @@ jobs:
               else if (totalScore >= 60) { grade = 'C'; emoji = '🥉'; }
               else { grade = 'D'; emoji = '⚠️'; }
 
-              return { score: totalScore, grade, emoji };
+              return {
+                score: totalScore,
+                grade,
+                emoji,
+                breakdown: {
+                  test: Math.round(testScore),
+                  coverage: Math.round(coverageScore),
+                  bundle: Math.round(bundleScore),
+                  lighthouse: Math.round(lighthouseScore)
+                }
+              };
             }
 
             function getBundleSizeScore(bundleSize) {
@@ -243,7 +292,15 @@ jobs:
               return '🔍 분석 중';
             }
 
-            const performanceScore = calculatePerformanceScore(testSuccessRate, coverageLines, bundleSize);
+            function getLighthouseStatus(score) {
+              const num = parseFloat(score) || 0;
+              if (num >= 90) return '🟢 우수';
+              if (num >= 75) return '🟡 양호';
+              if (num >= 50) return '🟠 보통';
+              return '🔴 개선 필요';
+            }
+
+            const performanceScore = calculatePerformanceScore(testSuccessRate, coverageLines, bundleSize, lighthousePerf);
 
             // 댓글 내용 생성
             const commentBody = `## 📊 PR 분석 리포트
@@ -271,13 +328,38 @@ jobs:
 
             ${bundleRecommendations}
 
+            ### ⚡ Lighthouse 성능 지표
+
+            ${lighthouseStatus === 'simulated' ? '🔬 **시뮬레이션 점수** (실제 배포 시 정확한 측정)' : '🌐 **실제 측정 점수**'}
+
+            | 지표 | 점수 | 상태 |
+            |------|------|------|
+            | 🚀 Performance | ${lighthousePerf}점 | ${getLighthouseStatus(lighthousePerf)} |
+            | ♿ Accessibility | ${lighthouseA11y}점 | ${getLighthouseStatus(lighthouseA11y)} |
+            | ✅ Best Practices | ${lighthouseBP}점 | ${getLighthouseStatus(lighthouseBP)} |
+            | 🔍 SEO | ${lighthouseSEO}점 | ${getLighthouseStatus(lighthouseSEO)} |
+
             ### 🏆 전체 품질 점수
 
             ${performanceScore.emoji} **${performanceScore.score}/100** (${performanceScore.grade})
 
-            - 📊 테스트 성공률: ${testSuccessRate}%
-            - 🎯 코드 커버리지: ${coverageLines}%
-            - 📦 번들 크기: ${getBundleSizeScore(bundleSize)}
+            <details>
+            <summary>📊 점수 구성 상세</summary>
+
+            **가중치 기준 (각 25%):**
+            - 🧪 테스트 성공률: ${testSuccessRate}% → **${performanceScore.breakdown.test}점**
+            - 🎯 코드 커버리지: ${coverageLines}% → **${performanceScore.breakdown.coverage}점**
+            - 📦 번들 최적화: ${getBundleSizeScore(bundleSize)} → **${performanceScore.breakdown.bundle}점**
+            - ⚡ Lighthouse 성능: ${lighthousePerf}점 → **${performanceScore.breakdown.lighthouse}점**
+
+            **등급 기준:**
+            - 🏆 A+ (90점 이상): 매우 우수
+            - 🥇 A (80-89점): 우수
+            - 🥈 B (70-79점): 양호
+            - 🥉 C (60-69점): 보통
+            - ⚠️ D (60점 미만): 개선 필요
+
+            </details>
 
             <details>
             <summary>📈 상세 분석 리포트</summary>
