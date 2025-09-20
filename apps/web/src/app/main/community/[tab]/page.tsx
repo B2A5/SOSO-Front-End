@@ -2,7 +2,11 @@
 import React, { useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { CategoryTab } from '@/components/tabs/CategoryTab';
-import { CATEGORIES, Categories, Category } from '@/constants/categories';
+import {
+  CATEGORIES,
+  Categories,
+  Category,
+} from '@/constants/categories';
 import { FilterHeader } from '../components/FilterHeader';
 import { SortValue } from '@/types/options.types';
 import { SORT_OPTIONS } from '../constants/sortOptions';
@@ -21,13 +25,7 @@ import type { PostCursorResponse } from '@/api/posts';
  *
  */
 
-interface CommunityTabPageProps {
-  showCategoryFilter?: boolean;
-}
-
-export default function CommunityTabPage({
-  showCategoryFilter = true
-}: CommunityTabPageProps = {}) {
+export default function CommunityTabPage() {
   const [category, setCategory] = useState<Categories>(CATEGORIES[0]);
   const [sortOption, setSortOption] = useState<SortValue>(
     SORT_OPTIONS[0].value,
@@ -70,9 +68,7 @@ export default function CommunityTabPage({
 
   // 카테고리 필터링이 활성화된 경우에만 '전체' 항목 추가
   const allCategory = { value: 'all' as Category, label: '전체' };
-  const tabCategories = showCategoryFilter
-    ? [allCategory, ...CATEGORIES]
-    : CATEGORIES;
+  const tabCategories = [allCategory, ...CATEGORIES];
 
   return (
     <div className="w-full h-full flex flex-col">
