@@ -1,0 +1,241 @@
+name: 📊 PR 분석 및 리포트
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+concurrency:
+  group: pr-analysis-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: 🔍 번들 분석 및 성능 측정
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: 🏗️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: 📂 Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: ⚡ TypeScript 타입 체크
+        run: pnpm turbo typecheck --filter=web
+
+      - name: 🧪 테스트 실행 및 커버리지 생성
+        run: pnpm turbo test:coverage --filter=web
+
+      - name: 🏗️ 프로덕션 빌드
+        run: pnpm turbo build --filter=web
+
+      - name: 📊 번들 사이즈 분석
+        run: |
+          cd apps/web
+          ANALYZE=true pnpm build
+          echo "Bundle analysis completed"
+
+      - name: 📈 번들 사이즈 리포트 생성
+        id: bundle-analysis
+        run: |
+          cd apps/web
+          if [ -d ".next/static" ]; then
+            # 번들 사이즈 정보 추출
+            BUNDLE_SIZE=$(du -sh .next/static | cut -f1)
+            echo "BUNDLE_SIZE=$BUNDLE_SIZE" >> $GITHUB_OUTPUT
+
+            # JS 파일 크기 정보
+            TOTAL_JS_SIZE=$(find .next/static -name "*.js" -exec du -ch {} + | grep total | cut -f1)
+            echo "TOTAL_JS_SIZE=$TOTAL_JS_SIZE" >> $GITHUB_OUTPUT
+
+            # 주요 청크 정보 추출
+            echo "BUNDLE_CHUNKS<<EOF" >> $GITHUB_OUTPUT
+            find .next/static/chunks -name "*.js" -exec ls -lh {} \; | head -10 | awk '{print $9 " - " $5}' | sed 's|.*/||' >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+
+            # 페이지별 번들 정보
+            if [ -d ".next/static/chunks/pages" ]; then
+              echo "PAGE_BUNDLES<<EOF" >> $GITHUB_OUTPUT
+              find .next/static/chunks/pages -name "*.js" -exec ls -lh {} \; | awk '{print $9 " - " $5}' | sed 's|.*/||' >> $GITHUB_OUTPUT
+              echo "EOF" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+      - name: 🧪 테스트 결과 상세 분석
+        id: test-analysis
+        run: |
+          # 테스트 분석 스크립트 실행
+          cd apps/web
+          if [ -f "coverage/coverage-summary.json" ]; then
+            node ../../.github/scripts/analyze-test-results.js >> $GITHUB_OUTPUT
+          fi
+
+      - name: 🎯 번들 최적화 권장사항 분석
+        id: bundle-recommendations
+        run: |
+          node .github/scripts/bundle-diff.js >> $GITHUB_OUTPUT
+
+      - name: 💬 PR 댓글 생성
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            // 기존 봇 댓글 찾기
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('📊 PR 분석 리포트')
+            );
+
+            // 번들 사이즈 정보
+            const bundleSize = '${{ steps.bundle-analysis.outputs.BUNDLE_SIZE }}' || '정보 없음';
+            const totalJsSize = '${{ steps.bundle-analysis.outputs.TOTAL_JS_SIZE }}' || '정보 없음';
+            const bundleChunks = `${{ steps.bundle-analysis.outputs.BUNDLE_CHUNKS }}` || '정보 없음';
+            const pageBundles = `${{ steps.bundle-analysis.outputs.PAGE_BUNDLES }}` || '';
+
+            // 테스트 정보 (상세 분석 결과 사용)
+            const testMarkdown = `${{ steps.test-analysis.outputs.TEST_ANALYSIS_MARKDOWN }}` || '테스트 정보 없음';
+            const testSuccessRate = '${{ steps.test-analysis.outputs.TEST_SUCCESS_RATE }}' || '0';
+            const coverageLines = '${{ steps.test-analysis.outputs.COVERAGE_LINES }}' || '0';
+
+            // 성능 점수 계산 함수
+            function calculatePerformanceScore(testSuccessRate, coverageLines, bundleSize) {
+              const testScore = Math.min(parseFloat(testSuccessRate) || 0, 100) * 0.4;
+              const coverageScore = Math.min(parseFloat(coverageLines) || 0, 100) * 0.4;
+
+              // 번들 크기 점수 (간단한 휴리스틱)
+              let bundleScore = 20; // 기본 점수
+              if (bundleSize.includes('M')) {
+                const sizeMB = parseFloat(bundleSize.replace('M', ''));
+                if (sizeMB < 1) bundleScore = 20;
+                else if (sizeMB < 2) bundleScore = 15;
+                else if (sizeMB < 5) bundleScore = 10;
+                else bundleScore = 5;
+              }
+
+              const totalScore = Math.round(testScore + coverageScore + bundleScore);
+
+              let grade, emoji;
+              if (totalScore >= 90) { grade = 'A+'; emoji = '🏆'; }
+              else if (totalScore >= 80) { grade = 'A'; emoji = '🥇'; }
+              else if (totalScore >= 70) { grade = 'B'; emoji = '🥈'; }
+              else if (totalScore >= 60) { grade = 'C'; emoji = '🥉'; }
+              else { grade = 'D'; emoji = '⚠️'; }
+
+              return { score: totalScore, grade, emoji };
+            }
+
+            function getBundleSizeScore(bundleSize) {
+              if (bundleSize.includes('K')) return '🟢 매우 좋음';
+              if (bundleSize.includes('M')) {
+                const sizeMB = parseFloat(bundleSize.replace('M', ''));
+                if (sizeMB < 1) return '🟢 좋음';
+                if (sizeMB < 2) return '🟡 보통';
+                if (sizeMB < 5) return '🟠 주의';
+                return '🔴 개선 필요';
+              }
+              return '🔍 분석 중';
+            }
+
+            const performanceScore = calculatePerformanceScore(testSuccessRate, coverageLines, bundleSize);
+
+            // 댓글 내용 생성
+            const commentBody = `## 📊 PR 분석 리포트
+
+            ### 🎯 번들 사이즈 분석
+
+            **전체 정적 파일**: \`${bundleSize}\`
+            **JavaScript 파일**: \`${totalJsSize}\`
+
+            <details>
+            <summary>📦 주요 청크 파일들</summary>
+
+            \`\`\`
+            ${bundleChunks}
+            \`\`\`
+
+            ${pageBundles ? `**페이지별 번들:**
+            \`\`\`
+            ${pageBundles}
+            \`\`\`` : ''}
+
+            </details>
+
+            ${testMarkdown}
+
+            ### 🏆 전체 품질 점수
+
+            ${performanceScore.emoji} **${performanceScore.score}/100** (${performanceScore.grade})
+
+            - 📊 테스트 성공률: ${testSuccessRate}%
+            - 🎯 코드 커버리지: ${coverageLines}%
+            - 📦 번들 크기: ${getBundleSizeScore(bundleSize)}
+
+            <details>
+            <summary>📈 상세 분석 리포트</summary>
+
+            - **번들 분석**: [상세보기](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${{ github.run_id }})
+            - **테스트 커버리지**: [HTML 리포트](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${{ github.run_id }})
+            - **빌드 로그**: [전체 로그](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${{ github.run_id }})
+
+            </details>
+
+            ### 🔗 유용한 링크
+
+            - 📊 [번들 분석 상세보기](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${{ github.run_id }})
+            - 🧪 [테스트 커버리지 리포트](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${{ github.run_id }})
+            - 🏗️ [빌드 로그](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${{ github.run_id }})
+
+            ---
+
+            > 🤖 이 리포트는 PR이 업데이트될 때마다 자동으로 갱신됩니다.
+            > 📅 마지막 업데이트: ${new Date().toLocaleString('ko-KR')}`;
+
+            if (botComment) {
+              // 기존 댓글 업데이트
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: commentBody
+              });
+            } else {
+              // 새 댓글 생성
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: commentBody
+              });
+            }
+
+      - name: 📤 아티팩트 업로드
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: analysis-reports
+          path: |
+            apps/web/coverage/
+            apps/web/.next/analyze/
+          retention-days: 7
