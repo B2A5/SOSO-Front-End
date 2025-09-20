@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-import fs from 'fs';
-import path from 'path';
+const fs = require('fs');
+const path = require('path');
 
 /**
  * 테스트 결과를 분석하고 PR 댓글용 마크다운을 생성합니다.
