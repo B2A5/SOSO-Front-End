@@ -1,0 +1,20 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🔄 Post-merge cleanup..."
+
+# package.json이나 pnpm-lock.yaml이 변경되었는지 확인
+if git diff HEAD@{1} --name-only | grep -E "(package\.json|pnpm-lock\.yaml)" > /dev/null; then
+  echo "📦 Dependencies may have changed, updating..."
+  pnpm install
+  echo "✅ Dependencies updated!"
+else
+  echo "📦 No dependency changes detected"
+fi
+
+# turbo cache 정리 (선택적)
+if [ -d ".turbo" ]; then
+  echo "🧹 Cleaning turbo cache..."
+  rm -rf .turbo
+  echo "✅ Turbo cache cleaned!"
+fi

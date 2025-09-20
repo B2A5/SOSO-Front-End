@@ -1,0 +1,26 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# $1: upstream branch
+# $2: rebased branch (optional)
+
+echo "🔄 Pre-rebase safety check..."
+
+# main이나 dev 브랜치는 리베이스 금지
+current_branch=$(git branch --show-current)
+if [[ "$current_branch" =~ ^(main|dev)$ ]]; then
+  echo "❌ Cannot rebase protected branch: $current_branch"
+  echo "🛡️  Protected branches should not be rebased"
+  exit 1
+fi
+
+# 커밋되지 않은 변경사항 확인
+if [ -n "$(git status --porcelain)" ]; then
+  echo "❌ You have uncommitted changes:"
+  git status --short
+  echo ""
+  echo "💡 Please commit or stash your changes before rebasing"
+  exit 1
+fi
+
+echo "✅ Pre-rebase checks passed!"

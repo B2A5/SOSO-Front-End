@@ -1,0 +1,31 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🔍 Validating commit message..."
+pnpm commitlint --edit $1
+
+if [ $? -ne 0 ]; then
+  echo "❌ Commit message does not follow conventional commit format!"
+  echo ""
+  echo "📝 Expected format: <type>(<scope>): <subject>"
+  echo ""
+  echo "🔖 Valid types:"
+  echo "  feat:     새로운 기능 추가"
+  echo "  fix:      버그 수정"
+  echo "  docs:     문서 수정"
+  echo "  style:    코드 스타일 변경"
+  echo "  refactor: 코드 리팩토링"
+  echo "  test:     테스트 코드 추가/수정"
+  echo "  chore:    빌드 과정 또는 도구 변경"
+  echo "  perf:     성능 개선"
+  echo "  ci:       CI 설정 변경"
+  echo ""
+  echo "📋 Examples:"
+  echo "  feat: 사용자 로그인 기능 추가"
+  echo "  fix: 네비게이션 메뉴 버그 수정"
+  echo "  docs: README 파일 업데이트"
+  echo ""
+  exit 1
+fi
+
+echo "✅ Commit message is valid!"
