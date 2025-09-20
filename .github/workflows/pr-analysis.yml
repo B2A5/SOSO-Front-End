@@ -100,50 +100,78 @@ jobs:
           path: ./
         continue-on-error: true
 
-      - name: 📊 번들 분석 리포트 생성 (추가 빌드)
+      - name: 📊 번들 분석 리포트 생성 (두 가지 빌드)
         run: |
           cd apps/web
-          # 번들 분석을 위한 추가 빌드 (분석 플래그 포함)
-          ANALYZE=true pnpm build
-          echo "Bundle analysis with analyzer completed"
 
-      - name: 📈 번들 사이즈 리포트 생성
+          echo "🔄 1단계: 일반 빌드 (코드 스플리팅 활성화)"
+          ANALYZE=true pnpm build
+
+          # 일반 빌드 결과 백업
+          if [ -d ".next" ]; then
+            cp -r .next .next-split
+            echo "✅ 코드 스플리팅 빌드 완료"
+          fi
+
+          echo "🔄 2단계: 통합 빌드 (코드 스플리팅 비활성화)"
+          pnpm build:analyze-no-split
+
+          # 통합 빌드 결과 백업
+          if [ -d ".next" ]; then
+            cp -r .next .next-unified
+            echo "✅ 통합 빌드 완료"
+          fi
+
+          echo "📊 두 가지 빌드 분석 준비 완료"
+
+      - name: 📈 번들 사이즈 리포트 생성 (비교 분석)
         id: bundle-analysis
         run: |
           cd apps/web
 
-          # CI 빌드 결과와 분석 빌드 결과 모두 확인
-          BUILD_DIR=""
-          if [ -d ".next/static" ]; then
-            BUILD_DIR=".next"
-          elif [ -d "apps/web/.next/static" ]; then
-            BUILD_DIR="apps/web/.next"
-          fi
+          # 1. 코드 스플리팅 빌드 분석
+          if [ -d ".next-split/static" ]; then
+            SPLIT_BUNDLE_SIZE=$(du -sh .next-split/static | cut -f1)
+            SPLIT_JS_SIZE=$(find .next-split/static -name "*.js" -exec du -ch {} + | grep total | cut -f1)
+            SPLIT_JS_COUNT=$(find .next-split/static -name "*.js" | wc -l)
 
-          if [ -n "$BUILD_DIR" ] && [ -d "$BUILD_DIR/static" ]; then
-            # 번들 사이즈 정보 추출
-            BUNDLE_SIZE=$(du -sh $BUILD_DIR/static | cut -f1)
-            echo "BUNDLE_SIZE=$BUNDLE_SIZE" >> $GITHUB_OUTPUT
-
-            # JS 파일 크기 정보
-            TOTAL_JS_SIZE=$(find $BUILD_DIR/static -name "*.js" -exec du -ch {} + | grep total | cut -f1)
-            echo "TOTAL_JS_SIZE=$TOTAL_JS_SIZE" >> $GITHUB_OUTPUT
+            echo "SPLIT_BUNDLE_SIZE=$SPLIT_BUNDLE_SIZE" >> $GITHUB_OUTPUT
+            echo "SPLIT_JS_SIZE=$SPLIT_JS_SIZE" >> $GITHUB_OUTPUT
+            echo "SPLIT_JS_COUNT=$SPLIT_JS_COUNT" >> $GITHUB_OUTPUT
 
             # 주요 청크 정보 추출
-            echo "BUNDLE_CHUNKS<<EOF" >> $GITHUB_OUTPUT
-            find $BUILD_DIR/static/chunks -name "*.js" -exec ls -lh {} \; 2>/dev/null | head -10 | awk '{print $9 " - " $5}' | sed 's|.*/||' >> $GITHUB_OUTPUT
+            echo "SPLIT_CHUNKS<<EOF" >> $GITHUB_OUTPUT
+            find .next-split/static/chunks -name "*.js" -exec ls -lh {} \; 2>/dev/null | head -8 | awk '{print $9 " - " $5}' | sed 's|.*/||' >> $GITHUB_OUTPUT
             echo "EOF" >> $GITHUB_OUTPUT
 
-            # 페이지별 번들 정보
-            if [ -d "$BUILD_DIR/static/chunks/pages" ]; then
-              echo "PAGE_BUNDLES<<EOF" >> $GITHUB_OUTPUT
-              find $BUILD_DIR/static/chunks/pages -name "*.js" -exec ls -lh {} \; 2>/dev/null | awk '{print $9 " - " $5}' | sed 's|.*/||' >> $GITHUB_OUTPUT
-              echo "EOF" >> $GITHUB_OUTPUT
-            fi
+            echo "✅ 코드 스플리팅 빌드 분석 완료"
+          fi
 
-            echo "✅ 번들 분석 완료: $BUILD_DIR"
-          else
-            echo "❌ 빌드 결과를 찾을 수 없습니다"
+          # 2. 통합 빌드 분석
+          if [ -d ".next-unified/static" ]; then
+            UNIFIED_BUNDLE_SIZE=$(du -sh .next-unified/static | cut -f1)
+            UNIFIED_JS_SIZE=$(find .next-unified/static -name "*.js" -exec du -ch {} + | grep total | cut -f1)
+            UNIFIED_JS_COUNT=$(find .next-unified/static -name "*.js" | wc -l)
+
+            echo "UNIFIED_BUNDLE_SIZE=$UNIFIED_BUNDLE_SIZE" >> $GITHUB_OUTPUT
+            echo "UNIFIED_JS_SIZE=$UNIFIED_JS_SIZE" >> $GITHUB_OUTPUT
+            echo "UNIFIED_JS_COUNT=$UNIFIED_JS_COUNT" >> $GITHUB_OUTPUT
+
+            # 통합 번들 파일 정보
+            echo "UNIFIED_FILES<<EOF" >> $GITHUB_OUTPUT
+            find .next-unified/static -name "*.js" -exec ls -lh {} \; 2>/dev/null | awk '{print $9 " - " $5}' | sed 's|.*/||' >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+
+            echo "✅ 통합 빌드 분석 완료"
+          fi
+
+          # 기본값 설정 (호환성을 위해)
+          if [ -d ".next-split/static" ]; then
+            echo "BUNDLE_SIZE=$SPLIT_BUNDLE_SIZE" >> $GITHUB_OUTPUT
+            echo "TOTAL_JS_SIZE=$SPLIT_JS_SIZE" >> $GITHUB_OUTPUT
+          elif [ -d ".next-unified/static" ]; then
+            echo "BUNDLE_SIZE=$UNIFIED_BUNDLE_SIZE" >> $GITHUB_OUTPUT
+            echo "TOTAL_JS_SIZE=$UNIFIED_JS_SIZE" >> $GITHUB_OUTPUT
           fi
 
       - name: 🧪 테스트 결과 상세 분석
@@ -205,11 +233,21 @@ jobs:
               comment.body.includes('📊 PR 분석 리포트')
             );
 
-            // 번들 사이즈 정보
+            // 번들 사이즈 정보 (기본값)
             const bundleSize = '${{ steps.bundle-analysis.outputs.BUNDLE_SIZE }}' || '정보 없음';
             const totalJsSize = '${{ steps.bundle-analysis.outputs.TOTAL_JS_SIZE }}' || '정보 없음';
-            const bundleChunks = `${{ steps.bundle-analysis.outputs.BUNDLE_CHUNKS }}` || '정보 없음';
-            const pageBundles = `${{ steps.bundle-analysis.outputs.PAGE_BUNDLES }}` || '';
+
+            // 코드 스플리팅 빌드 정보
+            const splitBundleSize = '${{ steps.bundle-analysis.outputs.SPLIT_BUNDLE_SIZE }}' || '정보 없음';
+            const splitJsSize = '${{ steps.bundle-analysis.outputs.SPLIT_JS_SIZE }}' || '정보 없음';
+            const splitJsCount = '${{ steps.bundle-analysis.outputs.SPLIT_JS_COUNT }}' || '0';
+            const splitChunks = `${{ steps.bundle-analysis.outputs.SPLIT_CHUNKS }}` || '';
+
+            // 통합 빌드 정보
+            const unifiedBundleSize = '${{ steps.bundle-analysis.outputs.UNIFIED_BUNDLE_SIZE }}' || '정보 없음';
+            const unifiedJsSize = '${{ steps.bundle-analysis.outputs.UNIFIED_JS_SIZE }}' || '정보 없음';
+            const unifiedJsCount = '${{ steps.bundle-analysis.outputs.UNIFIED_JS_COUNT }}' || '0';
+            const unifiedFiles = `${{ steps.bundle-analysis.outputs.UNIFIED_FILES }}` || '';
 
             // 테스트 정보 (상세 분석 결과 사용)
             const testMarkdown = `${{ steps.test-analysis.outputs.TEST_ANALYSIS_MARKDOWN }}` || '테스트 정보 없음';
@@ -307,20 +345,38 @@ jobs:
 
             ### 🎯 번들 사이즈 분석
 
-            **전체 정적 파일**: \`${bundleSize}\`
-            **JavaScript 파일**: \`${totalJsSize}\`
+            | 빌드 유형 | 정적 파일 | JavaScript | 파일 수 | 특징 |
+            |-----------|-----------|------------|---------|------|
+            | 🧩 **코드 스플리팅** | \`${splitBundleSize}\` | \`${splitJsSize}\` | ${splitJsCount}개 | 페이지별 분리, 캐싱 최적화 |
+            | 📦 **통합 번들** | \`${unifiedBundleSize}\` | \`${unifiedJsSize}\` | ${unifiedJsCount}개 | 전체 크기 확인, 단순한 구조 |
 
             <details>
-            <summary>📦 주요 청크 파일들</summary>
+            <summary>🧩 코드 스플리팅 상세 (권장 방식)</summary>
 
+            **주요 청크 파일들:**
             \`\`\`
-            ${bundleChunks}
+            ${splitChunks || '청크 정보 없음'}
             \`\`\`
 
-            ${pageBundles ? `**페이지별 번들:**
+            **장점:**
+            - ⚡ 초기 로딩 속도 향상 (필요한 청크만 로드)
+            - 🔄 효율적인 캐싱 (변경되지 않은 청크 재사용)
+            - 📱 모바일 친화적 (작은 초기 번들)
+
+            </details>
+
+            <details>
+            <summary>📦 통합 번들 상세 (분석용)</summary>
+
+            **생성된 파일들:**
             \`\`\`
-            ${pageBundles}
-            \`\`\`` : ''}
+            ${unifiedFiles || '파일 정보 없음'}
+            \`\`\`
+
+            **용도:**
+            - 🔍 전체 앱 크기 한눈에 파악
+            - 📊 라이브러리 의존성 분석
+            - 🎯 최적화 대상 식별
 
             </details>
 

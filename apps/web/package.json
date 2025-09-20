@@ -7,6 +7,8 @@
     "dev": "next dev",
     "build": "next build",
     "build:analyze": "ANALYZE=true next build",
+    "build:no-split": "next build -c next.config.analysis.js",
+    "build:analyze-no-split": "ANALYZE=true next build -c next.config.analysis.js",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
