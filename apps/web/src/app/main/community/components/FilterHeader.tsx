@@ -28,11 +28,10 @@ export function FilterHeader({
         className,
       )}
     >
-      {totalCount ? (
-        <p className="text-body2">총 {totalCount}개 게시글</p>
-      ) : (
-        <p className="text-body2">게시글이 없습니다</p>
-      )}
+      <p className="text-body2 dark:text-white">
+        총 {totalCount}개 게시글
+      </p>
+
       <SelectDropdown
         options={options}
         value={filterValue}

@@ -4,6 +4,7 @@ import { CategoryChip } from '@/components/chips/CategoryChip';
 import { Category } from '@/constants/categories';
 import { relativeTime } from '@/utils/relativeTime';
 import { Heart, MessageSquareMore } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 import type { PostSummary } from '@/api/posts';
 
@@ -17,6 +18,7 @@ export function FreeBoardCard({
   isChip = false,
 }: FreeBoardCardProps) {
   const {
+    postId,
     title,
     content, // 이전의 description → content 로 변경
     category,
@@ -26,8 +28,17 @@ export function FreeBoardCard({
     user: { nickname },
   } = post;
 
+  const router = useRouter();
+
+  const handleOnClick = () => {
+    router.push(`/main/community/freeboard/${postId}`);
+  };
+
   return (
-    <Card className="w-full flex flex-col gap-3">
+    <Card
+      className="w-full flex flex-col gap-3"
+      onClick={handleOnClick}
+    >
       <div className="flex flex-col gap-1">
         {isChip && (
           <div className="flex items-center gap-1">

@@ -72,7 +72,7 @@ export function CommunityHeader({
     if (pathname.includes('/new')) {
       return 'new';
     }
-    if (pathname.includes('/view')) {
+    if (params.postid) {
       return 'view';
     }
     return 'main';
