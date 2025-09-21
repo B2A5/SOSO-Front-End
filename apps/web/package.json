@@ -7,8 +7,6 @@
     "dev": "next dev",
     "build": "next build",
     "build:analyze": "ANALYZE=true next build",
-    "build:no-split": "mv next.config.js next.config.js.tmp && mv next.config.analysis.js next.config.js && next build && mv next.config.js next.config.analysis.js && mv next.config.js.tmp next.config.js",
-    "build:analyze-no-split": "mv next.config.js next.config.js.tmp && mv next.config.analysis.js next.config.js && ANALYZE=true next build && mv next.config.js next.config.analysis.js && mv next.config.js.tmp next.config.js",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",

@@ -2,7 +2,7 @@ name: 📊 PR 분석 및 리포트
 
 on:
   workflow_run:
-    workflows: ['CI']
+    workflows: ['CI', 'Preview']
     types: [completed]
   pull_request:
     types: [opened, synchronize]
@@ -104,82 +104,38 @@ jobs:
           path: ./
         continue-on-error: true
 
-      - name: 📊 번들 분석 리포트 생성 (두 가지 빌드)
+      - name: 📊 번들 분석 리포트 생성
         run: |
           cd apps/web
 
-          echo "🔄 1단계: 일반 빌드 (코드 스플리팅 활성화)"
+          echo "🔄 프로덕션 빌드 (번들 분석 활성화)"
           ANALYZE=true pnpm build
 
-          # 일반 빌드 결과 백업
-          if [ -d ".next" ]; then
-            cp -r .next .next-split
-            echo "✅ 코드 스플리팅 빌드 완료"
-          fi
+          echo "✅ 번들 분석 완료"
 
-          echo "🔄 2단계: 통합 빌드 (코드 스플리팅 비활성화)"
-          pnpm build:analyze-no-split
-
-          # 통합 빌드 결과 백업
-          if [ -d ".next" ]; then
-            cp -r .next .next-unified
-            echo "✅ 통합 빌드 완료"
-          fi
-
-          echo "📊 두 가지 빌드 분석 준비 완료"
-
-      - name: 📈 번들 사이즈 리포트 생성 (비교 분석)
+      - name: 📈 번들 사이즈 리포트 생성
         id: bundle-analysis
         run: |
           cd apps/web
 
-          # 1. 코드 스플리팅 빌드 분석
-          if [ -d ".next-split/static" ]; then
-            SPLIT_BUNDLE_SIZE=$(du -sh .next-split/static | cut -f1)
-            SPLIT_JS_SIZE=$(find .next-split/static -name "*.js" -exec du -ch {} + | grep total | cut -f1)
-            SPLIT_JS_COUNT=$(find .next-split/static -name "*.js" | wc -l)
+          # 번들 분석
+          if [ -d ".next/static" ]; then
+            BUNDLE_SIZE=$(du -sh .next/static | cut -f1)
+            JS_SIZE=$(find .next/static -name "*.js" -exec du -ch {} + | grep total | cut -f1)
+            JS_COUNT=$(find .next/static -name "*.js" | wc -l)
 
-            echo "SPLIT_BUNDLE_SIZE=$SPLIT_BUNDLE_SIZE" >> $GITHUB_OUTPUT
-            echo "SPLIT_JS_SIZE=$SPLIT_JS_SIZE" >> $GITHUB_OUTPUT
-            echo "SPLIT_JS_COUNT=$SPLIT_JS_COUNT" >> $GITHUB_OUTPUT
+            echo "BUNDLE_SIZE=$BUNDLE_SIZE" >> $GITHUB_OUTPUT
+            echo "TOTAL_JS_SIZE=$JS_SIZE" >> $GITHUB_OUTPUT
+            echo "JS_COUNT=$JS_COUNT" >> $GITHUB_OUTPUT
 
             # 주요 청크 정보 추출 (멀티라인 출력)
             {
-              echo "SPLIT_CHUNKS<<EOF"
-              find .next-split/static/chunks -name "*.js" -exec ls -lh {} \; 2>/dev/null | head -8 | awk '{print $9 " - " $5}' | sed 's|.*/||'
+              echo "MAIN_CHUNKS<<EOF"
+              find .next/static/chunks -name "*.js" -exec ls -lh {} \; 2>/dev/null | head -10 | awk '{print $9 " - " $5}' | sed 's|.*/||'
               echo "EOF"
             } >> $GITHUB_OUTPUT
 
-            echo "✅ 코드 스플리팅 빌드 분석 완료"
-          fi
-
-          # 2. 통합 빌드 분석
-          if [ -d ".next-unified/static" ]; then
-            UNIFIED_BUNDLE_SIZE=$(du -sh .next-unified/static | cut -f1)
-            UNIFIED_JS_SIZE=$(find .next-unified/static -name "*.js" -exec du -ch {} + | grep total | cut -f1)
-            UNIFIED_JS_COUNT=$(find .next-unified/static -name "*.js" | wc -l)
-
-            echo "UNIFIED_BUNDLE_SIZE=$UNIFIED_BUNDLE_SIZE" >> $GITHUB_OUTPUT
-            echo "UNIFIED_JS_SIZE=$UNIFIED_JS_SIZE" >> $GITHUB_OUTPUT
-            echo "UNIFIED_JS_COUNT=$UNIFIED_JS_COUNT" >> $GITHUB_OUTPUT
-
-            # 통합 번들 파일 정보 (멀티라인 출력)
-            {
-              echo "UNIFIED_FILES<<EOF"
-              find .next-unified/static -name "*.js" -exec ls -lh {} \; 2>/dev/null | awk '{print $9 " - " $5}' | sed 's|.*/||'
-              echo "EOF"
-            } >> $GITHUB_OUTPUT
-
-            echo "✅ 통합 빌드 분석 완료"
-          fi
-
-          # 기본값 설정 (호환성)
-          if [ -d ".next-split/static" ]; then
-            echo "BUNDLE_SIZE=$SPLIT_BUNDLE_SIZE" >> $GITHUB_OUTPUT
-            echo "TOTAL_JS_SIZE=$SPLIT_JS_SIZE" >> $GITHUB_OUTPUT
-          elif [ -d ".next-unified/static" ]; then
-            echo "BUNDLE_SIZE=$UNIFIED_BUNDLE_SIZE" >> $GITHUB_OUTPUT
-            echo "TOTAL_JS_SIZE=$UNIFIED_JS_SIZE" >> $GITHUB_OUTPUT
+            echo "✅ 번들 분석 완료"
           fi
 
       - name: 🧪 테스트 결과 상세 분석
@@ -195,15 +151,119 @@ jobs:
         run: |
           node .github/scripts/bundle-diff.js >> $GITHUB_OUTPUT
 
-      - name: ⚡ Lighthouse 성능 측정 (샘플)
+      - name: 🔍 PR 변경사항 분석
+        id: changed-pages
+        run: |
+          # PR에서 변경된 파일 목록 가져오기
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }})
+          else
+            # workflow_run의 경우 최근 커밋 비교
+            CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+          fi
+
+          echo "CHANGED_FILES<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGED_FILES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+          # 변경된 페이지 감지
+          CHANGED_FILES="$CHANGED_FILES" node .github/scripts/detect-changed-pages.js >> $GITHUB_OUTPUT
+
+      - name: 🔍 Vercel Preview URL 감지
+        id: preview-url
+        run: |
+          # Preview 워크플로우에서 생성된 댓글에서 URL 추출
+          if [ "${{ github.event_name }}" = "workflow_run" ] && [ "${{ github.event.workflow_run.name }}" = "Preview" ]; then
+            echo "🔍 Preview 워크플로우 완료 후 실행 - Vercel URL 확인 중..."
+
+            # PR 번호 확인
+            PR_NUMBER="${{ github.event.workflow_run.pull_requests[0].number }}"
+            if [ ! -z "$PR_NUMBER" ]; then
+              echo "📍 PR 번호: $PR_NUMBER"
+
+              # 최근 댓글에서 Preview URL 추출
+              PREVIEW_URL=$(gh api repos/${{ github.repository }}/issues/$PR_NUMBER/comments \
+                --jq '.[] | select(.body | contains("✅ PREVIEW")) | .body' \
+                | grep -o 'https://[^ ]*' | head -1)
+
+              if [ ! -z "$PREVIEW_URL" ]; then
+                echo "🌐 Vercel Preview URL 발견: $PREVIEW_URL"
+                echo "PREVIEW_URL=$PREVIEW_URL" >> $GITHUB_OUTPUT
+                echo "USE_PREVIEW=true" >> $GITHUB_OUTPUT
+              else
+                echo "⚠️ Preview URL을 찾을 수 없습니다."
+                echo "USE_PREVIEW=false" >> $GITHUB_OUTPUT
+              fi
+            fi
+          else
+            echo "💻 직접 실행 모드 - 로컬 서버 사용"
+            echo "USE_PREVIEW=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: ⚡ 페이지별 Lighthouse 성능 측정
         id: lighthouse
         continue-on-error: true
         run: |
-          echo "LIGHTHOUSE_PERFORMANCE=85" >> $GITHUB_OUTPUT
-          echo "LIGHTHOUSE_ACCESSIBILITY=92" >> $GITHUB_OUTPUT
-          echo "LIGHTHOUSE_BEST_PRACTICES=88" >> $GITHUB_OUTPUT
-          echo "LIGHTHOUSE_SEO=90" >> $GITHUB_OUTPUT
-          echo "LIGHTHOUSE_STATUS=simulated" >> $GITHUB_OUTPUT
+          PREVIEW_URL="${{ steps.preview-url.outputs.PREVIEW_URL }}"
+          USE_PREVIEW="${{ steps.preview-url.outputs.USE_PREVIEW }}"
+
+          if [ "$USE_PREVIEW" = "true" ] && [ ! -z "$PREVIEW_URL" ]; then
+            echo "🌐 Vercel Preview URL로 Lighthouse 측정: $PREVIEW_URL"
+
+            # Preview URL 접근 대기
+            echo "⏳ Preview 배포 완료 대기 중..."
+            sleep 10
+
+            # Preview 사이트 접근 확인
+            if curl -f "$PREVIEW_URL" > /dev/null 2>&1; then
+              echo "✅ Preview 사이트 접근 성공"
+
+              # 페이지별 Lighthouse 실행 (Vercel Preview)
+              CHANGED_PAGES="${{ steps.changed-pages.outputs.CHANGED_PAGES }}" \
+              LIGHTHOUSE_BASE_URL="$PREVIEW_URL" \
+              MAX_LIGHTHOUSE_PAGES=5 \
+              node .github/scripts/lighthouse-multi-page.js >> $GITHUB_OUTPUT
+            else
+              echo "❌ Preview 사이트 접근 실패 - 로컬 서버로 대체"
+              USE_PREVIEW="false"
+            fi
+          fi
+
+          if [ "$USE_PREVIEW" != "true" ]; then
+            echo "💻 로컬 서버로 Lighthouse 측정"
+            cd apps/web
+
+            # 프로덕션 서버 시작 (백그라운드)
+            pnpm start &
+            SERVER_PID=$!
+
+            # 서버 시작 대기
+            echo "🔄 서버 시작 대기 중..."
+            sleep 15
+
+            # 서버 상태 확인
+            if curl -f http://localhost:3000 > /dev/null 2>&1; then
+              echo "✅ 로컬 서버 정상 시작"
+
+              # 페이지별 Lighthouse 실행 (로컬)
+              CHANGED_PAGES="${{ steps.changed-pages.outputs.CHANGED_PAGES }}" \
+              LIGHTHOUSE_BASE_URL="http://localhost:3000" \
+              MAX_LIGHTHOUSE_PAGES=5 \
+              node ../../.github/scripts/lighthouse-multi-page.js >> $GITHUB_OUTPUT
+            else
+              echo "❌ 로컬 서버 시작 실패 - 시뮬레이션 모드"
+              echo "LIGHTHOUSE_PERFORMANCE=0" >> $GITHUB_OUTPUT
+              echo "LIGHTHOUSE_ACCESSIBILITY=0" >> $GITHUB_OUTPUT
+              echo "LIGHTHOUSE_BEST_PRACTICES=0" >> $GITHUB_OUTPUT
+              echo "LIGHTHOUSE_SEO=0" >> $GITHUB_OUTPUT
+              echo "LIGHTHOUSE_STATUS=server-failed" >> $GITHUB_OUTPUT
+            fi
+
+            # 서버 종료
+            kill $SERVER_PID 2>/dev/null || true
+          fi
 
       - name: 💬 PR 댓글 생성
         uses: actions/github-script@v7
@@ -212,26 +272,30 @@ jobs:
           # bundle-analysis
           BUNDLE_SIZE: ${{ steps.bundle-analysis.outputs.BUNDLE_SIZE }}
           TOTAL_JS_SIZE: ${{ steps.bundle-analysis.outputs.TOTAL_JS_SIZE }}
-          SPLIT_BUNDLE_SIZE: ${{ steps.bundle-analysis.outputs.SPLIT_BUNDLE_SIZE }}
-          SPLIT_JS_SIZE: ${{ steps.bundle-analysis.outputs.SPLIT_JS_SIZE }}
-          SPLIT_JS_COUNT: ${{ steps.bundle-analysis.outputs.SPLIT_JS_COUNT }}
-          SPLIT_CHUNKS: ${{ steps.bundle-analysis.outputs.SPLIT_CHUNKS }}
-          UNIFIED_BUNDLE_SIZE: ${{ steps.bundle-analysis.outputs.UNIFIED_BUNDLE_SIZE }}
-          UNIFIED_JS_SIZE: ${{ steps.bundle-analysis.outputs.UNIFIED_JS_SIZE }}
-          UNIFIED_JS_COUNT: ${{ steps.bundle-analysis.outputs.UNIFIED_JS_COUNT }}
-          UNIFIED_FILES: ${{ steps.bundle-analysis.outputs.UNIFIED_FILES }}
+          JS_COUNT: ${{ steps.bundle-analysis.outputs.JS_COUNT }}
+          MAIN_CHUNKS: ${{ steps.bundle-analysis.outputs.MAIN_CHUNKS }}
           # test-analysis
           TEST_ANALYSIS_MARKDOWN: ${{ steps.test-analysis.outputs.TEST_ANALYSIS_MARKDOWN }}
           TEST_SUCCESS_RATE: ${{ steps.test-analysis.outputs.TEST_SUCCESS_RATE }}
           COVERAGE_LINES: ${{ steps.test-analysis.outputs.COVERAGE_LINES }}
           # recommendations
           BUNDLE_RECOMMENDATIONS: ${{ steps.bundle-recommendations.outputs.BUNDLE_RECOMMENDATIONS }}
+          # changed-pages
+          CHANGED_PAGES: ${{ steps.changed-pages.outputs.CHANGED_PAGES }}
+          IMPACT_LEVEL: ${{ steps.changed-pages.outputs.IMPACT_LEVEL }}
+          TOTAL_CHANGED_PAGES: ${{ steps.changed-pages.outputs.TOTAL_PAGES }}
+          # preview-url
+          PREVIEW_URL: ${{ steps.preview-url.outputs.PREVIEW_URL }}
+          USE_PREVIEW: ${{ steps.preview-url.outputs.USE_PREVIEW }}
           # lighthouse
           LIGHTHOUSE_PERFORMANCE: ${{ steps.lighthouse.outputs.LIGHTHOUSE_PERFORMANCE }}
           LIGHTHOUSE_ACCESSIBILITY: ${{ steps.lighthouse.outputs.LIGHTHOUSE_ACCESSIBILITY }}
           LIGHTHOUSE_BEST_PRACTICES: ${{ steps.lighthouse.outputs.LIGHTHOUSE_BEST_PRACTICES }}
           LIGHTHOUSE_SEO: ${{ steps.lighthouse.outputs.LIGHTHOUSE_SEO }}
           LIGHTHOUSE_STATUS: ${{ steps.lighthouse.outputs.LIGHTHOUSE_STATUS }}
+          LIGHTHOUSE_TOTAL_PAGES: ${{ steps.lighthouse.outputs.LIGHTHOUSE_TOTAL_PAGES }}
+          LIGHTHOUSE_SUCCESSFUL_PAGES: ${{ steps.lighthouse.outputs.LIGHTHOUSE_SUCCESSFUL_PAGES }}
+          LIGHTHOUSE_DETAILED_RESULTS: ${{ steps.lighthouse.outputs.LIGHTHOUSE_DETAILED_RESULTS }}
         with:
           script: |
             const get = (k, d='') => process.env[k] ?? d;
@@ -261,16 +325,8 @@ jobs:
             // env에서 안전하게 읽기 (멀티라인 포함)
             const bundleSize = get('BUNDLE_SIZE', '정보 없음');
             const totalJsSize = get('TOTAL_JS_SIZE', '정보 없음');
-
-            const splitBundleSize = get('SPLIT_BUNDLE_SIZE', '정보 없음');
-            const splitJsSize = get('SPLIT_JS_SIZE', '정보 없음');
-            const splitJsCount = get('SPLIT_JS_COUNT', '0');
-            const splitChunks = get('SPLIT_CHUNKS', '');
-
-            const unifiedBundleSize = get('UNIFIED_BUNDLE_SIZE', '정보 없음');
-            const unifiedJsSize = get('UNIFIED_JS_SIZE', '정보 없음');
-            const unifiedJsCount = get('UNIFIED_JS_COUNT', '0');
-            const unifiedFiles = get('UNIFIED_FILES', '');
+            const jsCount = get('JS_COUNT', '0');
+            const mainChunks = get('MAIN_CHUNKS', '');
 
             const testMarkdown = get('TEST_ANALYSIS_MARKDOWN', '테스트 정보 없음');
             const testSuccessRate = get('TEST_SUCCESS_RATE', '0');
@@ -278,11 +334,24 @@ jobs:
 
             const bundleRecommendations = get('BUNDLE_RECOMMENDATIONS', '');
 
+            // 변경사항 분석
+            const changedPages = get('CHANGED_PAGES', '').split(',').filter(Boolean);
+            const impactLevel = get('IMPACT_LEVEL', 'low');
+            const totalChangedPages = get('TOTAL_CHANGED_PAGES', '0');
+
+            // Preview URL 정보
+            const previewUrl = get('PREVIEW_URL', '');
+            const usePreview = get('USE_PREVIEW', 'false');
+
+            // Lighthouse 결과
             const lighthousePerf = get('LIGHTHOUSE_PERFORMANCE', '0');
             const lighthouseA11y = get('LIGHTHOUSE_ACCESSIBILITY', '0');
             const lighthouseBP = get('LIGHTHOUSE_BEST_PRACTICES', '0');
             const lighthouseSEO = get('LIGHTHOUSE_SEO', '0');
             const lighthouseStatus = get('LIGHTHOUSE_STATUS', 'unavailable');
+            const lighthouseTotalPages = get('LIGHTHOUSE_TOTAL_PAGES', '0');
+            const lighthouseSuccessfulPages = get('LIGHTHOUSE_SUCCESSFUL_PAGES', '0');
+            const lighthouseDetailedResults = get('LIGHTHOUSE_DETAILED_RESULTS', '');
 
             const runId = get('RUN_ID', String(context.runId));
 
@@ -354,28 +423,21 @@ jobs:
 
             ### 🎯 번들 사이즈 분석
 
-            | 빌드 유형 | 정적 파일 | JavaScript | 파일 수 | 특징 |
-            |-----------|-----------|------------|---------|------|
-            | 🧩 **코드 스플리팅** | \`${splitBundleSize}\` | \`${splitJsSize}\` | ${splitJsCount}개 | 페이지별 분리, 캐싱 최적화 |
-            | 📦 **통합 번들** | \`${unifiedBundleSize}\` | \`${unifiedJsSize}\` | ${unifiedJsCount}개 | 전체 크기 확인, 단순한 구조 |
+            **📦 프로덕션 빌드**: \`${bundleSize}\` (정적 파일) | \`${totalJsSize}\` (JavaScript) | ${jsCount}개 파일
+
+            **상태**: ${getBundleSizeStatus(bundleSize)}
 
             <details>
-            <summary>🧩 코드 스플리팅 상세 (권장 방식)</summary>
+            <summary>📁 주요 청크 파일들</summary>
 
-            **주요 청크 파일들:**
             \`\`\`
-            ${splitChunks || '청크 정보 없음'}
+            ${mainChunks || '청크 정보 없음'}
             \`\`\`
 
-            </details>
-
-            <details>
-            <summary>📦 통합 번들 상세 (분석용)</summary>
-
-            **생성된 파일들:**
-            \`\`\`
-            ${unifiedFiles || '파일 정보 없음'}
-            \`\`\`
+            **특징:**
+            - ⚡ 코드 스플리팅으로 초기 로딩 최적화
+            - 🔄 페이지별 번들 분리로 효율적 캐싱
+            - 📱 사용자가 필요한 코드만 다운로드
 
             </details>
 
@@ -383,15 +445,23 @@ jobs:
 
             ${bundleRecommendations}
 
-            ### ⚡ Lighthouse 성능 지표
-            ${lighthouseStatus === 'simulated' ? '🔬 **시뮬레이션 점수** (실제 배포 시 정확한 측정)' : '🌐 **실제 측정 점수**'}
+            ### 🔍 PR 변경사항 분석
 
-            | 지표 | 점수 | 상태 |
-            |------|------|------|
+            **영향도**: ${impactLevel === 'high' ? '🔴 높음' : impactLevel === 'medium' ? '🟡 보통' : '🟢 낮음'} | **변경된 페이지**: ${totalChangedPages}개
+
+            ${changedPages.length > 0 ? `**측정 대상 페이지**: ${changedPages.join(', ')}` : '변경사항 없음'}
+
+            ${usePreview === 'true' && previewUrl ? `**🌐 측정 환경**: [Vercel Preview](${previewUrl}) (실제 배포 환경)` : '**💻 측정 환경**: 로컬 빌드 서버'}
+
+            ${lighthouseDetailedResults || `### ⚡ Lighthouse 성능 지표
+            ${lighthouseStatus === 'simulated' ? '🔬 **시뮬레이션 점수**' : lighthouseStatus === 'server-failed' ? '❌ **측정 실패** (서버 시작 오류)' : usePreview === 'true' ? '🌐 **실제 배포 환경 측정**' : '💻 **로컬 환경 측정**'} ${lighthouseTotalPages > 0 ? `(${lighthouseSuccessfulPages}/${lighthouseTotalPages} 페이지 성공)` : ''}
+
+            | 지표 | 평균 점수 | 상태 |
+            |------|-----------|------|
             | 🚀 Performance | ${lighthousePerf}점 | ${getLighthouseStatus(lighthousePerf)} |
             | ♿ Accessibility | ${lighthouseA11y}점 | ${getLighthouseStatus(lighthouseA11y)} |
             | ✅ Best Practices | ${lighthouseBP}점 | ${getLighthouseStatus(lighthouseBP)} |
-            | 🔍 SEO | ${lighthouseSEO}점 | ${getLighthouseStatus(lighthouseSEO)} |
+            | 🔍 SEO | ${lighthouseSEO}점 | ${getLighthouseStatus(lighthouseSEO)} |`}
 
             ### 🏆 전체 품질 점수
 
