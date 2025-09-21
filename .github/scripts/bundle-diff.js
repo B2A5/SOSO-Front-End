@@ -10,6 +10,8 @@ const path = require('path');
 function analyzeBundleDiff() {
   const currentBuildPath = 'apps/web/.next/static';
   const manifestPath = 'apps/web/.next/build-manifest.json';
+  const routesManifestPath = 'apps/web/.next/routes-manifest.json';
+  const appDirPath = 'apps/web/src/app';
 
   let analysis = {
     totalSizeChange: 0,
@@ -41,37 +43,74 @@ function analyzeBundleDiff() {
               const size = fs.statSync(filePath).size;
               const fileName = path.basename(file);
 
-              // 파일 타입 분류
+              // 개선된 파일 타입 분류 및 원본 경로 매핑
               let fileType = 'unknown';
               let displayName = fileName;
+              let originalPath = '';
 
+              // App Router 경로 매핑
+              if (page.startsWith('/')) {
+                const routePath =
+                  page === '/' ? '/page' : page + '/page';
+                originalPath = `app${routePath}.tsx`;
+
+                if (fileName.includes('layout')) {
+                  const layoutPath =
+                    page === '/' ? '/layout' : page + '/layout';
+                  originalPath = `app${layoutPath}.tsx`;
+                  fileType = 'layout';
+                  displayName = `📐 Layout (${originalPath})`;
+                } else if (fileName.includes('page')) {
+                  fileType = 'page';
+                  displayName = `📄 Page (${originalPath})`;
+                } else if (fileName.includes('loading')) {
+                  originalPath =
+                    page === '/'
+                      ? 'app/loading.tsx'
+                      : `app${page}/loading.tsx`;
+                  fileType = 'loading';
+                  displayName = `⏳ Loading (${originalPath})`;
+                } else if (fileName.includes('error')) {
+                  originalPath =
+                    page === '/'
+                      ? 'app/error.tsx'
+                      : `app${page}/error.tsx`;
+                  fileType = 'error';
+                  displayName = `❌ Error (${originalPath})`;
+                }
+              }
+
+              // 시스템 파일들
               if (fileName.includes('_app')) {
                 fileType = 'app';
-                displayName = '🚀 App Shell';
+                originalPath = 'pages/_app.tsx';
+                displayName = `🚀 App Shell (${originalPath})`;
               } else if (fileName.includes('_error')) {
                 fileType = 'error';
-                displayName = '❌ Error Page';
+                originalPath = 'pages/_error.tsx';
+                displayName = `❌ Error Page (${originalPath})`;
               } else if (fileName.includes('_document')) {
                 fileType = 'document';
-                displayName = '📄 Document';
-              } else if (fileName.includes('layout')) {
-                fileType = 'layout';
-                displayName = `📐 Layout (${page})`;
-              } else if (fileName.includes('page')) {
-                fileType = 'page';
-                displayName = `📄 Page (${page})`;
+                originalPath = 'pages/_document.tsx';
+                displayName = `📄 Document (${originalPath})`;
               } else if (fileName.match(/^\d+/)) {
                 fileType = 'chunk';
                 displayName = `📦 Shared Chunk (${fileName.split('-')[0]})`;
               } else if (fileName.includes('framework')) {
                 fileType = 'framework';
                 displayName = '⚛️ React Framework';
+              } else if (fileName.includes('main-bundle')) {
+                fileType = 'main';
+                displayName = '🏠 통합 Main Bundle';
               } else if (fileName.includes('main')) {
                 fileType = 'main';
                 displayName = '🏠 Main Bundle';
               } else if (fileName.includes('polyfill')) {
                 fileType = 'polyfill';
                 displayName = '🔧 Polyfills';
+              } else if (fileName.includes('webpack')) {
+                fileType = 'webpack';
+                displayName = '⚙️ Webpack Runtime';
               }
 
               analysis.bundleMapping[fileName] = {
@@ -79,6 +118,7 @@ function analyzeBundleDiff() {
                 fileType,
                 size,
                 page,
+                originalPath,
                 formattedSize: formatBytes(size),
               };
             }
@@ -152,8 +192,8 @@ function generateBundleRecommendations(analysis) {
   if (Object.keys(analysis.bundleMapping).length > 0) {
     markdown += `### 📦 번들 구성 상세
 
-| 파일 유형 | 크기 | 설명 |
-|-----------|------|------|
+| 파일 유형 | 크기 | 원본 경로 | 설명 |
+|-----------|------|----------|------|
 `;
 
     // 파일 타입별로 그룹화하여 표시
@@ -185,7 +225,10 @@ function generateBundleRecommendations(analysis) {
         groupedByType[type]
           .sort((a, b) => b.size - a.size) // 크기 순 정렬
           .forEach((info) => {
-            markdown += `| ${info.displayName} | \`${info.formattedSize}\` | ${info.page !== '/' ? `페이지: ${info.page}` : '공통'} |
+            const sourcePath = info.originalPath || '자동 생성';
+            const pageInfo =
+              info.page !== '/' ? `페이지: ${info.page}` : '공통';
+            markdown += `| ${info.displayName} | \`${info.formattedSize}\` | \`${sourcePath}\` | ${pageInfo} |
 `;
           });
       }
