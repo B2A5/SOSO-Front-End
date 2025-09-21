@@ -3,20 +3,20 @@ name: 📊 PR 분석 및 리포트
 on:
   workflow_run:
     workflows: ['CI']
-    types:
-      - completed
+    types: [completed]
   pull_request:
     types: [opened, synchronize]
 
 concurrency:
-  group: pr-analysis-${{ github.event.pull_request.number || github.event.workflow_run.pull_requests[0].number }}
+  # CHANGED: 안전한 그룹 키 (PR 번호 or workflow_run의 PR 번호 or run_id)
+  group: pr-analysis-${{ github.event.pull_request.number || github.event.workflow_run.pull_requests[0].number || github.run_id }}
   cancel-in-progress: true
 
 jobs:
   analyze:
     name: 🔍 번들 분석 및 성능 측정
     runs-on: ubuntu-latest
-    # CI 성공 시에만 실행
+    # CI 성공 시에만 실행 (PR 직접 실행도 허용)
     if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'pull_request' }}
     permissions:
       contents: read
@@ -26,6 +26,8 @@ jobs:
     steps:
       - name: 📥 Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: 📦 Setup pnpm
         uses: pnpm/action-setup@v3
@@ -43,45 +45,47 @@ jobs:
       - name: 📥 CI 빌드 결과 다운로드
         if: github.event_name == 'workflow_run'
         uses: actions/github-script@v7
+        env:
+          WORKFLOW_RUN_ID: ${{ github.event.workflow_run.id }}
         with:
           script: |
-            const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              run_id: ${{ github.event.workflow_run.id }},
-            });
-
-            const buildArtifact = artifacts.data.artifacts.find(function(artifact) { return artifact.name === 'build-outputs'; });
-            const coverageArtifact = artifacts.data.artifacts.find(function(artifact) { return artifact.name === 'coverage-reports'; });
-
-            if (buildArtifact) {
-              const download = await github.rest.actions.downloadArtifact({
+            const runId = process.env.WORKFLOW_RUN_ID;
+            if (!runId) {
+              core.info('No WORKFLOW_RUN_ID found (not a workflow_run event).');
+            } else {
+              const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                artifact_id: buildArtifact.id,
-                archive_format: 'zip',
+                run_id: Number(runId),
               });
 
-              const fs = require('fs');
-              fs.writeFileSync('build-outputs.zip', Buffer.from(download.data));
-
-              const childProcess = require('child_process');
-              childProcess.execSync('unzip -q build-outputs.zip && rm build-outputs.zip');
-            }
-
-            if (coverageArtifact) {
-              const download = await github.rest.actions.downloadArtifact({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                artifact_id: coverageArtifact.id,
-                archive_format: 'zip',
-              });
+              const buildArtifact = artifacts.data.artifacts.find(a => a.name === 'build-outputs');
+              const coverageArtifact = artifacts.data.artifacts.find(a => a.name === 'coverage-reports');
 
               const fs = require('fs');
-              fs.writeFileSync('coverage-reports.zip', Buffer.from(download.data));
+              const cp = require('child_process');
 
-              const childProcess = require('child_process');
-              childProcess.execSync('unzip -q coverage-reports.zip && rm coverage-reports.zip');
+              if (buildArtifact) {
+                const download = await github.rest.actions.downloadArtifact({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  artifact_id: buildArtifact.id,
+                  archive_format: 'zip',
+                });
+                fs.writeFileSync('build-outputs.zip', Buffer.from(download.data));
+                cp.execSync('unzip -q build-outputs.zip && rm build-outputs.zip');
+              }
+
+              if (coverageArtifact) {
+                const download = await github.rest.actions.downloadArtifact({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  artifact_id: coverageArtifact.id,
+                  archive_format: 'zip',
+                });
+                fs.writeFileSync('coverage-reports.zip', Buffer.from(download.data));
+                cp.execSync('unzip -q coverage-reports.zip && rm coverage-reports.zip');
+              }
             }
 
       - name: 📥 직접 실행 시 아티팩트 다운로드
@@ -139,10 +143,12 @@ jobs:
             echo "SPLIT_JS_SIZE=$SPLIT_JS_SIZE" >> $GITHUB_OUTPUT
             echo "SPLIT_JS_COUNT=$SPLIT_JS_COUNT" >> $GITHUB_OUTPUT
 
-            # 주요 청크 정보 추출
-            echo "SPLIT_CHUNKS<<EOF" >> $GITHUB_OUTPUT
-            find .next-split/static/chunks -name "*.js" -exec ls -lh {} \; 2>/dev/null | head -8 | awk '{print $9 " - " $5}' | sed 's|.*/||' >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
+            # 주요 청크 정보 추출 (멀티라인 출력)
+            {
+              echo "SPLIT_CHUNKS<<EOF"
+              find .next-split/static/chunks -name "*.js" -exec ls -lh {} \; 2>/dev/null | head -8 | awk '{print $9 " - " $5}' | sed 's|.*/||'
+              echo "EOF"
+            } >> $GITHUB_OUTPUT
 
             echo "✅ 코드 스플리팅 빌드 분석 완료"
           fi
@@ -157,15 +163,17 @@ jobs:
             echo "UNIFIED_JS_SIZE=$UNIFIED_JS_SIZE" >> $GITHUB_OUTPUT
             echo "UNIFIED_JS_COUNT=$UNIFIED_JS_COUNT" >> $GITHUB_OUTPUT
 
-            # 통합 번들 파일 정보
-            echo "UNIFIED_FILES<<EOF" >> $GITHUB_OUTPUT
-            find .next-unified/static -name "*.js" -exec ls -lh {} \; 2>/dev/null | awk '{print $9 " - " $5}' | sed 's|.*/||' >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
+            # 통합 번들 파일 정보 (멀티라인 출력)
+            {
+              echo "UNIFIED_FILES<<EOF"
+              find .next-unified/static -name "*.js" -exec ls -lh {} \; 2>/dev/null | awk '{print $9 " - " $5}' | sed 's|.*/||'
+              echo "EOF"
+            } >> $GITHUB_OUTPUT
 
             echo "✅ 통합 빌드 분석 완료"
           fi
 
-          # 기본값 설정 (호환성을 위해)
+          # 기본값 설정 (호환성)
           if [ -d ".next-split/static" ]; then
             echo "BUNDLE_SIZE=$SPLIT_BUNDLE_SIZE" >> $GITHUB_OUTPUT
             echo "TOTAL_JS_SIZE=$SPLIT_JS_SIZE" >> $GITHUB_OUTPUT
@@ -177,7 +185,6 @@ jobs:
       - name: 🧪 테스트 결과 상세 분석
         id: test-analysis
         run: |
-          # 테스트 분석 스크립트 실행
           cd apps/web
           if [ -f "coverage/coverage-summary.json" ]; then
             node ../../.github/scripts/analyze-test-results.js >> $GITHUB_OUTPUT
@@ -192,32 +199,51 @@ jobs:
         id: lighthouse
         continue-on-error: true
         run: |
-          # 간단한 Lighthouse 점수 시뮬레이션 (실제 배포 URL이 필요)
           echo "LIGHTHOUSE_PERFORMANCE=85" >> $GITHUB_OUTPUT
           echo "LIGHTHOUSE_ACCESSIBILITY=92" >> $GITHUB_OUTPUT
           echo "LIGHTHOUSE_BEST_PRACTICES=88" >> $GITHUB_OUTPUT
           echo "LIGHTHOUSE_SEO=90" >> $GITHUB_OUTPUT
           echo "LIGHTHOUSE_STATUS=simulated" >> $GITHUB_OUTPUT
 
-          # 실제 프로덕션에서는 아래와 같이 사용:
-          # npm install -g @lhci/cli
-          # lhci autorun --collect.url=https://your-deployed-pr-url.vercel.app
-
       - name: 💬 PR 댓글 생성
         uses: actions/github-script@v7
+        env:
+          RUN_ID: ${{ github.run_id }}
+          # bundle-analysis
+          BUNDLE_SIZE: ${{ steps.bundle-analysis.outputs.BUNDLE_SIZE }}
+          TOTAL_JS_SIZE: ${{ steps.bundle-analysis.outputs.TOTAL_JS_SIZE }}
+          SPLIT_BUNDLE_SIZE: ${{ steps.bundle-analysis.outputs.SPLIT_BUNDLE_SIZE }}
+          SPLIT_JS_SIZE: ${{ steps.bundle-analysis.outputs.SPLIT_JS_SIZE }}
+          SPLIT_JS_COUNT: ${{ steps.bundle-analysis.outputs.SPLIT_JS_COUNT }}
+          SPLIT_CHUNKS: ${{ steps.bundle-analysis.outputs.SPLIT_CHUNKS }}
+          UNIFIED_BUNDLE_SIZE: ${{ steps.bundle-analysis.outputs.UNIFIED_BUNDLE_SIZE }}
+          UNIFIED_JS_SIZE: ${{ steps.bundle-analysis.outputs.UNIFIED_JS_SIZE }}
+          UNIFIED_JS_COUNT: ${{ steps.bundle-analysis.outputs.UNIFIED_JS_COUNT }}
+          UNIFIED_FILES: ${{ steps.bundle-analysis.outputs.UNIFIED_FILES }}
+          # test-analysis
+          TEST_ANALYSIS_MARKDOWN: ${{ steps.test-analysis.outputs.TEST_ANALYSIS_MARKDOWN }}
+          TEST_SUCCESS_RATE: ${{ steps.test-analysis.outputs.TEST_SUCCESS_RATE }}
+          COVERAGE_LINES: ${{ steps.test-analysis.outputs.COVERAGE_LINES }}
+          # recommendations
+          BUNDLE_RECOMMENDATIONS: ${{ steps.bundle-recommendations.outputs.BUNDLE_RECOMMENDATIONS }}
+          # lighthouse
+          LIGHTHOUSE_PERFORMANCE: ${{ steps.lighthouse.outputs.LIGHTHOUSE_PERFORMANCE }}
+          LIGHTHOUSE_ACCESSIBILITY: ${{ steps.lighthouse.outputs.LIGHTHOUSE_ACCESSIBILITY }}
+          LIGHTHOUSE_BEST_PRACTICES: ${{ steps.lighthouse.outputs.LIGHTHOUSE_BEST_PRACTICES }}
+          LIGHTHOUSE_SEO: ${{ steps.lighthouse.outputs.LIGHTHOUSE_SEO }}
+          LIGHTHOUSE_STATUS: ${{ steps.lighthouse.outputs.LIGHTHOUSE_STATUS }}
         with:
           script: |
-            const fs = require('fs');
-            const path = require('path');
+            const get = (k, d='') => process.env[k] ?? d;
 
             // PR 번호 확인
             let prNumber;
             if (context.issue && context.issue.number) {
               prNumber = context.issue.number;
-            } else if (context.payload.workflow_run && context.payload.workflow_run.pull_requests[0]) {
+            } else if (context.payload.workflow_run && context.payload.workflow_run.pull_requests && context.payload.workflow_run.pull_requests[0]) {
               prNumber = context.payload.workflow_run.pull_requests[0].number;
             } else {
-              console.log('PR 번호를 찾을 수 없습니다.');
+              core.info('PR 번호를 찾을 수 없습니다.');
               return;
             }
 
@@ -227,62 +253,48 @@ jobs:
               repo: context.repo.repo,
               issue_number: prNumber,
             });
+            const comments = commentsResponse.data || [];
+            const botComment = comments.find(c =>
+              c.user?.type === 'Bot' && typeof c.body === 'string' && c.body.includes('📊 PR 분석 리포트')
+            );
 
-            const comments = commentsResponse.data;
-            const botComment = comments.find(function(comment) {
-              return comment.user.type === 'Bot' &&
-                comment.body.includes('📊 PR 분석 리포트');
-            });
+            // env에서 안전하게 읽기 (멀티라인 포함)
+            const bundleSize = get('BUNDLE_SIZE', '정보 없음');
+            const totalJsSize = get('TOTAL_JS_SIZE', '정보 없음');
 
-            // 번들 사이즈 정보 (기본값)
-            const bundleSize = '${{ steps.bundle-analysis.outputs.BUNDLE_SIZE }}' || '정보 없음';
-            const totalJsSize = '${{ steps.bundle-analysis.outputs.TOTAL_JS_SIZE }}' || '정보 없음';
+            const splitBundleSize = get('SPLIT_BUNDLE_SIZE', '정보 없음');
+            const splitJsSize = get('SPLIT_JS_SIZE', '정보 없음');
+            const splitJsCount = get('SPLIT_JS_COUNT', '0');
+            const splitChunks = get('SPLIT_CHUNKS', '');
 
-            // 코드 스플리팅 빌드 정보
-            const splitBundleSize = '${{ steps.bundle-analysis.outputs.SPLIT_BUNDLE_SIZE }}' || '정보 없음';
-            const splitJsSize = '${{ steps.bundle-analysis.outputs.SPLIT_JS_SIZE }}' || '정보 없음';
-            const splitJsCount = '${{ steps.bundle-analysis.outputs.SPLIT_JS_COUNT }}' || '0';
-            const splitChunks = `${{ steps.bundle-analysis.outputs.SPLIT_CHUNKS }}` || '';
+            const unifiedBundleSize = get('UNIFIED_BUNDLE_SIZE', '정보 없음');
+            const unifiedJsSize = get('UNIFIED_JS_SIZE', '정보 없음');
+            const unifiedJsCount = get('UNIFIED_JS_COUNT', '0');
+            const unifiedFiles = get('UNIFIED_FILES', '');
 
-            // 통합 빌드 정보
-            const unifiedBundleSize = '${{ steps.bundle-analysis.outputs.UNIFIED_BUNDLE_SIZE }}' || '정보 없음';
-            const unifiedJsSize = '${{ steps.bundle-analysis.outputs.UNIFIED_JS_SIZE }}' || '정보 없음';
-            const unifiedJsCount = '${{ steps.bundle-analysis.outputs.UNIFIED_JS_COUNT }}' || '0';
-            const unifiedFiles = `${{ steps.bundle-analysis.outputs.UNIFIED_FILES }}` || '';
+            const testMarkdown = get('TEST_ANALYSIS_MARKDOWN', '테스트 정보 없음');
+            const testSuccessRate = get('TEST_SUCCESS_RATE', '0');
+            const coverageLines = get('COVERAGE_LINES', '0');
 
-            // 테스트 정보 (상세 분석 결과 사용)
-            const testMarkdown = `${{ steps.test-analysis.outputs.TEST_ANALYSIS_MARKDOWN }}` || '테스트 정보 없음';
-            const testSuccessRate = '${{ steps.test-analysis.outputs.TEST_SUCCESS_RATE }}' || '0';
-            const coverageLines = '${{ steps.test-analysis.outputs.COVERAGE_LINES }}' || '0';
+            const bundleRecommendations = get('BUNDLE_RECOMMENDATIONS', '');
 
-            // 번들 권장사항
-            const bundleRecommendations = `${{ steps.bundle-recommendations.outputs.BUNDLE_RECOMMENDATIONS }}` || '';
+            const lighthousePerf = get('LIGHTHOUSE_PERFORMANCE', '0');
+            const lighthouseA11y = get('LIGHTHOUSE_ACCESSIBILITY', '0');
+            const lighthouseBP = get('LIGHTHOUSE_BEST_PRACTICES', '0');
+            const lighthouseSEO = get('LIGHTHOUSE_SEO', '0');
+            const lighthouseStatus = get('LIGHTHOUSE_STATUS', 'unavailable');
 
-            // Lighthouse 점수
-            const lighthousePerf = '${{ steps.lighthouse.outputs.LIGHTHOUSE_PERFORMANCE }}' || '0';
-            const lighthouseA11y = '${{ steps.lighthouse.outputs.LIGHTHOUSE_ACCESSIBILITY }}' || '0';
-            const lighthouseBP = '${{ steps.lighthouse.outputs.LIGHTHOUSE_BEST_PRACTICES }}' || '0';
-            const lighthouseSEO = '${{ steps.lighthouse.outputs.LIGHTHOUSE_SEO }}' || '0';
-            const lighthouseStatus = '${{ steps.lighthouse.outputs.LIGHTHOUSE_STATUS }}' || 'unavailable';
+            const runId = get('RUN_ID', String(context.runId));
 
-            // 성능 점수 계산 함수 (개선된 버전)
+            // 점수 계산 함수들
             function calculatePerformanceScore(testSuccessRate, coverageLines, bundleSize, lighthousePerf) {
-              // 가중치 설정
-              const weights = {
-                test: 0.25,      // 테스트 성공률 25%
-                coverage: 0.25,  // 코드 커버리지 25%
-                bundle: 0.25,    // 번들 크기 25%
-                lighthouse: 0.25 // Lighthouse 성능 25%
-              };
-
-              // 각 점수 계산
+              const weights = { test: 0.25, coverage: 0.25, bundle: 0.25, lighthouse: 0.25 };
               const testScore = Math.min(parseFloat(testSuccessRate) || 0, 100) * weights.test;
               const coverageScore = Math.min(parseFloat(coverageLines) || 0, 100) * weights.coverage;
 
-              // 번들 크기 점수 (개선된 계산)
-              let bundleScore = 25; // 기본 점수
+              let bundleScore = 25;
               if (bundleSize.includes('K')) {
-                bundleScore = 25; // KB 단위는 매우 좋음
+                bundleScore = 25;
               } else if (bundleSize.includes('M')) {
                 const sizeMB = parseFloat(bundleSize.replace('M', ''));
                 if (sizeMB < 0.5) bundleScore = 25;
@@ -294,17 +306,14 @@ jobs:
               }
               bundleScore *= weights.bundle;
 
-              // Lighthouse 성능 점수
               const lighthouseScore = (parseFloat(lighthousePerf) || 0) * weights.lighthouse;
 
               const totalScore = Math.round(testScore + coverageScore + bundleScore + lighthouseScore);
-
-              let grade, emoji;
+              let grade = 'D', emoji = '⚠️';
               if (totalScore >= 90) { grade = 'A+'; emoji = '🏆'; }
               else if (totalScore >= 80) { grade = 'A'; emoji = '🥇'; }
               else if (totalScore >= 70) { grade = 'B'; emoji = '🥈'; }
               else if (totalScore >= 60) { grade = 'C'; emoji = '🥉'; }
-              else { grade = 'D'; emoji = '⚠️'; }
 
               return {
                 score: totalScore,
@@ -319,7 +328,7 @@ jobs:
               };
             }
 
-            function getBundleSizeScore(bundleSize) {
+            function getBundleSizeStatus(bundleSize) {
               if (bundleSize.includes('K')) return '🟢 매우 좋음';
               if (bundleSize.includes('M')) {
                 const sizeMB = parseFloat(bundleSize.replace('M', ''));
@@ -339,9 +348,8 @@ jobs:
               return '🔴 개선 필요';
             }
 
-            const performanceScore = calculatePerformanceScore(testSuccessRate, coverageLines, bundleSize, lighthousePerf);
+            const perf = calculatePerformanceScore(testSuccessRate, coverageLines, bundleSize, lighthousePerf);
 
-            // 댓글 내용 생성
             const commentBody = `## 📊 PR 분석 리포트
 
             ### 🎯 번들 사이즈 분석
@@ -359,11 +367,6 @@ jobs:
             ${splitChunks || '청크 정보 없음'}
             \`\`\`
 
-            **장점:**
-            - ⚡ 초기 로딩 속도 향상 (필요한 청크만 로드)
-            - 🔄 효율적인 캐싱 (변경되지 않은 청크 재사용)
-            - 📱 모바일 친화적 (작은 초기 번들)
-
             </details>
 
             <details>
@@ -374,11 +377,6 @@ jobs:
             ${unifiedFiles || '파일 정보 없음'}
             \`\`\`
 
-            **용도:**
-            - 🔍 전체 앱 크기 한눈에 파악
-            - 📊 라이브러리 의존성 분석
-            - 🎯 최적화 대상 식별
-
             </details>
 
             ${testMarkdown}
@@ -386,7 +384,6 @@ jobs:
             ${bundleRecommendations}
 
             ### ⚡ Lighthouse 성능 지표
-
             ${lighthouseStatus === 'simulated' ? '🔬 **시뮬레이션 점수** (실제 배포 시 정확한 측정)' : '🌐 **실제 측정 점수**'}
 
             | 지표 | 점수 | 상태 |
@@ -398,40 +395,27 @@ jobs:
 
             ### 🏆 전체 품질 점수
 
-            ${performanceScore.emoji} **${performanceScore.score}/100** (${performanceScore.grade})
+            ${perf.emoji} **${perf.score}/100** (${perf.grade})
 
             <details>
             <summary>📊 점수 구성 상세</summary>
 
             **가중치 기준 (각 25%):**
-            - 🧪 테스트 성공률: ${testSuccessRate}% → **${performanceScore.breakdown.test}점**
-            - 🎯 코드 커버리지: ${coverageLines}% → **${performanceScore.breakdown.coverage}점**
-            - 📦 번들 최적화: ${getBundleSizeScore(bundleSize)} → **${performanceScore.breakdown.bundle}점**
-            - ⚡ Lighthouse 성능: ${lighthousePerf}점 → **${performanceScore.breakdown.lighthouse}점**
-
-            **등급 기준:**
-            - 🏆 A+ (90점 이상): 매우 우수
-            - 🥇 A (80-89점): 우수
-            - 🥈 B (70-79점): 양호
-            - 🥉 C (60-69점): 보통
-            - ⚠️ D (60점 미만): 개선 필요
+            - 🧪 테스트 성공률: ${testSuccessRate}% → **${perf.breakdown.test}점**
+            - 🎯 코드 커버리지: ${coverageLines}% → **${perf.breakdown.coverage}점**
+            - 📦 번들 최적화: ${getBundleSizeStatus(bundleSize)} → **${perf.breakdown.bundle}점**
+            - ⚡ Lighthouse 성능: ${lighthousePerf}점 → **${perf.breakdown.lighthouse}점**
 
             </details>
 
             <details>
             <summary>📈 상세 분석 리포트</summary>
 
-            - **번들 분석**: [상세보기](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${{ github.run_id }})
-            - **테스트 커버리지**: [HTML 리포트](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${{ github.run_id }})
-            - **빌드 로그**: [전체 로그](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${{ github.run_id }})
+            - **번들 분석**: https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${runId}
+            - **테스트 커버리지**: https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${runId}
+            - **빌드 로그**: https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${runId}
 
             </details>
-
-            ### 🔗 유용한 링크
-
-            - 📊 [번들 분석 상세보기](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${{ github.run_id }})
-            - 🧪 [테스트 커버리지 리포트](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${{ github.run_id }})
-            - 🏗️ [빌드 로그](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${{ github.run_id }})
 
             ---
 
@@ -439,7 +423,6 @@ jobs:
             > 📅 마지막 업데이트: ${new Date().toLocaleString('ko-KR')}`;
 
             if (botComment) {
-              // 기존 댓글 업데이트
               await github.rest.issues.updateComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -447,7 +430,6 @@ jobs:
                 body: commentBody
               });
             } else {
-              // 새 댓글 생성
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
