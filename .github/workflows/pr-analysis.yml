@@ -51,8 +51,8 @@ jobs:
               run_id: ${{ github.event.workflow_run.id }},
             });
 
-            const buildArtifact = artifacts.data.artifacts.find(artifact => artifact.name === 'build-outputs');
-            const coverageArtifact = artifacts.data.artifacts.find(artifact => artifact.name === 'coverage-reports');
+            const buildArtifact = artifacts.data.artifacts.find(function(artifact) { return artifact.name === 'build-outputs'; });
+            const coverageArtifact = artifacts.data.artifacts.find(function(artifact) { return artifact.name === 'coverage-reports'; });
 
             if (buildArtifact) {
               const download = await github.rest.actions.downloadArtifact({
@@ -65,8 +65,8 @@ jobs:
               const fs = require('fs');
               fs.writeFileSync('build-outputs.zip', Buffer.from(download.data));
 
-              const { execSync } = require('child_process');
-              execSync('unzip -q build-outputs.zip && rm build-outputs.zip');
+              const childProcess = require('child_process');
+              childProcess.execSync('unzip -q build-outputs.zip && rm build-outputs.zip');
             }
 
             if (coverageArtifact) {
@@ -80,8 +80,8 @@ jobs:
               const fs = require('fs');
               fs.writeFileSync('coverage-reports.zip', Buffer.from(download.data));
 
-              const { execSync } = require('child_process');
-              execSync('unzip -q coverage-reports.zip && rm coverage-reports.zip');
+              const childProcess = require('child_process');
+              childProcess.execSync('unzip -q coverage-reports.zip && rm coverage-reports.zip');
             }
 
       - name: 📥 직접 실행 시 아티팩트 다운로드
@@ -222,16 +222,17 @@ jobs:
             }
 
             // 기존 봇 댓글 찾기
-            const { data: comments } = await github.rest.issues.listComments({
+            const commentsResponse = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: prNumber,
             });
 
-            const botComment = comments.find(comment =>
-              comment.user.type === 'Bot' &&
-              comment.body.includes('📊 PR 분석 리포트')
-            );
+            const comments = commentsResponse.data;
+            const botComment = comments.find(function(comment) {
+              return comment.user.type === 'Bot' &&
+                comment.body.includes('📊 PR 분석 리포트');
+            });
 
             // 번들 사이즈 정보 (기본값)
             const bundleSize = '${{ steps.bundle-analysis.outputs.BUNDLE_SIZE }}' || '정보 없음';
