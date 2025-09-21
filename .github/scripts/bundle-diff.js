@@ -10,14 +10,8 @@ const path = require('path');
 function analyzeBundleDiff() {
   const currentBuildPath = 'apps/web/.next/static';
   const manifestPath = 'apps/web/.next/build-manifest.json';
-  const routesManifestPath = 'apps/web/.next/routes-manifest.json';
-  const appDirPath = 'apps/web/src/app';
 
   let analysis = {
-    totalSizeChange: 0,
-    newFiles: [],
-    deletedFiles: [],
-    modifiedFiles: [],
     recommendations: [],
     bundleMapping: {},
   };

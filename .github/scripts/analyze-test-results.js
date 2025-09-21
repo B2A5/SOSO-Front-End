@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 const fs = require('fs');
-const path = require('path');
 
 /**
  * 테스트 결과를 분석하고 PR 댓글용 마크다운을 생성합니다.
@@ -17,7 +16,6 @@ function analyzeTestResults() {
     testsFailed: 0,
     testsSkipped: 0,
     coverage: null,
-    newTests: [],
     failedTests: [],
   };
 
@@ -203,16 +201,6 @@ console.log('EOF');
 console.log(
   `TEST_SUCCESS_RATE=${analysis.testsRun > 0 ? ((analysis.testsPassed / analysis.testsRun) * 100).toFixed(1) : '0'}`,
 );
-console.log(`TEST_TOTAL=${analysis.testsRun}`);
-console.log(`TEST_PASSED=${analysis.testsPassed}`);
-console.log(`TEST_FAILED=${analysis.testsFailed}`);
-
 if (analysis.coverage?.total) {
   console.log(`COVERAGE_LINES=${analysis.coverage.total.lines.pct}`);
-  console.log(
-    `COVERAGE_FUNCTIONS=${analysis.coverage.total.functions.pct}`,
-  );
-  console.log(
-    `COVERAGE_BRANCHES=${analysis.coverage.total.branches.pct}`,
-  );
 }

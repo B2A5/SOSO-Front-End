@@ -81,26 +81,11 @@ jobs:
           echo "BASE_SHA=$BASE_SHA"
           echo "filter=--filter=...[$BASE_SHA]" >> $GITHUB_OUTPUT
 
-        # 린트 → 타입체크 → 빌드 → 테스트
-      - name: ⚡ Lint 체크
+        # 통합 실행: 린트 → 타입체크 → 빌드 → 테스트 (그래프 재계산 최소화)
+      - name: ⚡ 통합 검증 및 빌드
         run: |
           FILTER="${{ steps.affected.outputs.filter }}"
-          pnpm turbo run lint --cache-dir=".turbo" ${FILTER}
-
-      - name: ⚡ TypeScript 타입 체크
-        run: |
-          FILTER="${{ steps.affected.outputs.filter }}"
-          pnpm turbo run typecheck --cache-dir=".turbo" ${FILTER}
-
-      - name: ⚡ Build
-        run: |
-          FILTER="${{ steps.affected.outputs.filter }}"
-          pnpm turbo run build --cache-dir=".turbo" ${FILTER}
-
-      - name: 🧪 테스트 실행 및 커버리지 생성
-        run: |
-          FILTER="${{ steps.affected.outputs.filter }}"
-          pnpm turbo run test:coverage --cache-dir=".turbo" ${FILTER}
+          pnpm turbo run lint typecheck build test:coverage --cache-dir=".turbo" ${FILTER}
 
       # 커버리지/빌드 산출물 업로드
       - name: Upload coverage artifact
@@ -111,16 +96,20 @@ jobs:
           path: |
             **/coverage/**
           if-no-files-found: ignore
+          retention-days: 3
 
-      # 빌드 결과 업로드 (PR 분석용)
+      # 빌드 결과 업로드 (PR 분석용) - 필수 파일만 업로드
       - name: Upload build artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: build-outputs
           path: |
-            **/.next/**
+            apps/web/.next/static/**
+            apps/web/.next/server/**
+            apps/web/.next/build-manifest.json
+            apps/web/.next/routes-manifest.json
             **/dist/**
             **/build/**
           if-no-files-found: ignore
-          retention-days: 1
+          retention-days: 3

@@ -76,11 +76,9 @@ async function runLighthouseMultiPage() {
         );
 
         // 개별 페이지 결과 출력
-        console.log(
-          `LIGHTHOUSE_${page.replace(/\//g, '_').toUpperCase()}_PERFORMANCE=${pageResult.scores.performance}`,
-        );
-        console.log(
-          `LIGHTHOUSE_${page.replace(/\//g, '_').toUpperCase()}_ACCESSIBILITY=${pageResult.scores.accessibility}`,
+        // 페이지별 결과는 디버그 로그로만 출력 (GitHub Output 충돌 방지)
+        console.error(
+          `페이지별 성과: ${page} - Performance: ${pageResult.scores.performance}점, Accessibility: ${pageResult.scores.accessibility}점`,
         );
 
         // 정리
@@ -159,23 +157,27 @@ function calculateSummary(results) {
  * GitHub Actions 환경변수로 결과 출력
  */
 function outputResults(results, summary) {
-  // 전체 요약
-  console.log(`LIGHTHOUSE_PERFORMANCE=${summary.averagePerformance}`);
-  console.log(
-    `LIGHTHOUSE_ACCESSIBILITY=${summary.averageAccessibility}`,
+  // 전체 요약 - process.stdout.write 사용으로 안정적 출력
+  process.stdout.write(
+    `LIGHTHOUSE_PERFORMANCE=${summary.averagePerformance}\n`,
   );
-  console.log(
-    `LIGHTHOUSE_BEST_PRACTICES=${summary.averageBestPractices}`,
+  process.stdout.write(
+    `LIGHTHOUSE_ACCESSIBILITY=${summary.averageAccessibility}\n`,
   );
-  console.log(`LIGHTHOUSE_SEO=${summary.averageSeo}`);
-  console.log(`LIGHTHOUSE_STATUS=${summary.status}`);
-  console.log(`LIGHTHOUSE_TOTAL_PAGES=${summary.totalPages}`);
-  console.log(
-    `LIGHTHOUSE_SUCCESSFUL_PAGES=${summary.successfulPages}`,
+  process.stdout.write(
+    `LIGHTHOUSE_BEST_PRACTICES=${summary.averageBestPractices}\n`,
+  );
+  process.stdout.write(`LIGHTHOUSE_SEO=${summary.averageSeo}\n`);
+  process.stdout.write(`LIGHTHOUSE_STATUS=${summary.status}\n`);
+  process.stdout.write(
+    `LIGHTHOUSE_TOTAL_PAGES=${summary.totalPages}\n`,
+  );
+  process.stdout.write(
+    `LIGHTHOUSE_SUCCESSFUL_PAGES=${summary.successfulPages}\n`,
   );
 
-  // 상세 결과 (마크다운)
-  console.log(`LIGHTHOUSE_DETAILED_RESULTS<<EOF`);
+  // 상세 결과 (마크다운) - 멀티라인 출력
+  process.stdout.write(`LIGHTHOUSE_DETAILED_RESULTS<<EOF\n`);
 
   let markdown = `### ⚡ 페이지별 Lighthouse 분석 결과\n\n`;
   markdown += `**📊 전체 요약** (${summary.successfulPages}/${summary.totalPages} 페이지 성공)\n\n`;
@@ -212,8 +214,8 @@ function outputResults(results, summary) {
     markdown += `- 페이지가 정상적으로 로드되는지 확인해주세요\n\n`;
   }
 
-  console.log(markdown);
-  console.log(`EOF`);
+  process.stdout.write(markdown);
+  process.stdout.write(`EOF\n`);
 }
 
 /**
@@ -228,5 +230,16 @@ function getScoreStatus(score) {
 
 // 메인 실행
 if (require.main === module) {
-  runLighthouseMultiPage().catch(console.error);
+  runLighthouseMultiPage().catch((error) => {
+    console.error('Lighthouse 스크립트 실행 중 오류:', error.message);
+    // 기본값 출력 (GitHub Actions가 실패하지 않도록)
+    process.stdout.write(`LIGHTHOUSE_PERFORMANCE=0\n`);
+    process.stdout.write(`LIGHTHOUSE_ACCESSIBILITY=0\n`);
+    process.stdout.write(`LIGHTHOUSE_BEST_PRACTICES=0\n`);
+    process.stdout.write(`LIGHTHOUSE_SEO=0\n`);
+    process.stdout.write(`LIGHTHOUSE_STATUS=failed\n`);
+    process.stdout.write(`LIGHTHOUSE_TOTAL_PAGES=0\n`);
+    process.stdout.write(`LIGHTHOUSE_SUCCESSFUL_PAGES=0\n`);
+    process.exit(1);
+  });
 }

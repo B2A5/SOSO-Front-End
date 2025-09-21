@@ -1,8 +1,5 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const path = require('path');
-
 /**
  * PR에서 변경된 파일들을 분석하여 영향받는 페이지 경로를 감지합니다.
  */
@@ -91,7 +88,6 @@ function detectChangedPages() {
 
   const result = {
     changedPages: Array.from(pages),
-    changedComponents: Array.from(components),
     impactLevel:
       pages.size > 3 ? 'high' : pages.size > 1 ? 'medium' : 'low',
   };
@@ -105,14 +101,20 @@ function detectChangedPages() {
 }
 
 // GitHub Actions 환경변수로 출력
-const analysis = detectChangedPages();
+try {
+  const analysis = detectChangedPages();
 
-console.log(`CHANGED_PAGES<<EOF`);
-console.log(analysis.changedPages.join(','));
-console.log(`EOF`);
+  // GitHub Actions 멀티라인 출력 형식
+  process.stdout.write(`CHANGED_PAGES<<EOF\n`);
+  process.stdout.write(`${analysis.changedPages.join(',')}\n`);
+  process.stdout.write(`EOF\n`);
 
-console.log(`IMPACT_LEVEL=${analysis.impactLevel}`);
-console.log(`TOTAL_PAGES=${analysis.changedPages.length}`);
-console.log(
-  `CHANGED_COMPONENTS=${analysis.changedComponents.length}`,
-);
+  // 단일 라인 출력
+  process.stdout.write(`IMPACT_LEVEL=${analysis.impactLevel}\n`);
+  process.stdout.write(
+    `TOTAL_PAGES=${analysis.changedPages.length}\n`,
+  );
+} catch (error) {
+  console.error('스크립트 실행 중 오류:', error.message);
+  process.exit(1);
+}
