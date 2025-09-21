@@ -183,23 +183,23 @@ function outputResults(results, summary) {
   markdown += `**📊 전체 요약** (${summary.successfulPages}/${summary.totalPages} 페이지 성공)\n\n`;
 
   if (summary.successfulPages > 0) {
-    markdown += `| 지표 | 평균 점수 | 상태 |\n`;
-    markdown += `|------|----------|------|\n`;
-    markdown += `| 🚀 Performance | ${summary.averagePerformance}점 | ${getScoreStatus(summary.averagePerformance)} |\n`;
-    markdown += `| ♿ Accessibility | ${summary.averageAccessibility}점 | ${getScoreStatus(summary.averageAccessibility)} |\n`;
-    markdown += `| ✅ Best Practices | ${summary.averageBestPractices}점 | ${getScoreStatus(summary.averageBestPractices)} |\n`;
-    markdown += `| 🔍 SEO | ${summary.averageSeo}점 | ${getScoreStatus(summary.averageSeo)} |\n\n`;
+    markdown += `| 지표 | 평균 점수 |\n`;
+    markdown += `|------|----------|\n`;
+    markdown += `| 🚀 Performance | ${summary.averagePerformance}점 |\n`;
+    markdown += `| ♿ Accessibility | ${summary.averageAccessibility}점 |\n`;
+    markdown += `| ✅ Best Practices | ${summary.averageBestPractices}점 |\n`;
+    markdown += `| 🔍 SEO | ${summary.averageSeo}점 |\n\n`;
 
     markdown += `<details>\n<summary>📄 페이지별 상세 결과</summary>\n\n`;
-    markdown += `| 페이지 | Performance | Accessibility | Best Practices | SEO | 상태 |\n`;
-    markdown += `|--------|-------------|---------------|----------------|-----|------|\n`;
+    markdown += `| 페이지 | Performance | Accessibility | Best Practices | SEO |\n`;
+    markdown += `|--------|-------------|---------------|----------------|-----|\n`;
 
     results.forEach((result) => {
       if (result.error) {
-        markdown += `| ${result.page} | - | - | - | - | ❌ 측정 실패 |\n`;
+        markdown += `| ${result.page} | ❌ 실패 | ❌ 실패 | ❌ 실패 | ❌ 실패 |\n`;
       } else {
         const { scores } = result;
-        markdown += `| ${result.page} | ${scores.performance}점 | ${scores.accessibility}점 | ${scores.bestPractices}점 | ${scores.seo}점 | ✅ 성공 |\n`;
+        markdown += `| ${result.page} | ${scores.performance}점 | ${scores.accessibility}점 | ${scores.bestPractices}점 | ${scores.seo}점 |\n`;
       }
     });
 
@@ -216,16 +216,6 @@ function outputResults(results, summary) {
 
   process.stdout.write(markdown);
   process.stdout.write(`EOF\n`);
-}
-
-/**
- * 점수 상태 표시
- */
-function getScoreStatus(score) {
-  if (score >= 90) return '🟢 우수';
-  if (score >= 75) return '🟡 양호';
-  if (score >= 50) return '🟠 보통';
-  return '🔴 개선 필요';
 }
 
 // 메인 실행

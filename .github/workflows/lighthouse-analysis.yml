@@ -1,0 +1,255 @@
+name: ⚡ Lighthouse 성능 분석
+
+on:
+  workflow_run:
+    workflows: ['Preview']
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR 번호 (선택사항)'
+        required: false
+        type: string
+      base_url:
+        description: '측정할 베이스 URL (기본값: Preview URL 자동 감지)'
+        required: false
+        type: string
+
+concurrency:
+  group: lighthouse-analysis-${{ (github.event.workflow_run.pull_requests[0] && github.event.workflow_run.pull_requests[0].number) || github.event.inputs.pr_number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: ⚡ Lighthouse 성능 측정
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    permissions:
+      contents: read
+      pull-requests: write
+      actions: read
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@v3
+        with: { version: 9 }
+
+      - name: 🏗️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: 📂 Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🔍 Preview URL 감지
+        id: preview-url
+        run: |
+          PREVIEW_URL="${{ github.event.inputs.base_url }}"
+
+          if [ -z "$PREVIEW_URL" ] && [ "${{ github.event_name }}" = "workflow_run" ] && [ "${{ github.event.workflow_run.name }}" = "Preview" ]; then
+            echo "🔍 Preview 워크플로우에서 URL 자동 감지 중..."
+
+            PR_NUMBER="${{ github.event.workflow_run.pull_requests[0].number }}"
+            if [ ! -z "$PR_NUMBER" ]; then
+              # PR 댓글에서 Preview URL 찾기
+              COMMENTS=$(gh api repos/${{ github.repository }}/issues/$PR_NUMBER/comments --jq '.[].body')
+              PREVIEW_URL=$(echo "$COMMENTS" | grep -o 'https://[^[:space:]]*\.vercel\.app' | head -1)
+
+              if [ ! -z "$PREVIEW_URL" ]; then
+                echo "✅ Preview URL 발견: $PREVIEW_URL"
+              fi
+            fi
+          fi
+
+          if [ -z "$PREVIEW_URL" ]; then
+            echo "⚠️ Preview URL을 찾을 수 없습니다. 로컬 서버 사용"
+            USE_LOCAL="true"
+            echo "USE_LOCAL=true" >> $GITHUB_OUTPUT
+          else
+            echo "PREVIEW_URL=$PREVIEW_URL" >> $GITHUB_OUTPUT
+            echo "USE_LOCAL=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: ⚡ Lighthouse 측정 (Preview 또는 로컬)
+        id: lighthouse
+        run: |
+          # 고정 페이지 목록
+          PAGES="/main/community,/main/founder,/main/home,/main/maps,/main/profile"
+          echo "📄 측정 대상 페이지: $PAGES"
+
+          if [ "${{ steps.preview-url.outputs.USE_LOCAL }}" = "false" ]; then
+            echo "🌐 Preview URL로 Lighthouse 측정"
+            PREVIEW_URL="${{ steps.preview-url.outputs.PREVIEW_URL }}"
+
+            # Preview 사이트 접근 확인
+            if curl -f "$PREVIEW_URL" > /dev/null 2>&1; then
+              echo "✅ Preview 사이트 접근 성공"
+
+              # Lighthouse 실행 (Preview)
+              if CHANGED_PAGES="$PAGES" \
+              LIGHTHOUSE_BASE_URL="$PREVIEW_URL" \
+              MAX_LIGHTHOUSE_PAGES=10 \
+              node .github/scripts/lighthouse-multi-page.js >> $GITHUB_OUTPUT; then
+                echo "✅ Lighthouse 측정 완료 (Preview)"
+              else
+                echo "❌ Lighthouse 측정 실패 (Preview) - 로컬로 시도"
+                echo "USE_LOCAL_FALLBACK=true" >> $GITHUB_OUTPUT
+              fi
+            else
+              echo "❌ Preview 사이트 접근 실패 - 로컬 서버로 대체"
+              echo "USE_LOCAL_FALLBACK=true" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "USE_LOCAL_FALLBACK=true" >> $GITHUB_OUTPUT
+          fi
+
+          # 로컬 서버 fallback 또는 초기 로컬 설정 확인
+          if [ "${{ steps.preview-url.outputs.USE_LOCAL }}" = "true" ] || grep -q "USE_LOCAL_FALLBACK=true" $GITHUB_OUTPUT 2>/dev/null; then
+            echo "💻 로컬 서버로 Lighthouse 측정"
+            cd apps/web
+
+            # 빌드 (필요한 경우)
+            if [ ! -d ".next" ]; then
+              echo "🔄 프로덕션 빌드"
+              pnpm build
+            fi
+
+            # 서버 시작
+            pnpm start &
+            SERVER_PID=$!
+            sleep 10
+
+            # 서버 상태 확인
+            if curl -f http://localhost:3000 > /dev/null 2>&1; then
+              echo "✅ 로컬 서버 정상 시작"
+
+              # Lighthouse 실행 (로컬)
+              if CHANGED_PAGES="$PAGES" \
+              LIGHTHOUSE_BASE_URL="http://localhost:3000" \
+              MAX_LIGHTHOUSE_PAGES=10 \
+              node ../../.github/scripts/lighthouse-multi-page.js >> $GITHUB_OUTPUT; then
+                echo "✅ Lighthouse 측정 완료 (로컬)"
+              else
+                echo "❌ Lighthouse 측정 실패 (로컬) - 기본값 설정"
+                echo "LIGHTHOUSE_PERFORMANCE=0" >> $GITHUB_OUTPUT
+                echo "LIGHTHOUSE_ACCESSIBILITY=0" >> $GITHUB_OUTPUT
+                echo "LIGHTHOUSE_BEST_PRACTICES=0" >> $GITHUB_OUTPUT
+                echo "LIGHTHOUSE_SEO=0" >> $GITHUB_OUTPUT
+                echo "LIGHTHOUSE_STATUS=failed" >> $GITHUB_OUTPUT
+                echo "LIGHTHOUSE_TOTAL_PAGES=0" >> $GITHUB_OUTPUT
+                echo "LIGHTHOUSE_SUCCESSFUL_PAGES=0" >> $GITHUB_OUTPUT
+                {
+                  echo "LIGHTHOUSE_DETAILED_RESULTS<<EOF"
+                  echo "### ⚡ Lighthouse 측정 실패"
+                  echo ""
+                  echo "❌ 모든 페이지에서 Lighthouse 측정에 실패했습니다."
+                  echo ""
+                  echo "**측정 대상 페이지:**"
+                  echo "- /main/community"
+                  echo "- /main/founder"
+                  echo "- /main/home"
+                  echo "- /main/maps"
+                  echo "- /main/profile"
+                  echo "EOF"
+                } >> $GITHUB_OUTPUT
+              fi
+            else
+              echo "❌ 로컬 서버 시작 실패"
+              echo "LIGHTHOUSE_PERFORMANCE=0" >> $GITHUB_OUTPUT
+              echo "LIGHTHOUSE_ACCESSIBILITY=0" >> $GITHUB_OUTPUT
+              echo "LIGHTHOUSE_BEST_PRACTICES=0" >> $GITHUB_OUTPUT
+              echo "LIGHTHOUSE_SEO=0" >> $GITHUB_OUTPUT
+              echo "LIGHTHOUSE_STATUS=failed" >> $GITHUB_OUTPUT
+              echo "LIGHTHOUSE_TOTAL_PAGES=0" >> $GITHUB_OUTPUT
+              echo "LIGHTHOUSE_SUCCESSFUL_PAGES=0" >> $GITHUB_OUTPUT
+              {
+                echo "LIGHTHOUSE_DETAILED_RESULTS<<EOF"
+                echo "### ⚡ 로컬 서버 시작 실패"
+                echo ""
+                echo "로컬 서버를 시작할 수 없어 Lighthouse 측정을 수행할 수 없습니다."
+                echo "EOF"
+              } >> $GITHUB_OUTPUT
+            fi
+
+            # 서버 종료
+            kill $SERVER_PID 2>/dev/null || true
+          fi
+
+      - name: 💬 PR에 Lighthouse 분석 코멘트 작성
+        uses: actions/github-script@v7
+        with:
+          script: |
+            let prNumber;
+
+            if (context.payload.workflow_run && context.payload.workflow_run.pull_requests && context.payload.workflow_run.pull_requests[0]) {
+              prNumber = context.payload.workflow_run.pull_requests[0].number;
+            } else if (context.payload.inputs && context.payload.inputs.pr_number) {
+              prNumber = context.payload.inputs.pr_number;
+            }
+
+            if (!prNumber) {
+              console.log('PR 번호를 찾을 수 없습니다. 코멘트를 생성하지 않습니다.');
+              return;
+            }
+
+            const performance = '${{ steps.lighthouse.outputs.LIGHTHOUSE_PERFORMANCE }}';
+            const accessibility = '${{ steps.lighthouse.outputs.LIGHTHOUSE_ACCESSIBILITY }}';
+            const bestPractices = '${{ steps.lighthouse.outputs.LIGHTHOUSE_BEST_PRACTICES }}';
+            const seo = '${{ steps.lighthouse.outputs.LIGHTHOUSE_SEO }}';
+            const status = '${{ steps.lighthouse.outputs.LIGHTHOUSE_STATUS }}';
+            const totalPages = '${{ steps.lighthouse.outputs.LIGHTHOUSE_TOTAL_PAGES }}';
+            const successfulPages = '${{ steps.lighthouse.outputs.LIGHTHOUSE_SUCCESSFUL_PAGES }}';
+            const detailedResults = `${{ steps.lighthouse.outputs.LIGHTHOUSE_DETAILED_RESULTS }}`;
+
+            let comment = "## ⚡ Lighthouse 성능 분석 결과\n\n";
+            comment += "### 📊 핵심 지표 요약\n";
+            comment += "| 지표 | 점수 |\n";
+            comment += "|------|------|\n";
+            comment += `| 🚀 Performance | **${performance}점** |\n`;
+            comment += `| ♿ Accessibility | **${accessibility}점** |\n`;
+            comment += `| ✅ Best Practices | **${bestPractices}점** |\n`;
+            comment += `| 🔍 SEO | **${seo}점** |\n\n`;
+            comment += "### 📈 측정 현황\n";
+            comment += `- **측정 성공**: ${successfulPages}/${totalPages} 페이지\n`;
+            comment += `- **상태**: ${status}\n\n`;
+            comment += detailedResults;
+            comment += "\n\n---\n";
+            comment += "🤖 자동 생성된 Lighthouse 성능 리포트";
+
+            // 기존 Lighthouse 분석 코멘트 찾기
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+            });
+
+            const existingComment = comments.data.find(comment =>
+              comment.body.includes('⚡ Lighthouse 성능 분석 결과')
+            );
+
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: comment
+              });
+              console.log('기존 Lighthouse 분석 코멘트를 업데이트했습니다.');
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: comment
+              });
+              console.log('새로운 Lighthouse 분석 코멘트를 생성했습니다.');
+            }
