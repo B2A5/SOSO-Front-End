@@ -12,11 +12,12 @@ function detectChangedPages() {
   const pages = new Set();
   const components = new Set();
 
-  console.log('🔍 변경된 파일 분석 중...');
-  console.log('CHANGED_FILES=' + JSON.stringify(changedFiles));
+  // 디버그 메시지는 stderr로 출력 (GitHub Output에 포함되지 않음)
+  console.error('🔍 변경된 파일 분석 중...');
+  console.error('CHANGED_FILES=' + JSON.stringify(changedFiles));
 
   changedFiles.forEach((file) => {
-    console.log(`📁 분석 중: ${file}`);
+    console.error(`📁 분석 중: ${file}`);
 
     // App Router 페이지 감지
     if (
@@ -30,7 +31,7 @@ function detectChangedPages() {
         const pagePath = appPath.replace('/page.tsx', '') || '/';
         const route = pagePath === '' ? '/' : `/${pagePath}`;
         pages.add(route);
-        console.log(`📄 페이지 감지: ${route}`);
+        console.error(`📄 페이지 감지: ${route}`);
       } else if (appPath.includes('layout.tsx')) {
         // 레이아웃 파일 - 하위 모든 페이지에 영향
         const layoutPath = appPath.replace('layout.tsx', '');
@@ -43,11 +44,11 @@ function detectChangedPages() {
           pages.add('/main/founder');
           pages.add('/main/maps');
           pages.add('/main/profile');
-          console.log(`🏗️ 루트 레이아웃 변경 - 모든 페이지 영향`);
+          console.error(`🏗️ 루트 레이아웃 변경 - 모든 페이지 영향`);
         } else {
           const route = `/${layoutPath}`;
           pages.add(route);
-          console.log(`🏗️ 레이아웃 감지: ${route}`);
+          console.error(`🏗️ 레이아웃 감지: ${route}`);
         }
       }
     }
@@ -55,13 +56,13 @@ function detectChangedPages() {
     // 공통 컴포넌트 변경 감지
     else if (file.startsWith('apps/web/src/components/')) {
       components.add(file);
-      console.log(`🧩 공통 컴포넌트 변경: ${file}`);
+      console.error(`🧩 공통 컴포넌트 변경: ${file}`);
 
       // 공통 컴포넌트 변경 시 대표 페이지들 측정
       if (components.size > 0) {
         pages.add('/');
         pages.add('/main');
-        console.log(`🧩 공통 컴포넌트 영향으로 대표 페이지 추가`);
+        console.error(`🧩 공통 컴포넌트 영향으로 대표 페이지 추가`);
       }
     }
 
@@ -71,7 +72,7 @@ function detectChangedPages() {
       file.endsWith('.scss') ||
       file.includes('tailwind')
     ) {
-      console.log(`🎨 스타일 변경 감지 - 모든 페이지 영향`);
+      console.error(`🎨 스타일 변경 감지 - 모든 페이지 영향`);
       pages.add('/');
       pages.add('/main');
     }
@@ -81,7 +82,7 @@ function detectChangedPages() {
       file.includes('next.config') ||
       file.includes('package.json')
     ) {
-      console.log(`⚙️ 설정 파일 변경 - 전체 앱 영향`);
+      console.error(`⚙️ 설정 파일 변경 - 전체 앱 영향`);
       pages.add('/');
       pages.add('/main');
       pages.add('/auth');
@@ -95,10 +96,10 @@ function detectChangedPages() {
       pages.size > 3 ? 'high' : pages.size > 1 ? 'medium' : 'low',
   };
 
-  console.log('📊 분석 결과:');
-  console.log(`CHANGED_PAGES=${result.changedPages.join(',')}`);
-  console.log(`IMPACT_LEVEL=${result.impactLevel}`);
-  console.log(`TOTAL_PAGES=${result.changedPages.length}`);
+  console.error('📊 분석 결과:');
+  console.error(`CHANGED_PAGES=${result.changedPages.join(',')}`);
+  console.error(`IMPACT_LEVEL=${result.impactLevel}`);
+  console.error(`TOTAL_PAGES=${result.changedPages.length}`);
 
   return result;
 }

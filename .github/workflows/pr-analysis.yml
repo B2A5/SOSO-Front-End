@@ -108,10 +108,17 @@ jobs:
         run: |
           cd apps/web
 
-          echo "🔄 프로덕션 빌드 (번들 분석 활성화)"
-          ANALYZE=true pnpm build
-
-          echo "✅ 번들 분석 완료"
+          # CI에서 빌드가 이미 완료된 경우 스킵, 없으면 빌드
+          if [ ! -d ".next" ]; then
+            echo "🔄 프로덕션 빌드 (번들 분석 활성화)"
+            ANALYZE=true pnpm build
+            echo "✅ 번들 분석 완료"
+          else
+            echo "♻️ CI 빌드 결과 재사용"
+            # 번들 분석 활성화로 다시 빌드 (번들 분석기 필요)
+            ANALYZE=true pnpm build
+            echo "✅ 번들 분석 완료"
+          fi
 
       - name: 📈 번들 사이즈 리포트 생성
         id: bundle-analysis
@@ -508,12 +515,13 @@ jobs:
               });
             }
 
-      - name: 📤 아티팩트 업로드
+      - name: 📤 분석 리포트 업로드
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: analysis-reports
+          name: pr-analysis-reports-${{ github.event.pull_request.number || github.run_id }}
           path: |
-            apps/web/coverage/
             apps/web/.next/analyze/
+            apps/web/coverage/
           retention-days: 7
+          compression-level: 6
