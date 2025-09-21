@@ -45,8 +45,11 @@ jobs:
           node-version: '20'
           cache: 'pnpm'
 
-      - name: 📂 Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: 📂 Install dependencies (Lighthouse 도구만)
+        run: |
+          # Lighthouse 측정에 필요한 최소 의존성만 설치
+          cd apps/web
+          pnpm install --frozen-lockfile
 
       - name: 🔍 Preview URL 감지
         id: preview-url
@@ -81,10 +84,10 @@ jobs:
 
       - name: ⚡ Lighthouse 측정 (Preview 또는 로컬)
         id: lighthouse
+        env:
+          LIGHTHOUSE_PAGES: '/main/community,/main/founder,/main/home,/main/maps,/main/profile'
         run: |
-          # 고정 페이지 목록
-          PAGES="/main/community,/main/founder,/main/home,/main/maps,/main/profile"
-          echo "📄 측정 대상 페이지: $PAGES"
+          echo "📄 측정 대상 페이지: $LIGHTHOUSE_PAGES"
 
           if [ "${{ steps.preview-url.outputs.USE_LOCAL }}" = "false" ]; then
             echo "🌐 Preview URL로 Lighthouse 측정"
@@ -95,7 +98,7 @@ jobs:
               echo "✅ Preview 사이트 접근 성공"
 
               # Lighthouse 실행 (Preview)
-              if CHANGED_PAGES="$PAGES" \
+              if CHANGED_PAGES="$LIGHTHOUSE_PAGES" \
               LIGHTHOUSE_BASE_URL="$PREVIEW_URL" \
               MAX_LIGHTHOUSE_PAGES=10 \
               node .github/scripts/lighthouse-multi-page.js >> $GITHUB_OUTPUT; then
@@ -117,10 +120,12 @@ jobs:
             echo "💻 로컬 서버로 Lighthouse 측정"
             cd apps/web
 
-            # 빌드 (필요한 경우)
-            if [ ! -d ".next" ]; then
-              echo "🔄 프로덕션 빌드"
+            # 빌드 (필요한 경우) - CI 결과 재사용 시도
+            if [ ! -d ".next" ] || [ ! -f ".next/build-manifest.json" ]; then
+              echo "🔄 프로덕션 빌드 (Lighthouse 측정용)"
               pnpm build
+            else
+              echo "♻️ 기존 빌드 결과 재사용"
             fi
 
             # 서버 시작
@@ -133,7 +138,7 @@ jobs:
               echo "✅ 로컬 서버 정상 시작"
 
               # Lighthouse 실행 (로컬)
-              if CHANGED_PAGES="$PAGES" \
+              if CHANGED_PAGES="$LIGHTHOUSE_PAGES" \
               LIGHTHOUSE_BASE_URL="http://localhost:3000" \
               MAX_LIGHTHOUSE_PAGES=10 \
               node ../../.github/scripts/lighthouse-multi-page.js >> $GITHUB_OUTPUT; then

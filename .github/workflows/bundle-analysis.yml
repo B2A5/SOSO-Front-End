@@ -41,8 +41,11 @@ jobs:
           node-version: '20'
           cache: 'pnpm'
 
-      - name: 📂 Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: 📂 Install dependencies (번들 분석 도구만)
+        run: |
+          # 번들 분석에 필요한 최소 의존성만 설치
+          cd apps/web
+          pnpm install --frozen-lockfile --prod=false
 
       - name: 📥 CI 빌드 결과 다운로드
         if: github.event_name == 'workflow_run'
@@ -82,14 +85,19 @@ jobs:
         run: |
           cd apps/web
 
-          if [ -d ".next" ]; then
-            echo "♻️ CI 빌드 결과 재사용"
+          if [ -d ".next" ] && [ -f ".next/build-manifest.json" ]; then
+            echo "♻️ CI 빌드 결과 완전 재사용 - 분석 도구만 실행"
+            # 이미 빌드된 결과가 있으므로 번들 분석만 실행
+            if [ ! -d ".next/analyze" ]; then
+              ANALYZE=true pnpm build
+            else
+              echo "📊 번들 분석 결과도 이미 존재함"
+            fi
           else
             echo "🔄 프로덕션 빌드 (번들 분석 활성화)"
+            ANALYZE=true pnpm build
           fi
-
-          ANALYZE=true pnpm build
-          echo "✅ 번들 분석 완료"
+          echo "✅ 번들 분석 준비 완료"
 
       - name: 📈 번들 사이즈 분석
         id: bundle-analysis
