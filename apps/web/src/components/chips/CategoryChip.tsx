@@ -8,6 +8,7 @@ import { twMerge } from 'tailwind-merge';
 
 // 카테고리별 색상 매핑
 const CATEGORY_COLORS: Record<Category, string> = {
+  all: 'bg-gray-100 text-gray-800',
   'daily-hobby': 'bg-blue-100 text-blue-800',
   restaurant: 'bg-orange-100 text-orange-800',
   'living-convenience': 'bg-green-100 text-green-800',

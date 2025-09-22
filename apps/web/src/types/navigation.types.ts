@@ -1,11 +1,9 @@
 // apps/web/src/types/navigation.ts
-import {
-  MessagesSquare,
-  MapPin,
-  Home,
-  Sprout,
-  CircleUser,
-} from 'lucide-react';
+import Community from 'public/icons/appbar-community.svg';
+import Map from 'public/icons/appbar-map.svg';
+import Home from 'public/icons/appbar-home.svg';
+import Sprout from 'public/icons/appbar-sprout.svg';
+import Profile from 'public/icons/appbar-profile.svg';
 
 /**
  * 네비게이션 아이템 인터페이스
@@ -23,12 +21,12 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
   {
     href: '/main/community',
     label: '커뮤니티',
-    icon: MessagesSquare,
+    icon: Community,
   },
   {
     href: '/main/maps',
     label: '지도',
-    icon: MapPin,
+    icon: Map,
   },
   {
     href: '/main/home',
@@ -44,6 +42,6 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
   {
     href: '/main/profile',
     label: '마이페이지',
-    icon: CircleUser,
+    icon: Profile,
   },
 ] as const;

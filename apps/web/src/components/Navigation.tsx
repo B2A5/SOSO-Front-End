@@ -46,7 +46,7 @@ export function Navigation({ currentPath }: BottomNavigationProps) {
             >
               {/* todo: 아이콘 그냥 가져와야하나? 루시드 리엑트 stroke issue */}
               <Icon
-                className={`w-7 h-7 ${active ? 'fill-soso-600 stroke-white' : ''}`}
+                className={`w-7 h-7 ${active ? 'fill-soso-600 text-soso-600' : ''}`}
               />
               <span className="text-xs font-medium truncate">
                 {label}

@@ -2,7 +2,11 @@
 import React, { useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { CategoryTab } from '@/components/tabs/CategoryTab';
-import { CATEGORIES, Categories } from '@/constants/categories';
+import {
+  CATEGORIES,
+  Categories,
+  Category,
+} from '@/constants/categories';
 import { FilterHeader } from '../components/FilterHeader';
 import { SortValue } from '@/types/options.types';
 import { SORT_OPTIONS } from '../constants/sortOptions';
@@ -62,16 +66,24 @@ export default function CommunityTabPage() {
     ? allPosts.length + (hasNextPage ? 10 : 0)
     : 0;
 
+  // 카테고리 필터링이 활성화된 경우에만 '전체' 항목 추가
+  const allCategory = { value: 'all' as Category, label: '전체' };
+  const tabCategories = [allCategory, ...CATEGORIES];
+
   return (
     <div className="w-full h-full flex flex-col">
       <CategoryTab
-        tabs={CATEGORIES}
+        tabs={tabCategories}
         defaultValue={category.value}
         onChange={(value) => {
-          setCategory(
-            CATEGORIES.find((cat) => cat.value === value) ||
-              CATEGORIES[0],
-          );
+          if (value === 'all') {
+            setCategory(CATEGORIES[0]); // 전체 선택시 첫 번째 카테고리로 설정
+          } else {
+            setCategory(
+              CATEGORIES.find((cat) => cat.value === value) ||
+                CATEGORIES[0],
+            );
+          }
         }}
       />
       <FilterHeader

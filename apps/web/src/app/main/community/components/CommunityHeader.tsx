@@ -69,10 +69,10 @@ export function CommunityHeader({
 
   // 경로에 따른 헤더 타입 결정
   const getHeaderType = () => {
-    if (pathname.includes('/post')) {
-      return 'post';
+    if (pathname.includes('/new')) {
+      return 'new';
     }
-    if (pathname.includes('/view')) {
+    if (params.postid) {
       return 'view';
     }
     return 'main';
@@ -88,7 +88,7 @@ export function CommunityHeader({
   const tabTitle = getTabTitle(params.tab as string);
 
   // 경로에 따른 동적 헤더 렌더링
-  if (headerType === 'post') {
+  if (headerType === 'new') {
     return (
       <Header
         title={`${tabTitle.substring(0, 2)} 글 작성`}
