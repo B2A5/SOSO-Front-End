@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Heart } from 'lucide-react';
 
 interface LikeButtonProps {
@@ -25,6 +25,10 @@ export default function LikeButton({
 }: LikeButtonProps) {
   const [liked, setLiked] = useState(isLiked);
   const [count, setCount] = useState(likeCount);
+
+  // isLiked, likeCount prop이 바뀌면 내부 상태 동기화
+  useEffect(() => setLiked(isLiked), [isLiked]);
+  useEffect(() => setCount(likeCount), [likeCount]);
 
   const handleClick = () => {
     setCount((prev) => (liked ? prev - 1 : prev + 1));
