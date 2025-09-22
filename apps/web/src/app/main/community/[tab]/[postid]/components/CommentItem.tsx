@@ -6,6 +6,8 @@ import { relativeTime } from '@/utils/relativeTime';
 import { MoreVertical, ThumbsUp } from 'lucide-react';
 import type { Comment } from '@/types/comment.types';
 import LikeButton from './LikeButton';
+import BottomSheetMenu from '@/components/BottomSheet';
+import { useOverlay } from '@/hooks/ui/useOverlay';
 
 interface CommentItemProps {
   /** 댓글 객체 (내용, 작성자, 작성일, 좋아요 수 등 포함) */
@@ -36,7 +38,24 @@ export default function CommentItem({
   const timeText = createdAt ? relativeTime(createdAt) : '';
   const metaRight = [timeText].filter(Boolean).join(' · '); // 우측 메타 표시용
 
-  //Todo: 케밥 메뉴 클릭 시 바텀시트 열기 등 추가 기능 구현 필요
+  const { openOverlay } = useOverlay();
+
+  // TODO: 추후 바텀시트 메뉴 기능 연결
+  // TODO: 현재 유저가 작성한 댓글인 경우에만 수정/삭제 노출
+  const handleKebabClick = () => {
+    openOverlay(
+      <BottomSheetMenu
+        isOpen={true}
+        actions={[
+          { label: '공유하기', onClick: () => console.log('share', comment.id) },
+          { label: '수정하기', onClick: () => console.log('edit', comment.id) },
+          { label: '삭제하기', onClick: () => console.log('delete', comment.id) },
+        ]}
+      />,
+      { backdrop: true, blockScroll: true, closeOnBackdrop: true }
+    );
+  };
+
   return (
     <UserProfileBase
       nickname={nickname}
@@ -45,7 +64,13 @@ export default function CommentItem({
       avatarSize={50}
       avatarClassName="w-[50px] h-[50px] max-w-none"
       className="items-start"
-      action={action ?? <MoreVertical className="w-4 h-4" />} // 기본 케밥 메뉴
+      action={
+        action ?? (
+          <button type="button" onClick={handleKebabClick} aria-label="댓글 메뉴 열기" className='cursor-pointer'>
+            <MoreVertical className="w-4 h-4" />
+          </button>
+        )
+      } // 기본 케밥 메뉴
     >
       {/* 댓글 내용 */}
       <div className="mt-0.5 text-[14px] text-neutral-800">
