@@ -7,7 +7,7 @@ export interface Comment {
   createdAt: string;
   user: {
     nickname: string;
-    profileImageUrl: string;
+    profileImageUrl?: string;
     userType: UserType;
   };
 }
