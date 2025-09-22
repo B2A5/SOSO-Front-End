@@ -86,6 +86,8 @@ export default function CommentInput({
     } catch {
       setError(
         '댓글 등록에 실패했습니다. 잠시 후 다시 시도해 주세요.',
+        //낙관적업데이트 - 롤백
+        // 댓글 비우지 않기
       );
     } finally {
       setSubmitting(false);
@@ -94,14 +96,14 @@ export default function CommentInput({
 
   return (
     <div
-      className={twMerge('mx-auto w-full max-w-screen-md px-5 py-3 ')}
+      className={twMerge('mx-auto w-full max-w-screen-md px-5 py-3')}
     >
       {/* 래퍼: 패딩/둥근모서리/배경/포커스 링 담당 */}
       <div
         className={twMerge(
-          'rounded-3xl bg-white',
+          'rounded-3xl bg-white border-1 border-gray-200',
           'transition-shadow focus-within:ring-1 ring-neutral-400',
-          'px-4 pt-3 pb-2', // 바깥 패딩(상하/좌우) -> 시각적 1줄 높이에 포함
+          'px-3 py-1', // 바깥 패딩(상하/좌우) -> 시각적 1줄 높이에 포함
         )}
       >
         <textarea
@@ -122,7 +124,7 @@ export default function CommentInput({
           disabled={submitting}
           className={twMerge(
             '!border-0 hover:!border-0 focus:!border-0 focus:!ring-0 focus:!outline-none',
-            'bg-transparent px-1',
+            'bg-transparent px-1 text-[14px] flex',
             // 자동 확장
             'resize-none max-h-[68px] w-full',
             '[scrollbar-width:none]', // Firefox에서 스크롤바 숨김

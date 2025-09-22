@@ -88,7 +88,7 @@ export default function PostPage() {
         </div>
       </main>
 
-      <div className="fixed inset-x-0 bottom-16 z-50 bg-neutral-5">
+      <div className="fixed inset-x-0 bottom-16 z-50 bg-transparent">
         <CommentInput
           postId={post.postId}
           onSubmit={async (pid, content) => {
@@ -100,6 +100,7 @@ export default function PostPage() {
             // queryClient.invalidateQueries({ queryKey: ['comments', pid] });
           }}
         />
+        <div className="backdrop-blur-[2px] bg-white/90 w-full h-full absolute top-0 z-[-1]"></div>
         {/* iOS 안전 영역 보정 */}
         <div className="h-[env(safe-area-inset-bottom)]" />
       </div>
