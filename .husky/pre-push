@@ -1,0 +1,48 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🔍 푸시 전 코드 품질 검사를 시작합니다..."
+
+# 브랜치명 컨벤션 검증
+current_branch=$(git branch --show-current)
+echo "🌿 브랜치명을 검증하는 중: $current_branch"
+
+# 허용된 브랜치 패턴: feat/*, fix/*, docs/*, refactor/*, test/*, chore/*, main, dev
+if ! [[ "$current_branch" =~ ^(feat|fix|docs|refactor|test|chore|perf|ci|build)/.+ ]] && \
+   ! [[ "$current_branch" =~ ^(main|dev)$ ]]; then
+  echo "❌ 올바르지 않은 브랜치명입니다: $current_branch"
+  echo ""
+  echo "📝 브랜치 명명 규칙:"
+  echo "  feat/기능명          - 새로운 기능 개발"
+  echo "  fix/버그설명         - 버그 수정"
+  echo "  docs/문서명          - 문서 업데이트"
+  echo "  refactor/리팩토링명  - 코드 리팩토링"
+  echo "  test/테스트명        - 테스트 추가"
+  echo "  chore/작업명         - 유지보수 작업"
+  echo "  perf/성능개선명      - 성능 최적화"
+  echo "  ci/ci설정명          - CI/CD 설정"
+  echo ""
+  echo "📋 예시:"
+  echo "  feat/user-login      (사용자 로그인)"
+  echo "  fix/navigation-bug   (네비게이션 버그 수정)"
+  echo "  docs/readme-update   (README 업데이트)"
+  exit 1
+fi
+
+# 타입체크 실행
+echo "⚡ TypeScript 타입을 검사하는 중..."
+pnpm typecheck
+if [ $? -ne 0 ]; then
+  echo "❌ 타입 검사에 실패했습니다. 푸시가 중단되었습니다."
+  exit 1
+fi
+
+# 짧은 테스트 실행 (유닛 테스트만)
+echo "🧪 단위 테스트를 실행하는 중..."
+pnpm test
+if [ $? -ne 0 ]; then
+  echo "❌ 테스트에 실패했습니다. 푸시가 중단되었습니다."
+  exit 1
+fi
+
+echo "✅ 모든 검사를 통과했습니다! 푸시를 진행합니다."

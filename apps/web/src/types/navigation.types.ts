@@ -1,9 +1,9 @@
 // apps/web/src/types/navigation.ts
-import Community from 'public/icons/appbar-community.svg';
-import Map from 'public/icons/appbar-map.svg';
-import Home from 'public/icons/appbar-home.svg';
-import Sprout from 'public/icons/appbar-sprout.svg';
-import Profile from 'public/icons/appbar-profile.svg';
+import Community from '@public/icons/appbar-community.svg';
+import Map from '@public/icons/appbar-map.svg';
+import Home from '@public/icons/appbar-home.svg';
+import Sprout from '@public/icons/appbar-sprout.svg';
+import Profile from '@public/icons/appbar-profile.svg';
 
 /**
  * 네비게이션 아이템 인터페이스

@@ -1,0 +1,26 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# $1: upstream branch
+# $2: rebased branch (optional)
+
+echo "🔄 리베이스 전 안전성 검사를 시작합니다..."
+
+# main이나 dev 브랜치는 리베이스 금지
+current_branch=$(git branch --show-current)
+if [[ "$current_branch" =~ ^(main|dev)$ ]]; then
+  echo "❌ 보호된 브랜치는 리베이스할 수 없습니다: $current_branch"
+  echo "🛡️  main, dev 브랜치는 리베이스하지 않는 것이 좋습니다."
+  exit 1
+fi
+
+# 커밋되지 않은 변경사항 확인
+if [ -n "$(git status --porcelain)" ]; then
+  echo "❌ 커밋되지 않은 변경사항이 있습니다:"
+  git status --short
+  echo ""
+  echo "💡 리베이스하기 전에 변경사항을 커밋하거나 stash해주세요."
+  exit 1
+fi
+
+echo "✅ 리베이스 전 검사를 통과했습니다!"

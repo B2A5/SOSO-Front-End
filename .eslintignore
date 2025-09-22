@@ -1,0 +1,32 @@
+# ESLint ignore patterns
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# Dependencies
+node_modules/
+
+# Config files that don't need linting
+*.config.js
+*.config.cjs
+*.config.mjs
+
+# Specific config files
+commitlint.config.cjs
+next.config.js
+tailwind.config.js
+postcss.config.js
+
+# Test coverage
+coverage/
+
+# Cache directories
+.turbo/
+.cache/
+
+# Environment files
+.env*
+!.env.example

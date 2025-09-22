@@ -1,0 +1,58 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🔍 커밋 메시지가 Conventional Commit 규칙을 따르는지 검증 중..."
+
+# 브랜치명에서 이슈 번호 추출 (예: fix/223-auth-page -> #223)
+current_branch=$(git branch --show-current)
+issue_number=""
+
+# 브랜치명 패턴: type/number-description 형태에서 number 추출
+if [[ "$current_branch" =~ ^[^/]+/([0-9]+)- ]]; then
+  issue_number="#${BASH_REMATCH[1]}"
+  echo "📍 브랜치에서 이슈 번호를 감지했습니다: $issue_number"
+fi
+
+# commitlint 실행 전에 이슈 번호가 있으면 커밋 메시지에 추가
+if [ -n "$issue_number" ]; then
+  commit_msg_file="$1"
+  commit_msg=$(cat "$commit_msg_file")
+
+  # 이미 이슈 번호가 포함되어 있는지 확인
+  if ! [[ "$commit_msg" =~ $issue_number ]]; then
+    # 커밋 메시지 끝에 이슈 번호 추가 (빈 줄 제거 후)
+    echo "${commit_msg%$'\n'} $issue_number" > "$commit_msg_file"
+    echo "✨ 커밋 메시지에 이슈 번호를 자동으로 추가했습니다: $issue_number"
+  fi
+fi
+
+pnpm commitlint --edit $1
+
+if [ $? -ne 0 ]; then
+  echo "❌ 커밋 메시지가 규칙을 따르지 않습니다!"
+  echo ""
+  echo "📝 Expected format: <type>(<scope>): <subject>"
+  echo ""
+  echo "🔖 Valid types:"
+  echo "  feat:     새로운 기능 추가"
+  echo "  fix:      버그 수정"
+  echo "  docs:     문서 수정"
+  echo "  style:    코드 스타일 변경"
+  echo "  refactor: 코드 리팩토링"
+  echo "  test:     테스트 코드 추가/수정"
+  echo "  chore:    빌드 과정 또는 도구 변경"
+  echo "  perf:     성능 개선"
+  echo "  ci:       CI 설정 변경"
+  echo ""
+  echo "📋 Examples:"
+  echo "  feat: 사용자 로그인 기능 추가"
+  echo "  fix: 네비게이션 메뉴 버그 수정"
+  echo "  docs: README 파일 업데이트"
+  echo ""
+  echo "💡 브랜치명에 이슈 번호가 포함된 경우 자동으로 추가됩니다:"
+  echo "  브랜치: fix/223-auth-page → 커밋: fix: 인증 페이지 버그 수정 #223"
+  echo ""
+  exit 1
+fi
+
+echo "✅ 커밋 메시지 검증 완료!"
