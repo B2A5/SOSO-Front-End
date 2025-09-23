@@ -12,12 +12,56 @@ jobs:
       issues: write
 
     steps:
+      - name: 🔒 Check organization membership
+        id: check-member
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const author = context.payload.issue.user.login;
+            console.log('Checking organization membership for:', author);
+
+            try {
+              await github.rest.orgs.checkMembershipForUser({
+                org: context.repo.owner,
+                username: author
+              });
+              console.log('✅ User is an organization member');
+              core.setOutput('is_member', 'true');
+            } catch (error) {
+              console.log('❌ User is not an organization member');
+              core.setOutput('is_member', 'false');
+            }
+
+      - name: 💬 Access denied for external users
+        if: steps.check-member.outputs.is_member == 'false'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const message = [
+              '## 🔒 조직 멤버 전용 기능',
+              '',
+              '새로운 목표 옵션 추가는 **조직 멤버만** 사용할 수 있습니다.',
+              '',
+              '조직 가입 문의는 관리자에게 연락해주세요! 👥',
+              '',
+              '🤖 *자동으로 확인되었습니다*'
+            ].join('\n');
+
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: message
+            });
+
       - name: 📥 Checkout
+        if: steps.check-member.outputs.is_member == 'true'
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.AUTO_COMMIT_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: 🔍 Extract goal information
+        if: steps.check-member.outputs.is_member == 'true'
         id: extract
         uses: actions/github-script@v7
         with:
@@ -76,7 +120,7 @@ jobs:
             }
 
       - name: 🔄 Check for duplicate
-        if: steps.extract.outputs.should_update == 'true'
+        if: steps.check-member.outputs.is_member == 'true' && steps.extract.outputs.should_update == 'true'
         id: check-duplicate
         run: |
           NEW_GOAL="${{ steps.extract.outputs.new_goal }}"
@@ -91,7 +135,7 @@ jobs:
           fi
 
       - name: ✏️ Update template
-        if: steps.extract.outputs.should_update == 'true' && steps.check-duplicate.outputs.duplicate == 'false'
+        if: steps.check-member.outputs.is_member == 'true' && steps.extract.outputs.should_update == 'true' && steps.check-duplicate.outputs.duplicate == 'false'
         run: |
           NEW_GOAL="${{ steps.extract.outputs.new_goal }}"
           echo "Adding goal: $NEW_GOAL"
@@ -102,7 +146,7 @@ jobs:
           echo "Template updated successfully"
 
       - name: 📝 Commit changes
-        if: steps.extract.outputs.should_update == 'true' && steps.check-duplicate.outputs.duplicate == 'false'
+        if: steps.check-member.outputs.is_member == 'true' && steps.extract.outputs.should_update == 'true' && steps.check-duplicate.outputs.duplicate == 'false'
         run: |
           NEW_GOAL="${{ steps.extract.outputs.new_goal }}"
 
@@ -113,7 +157,7 @@ jobs:
           git push
 
       - name: 💬 Success notification
-        if: steps.extract.outputs.should_update == 'true' && steps.check-duplicate.outputs.duplicate == 'false'
+        if: steps.check-member.outputs.is_member == 'true' && steps.extract.outputs.should_update == 'true' && steps.check-duplicate.outputs.duplicate == 'false'
         uses: actions/github-script@v7
         with:
           script: |
@@ -137,7 +181,7 @@ jobs:
             });
 
       - name: 💬 Duplicate notification
-        if: steps.extract.outputs.should_update == 'true' && steps.check-duplicate.outputs.duplicate == 'true'
+        if: steps.check-member.outputs.is_member == 'true' && steps.extract.outputs.should_update == 'true' && steps.check-duplicate.outputs.duplicate == 'true'
         uses: actions/github-script@v7
         with:
           script: |
