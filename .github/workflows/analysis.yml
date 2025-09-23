@@ -1,0 +1,349 @@
+name: 📊 번들 분석 및 성능 분석
+
+on:
+  push:
+    branches: [dev]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+  pull_request:
+    branches: [dev]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR 번호 (선택사항)'
+        required: false
+        type: string
+
+concurrency:
+  group: analysis-${{ github.event.pull_request.number || github.ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: 📊 번들 분석 및 성능 측정
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      actions: read
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@v3
+        with: { version: 9 }
+
+      - name: 🏗️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: 📂 Install dependencies
+        run: |
+          cd apps/web
+          pnpm install --frozen-lockfile
+
+      - name: 📊 번들 분석 빌드
+        run: |
+          cd apps/web
+          echo "🔄 프로덕션 빌드 (번들 분석 활성화)"
+          ANALYZE=true pnpm build
+          echo "✅ 번들 분석 완료"
+
+      - name: 📈 번들 사이즈 분석
+        id: bundle-analysis
+        run: |
+          cd apps/web
+
+          if [ -d ".next/static" ]; then
+            BUNDLE_SIZE=$(du -sh .next/static 2>/dev/null | cut -f1 || echo "알 수 없음")
+            JS_SIZE=$(find .next/static -name "*.js" -exec du -ch {} + 2>/dev/null | grep total | cut -f1 || echo "알 수 없음")
+            JS_COUNT=$(find .next/static -name "*.js" 2>/dev/null | wc -l || echo "0")
+
+            echo "BUNDLE_SIZE=$BUNDLE_SIZE" >> $GITHUB_OUTPUT
+            echo "TOTAL_JS_SIZE=$JS_SIZE" >> $GITHUB_OUTPUT
+            echo "JS_COUNT=$JS_COUNT" >> $GITHUB_OUTPUT
+
+            # 주요 청크 정보 (크기순 정렬)
+            {
+              echo "MAIN_CHUNKS<<EOF"
+              find .next/static/chunks -name "*.js" -exec ls -lh {} \; 2>/dev/null | sort -k5 -rh | head -10 | awk '{print $9 " - " $5}' | sed 's|.*/||' || echo "청크 정보를 가져올 수 없습니다"
+              echo "EOF"
+            } >> $GITHUB_OUTPUT
+
+            echo "✅ 번들 분석 완료"
+          else
+            echo "⚠️ .next/static 폴더가 없습니다. 기본값 설정"
+            echo "BUNDLE_SIZE=알 수 없음" >> $GITHUB_OUTPUT
+            echo "TOTAL_JS_SIZE=알 수 없음" >> $GITHUB_OUTPUT
+            echo "JS_COUNT=0" >> $GITHUB_OUTPUT
+            {
+              echo "MAIN_CHUNKS<<EOF"
+              echo "빌드 결과가 없어 청크 정보를 확인할 수 없습니다"
+              echo "EOF"
+            } >> $GITHUB_OUTPUT
+          fi
+
+      - name: 🎯 번들 최적화 권장사항
+        id: bundle-recommendations
+        run: |
+          if node .github/scripts/bundle-diff.js >> $GITHUB_OUTPUT; then
+            echo "✅ 번들 최적화 분석 완료"
+          else
+            echo "⚠️ 번들 최적화 분석 실패 - 기본값 설정"
+            {
+              echo "BUNDLE_RECOMMENDATIONS<<EOF"
+              echo "### 📦 번들 분석 결과"
+              echo ""
+              echo "번들 분석을 수행할 수 없습니다. 빌드가 정상적으로 완료되었는지 확인해주세요."
+              echo "EOF"
+            } >> $GITHUB_OUTPUT
+          fi
+
+      - name: 🚀 서버 시작 (Lighthouse 측정용)
+        run: |
+          cd apps/web
+          pnpm start &
+          SERVER_PID=$!
+          echo "SERVER_PID=$SERVER_PID" >> $GITHUB_ENV
+          sleep 10
+
+      - name: ⚡ LHCI 설치 및 Lighthouse 측정
+        id: lighthouse
+        env:
+          LIGHTHOUSE_PAGES: '/main/community,/main/founder,/main/home,/main/maps,/main/profile'
+        run: |
+          # LHCI 설치
+          npm install -g @lhci/cli@latest
+
+          # 서버 상태 확인
+          if curl -f http://localhost:3000 > /dev/null 2>&1; then
+            echo "✅ 로컬 서버 정상 시작"
+
+            # LHCI 설정 파일 생성
+            cat > lighthouserc.json << 'EOF'
+            {
+              "ci": {
+                "collect": {
+                  "url": [
+                    "http://localhost:3000/main/community",
+                    "http://localhost:3000/main/founder",
+                    "http://localhost:3000/main/home",
+                    "http://localhost:3000/main/maps",
+                    "http://localhost:3000/main/profile"
+                  ],
+                  "numberOfRuns": 3
+                },
+                "upload": {
+                  "target": "temporary-public-storage"
+                }
+              }
+            }
+            EOF
+
+            # LHCI 실행
+            if lhci autorun --config=lighthouserc.json > lhci-output.txt 2>&1; then
+              echo "✅ LHCI 측정 완료"
+
+              # LHCI 결과 링크 추출
+              LHCI_LINK=$(grep -o 'https://[^[:space:]]*storage\.googleapis\.com[^[:space:]]*' lhci-output.txt | head -1)
+
+              if [ ! -z "$LHCI_LINK" ]; then
+                echo "LHCI_RESULTS_LINK=📊 [상세 Lighthouse 분석 결과 보기]($LHCI_LINK)" >> $GITHUB_OUTPUT
+              else
+                echo "LHCI_RESULTS_LINK=⚠️ 상세 결과 링크를 생성할 수 없습니다." >> $GITHUB_OUTPUT
+              fi
+
+              # LHCI 결과 파싱하여 실제 점수 계산
+              node .github/scripts/parse-lhci-results.js >> $GITHUB_OUTPUT
+
+              {
+                echo "LIGHTHOUSE_DETAILED_RESULTS<<EOF"
+                echo "### 📄 측정된 페이지"
+                echo "- /main/community"
+                echo "- /main/founder"
+                echo "- /main/home"
+                echo "- /main/maps"
+                echo "- /main/profile"
+                echo ""
+                echo "모든 페이지에서 성능 측정이 완료되었습니다."
+                echo "EOF"
+              } >> $GITHUB_OUTPUT
+            else
+              echo "❌ LHCI 측정 실패"
+              echo "LHCI_RESULTS_LINK=❌ Lighthouse 측정에 실패했습니다." >> $GITHUB_OUTPUT
+              echo "LIGHTHOUSE_PERFORMANCE=0" >> $GITHUB_OUTPUT
+              echo "LIGHTHOUSE_ACCESSIBILITY=0" >> $GITHUB_OUTPUT
+              echo "LIGHTHOUSE_BEST_PRACTICES=0" >> $GITHUB_OUTPUT
+              echo "LIGHTHOUSE_SEO=0" >> $GITHUB_OUTPUT
+              echo "LIGHTHOUSE_STATUS=failed" >> $GITHUB_OUTPUT
+              echo "LIGHTHOUSE_TOTAL_PAGES=5" >> $GITHUB_OUTPUT
+              echo "LIGHTHOUSE_SUCCESSFUL_PAGES=0" >> $GITHUB_OUTPUT
+
+              {
+                echo "LIGHTHOUSE_DETAILED_RESULTS<<EOF"
+                echo "❌ 모든 페이지에서 Lighthouse 측정에 실패했습니다."
+                echo ""
+                echo "**측정 대상 페이지:**"
+                echo "- /main/community"
+                echo "- /main/founder"
+                echo "- /main/home"
+                echo "- /main/maps"
+                echo "- /main/profile"
+                echo "EOF"
+              } >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "❌ 로컬 서버 시작 실패"
+            echo "LHCI_RESULTS_LINK=❌ 로컬 서버를 시작할 수 없습니다." >> $GITHUB_OUTPUT
+            echo "LIGHTHOUSE_PERFORMANCE=0" >> $GITHUB_OUTPUT
+            echo "LIGHTHOUSE_ACCESSIBILITY=0" >> $GITHUB_OUTPUT
+            echo "LIGHTHOUSE_BEST_PRACTICES=0" >> $GITHUB_OUTPUT
+            echo "LIGHTHOUSE_SEO=0" >> $GITHUB_OUTPUT
+            echo "LIGHTHOUSE_STATUS=failed" >> $GITHUB_OUTPUT
+            echo "LIGHTHOUSE_TOTAL_PAGES=5" >> $GITHUB_OUTPUT
+            echo "LIGHTHOUSE_SUCCESSFUL_PAGES=0" >> $GITHUB_OUTPUT
+
+            {
+              echo "LIGHTHOUSE_DETAILED_RESULTS<<EOF"
+              echo "### ⚡ 로컬 서버 시작 실패"
+              echo ""
+              echo "로컬 서버를 시작할 수 없어 Lighthouse 측정을 수행할 수 없습니다."
+              echo "EOF"
+            } >> $GITHUB_OUTPUT
+          fi
+
+      - name: 🛑 서버 종료
+        if: always()
+        run: |
+          if [ ! -z "$SERVER_PID" ]; then
+            kill $SERVER_PID 2>/dev/null || true
+          fi
+
+      - name: 💬 PR에 분석 결과 코멘트 작성
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            // PR 번호 확인
+            let prNumber;
+            if (context.payload.pull_request) {
+              prNumber = context.payload.pull_request.number;
+            } else if (context.payload.inputs && context.payload.inputs.pr_number) {
+              prNumber = context.payload.inputs.pr_number;
+            }
+
+            if (!prNumber) {
+              console.log('PR 번호를 찾을 수 없습니다. push 이벤트이므로 코멘트를 생성하지 않습니다.');
+              return;
+            }
+
+            // 템플릿 파일 읽기 및 변수 치환 함수
+            function replaceTemplate(templatePath, variables) {
+              let template = fs.readFileSync(templatePath, 'utf8');
+              for (const [key, value] of Object.entries(variables)) {
+                template = template.replace(new RegExp(`{{${key}}}`, 'g'), value);
+              }
+              return template;
+            }
+
+            // 번들 분석 코멘트 생성
+            const bundleVariables = {
+              BUNDLE_SIZE: '${{ steps.bundle-analysis.outputs.BUNDLE_SIZE }}',
+              TOTAL_JS_SIZE: '${{ steps.bundle-analysis.outputs.TOTAL_JS_SIZE }}',
+              JS_COUNT: '${{ steps.bundle-analysis.outputs.JS_COUNT }}',
+              MAIN_CHUNKS: `${{ steps.bundle-analysis.outputs.MAIN_CHUNKS }}`,
+              BUNDLE_RECOMMENDATIONS: `${{ steps.bundle-recommendations.outputs.BUNDLE_RECOMMENDATIONS }}`
+            };
+
+            const bundleComment = replaceTemplate('.github/templates/bundle-analysis-comment.md', bundleVariables);
+
+            // Lighthouse 분석 코멘트 생성
+            const lighthouseVariables = {
+              LIGHTHOUSE_PERFORMANCE: '${{ steps.lighthouse.outputs.LIGHTHOUSE_PERFORMANCE }}',
+              LIGHTHOUSE_ACCESSIBILITY: '${{ steps.lighthouse.outputs.LIGHTHOUSE_ACCESSIBILITY }}',
+              LIGHTHOUSE_BEST_PRACTICES: '${{ steps.lighthouse.outputs.LIGHTHOUSE_BEST_PRACTICES }}',
+              LIGHTHOUSE_SEO: '${{ steps.lighthouse.outputs.LIGHTHOUSE_SEO }}',
+              LIGHTHOUSE_SUCCESSFUL_PAGES: '${{ steps.lighthouse.outputs.LIGHTHOUSE_SUCCESSFUL_PAGES }}',
+              LIGHTHOUSE_TOTAL_PAGES: '${{ steps.lighthouse.outputs.LIGHTHOUSE_TOTAL_PAGES }}',
+              LIGHTHOUSE_STATUS: '${{ steps.lighthouse.outputs.LIGHTHOUSE_STATUS }}',
+              LHCI_RESULTS_LINK: '${{ steps.lighthouse.outputs.LHCI_RESULTS_LINK }}',
+              LIGHTHOUSE_DETAILED_RESULTS: `${{ steps.lighthouse.outputs.LIGHTHOUSE_DETAILED_RESULTS }}`
+            };
+
+            const lighthouseComment = replaceTemplate('.github/templates/lighthouse-comment.md', lighthouseVariables);
+
+            // 기존 코멘트 찾기
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+            });
+
+            // 번들 분석 코멘트 처리
+            const existingBundleComment = comments.data.find(comment =>
+              comment.body.includes('📦 번들 분석 결과')
+            );
+
+            if (existingBundleComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingBundleComment.id,
+                body: bundleComment
+              });
+              console.log('기존 번들 분석 코멘트를 업데이트했습니다.');
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: bundleComment
+              });
+              console.log('새로운 번들 분석 코멘트를 생성했습니다.');
+            }
+
+            // Lighthouse 분석 코멘트 처리
+            const existingLighthouseComment = comments.data.find(comment =>
+              comment.body.includes('⚡ Lighthouse 성능 분석 결과')
+            );
+
+            if (existingLighthouseComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingLighthouseComment.id,
+                body: lighthouseComment
+              });
+              console.log('기존 Lighthouse 분석 코멘트를 업데이트했습니다.');
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: lighthouseComment
+              });
+              console.log('새로운 Lighthouse 분석 코멘트를 생성했습니다.');
+            }
+
+      - name: 📤 분석 결과 업로드
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: analysis-results-${{ github.event.pull_request.number || github.run_id }}
+          path: |
+            apps/web/.next/analyze/
+            lhci-output.txt
+            lighthouserc.json
+          retention-days: 7
