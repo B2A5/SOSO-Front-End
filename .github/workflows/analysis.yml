@@ -152,13 +152,35 @@ jobs:
             if lhci autorun --config=lighthouserc.json > lhci-output.txt 2>&1; then
               echo "✅ LHCI 측정 완료"
 
-              # LHCI 결과 링크 추출
-              LHCI_LINK=$(grep -o 'https://[^[:space:]]*storage\.googleapis\.com[^[:space:]]*' lhci-output.txt | head -1)
+              # LHCI 결과 링크 추출 (모든 링크)
+              LHCI_LINKS=$(grep -o 'https://[^[:space:]]*storage\.googleapis\.com[^[:space:]]*' lhci-output.txt)
 
-              if [ ! -z "$LHCI_LINK" ]; then
-                echo "LHCI_RESULTS_LINK=📊 [상세 Lighthouse 분석 결과 보기]($LHCI_LINK)" >> $GITHUB_OUTPUT
+              if [ ! -z "$LHCI_LINKS" ]; then
+                # 각 페이지별 링크 추출 및 매핑
+                echo "$LHCI_LINKS" | while IFS= read -r link; do
+                  if [[ $link == *"community"* ]]; then
+                    echo "COMMUNITY_LINK=$link" >> $GITHUB_OUTPUT
+                  elif [[ $link == *"founder"* ]]; then
+                    echo "FOUNDER_LINK=$link" >> $GITHUB_OUTPUT
+                  elif [[ $link == *"home"* ]]; then
+                    echo "HOME_LINK=$link" >> $GITHUB_OUTPUT
+                  elif [[ $link == *"maps"* ]]; then
+                    echo "MAPS_LINK=$link" >> $GITHUB_OUTPUT
+                  elif [[ $link == *"profile"* ]]; then
+                    echo "PROFILE_LINK=$link" >> $GITHUB_OUTPUT
+                  fi
+                done
+
+                # 첫 번째 링크를 전체 결과 링크로 사용
+                FIRST_LINK=$(echo "$LHCI_LINKS" | head -1)
+                echo "LHCI_RESULTS_LINK=📊 [전체 상세 Lighthouse 분석 결과 보기]($FIRST_LINK)" >> $GITHUB_OUTPUT
               else
                 echo "LHCI_RESULTS_LINK=⚠️ 상세 결과 링크를 생성할 수 없습니다." >> $GITHUB_OUTPUT
+                echo "COMMUNITY_LINK=#" >> $GITHUB_OUTPUT
+                echo "FOUNDER_LINK=#" >> $GITHUB_OUTPUT
+                echo "HOME_LINK=#" >> $GITHUB_OUTPUT
+                echo "MAPS_LINK=#" >> $GITHUB_OUTPUT
+                echo "PROFILE_LINK=#" >> $GITHUB_OUTPUT
               fi
 
               # LHCI 결과 파싱하여 실제 점수 계산
@@ -187,6 +209,35 @@ jobs:
               echo "LIGHTHOUSE_TOTAL_PAGES=5" >> $GITHUB_OUTPUT
               echo "LIGHTHOUSE_SUCCESSFUL_PAGES=0" >> $GITHUB_OUTPUT
 
+              # 페이지별 점수도 0으로 설정
+              echo "COMMUNITY_PERFORMANCE=0" >> $GITHUB_OUTPUT
+              echo "COMMUNITY_ACCESSIBILITY=0" >> $GITHUB_OUTPUT
+              echo "COMMUNITY_BEST_PRACTICES=0" >> $GITHUB_OUTPUT
+              echo "COMMUNITY_SEO=0" >> $GITHUB_OUTPUT
+              echo "FOUNDER_PERFORMANCE=0" >> $GITHUB_OUTPUT
+              echo "FOUNDER_ACCESSIBILITY=0" >> $GITHUB_OUTPUT
+              echo "FOUNDER_BEST_PRACTICES=0" >> $GITHUB_OUTPUT
+              echo "FOUNDER_SEO=0" >> $GITHUB_OUTPUT
+              echo "HOME_PERFORMANCE=0" >> $GITHUB_OUTPUT
+              echo "HOME_ACCESSIBILITY=0" >> $GITHUB_OUTPUT
+              echo "HOME_BEST_PRACTICES=0" >> $GITHUB_OUTPUT
+              echo "HOME_SEO=0" >> $GITHUB_OUTPUT
+              echo "MAPS_PERFORMANCE=0" >> $GITHUB_OUTPUT
+              echo "MAPS_ACCESSIBILITY=0" >> $GITHUB_OUTPUT
+              echo "MAPS_BEST_PRACTICES=0" >> $GITHUB_OUTPUT
+              echo "MAPS_SEO=0" >> $GITHUB_OUTPUT
+              echo "PROFILE_PERFORMANCE=0" >> $GITHUB_OUTPUT
+              echo "PROFILE_ACCESSIBILITY=0" >> $GITHUB_OUTPUT
+              echo "PROFILE_BEST_PRACTICES=0" >> $GITHUB_OUTPUT
+              echo "PROFILE_SEO=0" >> $GITHUB_OUTPUT
+
+              # 페이지별 링크도 기본값으로 설정
+              echo "COMMUNITY_LINK=#" >> $GITHUB_OUTPUT
+              echo "FOUNDER_LINK=#" >> $GITHUB_OUTPUT
+              echo "HOME_LINK=#" >> $GITHUB_OUTPUT
+              echo "MAPS_LINK=#" >> $GITHUB_OUTPUT
+              echo "PROFILE_LINK=#" >> $GITHUB_OUTPUT
+
               {
                 echo "LIGHTHOUSE_DETAILED_RESULTS<<EOF"
                 echo "❌ 모든 페이지에서 Lighthouse 측정에 실패했습니다."
@@ -210,6 +261,35 @@ jobs:
             echo "LIGHTHOUSE_STATUS=failed" >> $GITHUB_OUTPUT
             echo "LIGHTHOUSE_TOTAL_PAGES=5" >> $GITHUB_OUTPUT
             echo "LIGHTHOUSE_SUCCESSFUL_PAGES=0" >> $GITHUB_OUTPUT
+
+            # 페이지별 점수도 0으로 설정
+            echo "COMMUNITY_PERFORMANCE=0" >> $GITHUB_OUTPUT
+            echo "COMMUNITY_ACCESSIBILITY=0" >> $GITHUB_OUTPUT
+            echo "COMMUNITY_BEST_PRACTICES=0" >> $GITHUB_OUTPUT
+            echo "COMMUNITY_SEO=0" >> $GITHUB_OUTPUT
+            echo "FOUNDER_PERFORMANCE=0" >> $GITHUB_OUTPUT
+            echo "FOUNDER_ACCESSIBILITY=0" >> $GITHUB_OUTPUT
+            echo "FOUNDER_BEST_PRACTICES=0" >> $GITHUB_OUTPUT
+            echo "FOUNDER_SEO=0" >> $GITHUB_OUTPUT
+            echo "HOME_PERFORMANCE=0" >> $GITHUB_OUTPUT
+            echo "HOME_ACCESSIBILITY=0" >> $GITHUB_OUTPUT
+            echo "HOME_BEST_PRACTICES=0" >> $GITHUB_OUTPUT
+            echo "HOME_SEO=0" >> $GITHUB_OUTPUT
+            echo "MAPS_PERFORMANCE=0" >> $GITHUB_OUTPUT
+            echo "MAPS_ACCESSIBILITY=0" >> $GITHUB_OUTPUT
+            echo "MAPS_BEST_PRACTICES=0" >> $GITHUB_OUTPUT
+            echo "MAPS_SEO=0" >> $GITHUB_OUTPUT
+            echo "PROFILE_PERFORMANCE=0" >> $GITHUB_OUTPUT
+            echo "PROFILE_ACCESSIBILITY=0" >> $GITHUB_OUTPUT
+            echo "PROFILE_BEST_PRACTICES=0" >> $GITHUB_OUTPUT
+            echo "PROFILE_SEO=0" >> $GITHUB_OUTPUT
+
+            # 페이지별 링크도 기본값으로 설정
+            echo "COMMUNITY_LINK=#" >> $GITHUB_OUTPUT
+            echo "FOUNDER_LINK=#" >> $GITHUB_OUTPUT
+            echo "HOME_LINK=#" >> $GITHUB_OUTPUT
+            echo "MAPS_LINK=#" >> $GITHUB_OUTPUT
+            echo "PROFILE_LINK=#" >> $GITHUB_OUTPUT
 
             {
               echo "LIGHTHOUSE_DETAILED_RESULTS<<EOF"
@@ -277,7 +357,37 @@ jobs:
               LIGHTHOUSE_TOTAL_PAGES: '${{ steps.lighthouse.outputs.LIGHTHOUSE_TOTAL_PAGES }}',
               LIGHTHOUSE_STATUS: '${{ steps.lighthouse.outputs.LIGHTHOUSE_STATUS }}',
               LHCI_RESULTS_LINK: '${{ steps.lighthouse.outputs.LHCI_RESULTS_LINK }}',
-              LIGHTHOUSE_DETAILED_RESULTS: `${{ steps.lighthouse.outputs.LIGHTHOUSE_DETAILED_RESULTS }}`
+              LIGHTHOUSE_DETAILED_RESULTS: `${{ steps.lighthouse.outputs.LIGHTHOUSE_DETAILED_RESULTS }}`,
+              // 커뮤니티 페이지
+              COMMUNITY_PERFORMANCE: '${{ steps.lighthouse.outputs.COMMUNITY_PERFORMANCE }}',
+              COMMUNITY_ACCESSIBILITY: '${{ steps.lighthouse.outputs.COMMUNITY_ACCESSIBILITY }}',
+              COMMUNITY_BEST_PRACTICES: '${{ steps.lighthouse.outputs.COMMUNITY_BEST_PRACTICES }}',
+              COMMUNITY_SEO: '${{ steps.lighthouse.outputs.COMMUNITY_SEO }}',
+              COMMUNITY_LINK: '${{ steps.lighthouse.outputs.COMMUNITY_LINK }}',
+              // 창업자 페이지
+              FOUNDER_PERFORMANCE: '${{ steps.lighthouse.outputs.FOUNDER_PERFORMANCE }}',
+              FOUNDER_ACCESSIBILITY: '${{ steps.lighthouse.outputs.FOUNDER_ACCESSIBILITY }}',
+              FOUNDER_BEST_PRACTICES: '${{ steps.lighthouse.outputs.FOUNDER_BEST_PRACTICES }}',
+              FOUNDER_SEO: '${{ steps.lighthouse.outputs.FOUNDER_SEO }}',
+              FOUNDER_LINK: '${{ steps.lighthouse.outputs.FOUNDER_LINK }}',
+              // 홈 페이지
+              HOME_PERFORMANCE: '${{ steps.lighthouse.outputs.HOME_PERFORMANCE }}',
+              HOME_ACCESSIBILITY: '${{ steps.lighthouse.outputs.HOME_ACCESSIBILITY }}',
+              HOME_BEST_PRACTICES: '${{ steps.lighthouse.outputs.HOME_BEST_PRACTICES }}',
+              HOME_SEO: '${{ steps.lighthouse.outputs.HOME_SEO }}',
+              HOME_LINK: '${{ steps.lighthouse.outputs.HOME_LINK }}',
+              // 지도 페이지
+              MAPS_PERFORMANCE: '${{ steps.lighthouse.outputs.MAPS_PERFORMANCE }}',
+              MAPS_ACCESSIBILITY: '${{ steps.lighthouse.outputs.MAPS_ACCESSIBILITY }}',
+              MAPS_BEST_PRACTICES: '${{ steps.lighthouse.outputs.MAPS_BEST_PRACTICES }}',
+              MAPS_SEO: '${{ steps.lighthouse.outputs.MAPS_SEO }}',
+              MAPS_LINK: '${{ steps.lighthouse.outputs.MAPS_LINK }}',
+              // 프로필 페이지
+              PROFILE_PERFORMANCE: '${{ steps.lighthouse.outputs.PROFILE_PERFORMANCE }}',
+              PROFILE_ACCESSIBILITY: '${{ steps.lighthouse.outputs.PROFILE_ACCESSIBILITY }}',
+              PROFILE_BEST_PRACTICES: '${{ steps.lighthouse.outputs.PROFILE_BEST_PRACTICES }}',
+              PROFILE_SEO: '${{ steps.lighthouse.outputs.PROFILE_SEO }}',
+              PROFILE_LINK: '${{ steps.lighthouse.outputs.PROFILE_LINK }}'
             };
 
             const lighthouseComment = replaceTemplate('.github/templates/lighthouse-comment.md', lighthouseVariables);
