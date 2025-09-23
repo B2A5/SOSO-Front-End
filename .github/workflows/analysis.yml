@@ -130,8 +130,7 @@ jobs:
             echo "✅ 로컬 서버 정상 시작"
 
             # LHCI 설정 파일 생성
-            cat > lighthouserc.json << 'EOF'
-            {
+            echo '{
               "ci": {
                 "collect": {
                   "url": [
@@ -147,8 +146,7 @@ jobs:
                   "target": "temporary-public-storage"
                 }
               }
-            }
-            EOF
+            }' > lighthouserc.json
 
             # LHCI 실행
             if lhci autorun --config=lighthouserc.json > lhci-output.txt 2>&1; then
