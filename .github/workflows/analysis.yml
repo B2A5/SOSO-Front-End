@@ -156,8 +156,8 @@ jobs:
               LHCI_LINKS=$(grep -o 'https://[^[:space:]]*storage\.googleapis\.com[^[:space:]]*' lhci-output.txt)
 
               if [ ! -z "$LHCI_LINKS" ]; then
-                # 각 페이지별 링크 추출 및 매핑
-                echo "$LHCI_LINKS" | while IFS= read -r link; do
+                # 각 페이지별 링크 추출 및 매핑 (서브셸 문제 해결)
+                while IFS= read -r link; do
                   if [[ $link == *"community"* ]]; then
                     echo "COMMUNITY_LINK=$link" >> $GITHUB_OUTPUT
                   elif [[ $link == *"founder"* ]]; then
@@ -169,7 +169,7 @@ jobs:
                   elif [[ $link == *"profile"* ]]; then
                     echo "PROFILE_LINK=$link" >> $GITHUB_OUTPUT
                   fi
-                done
+                done <<< "$LHCI_LINKS"
 
                 # 첫 번째 링크를 전체 결과 링크로 사용
                 FIRST_LINK=$(echo "$LHCI_LINKS" | head -1)
