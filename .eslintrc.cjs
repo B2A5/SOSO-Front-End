@@ -5,6 +5,7 @@ module.exports = {
   root: true,
   ignorePatterns: [
     '.eslintrc.cjs',
+    'commitlint.config.cjs',
     'apps/docs/**',
     'apps/docs',
     '**/apps/docs/**',

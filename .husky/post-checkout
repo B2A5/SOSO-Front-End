@@ -1,0 +1,26 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# $1: 이전 HEAD의 ref
+# $2: 새로운 HEAD의 ref
+# $3: 1이면 브랜치 체크아웃, 0이면 파일 체크아웃
+
+# 브랜치 체크아웃인 경우에만 실행
+if [ "$3" = "1" ]; then
+  echo "🌿 브랜치 전환이 감지되었습니다..."
+
+  # 현재 브랜치 정보 표시
+  current_branch=$(git branch --show-current)
+  echo "📍 현재 브랜치: $current_branch"
+
+  # package.json 변경 확인
+  if git diff $1..$2 --name-only | grep -E "(package\.json|pnpm-lock\.yaml)" > /dev/null; then
+    echo "📦 브랜치 간 의존성이 변경되었습니다. 다음 명령어 실행을 권장합니다: pnpm install"
+  fi
+
+  # 미완료 작업 확인
+  if [ -n "$(git status --porcelain)" ]; then
+    echo "⚠️  커밋되지 않은 변경사항이 있습니다:"
+    git status --short
+  fi
+fi

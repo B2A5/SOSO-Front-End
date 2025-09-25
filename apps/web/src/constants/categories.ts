@@ -1,4 +1,5 @@
 export type Category =
+  | 'all'
   | 'daily-hobby'
   | 'restaurant'
   | 'living-convenience'
