@@ -110,7 +110,11 @@ export const mockCreateComment = async (
   content: string,
 ): Promise<Comment> => {
   console.log('[MOCK] 댓글 등록:', { postId, content });
-  await new Promise((resolve) => setTimeout(resolve, 400)); // 지연
+  await new Promise((resolve) => setTimeout(resolve, 400));
+
+  if (content.toLowerCase().includes('error')) {
+    throw new Error('MOCK 서버 에러 발생');
+  }
 
   mockIdCounter += 1;
   return generateMockComment(mockIdCounter, content, '테스트 유저');

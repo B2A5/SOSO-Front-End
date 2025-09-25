@@ -1,5 +1,6 @@
 'use client';
 
+import { useToast } from '@/hooks/ui/useToast';
 //실제 api 연동 시 import 경로 변경 필요
 import { mockCreateComment as createComment } from './mock/comment.mock';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -27,14 +28,19 @@ export default function CommentInput({
   const [value, setValue] = useState('');
   const taRef = useRef<HTMLTextAreaElement>(null);
   const queryClient = useQueryClient();
+  const toast = useToast();
 
-  const { mutateAsync, isPending, error } = useMutation({
+  const { mutateAsync, isPending } = useMutation({
     mutationFn: (content: string) => createComment(postId, content),
     onSuccess: () => {
+      toast('댓글이 등록되었습니다', 'success');
       setValue('');
       queryClient.invalidateQueries({
         queryKey: ['comments', postId],
       });
+    },
+    onError: () => {
+      toast('댓글 등록에 실패했습니다.', 'error');
     },
   });
 
@@ -92,11 +98,6 @@ export default function CommentInput({
           )}
         />
       </div>
-      {error && (
-        <p className="mt-1 text-xs text-red-500">
-          댓글 등록에 실패했습니다.
-        </p>
-      )}
     </div>
   );
 }
