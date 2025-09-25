@@ -15,8 +15,6 @@ interface PostProfileProps {
   location?: string;
   /** 작성 시간(ISO 문자열 등) */
   createdAt?: string;
-  /** 우측 상단 액션 버튼 */
-  action?: React.ReactNode;
   /** 본문 설명 등 추가 영역 */
   children?: React.ReactNode;
 }
@@ -32,7 +30,6 @@ export default function PostProfile({
   userType,
   location,
   createdAt,
-  action,
   children,
 }: PostProfileProps) {
   const timeText = createdAt ? relativeTime(createdAt) : '';
@@ -47,7 +44,6 @@ export default function PostProfile({
       // 전역 img 규칙(height:auto/max-width) 차단: 클래스로 고정
       avatarClassName="w-[45px] h-[45px] max-w-none"
       className="items-center"
-      action={action}
     >
       {children && <div className="mt-0.5">{children}</div>}
       {meta && (
