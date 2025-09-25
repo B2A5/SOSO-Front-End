@@ -34,26 +34,33 @@ export default function CommentItem({
     user: { nickname, profileImageUrl, userType },
   } = comment;
 
-  // 상대 시간 텍스트로 변환 (예: "2시간 전")
   const timeText = createdAt ? relativeTime(createdAt) : '';
   const metaRight = [timeText].filter(Boolean).join(' · '); // 우측 메타 표시용
 
   const { openOverlay } = useOverlay();
 
-  // TODO: 추후 바텀시트 메뉴 기능 연결
   // TODO: 현재 유저가 작성한 댓글인 경우에만 수정/삭제 노출
   const handleKebabClick = () => {
-    openOverlay(
-      <BottomSheetMenu
-        isOpen={true}
-        actions={[
-          { label: '공유하기', onClick: () => console.log('share', comment.id) },
-          { label: '수정하기', onClick: () => console.log('edit', comment.id) },
-          { label: '삭제하기', onClick: () => console.log('delete', comment.id) },
-        ]}
-      />,
-      { backdrop: true, blockScroll: true, closeOnBackdrop: true }
-    );
+    const actions = [
+      {
+        label: '공유하기',
+        onClick: () => console.log('share', comment.id),
+      },
+      {
+        label: '수정하기',
+        onClick: () => console.log('edit', comment.id),
+      },
+      {
+        label: '삭제하기',
+        onClick: () => console.log('delete', comment.id),
+      },
+    ];
+
+    openOverlay(<BottomSheetMenu isOpen={true} actions={actions} />, {
+      backdrop: true,
+      blockScroll: true,
+      closeOnBackdrop: true,
+    });
   };
 
   return (
@@ -66,7 +73,11 @@ export default function CommentItem({
       className="items-start"
       action={
         action ?? (
-          <button type="button" onClick={handleKebabClick} aria-label="댓글 메뉴 열기" className='cursor-pointer'>
+          <button
+            type="button"
+            onClick={handleKebabClick}
+            aria-label="댓글 메뉴 열기"
+          >
             <MoreVertical className="w-4 h-4" />
           </button>
         )
