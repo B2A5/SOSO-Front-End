@@ -1,0 +1,204 @@
+name: 🎯 Auto Add New Goal Option
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  add-new-goal:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+
+    steps:
+      - name: 🔒 Check organization membership
+        id: check-member
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const author = context.payload.issue.user.login;
+            console.log('Checking organization membership for:', author);
+
+            try {
+              await github.rest.orgs.checkMembershipForUser({
+                org: context.repo.owner,
+                username: author
+              });
+              console.log('✅ User is an organization member');
+              core.setOutput('is_member', 'true');
+            } catch (error) {
+              console.log('❌ User is not an organization member');
+              core.setOutput('is_member', 'false');
+            }
+
+      - name: 💬 Access denied for external users
+        if: steps.check-member.outputs.is_member == 'false'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const message = [
+              '## 🔒 조직 멤버 전용 기능',
+              '',
+              '새로운 목표 옵션 추가는 **조직 멤버만** 사용할 수 있습니다.',
+              '',
+              '조직 가입 문의는 관리자에게 연락해주세요! 👥',
+              '',
+              '🤖 *자동으로 확인되었습니다*'
+            ].join('\n');
+
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: message
+            });
+
+      - name: 📥 Checkout
+        if: steps.check-member.outputs.is_member == 'true'
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.AUTO_COMMIT_TOKEN || secrets.GITHUB_TOKEN }}
+
+      - name: 🔍 Extract goal information
+        if: steps.check-member.outputs.is_member == 'true'
+        id: extract
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.issue.body || '';
+            console.log('=== Analyzing issue body ===');
+
+            // GitHub 이슈 폼 데이터 파싱
+            const lines = body.split('\n');
+            let selectedGoal = '';
+            let newGoalInput = '';
+
+            // 라인별로 검사하여 목표 정보 추출
+            for (let i = 0; i < lines.length; i++) {
+              const line = lines[i].trim();
+
+              // "목표" 헤더 찾기 (직접 입력 제외)
+              if (line.includes('목표') && !line.includes('직접 입력')) {
+                // 다음 비어있지 않은 라인이 선택된 값
+                for (let j = i + 1; j < lines.length && j < i + 5; j++) {
+                  const nextLine = lines[j].trim();
+                  if (nextLine && !nextLine.startsWith('#')) {
+                    selectedGoal = nextLine;
+                    break;
+                  }
+                }
+              }
+
+              // "목표 (직접 입력)" 헤더 찾기
+              if (line.includes('목표') && line.includes('직접 입력')) {
+                // 다음 비어있지 않은 라인이 입력된 값
+                for (let j = i + 1; j < lines.length && j < i + 5; j++) {
+                  const nextLine = lines[j].trim();
+                  if (nextLine && !nextLine.startsWith('#')) {
+                    newGoalInput = nextLine;
+                    break;
+                  }
+                }
+              }
+            }
+
+            console.log('Selected goal:', selectedGoal);
+            console.log('New goal input:', newGoalInput);
+
+            // 조건 검사
+            const shouldUpdate = selectedGoal === '직접 입력' && newGoalInput && newGoalInput.length > 0;
+
+            core.setOutput('selected_goal', selectedGoal);
+            core.setOutput('new_goal', newGoalInput);
+            core.setOutput('should_update', shouldUpdate.toString());
+
+            if (shouldUpdate) {
+              console.log('✅ Will add new goal:', newGoalInput);
+            } else {
+              console.log('❌ Conditions not met');
+            }
+
+      - name: 🔄 Check for duplicate
+        if: steps.check-member.outputs.is_member == 'true' && steps.extract.outputs.should_update == 'true'
+        id: check-duplicate
+        run: |
+          NEW_GOAL="${{ steps.extract.outputs.new_goal }}"
+          echo "Checking for duplicate: $NEW_GOAL"
+
+          if grep -F "- '$NEW_GOAL'" .github/ISSUE_TEMPLATE/common.yml; then
+            echo "duplicate=true" >> $GITHUB_OUTPUT
+            echo "Goal already exists"
+          else
+            echo "duplicate=false" >> $GITHUB_OUTPUT
+            echo "New goal confirmed"
+          fi
+
+      - name: ✏️ Update template
+        if: steps.check-member.outputs.is_member == 'true' && steps.extract.outputs.should_update == 'true' && steps.check-duplicate.outputs.duplicate == 'false'
+        run: |
+          NEW_GOAL="${{ steps.extract.outputs.new_goal }}"
+          echo "Adding goal: $NEW_GOAL"
+
+          # "직접 입력" 앞에 새 옵션 추가
+          sed -i "/- '직접 입력'/i\\        - '$NEW_GOAL'" .github/ISSUE_TEMPLATE/common.yml
+
+          echo "Template updated successfully"
+
+      - name: 📝 Commit changes
+        if: steps.check-member.outputs.is_member == 'true' && steps.extract.outputs.should_update == 'true' && steps.check-duplicate.outputs.duplicate == 'false'
+        run: |
+          NEW_GOAL="${{ steps.extract.outputs.new_goal }}"
+
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .github/ISSUE_TEMPLATE/common.yml
+          git commit -m "🎯 Add goal: $NEW_GOAL (issue #${{ github.event.issue.number }})"
+          git push
+
+      - name: 💬 Success notification
+        if: steps.check-member.outputs.is_member == 'true' && steps.extract.outputs.should_update == 'true' && steps.check-duplicate.outputs.duplicate == 'false'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const newGoal = '${{ steps.extract.outputs.new_goal }}';
+            const message = [
+              '## ✅ 새로운 목표 옵션 추가됨!',
+              '',
+              `🎯 **"${newGoal}"** 옵션이 추가되었습니다.`,
+              '',
+              '### 📋 다음 이슈부터 사용 가능',
+              `드롭다운에서 "${newGoal}"을 선택할 수 있습니다.`,
+              '',
+              '🤖 *자동으로 처리되었습니다*'
+            ].join('\n');
+
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: message
+            });
+
+      - name: 💬 Duplicate notification
+        if: steps.check-member.outputs.is_member == 'true' && steps.extract.outputs.should_update == 'true' && steps.check-duplicate.outputs.duplicate == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const newGoal = '${{ steps.extract.outputs.new_goal }}';
+            const message = [
+              '## ⚠️ 중복된 목표 옵션',
+              '',
+              `🎯 "${newGoal}" 옵션은 이미 존재합니다.`,
+              '',
+              '드롭다운에서 선택하실 수 있습니다.',
+              '',
+              '🤖 *자동으로 확인되었습니다*'
+            ].join('\n');
+
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: message
+            });
