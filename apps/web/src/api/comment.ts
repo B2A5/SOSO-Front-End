@@ -11,3 +11,14 @@ export const getComments = (
 ): Promise<AxiosResponse<CommentCursorResponse>> => {
   return apiClient.get(`/posts/${postId}/comments`);
 };
+
+/**
+ * 댓글 작성
+ * POST /api/posts/{postId}/comments
+ */
+export const createComment = (
+  postId: number,
+  content: string,
+): Promise<AxiosResponse<void>> => {
+  return apiClient.post(`/posts/${postId}/comments`, { content });
+};
