@@ -7,32 +7,32 @@ import ImageSlider from '@/components/ImageSlider';
 import PostProfile from './components/PostProfile';
 import CommentList from './components/CommentList';
 import CommentInput from './components/CommentInput';
+import { useParams } from 'next/navigation';
 
-// 게시글 더미
-const dummyPost: GetPostResponse = {
-  postId: 1,
-  title: 'Lorem Ipsum Dolor Sit Amet',
-  content:
-    'It is a long established fact that a reader will be distracted by the readable content...',
-  category: '맛집',
-  imageUrls: [
-    'https://picsum.photos/id/1015/600/400',
-    'https://picsum.photos/id/1025/600/400',
-    'https://picsum.photos/id/1035/600/400',
-  ],
-  likeCount: 5,
-  isLiked: false,
-  createdAt: '2025-08-06T10:00:00Z',
-  user: {
-    nickname: '유진',
-    location: '서울시 강남구',
-    profileImageUrl: '/somoon/default_somoon.svg',
-    userType: 'resident',
-  },
-};
+import { getPost } from './components/mock/mockPosts';
+import { useQuery } from '@tanstack/react-query';
 
 export default function PostPage() {
-  const post = dummyPost;
+  const { postid } = useParams<{ postid: string }>();
+  const postId = Number(postid);
+
+  const {
+    data: post,
+    isLoading,
+    isError,
+  } = useQuery<GetPostResponse>({
+    queryKey: ['post', postId],
+    queryFn: () => getPost(postId),
+    enabled: Number.isFinite(postId),
+  });
+
+  if (isLoading) {
+    return <div className="p-5">로딩 중...</div>;
+  }
+
+  if (isError || !post) {
+    return <div className="p-5">게시글을 불러올 수 없습니다.</div>;
+  }
 
   return (
     <div>
