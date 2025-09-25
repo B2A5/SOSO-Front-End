@@ -89,17 +89,7 @@ export default function PostPage() {
       </main>
 
       <div className="fixed inset-x-0 bottom-16 z-50 bg-transparent">
-        <CommentInput
-          postId={post.postId}
-          onSubmit={async (pid, content) => {
-            // TODO: API 연동 지점
-            // await api.post(`/posts/${pid}/comments`, { content });
-            console.log('댓글 등록:', pid, content);
-
-            // TODO: 성공 후 목록 갱신 (리패치 or 낙관적 업데이트)
-            // queryClient.invalidateQueries({ queryKey: ['comments', pid] });
-          }}
-        />
+        <CommentInput postId={post.postId} />
         <div className="backdrop-blur-[2px] bg-white/90 w-full h-full absolute top-0 z-[-1]"></div>
         {/* iOS 안전 영역 보정 */}
         <div className="h-[env(safe-area-inset-bottom)]" />

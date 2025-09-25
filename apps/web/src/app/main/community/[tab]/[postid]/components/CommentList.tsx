@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import type { Comment } from '@/types/comment.types';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
-import { mockGetCommentsByCursor } from './mock/mockComments';
+import { mockGetCommentsByCursor } from './mock/comment.mock';
 import CommentItem from './CommentItem';
 
 interface CommentListProps {
