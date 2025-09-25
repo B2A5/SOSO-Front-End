@@ -33,22 +33,22 @@ jobs:
     #   TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
 
     steps:
-      - name: Checkout (full history for affected calc) # CHANGED: fetch-depth=0
+      - name: 📥 Checkout (full history for affected calc) # CHANGED: fetch-depth=0
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup pnpm
+      - name: 📦 Setup pnpm
         uses: pnpm/action-setup@v3
         with: { version: 9 }
 
-      - name: Setup Node.js
+      - name: 🏗️ Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm
 
-      - name: Install deps
+      - name: 📂 Install dependencies
         run: pnpm install --frozen-lockfile
 
       # CHANGED: Turbo cache key to lockfile/config hash (commit 간 재사용 ↑)
@@ -81,33 +81,35 @@ jobs:
           echo "BASE_SHA=$BASE_SHA"
           echo "filter=--filter=...[$BASE_SHA]" >> $GITHUB_OUTPUT
 
-        # 린트 → 타입체크 → 빌드 → 테스트
-      - name: Lint
+        # 통합 실행: 린트 → 타입체크 → 빌드 → 테스트 (그래프 재계산 최소화)
+      - name: ⚡ 통합 검증 및 빌드
         run: |
           FILTER="${{ steps.affected.outputs.filter }}"
-          pnpm turbo run lint --cache-dir=".turbo" ${FILTER}
-
-      - name: Typecheck
-        run: |
-          FILTER="${{ steps.affected.outputs.filter }}"
-          pnpm turbo run typecheck --cache-dir=".turbo" ${FILTER}
-
-      - name: Build
-        run: |
-          FILTER="${{ steps.affected.outputs.filter }}"
-          pnpm turbo run build --cache-dir=".turbo" ${FILTER}
-
-      - name: Test (coverage)
-        run: |
-          FILTER="${{ steps.affected.outputs.filter }}"
-          pnpm turbo run test:coverage --cache-dir=".turbo" ${FILTER}
+          pnpm turbo run lint typecheck build test:coverage --cache-dir=".turbo" ${FILTER}
 
       # 커버리지/빌드 산출물 업로드
       - name: Upload coverage artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: coverage
+          name: coverage-reports
           path: |
             **/coverage/**
           if-no-files-found: ignore
+          retention-days: 3
+
+      # 빌드 결과 업로드 (PR 분석용) - 필수 파일만 업로드
+      - name: Upload build artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-outputs
+          path: |
+            apps/web/.next/static/**
+            apps/web/.next/server/**
+            apps/web/.next/build-manifest.json
+            apps/web/.next/routes-manifest.json
+            **/dist/**
+            **/build/**
+          if-no-files-found: ignore
+          retention-days: 3
