@@ -7,7 +7,6 @@ import { ReactNode } from 'react';
 export interface OverlayOptions {
   blockScroll?: boolean; // true면 배경 스크롤 차단
   backdrop?: boolean; // true면 전면 배경 반투명 처리
-  closeOnBackdrop?: boolean; // true면 배경 클릭 시 닫기
 }
 
 // 스토어에서 관리할 상태 타입
