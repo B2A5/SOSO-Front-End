@@ -3,6 +3,7 @@ import { PostSummary } from '@/api/posts';
 import { FreeBoardCard } from './FreeboardCard';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { twMerge } from 'tailwind-merge';
+import { VirtualList } from '@/components/VirtualList';
 
 /**
  * 무한스크롤로 커뮤니티 게시글 카드를 보여주는 컴포넌트입니다.
@@ -18,6 +19,7 @@ interface ContentsListProps {
   isFetchingNextPage: boolean; // 다음 페이지 로딩 상태
   isLoading?: boolean; // 초기 로딩 상태
   className?: string; // 추가 클래스명
+  parentRef: React.RefObject<HTMLDivElement>;
 }
 
 export default function ContentsList({
@@ -27,6 +29,7 @@ export default function ContentsList({
   isFetchingNextPage,
   isLoading = false,
   className,
+  parentRef,
 }: ContentsListProps) {
   const triggerRef = useRef<HTMLDivElement>(null);
 
@@ -37,6 +40,7 @@ export default function ContentsList({
     fetchNextPage,
     isFetching: isFetchingNextPage,
     threshold: 0.8, // 80% 지점에서 다음 페이지 로드
+    rootRef: parentRef,
   });
 
   // 초기 로딩 상태
@@ -71,12 +75,20 @@ export default function ContentsList({
 
   return (
     <div className={twMerge('flex flex-col gap-4', className)}>
-      {/* 게시글 카드 리스트 (@todo: 나중에 투표 타입 추가) */}
-      {posts.map((post) => (
-        <FreeBoardCard key={post.postId} post={post} isChip={true} />
-      ))}
+      {/* 가상 리스트 */}
+      <VirtualList<PostSummary>
+        items={posts}
+        parentRef={parentRef}
+        estimateSize={156} // 카드 평균 높이 추정치 (프로젝트에 맞게 조정)
+        overscan={3}
+        rowGap={16}
+        getItemKey={(p) => p.postId}
+        renderItem={(post) => (
+          <FreeBoardCard post={post} isChip={true} />
+        )}
+      />
 
-      {/* 무한스크롤 트리거 요소 */}
+      {/* 무한스크롤 트리거: 같은 스크롤 컨테이너(rootRef) 기준으로 관찰됨 */}
       {hasNextPage && (
         <div ref={triggerRef} className="flex justify-center py-4">
           {isFetchingNextPage ? (
@@ -87,12 +99,11 @@ export default function ContentsList({
               </span>
             </div>
           ) : (
-            <div className="w-full h-1 bg-transparent" /> // 투명한 트리거 영역
+            <div className="w-full h-1 bg-transparent" />
           )}
         </div>
       )}
 
-      {/* 더 이상 불러올 게시글이 없는 경우 */}
       {!hasNextPage && posts.length > 0 && (
         <div className="flex justify-center py-8">
           <p className="text-neutral-400 text-sm">
