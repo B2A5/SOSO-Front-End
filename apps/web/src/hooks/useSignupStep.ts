@@ -89,12 +89,14 @@ export function useSignupStep<Step extends SignupStep>(
       };
     case 4:
       return {
-        mutate: (value: StepRequestMap[Step]) =>
-          budget.mutate({
-            data: {
-              budget: (value ?? undefined) as StepRequestMap[4],
-            },
-          }),
+        mutate: (value: StepRequestMap[Step]) => {
+          // null을 undefined로 변환 (BudgetRequest는 optional이므로 undefined 필요)
+          const budgetValue =
+            value === null
+              ? undefined
+              : (value as BudgetRequestBudget);
+          budget.mutate({ data: { budget: budgetValue } });
+        },
         isPending: budget.isPending,
       } as {
         mutate: (value: StepRequestMap[Step]) => void;

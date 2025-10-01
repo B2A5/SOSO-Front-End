@@ -3,8 +3,8 @@
 
 import { useEffect } from 'react';
 import Header from '@/components/Header';
-import type { UserType } from '@/api/signup';
-import { useParams, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { useSignupFlow } from '@/hooks/useSignupFlow';
 
 /**
  * 회원가입 타입별 공통 레이아웃
@@ -17,35 +17,21 @@ export default function SignUpStepLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const params = useParams<{ type?: string | string[] }>();
   const router = useRouter();
+  const { userType } = useSignupFlow();
 
-  // 1) 파라미터 정규화 (string | string[])
-  const rawType = Array.isArray(params.type)
-    ? params.type[0]
-    : params.type;
-  const paramType = rawType?.toLowerCase();
-
-  // 2) 매핑
-  const derivedUserType: UserType | null =
-    paramType === 'founder'
-      ? 'FOUNDER'
-      : paramType === 'inhabitant'
-        ? 'INHABITANT'
-        : null;
-
-  // 3) 잘못된 값이면 시작 페이지로
+  // 잘못된 값이면 시작 페이지로
   useEffect(() => {
-    if (derivedUserType == null) {
+    if (userType == null) {
       router.replace('/auth/signup');
     }
-  }, [derivedUserType, router]);
+  }, [userType, router]);
 
   // redirect 중일 때 렌더 중단
-  if (derivedUserType == null) return null;
+  if (userType == null) return null;
 
-  // 4) 헤더 타이틀
-  const title = derivedUserType === 'FOUNDER' ? '창업자' : '주민으';
+  // 헤더 타이틀
+  const title = userType === 'FOUNDER' ? '창업자' : '주민';
 
   return (
     <div className="flex flex-col items-center h-full">

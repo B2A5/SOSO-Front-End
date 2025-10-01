@@ -1,11 +1,11 @@
 // stepsData.ts
 import type {
-  AgeRange,
-  Gender,
-  Interest,
-  Budget,
-  Experience,
-} from '@/api/signup';
+  AgeRangeRequestAgeRange,
+  GenderRequestGender,
+  InterestRequestInterestsItem,
+  BudgetRequestBudget,
+  ExperienceRequestExperience,
+} from '@/generated/api/models';
 
 export type Option<T> = { label: string; value: T };
 
@@ -16,35 +16,35 @@ type StepsData = {
     isRequired: true;
     isCommon: true;
     multiple: false;
-    contents: Option<AgeRange>[];
+    contents: Option<AgeRangeRequestAgeRange>[];
   };
   2: {
     title: string;
     isRequired: true;
     isCommon: true;
     multiple: false;
-    contents: Option<Gender | null>[];
+    contents: Option<GenderRequestGender | null>[];
   };
   3: {
     title: string;
     isRequired: false;
     isCommon: false;
     multiple: true;
-    contents: Option<Interest>[];
+    contents: Option<InterestRequestInterestsItem>[];
   };
   4: {
     title: string;
     isRequired: false;
     isCommon: false;
     multiple: false;
-    contents: Option<Budget | null>[];
+    contents: Option<BudgetRequestBudget | null>[];
   };
   5: {
     title: string;
     isRequired: true;
     isCommon: false;
     multiple: false;
-    contents: Option<Experience>[];
+    contents: Option<ExperienceRequestExperience>[];
   };
 };
 
@@ -60,7 +60,7 @@ const stepsData: StepsData = {
       { label: '30대입니다.', value: 'THIRTIES' },
       { label: '40대입니다.', value: 'FORTIES' },
       { label: '50대입니다.', value: 'FIFTIES' },
-      { label: '60대 이상입니다.', value: 'SIXTIES_PLUS' },
+      { label: '60대 이상입니다.', value: 'SIXTIES_AND_OVER' },
     ],
   },
   2: {
@@ -95,18 +95,18 @@ const stepsData: StepsData = {
     isCommon: false,
     multiple: false,
     contents: [
-      { label: '1,000만원 이하', value: 'UNDER_1000' },
-      { label: '1,000만원 ~ 3,000만원', value: 'THOUSANDS_2000' },
+      { label: '1,000만원 이하', value: '1천 이하' },
+      { label: '1,000만원 ~ 3,000만원', value: '2천대' },
       {
         label: '3,000만원 ~ 5,000만원',
-        value: 'THOUSANDS_3000_5000',
+        value: '3~5천',
       },
       {
         label: '5,000만원 ~ 7,000만원',
-        value: 'THOUSANDS_5000_7000',
+        value: '5천~7천',
       },
-      { label: '7,000만원 ~ 1억원', value: 'THOUSANDS_7000_TO_1B' },
-      { label: '1억원 이상', value: 'OVER_1B' },
+      { label: '7,000만원 ~ 1억원', value: '7천~1억' },
+      { label: '1억원 이상', value: '1억 이상' },
     ],
   },
   5: {
