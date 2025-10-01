@@ -7,7 +7,7 @@ import { Button } from '@/components/buttons/Button';
 import { SelectCard } from './components/SelectCard';
 import { useToast } from '@/hooks/ui/useToast';
 import { useSetUserType } from '@/generated/api/endpoints/signup/signup';
-import type { UserTypeRequestUserType } from '@/generated/api/models';
+import type { UserType } from '@/types/user.types';
 
 /**
  *  회원가입 초기 페이지
@@ -17,8 +17,7 @@ import type { UserTypeRequestUserType } from '@/generated/api/models';
 export default function SignUpPage() {
   const router = useRouter();
   const toast = useToast();
-  const [userType, setUserType] =
-    useState<UserTypeRequestUserType | null>(null);
+  const [userType, setUserType] = useState<UserType | null>(null);
 
   // 선택한 유저 타입을 서버에 전송하는 mutation
   const { mutate, isPending } = useSetUserType({
@@ -42,7 +41,7 @@ export default function SignUpPage() {
   });
 
   // 유저 타입을 선택하는 핸들러
-  const handleSelect = (type: UserTypeRequestUserType) => {
+  const handleSelect = (type: UserType) => {
     setUserType(type);
   };
 
