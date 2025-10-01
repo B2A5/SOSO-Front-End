@@ -17,7 +17,10 @@ export default defineConfig({
           path: './src/lib/api-client.ts',
           name: 'customInstance',
         },
+        useDates: false,
       },
+      fileExtension: '.ts',
+      tsconfig: './tsconfig.json',
     },
     hooks: {
       afterAllFilesWrite: 'prettier --write',
