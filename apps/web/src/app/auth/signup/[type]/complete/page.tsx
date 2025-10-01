@@ -10,7 +10,7 @@ import {
   useCompleteSignup,
 } from '@/generated/api/endpoints/signup/signup';
 import { useSignupFlow } from '@/hooks/useSignupFlow';
-import { User } from '@/types/auth.types';
+import { User } from '@/types/user.types';
 
 export default function SignUpCompletePage() {
   const login = useAuthStore((state) => state.login);
@@ -27,47 +27,65 @@ export default function SignUpCompletePage() {
     '귀여운 문어',
   ];
 
-  const { mutate: getNickname, isPending } = useSaveNickname({
-    mutation: {
-      onSuccess: (data) => {
-        setNickname(data.data);
-        console.log('닉네임이 성공적으로 생성되었습니다:', data.data);
-      },
-      onError: (error) => {
-        console.error('Error saving nickname:', error);
-      },
-    },
-  });
-
-  const { mutate: completeSignup } = useCompleteSignup({
-    mutation: {
-      onSuccess: (data) => {
-        const { jwtAccessToken } = data.data;
-
-        if (nickname) {
-          login({
-            user: { nickname } as User,
-            accessToken: jwtAccessToken,
-          });
-          console.log('로그인이 완료되었습니다:', { data, nickname });
-        } else {
-          console.error('닉네임 정보가 없어 로그인할 수 없습니다.');
-        }
-      },
-      onError: (error) => {
-        console.error('Error completing signup:', error);
-      },
-    },
-  });
-
-  const handleButtonClick = () => {
-    completeSignup({});
+  // 회원가입 완료 후 로그인 및 리다이렉트 처리
+  const handleSuccess = (
+    jwtAccessToken: string,
+    nickname: string,
+  ) => {
+    login({
+      user: { nickname } as User,
+      accessToken: jwtAccessToken,
+    });
+    console.log('회원가입 및 로그인 완료:', { nickname });
     router.replace('/main');
   };
 
+  // 회원가입 완료 API 호출
+  const { mutate: completeSignup, isPending: isCompletingSignup } =
+    useCompleteSignup({
+      mutation: {
+        onSuccess: (data) => {
+          const { jwtAccessToken } = data;
+          if (nickname && jwtAccessToken) {
+            handleSuccess(jwtAccessToken, nickname);
+          } else {
+            console.error('닉네임 또는 토큰 정보가 없습니다.');
+          }
+        },
+        onError: (error) => {
+          console.error('회원가입 완료 실패:', error);
+        },
+      },
+    });
+
+  // 닉네임 생성 API 호출
+  const { mutate: getNickname, isPending: isGeneratingNickname } =
+    useSaveNickname({
+      mutation: {
+        onSuccess: (data) => {
+          setNickname(data);
+          console.log('닉네임 생성 완료:', data);
+        },
+        onError: (error) => {
+          console.error('닉네임 생성 실패:', error);
+        },
+      },
+    });
+
+  // "SOSO 시작하기" 버튼 클릭
+  const handleButtonClick = () => {
+    if (!nickname) {
+      console.error('닉네임이 생성되지 않았습니다.');
+      return;
+    }
+    completeSignup();
+  };
+
+  // 마운트 시 닉네임 자동 생성
   useEffect(() => {
-    getNickname({});
-  }, [getNickname]);
+    getNickname();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="p-layout w-full h-full flex flex-col items-center justify-between pt-[90px]">
@@ -86,7 +104,8 @@ export default function SignUpCompletePage() {
         <CompleteImg />
       </div>
       <Button
-        isLoading={isPending}
+        isLoading={isGeneratingNickname || isCompletingSignup}
+        disabled={!nickname}
         className="w-full animate-pulse"
         onClick={handleButtonClick}
       >
