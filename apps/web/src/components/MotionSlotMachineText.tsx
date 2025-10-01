@@ -17,16 +17,6 @@ interface MotionSlotMachineTextProps {
 
 /**
  * Framer Motion 기반 슬롯머신 스타일 텍스트 애니메이션 컴포넌트
- *
- * 장점:
- * - 코드 복잡도 60% 감소 (248줄 → 95줄)
- * - 선언적 API로 유지보수 용이
- * - 강력한 이징 함수 내장
- * - 디버깅 도구 지원
- *
- * 단점:
- * - 번들 크기 +58KB (gzip 후 ~19KB)
- * - React 렌더링 오버헤드 (미미함)
  */
 export function MotionSlotMachineText({
   options,
@@ -74,7 +64,7 @@ export function MotionSlotMachineText({
   return (
     <span
       className={twMerge(
-        'inline-flex relative min-w-[8ch] text-center items-center',
+        'inline-flex relative min-w-[12ch] text-center items-center',
         className,
       )}
       style={{

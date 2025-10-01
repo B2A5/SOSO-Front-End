@@ -21,11 +21,12 @@ export default function SignUpCompletePage() {
     userType === 'FOUNDER' ? '예비 창업자' : '주민';
   const [nickname, setNickname] = useState<string | null>(null);
   const words = [
-    '행복한 문어',
-    '쓸쓸한 문어',
-    '화려한 문어',
-    '슬픈 문어',
-    '귀여운 문어',
+    '행복한문어',
+    '쓸쓸한문어',
+    '화려한문어',
+    '장미를든문어',
+    '귀여운문어',
+    '재잘거리는문어',
   ];
 
   // 회원가입 완료 후 로그인 및 리다이렉트 처리
@@ -89,8 +90,8 @@ export default function SignUpCompletePage() {
   }, []);
 
   return (
-    <div className="p-layout w-full h-full flex flex-col items-center justify-between pt-[90px]">
-      <div className="flex flex-col items-center gap-4 max-w-[270px] w-full">
+    <div className="w-full h-full flex flex-col items-center justify-between pt-[90px]">
+      <div className="flex flex-col items-center gap-4 max-w-[300px] w-full">
         <h1 className="text-hero dark:text-white">
           가입이 완료됐어요!
         </h1>
