@@ -26,7 +26,7 @@ export default function CommentInput({
   limit = 300,
 }: CommentInputProps) {
   const [value, setValue] = useState('');
-  const taRef = useRef<HTMLTextAreaElement>(null);
+  const tagetRef = useRef<HTMLTextAreaElement>(null);
   const queryClient = useQueryClient();
   const toast = useToast();
 
@@ -46,13 +46,13 @@ export default function CommentInput({
 
   // textarea 자동 높이 조정
   useEffect(() => {
-    const el = taRef.current;
+    const el = tagetRef.current;
     if (!el) return;
     el.style.height = 'auto';
     el.style.height = `${el.scrollHeight}px`;
   }, [value]);
 
-  const handleChange = (
+  const handleChangeInput = (
     e: React.ChangeEvent<HTMLTextAreaElement>,
   ) => {
     const next = e.target.value;
@@ -76,11 +76,11 @@ export default function CommentInput({
         )}
       >
         <textarea
-          ref={taRef}
+          ref={tagetRef}
           rows={1}
           placeholder="댓글을 입력하세요"
           value={value}
-          onChange={handleChange}
+          onChange={handleChangeInput}
           onKeyDown={(e) => {
             if (e.nativeEvent.isComposing) return;
             if (e.key === 'Enter' && !e.shiftKey) {

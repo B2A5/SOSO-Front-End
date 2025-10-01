@@ -19,12 +19,12 @@ export function UserTypeBadge({
   /** 추가 Tailwind 클래스 */
   className?: string;
 }) {
-  const MAP = {
+  const userTypeMap = {
     founder: { label: '창업자', Icon: Sprout },
     resident: { label: '주민', Icon: Home },
   } as const;
 
-  const { label, Icon } = MAP[type];
+  const { label, Icon } = userTypeMap[type];
 
   return (
     <span
