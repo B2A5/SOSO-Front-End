@@ -1,5 +1,3 @@
-//회원가입 초기 시작 페이지
-// apps/web/src/app/auth/signup/Page.tsx
 'use client';
 import React, { useState } from 'react';
 import { Button } from '@/components/buttons/Button';

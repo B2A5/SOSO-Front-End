@@ -1,4 +1,3 @@
-// src/app/auth/signup/[type]/layout.tsx
 'use client';
 
 import { useEffect } from 'react';
@@ -8,9 +7,9 @@ import { useSignupFlow } from '@/hooks/useSignupFlow';
 
 /**
  * 회원가입 타입별 공통 레이아웃
- * URL 세그먼트 (/auth/signup/[type]/...)에서 founder|inhabitant 을 읽어
+ * URL 세그먼트 (/signup/[type]/...)에서 founder|inhabitant 을 읽어
  * 창업자/주민 라벨을 렌더합니다.
- * 잘못된 타입이면 /auth/signup 으로 리다이렉트합니다.
+ * 잘못된 타입이면 /signup 으로 리다이렉트합니다.
  */
 export default function SignUpStepLayout({
   children,
@@ -23,7 +22,7 @@ export default function SignUpStepLayout({
   // 잘못된 값이면 시작 페이지로
   useEffect(() => {
     if (userType == null) {
-      router.replace('/auth/signup');
+      router.replace('/signup');
     }
   }, [userType, router]);
 

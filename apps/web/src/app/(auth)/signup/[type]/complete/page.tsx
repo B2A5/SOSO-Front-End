@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/buttons/Button';
-import { SlotMachineText } from '@/components/SlotMachineText';
+//import { SlotMachineText } from '@/components/SlotMachineText';
 import CompleteImg from './components/CompleteImg';
 import { useAuthStore } from '@/stores/authStore';
 import { useRouter } from 'next/navigation';
@@ -11,6 +11,7 @@ import {
 } from '@/generated/api/endpoints/signup/signup';
 import { useSignupFlow } from '@/hooks/useSignupFlow';
 import { User } from '@/types/user.types';
+import { MotionSlotMachineText } from '@/components/MotionSlotMachineText';
 
 export default function SignUpCompletePage() {
   const login = useAuthStore((state) => state.login);
@@ -95,7 +96,10 @@ export default function SignUpCompletePage() {
         </h1>
         <p className="text-body1 text-center dark:text-white">
           &quot;SOSO&quot;의 {userTypeLabel}
-          <SlotMachineText options={words} targetText={nickname!} />
+          <MotionSlotMachineText
+            options={words}
+            targetText={nickname!}
+          />
           님의 <br />
           앞날을 응원할게요!
         </p>

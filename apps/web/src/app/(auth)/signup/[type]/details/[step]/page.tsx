@@ -43,7 +43,7 @@ export default function DetailsPage() {
   // 잘못된 스텝 번호로 접근 시 첫 번째 스텝으로 리다이렉트
   useEffect(() => {
     if (userType == null) {
-      router.replace('/auth/signup'); // 잘못된 type
+      router.replace('/signup'); // 잘못된 유저 타입 시
     } else if (stepNum < 1 || stepNum > totalStep) {
       pushNext('details');
       console.warn(

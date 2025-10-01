@@ -1,7 +1,6 @@
-// apps/web/src/app/auth/page.tsx
 'use client';
 
-import KakaoLoginButton from './components/KakaoLoginButton';
+import KakaoLoginButton from '../components/KakaoLoginButton';
 import LogoImage from '@/assets/images/LogoImage';
 import { Button } from '@/components/buttons/Button';
 import { useRouter } from 'next/navigation';
@@ -22,7 +21,7 @@ export default function AuthPage() {
               <Button
                 size="lg"
                 className="w-full bg-black"
-                onClick={() => router.push('/auth/signup')}
+                onClick={() => router.push('/signup')}
               >
                 애플로 로그인
               </Button>

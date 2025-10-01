@@ -44,7 +44,7 @@ export function useSignupFlow() {
       console.error('Invalid user type, cannot navigate');
       return;
     }
-    router.push(`/auth/signup/${typePrefix}/${route}`);
+    router.push(`/signup/${typePrefix}/${route}`);
   };
 
   /**

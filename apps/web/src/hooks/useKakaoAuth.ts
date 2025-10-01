@@ -6,7 +6,7 @@ import { useKakaoLogin } from '@/generated/api/endpoints/auth/auth';
 import type { KakaoLoginResult } from '@/generated/api/models';
 import { useAuthStore } from '@/stores/authStore';
 import { useToast } from '@/hooks/ui/useToast';
-import * as kakaoAuthService from '@/app/auth/kakao/service';
+import * as kakaoAuthService from '@/app/(auth)/kakao/service';
 
 /**
  * 카카오 로그인 훅
@@ -45,12 +45,17 @@ export function useKakaoAuth() {
 
     // 신규 유저 → 회원가입 페이지
     if (data.isNewUser) {
-      router.push('/auth/signup');
+      router.push('/signup');
     }
     // 기존 유저 → 메인 페이지
     else if (data.accessToken) {
+      const mockUser = {
+        nickname: '사용자',
+        userId: 0,
+        userType: 'INHABITANT' as const,
+      };
       login({
-        user: { nickname: '사용자' },
+        user: mockUser,
         accessToken: data.accessToken,
       });
       router.push('/main');

@@ -18,7 +18,7 @@ export default function HomePage() {
   }, [isLoading]);
 
   const handleStart = () => {
-    router.replace(getIsAuth() ? '/main' : '/auth');
+    router.replace(getIsAuth() ? '/main' : '/login');
   };
 
   return (
