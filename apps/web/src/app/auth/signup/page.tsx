@@ -2,12 +2,12 @@
 // apps/web/src/app/auth/signup/Page.tsx
 'use client';
 import React, { useState } from 'react';
-import { UserType, postUserType } from '@/api/signup';
-import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/buttons/Button';
 import { SelectCard } from './components/SelectCard';
 import { useToast } from '@/hooks/ui/useToast';
+import { useSetUserType } from '@/generated/api/endpoints/signup/signup';
+import type { UserTypeRequestUserType } from '@/generated/api/models';
 
 /**
  *  회원가입 초기 페이지
@@ -17,25 +17,32 @@ import { useToast } from '@/hooks/ui/useToast';
 export default function SignUpPage() {
   const router = useRouter();
   const toast = useToast();
-  const [userType, setUserType] = useState<UserType | null>(null);
+  const [userType, setUserType] =
+    useState<UserTypeRequestUserType | null>(null);
+
   // 선택한 유저 타입을 서버에 전송하는 mutation
-  const { mutate, isPending } = useMutation({
-    mutationFn: postUserType,
-    onSuccess: () => {
-      // 성공 시 처리 로직
-      console.log('유저 타입이 성공적으로 저장되었습니다.');
-      const type = userType === 'FOUNDER' ? 'founder' : 'inhabitant';
-      router.push(`/auth/signup/${type}/region`);
-    },
-    onError: (error) => {
-      // 에러 처리 로직
-      console.error('유저 타입이 일치하지 않습니다.', error);
-      toast('서버 에러가 발생했습니다. 다시 시도해주세요.', 'error');
+  const { mutate, isPending } = useSetUserType({
+    mutation: {
+      onSuccess: () => {
+        // 성공 시 처리 로직
+        console.log('유저 타입이 성공적으로 저장되었습니다.');
+        const type =
+          userType === 'FOUNDER' ? 'founder' : 'inhabitant';
+        router.push(`/auth/signup/${type}/region`);
+      },
+      onError: (error) => {
+        // 에러 처리 로직
+        console.error('유저 타입이 일치하지 않습니다.', error);
+        toast(
+          '서버 에러가 발생했습니다. 다시 시도해주세요.',
+          'error',
+        );
+      },
     },
   });
 
   // 유저 타입을 선택하는 핸들러
-  const handleSelect = (type: UserType) => {
+  const handleSelect = (type: UserTypeRequestUserType) => {
     setUserType(type);
   };
 
@@ -45,7 +52,7 @@ export default function SignUpPage() {
       console.error('유저 타입이 선택되지 않았습니다.');
       return;
     }
-    mutate(userType);
+    mutate({ data: { userType } });
   };
 
   return (

@@ -6,7 +6,7 @@ import { useKakaoLogin } from '@/generated/api/endpoints/auth/auth';
 import type { KakaoLoginResult } from '@/generated/api/models';
 import { useAuthStore } from '@/stores/authStore';
 import { useToast } from '@/hooks/ui/useToast';
-import * as kakaoAuthService from '@/auth/kakao/service';
+import * as kakaoAuthService from '@/app/auth/kakao/service';
 
 /**
  * 카카오 로그인 훅
