@@ -30,7 +30,7 @@ export default function CommentInput({
   const queryClient = useQueryClient();
   const toast = useToast();
 
-  const { mutateAsync, isPending } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: (content: string) => createComment(postId, content),
     onSuccess: () => {
       toast('댓글이 등록되었습니다', 'success');
@@ -59,9 +59,9 @@ export default function CommentInput({
     setValue(next.length > limit ? next.slice(0, limit) : next);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     if (!value.trim()) return;
-    await mutateAsync(value.trim());
+    mutate(value.trim());
   };
 
   return (
