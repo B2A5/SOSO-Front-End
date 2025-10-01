@@ -2,33 +2,20 @@
 import React, { useState } from 'react';
 import Button from '@/components/buttons/Button';
 import { LocationButton } from './components/LocationButton';
-import { useRouter, useParams } from 'next/navigation';
 import { useToast } from '@/hooks/ui/useToast';
 import { useSetRegion } from '@/generated/api/endpoints/signup/signup';
-import type { UserType } from '@/types/user.types';
+import { useSignupFlow } from '@/hooks/useSignupFlow';
 
 export default function RegionPage() {
-  const router = useRouter();
-  const params = useParams();
-  const rawType = Array.isArray(params.type)
-    ? params.type[0]
-    : params.type;
-  const paramType = rawType?.toLowerCase();
-
-  const derivedUserType: UserType | null =
-    paramType === 'founder'
-      ? 'FOUNDER'
-      : paramType === 'inhabitant'
-        ? 'INHABITANT'
-        : null;
   const toast = useToast();
+  const { pushNext } = useSignupFlow();
   const [address, setAddress] = useState<string | null>(null);
 
   const { mutate, isPending } = useSetRegion({
     mutation: {
       onSuccess: () => {
         console.log('지역이 성공적으로 저장되었습니다.');
-        router.push(`/auth/signup/${derivedUserType}/details`);
+        pushNext('details');
       },
       onError: (error) => {
         console.error('지역 저장에 실패했습니다.', error);
