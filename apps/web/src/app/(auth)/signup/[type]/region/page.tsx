@@ -1,7 +1,10 @@
 'use client';
 import React, { useState } from 'react';
 import Button from '@/components/buttons/Button';
-import { LocationButton } from './components/LocationButton';
+import {
+  AddressSet,
+  LocationButton,
+} from './components/LocationButton';
 import { useToast } from '@/hooks/ui/useToast';
 import { useSetRegion } from '@/generated/api/endpoints/signup/signup';
 import { useSignupFlow } from '@/hooks/useSignupFlow';
@@ -9,7 +12,7 @@ import { useSignupFlow } from '@/hooks/useSignupFlow';
 export default function RegionPage() {
   const toast = useToast();
   const { pushNext } = useSignupFlow();
-  const [address, setAddress] = useState<string | null>(null);
+  const [address, setAddress] = useState<AddressSet | null>(null);
 
   const { mutate, isPending } = useSetRegion({
     mutation: {
@@ -27,7 +30,7 @@ export default function RegionPage() {
     },
   });
   //버튼에서 주소를 선택했을 때 호출되는 핸들러
-  const handleAddressSelected = (address: string) => {
+  const handleAddressSelected = (address: AddressSet) => {
     setAddress(address);
   };
   // 다음 버튼 클릭 핸들러
@@ -36,7 +39,7 @@ export default function RegionPage() {
       console.error('주소가 선택되지 않았습니다.');
       return;
     }
-    mutate({ data: { regionId: address } });
+    mutate({ data: { regionId: address.sigunguCode } });
   };
   return (
     <div className="w-full h-full flex flex-col items-center justify-center">
@@ -48,7 +51,7 @@ export default function RegionPage() {
         </h1>
         <LocationButton
           onAddressSelect={handleAddressSelected}
-          selectedAddress={address}
+          selectedAddress={address?.address ?? null}
         />
         <div className="flex-1" />
       </div>
