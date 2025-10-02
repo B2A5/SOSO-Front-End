@@ -9,7 +9,7 @@ interface VirtualListProps<T> {
   overscan?: number; // 화면 밖 추가 렌더 개수
   getItemKey?: (item: T, i: number) => React.Key; // 안정 키
   parentRef: React.RefObject<HTMLDivElement>; // 스크롤 컨테이너
-  rowGap?: number; // 항목 간 간격(px, padding으로 처리)
+  gap?: number;
   storageKey?: string;
 }
 
@@ -20,7 +20,7 @@ export function VirtualList<T>({
   overscan = 3,
   getItemKey,
   parentRef,
-  rowGap = 0,
+  gap = 0,
   storageKey = 'virtual-list-scroll',
 }: VirtualListProps<T>) {
   const savedOffset =
@@ -35,6 +35,7 @@ export function VirtualList<T>({
     overscan,
     getItemKey: (i) => getItemKey?.(items[i], i) ?? i,
     initialOffset: savedOffset,
+    gap,
   });
 
   useEffect(() => {
@@ -82,7 +83,6 @@ export function VirtualList<T>({
               left: 0,
               width: '100%',
               transform: `translateY(${row.start}px)`,
-              paddingBottom: rowGap,
             }}
             data-index={displayIndex}
           >
