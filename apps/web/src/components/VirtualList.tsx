@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 
 interface VirtualListProps<T> {
@@ -11,9 +11,9 @@ interface VirtualListProps<T> {
   parentRef: React.RefObject<HTMLDivElement>; // 스크롤 컨테이너
   indexOffset?: number; // 표시용 인덱스 시작값
   rowGap?: number; // 항목 간 간격(px, padding으로 처리)
+  storageKey?: string;
 }
 
-/** 외부 스크롤 컨테이너(parentRef) 기준 가상 리스트 */
 export function VirtualList<T>({
   items,
   renderItem,
@@ -23,19 +23,49 @@ export function VirtualList<T>({
   parentRef,
   indexOffset = 0,
   rowGap = 0,
+  storageKey = 'virtual-list-scroll',
 }: VirtualListProps<T>) {
+  const savedOffset =
+    typeof window !== 'undefined'
+      ? Number(sessionStorage.getItem(storageKey) ?? 0)
+      : 0;
+
   const virtualizer = useVirtualizer({
     count: items.length,
-    getScrollElement: () => parentRef.current, // 외부 스크롤 엘리먼트
-    estimateSize: () => estimateSize, // 평균 높이
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => estimateSize,
     overscan,
     getItemKey: (i) => getItemKey?.(items[i], i) ?? i,
-    measureElement: (el) => el.getBoundingClientRect().height, // 실제 높이 측정
+    initialOffset: savedOffset,
   });
+
+  useEffect(() => {
+    // mount 직후 한 번 강제 measure
+    virtualizer.measure();
+
+    // unmount 시 현재 스크롤 위치 저장
+    return () => {
+      sessionStorage.setItem(
+        storageKey,
+        String(virtualizer.scrollOffset),
+      );
+    };
+  }, [virtualizer, storageKey]);
+
+  useEffect(() => {
+    const el = parentRef.current;
+    if (!el) return;
+
+    const onScroll = () => {
+      console.log('📍 scrollOffset:', virtualizer.scrollOffset);
+    };
+
+    el.addEventListener('scroll', onScroll);
+    return () => el.removeEventListener('scroll', onScroll);
+  }, [virtualizer, parentRef]);
 
   return (
     <div
-      /* 전체 리스트 높이의 스페이서 */
       style={{
         height: virtualizer.getTotalSize(),
         position: 'relative',
@@ -47,9 +77,7 @@ export function VirtualList<T>({
         return (
           <div
             key={row.key}
-            ref={(el) => {
-              if (el) virtualizer.measureElement(el);
-            }}
+            ref={virtualizer.measureElement}
             style={{
               position: 'absolute',
               top: 0,
