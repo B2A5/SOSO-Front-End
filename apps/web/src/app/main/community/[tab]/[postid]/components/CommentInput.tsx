@@ -26,7 +26,7 @@ export default function CommentInput({
   limit = 300,
 }: CommentInputProps) {
   const [value, setValue] = useState('');
-  const tagetRef = useRef<HTMLTextAreaElement>(null);
+  const targetRef = useRef<HTMLTextAreaElement>(null);
   const queryClient = useQueryClient();
   const toast = useToast();
 
@@ -46,7 +46,7 @@ export default function CommentInput({
 
   // textarea 자동 높이 조정
   useEffect(() => {
-    const el = tagetRef.current;
+    const el = targetRef.current;
     if (!el) return;
     el.style.height = 'auto';
     el.style.height = `${el.scrollHeight}px`;
@@ -90,7 +90,7 @@ export default function CommentInput({
         )}
       >
         <textarea
-          ref={tagetRef}
+          ref={targetRef}
           rows={1}
           placeholder="댓글을 입력하세요"
           value={value}
