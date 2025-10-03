@@ -48,8 +48,11 @@ export default function CommentInput({
   useEffect(() => {
     const el = targetRef.current;
     if (!el) return;
-    el.style.height = 'auto';
-    el.style.height = `${el.scrollHeight}px`;
+
+    requestAnimationFrame(() => {
+      el.style.height = 'auto';
+      el.style.height = `${el.scrollHeight}px`;
+    });
   }, [value]);
 
   const handleChangeInput = (
@@ -74,7 +77,7 @@ export default function CommentInput({
 
     if (isEnter && !isShift) {
       e.preventDefault();
-      handleSubmit();
+      void handleSubmit();
     }
   };
 
