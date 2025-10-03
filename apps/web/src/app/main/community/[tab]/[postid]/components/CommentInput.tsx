@@ -64,6 +64,20 @@ export default function CommentInput({
     mutate(value.trim());
   };
 
+  const handleKeyDown = (
+    e: React.KeyboardEvent<HTMLTextAreaElement>,
+  ) => {
+    if (e.nativeEvent.isComposing) return;
+
+    const isEnter = e.key === 'Enter';
+    const isShift = e.shiftKey;
+
+    if (isEnter && !isShift) {
+      e.preventDefault();
+      void handleSubmit();
+    }
+  };
+
   return (
     <div
       className={twMerge('mx-auto w-full max-w-screen-md px-5 py-3')}
@@ -81,13 +95,7 @@ export default function CommentInput({
           placeholder="댓글을 입력하세요"
           value={value}
           onChange={handleChangeInput}
-          onKeyDown={(e) => {
-            if (e.nativeEvent.isComposing) return;
-            if (e.key === 'Enter' && !e.shiftKey) {
-              e.preventDefault();
-              void handleSubmit();
-            }
-          }}
+          onKeyDown={handleKeyDown}
           disabled={isPending}
           className={twMerge(
             '!border-0 focus:!outline-none',
