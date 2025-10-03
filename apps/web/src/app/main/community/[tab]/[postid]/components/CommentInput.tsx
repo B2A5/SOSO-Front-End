@@ -74,7 +74,7 @@ export default function CommentInput({
 
     if (isEnter && !isShift) {
       e.preventDefault();
-      void handleSubmit();
+      handleSubmit();
     }
   };
 
