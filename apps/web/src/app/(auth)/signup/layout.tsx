@@ -13,7 +13,7 @@ export default function SignUpLayout({
   children,
 }: SignUpLayoutProps) {
   return (
-    <div className="flex flex-col items-center h-full">
+    <div className="flex flex-col items-center h-full w-full">
       <RedirectIfAuthed className="w-full flex-1 h-full">
         {children}
       </RedirectIfAuthed>
