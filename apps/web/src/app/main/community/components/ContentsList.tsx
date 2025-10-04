@@ -81,7 +81,7 @@ export default function ContentsList({
         parentRef={parentRef}
         estimateSize={156} // 카드 평균 높이 추정치 (프로젝트에 맞게 조정)
         overscan={3}
-        gap={16}
+        gap={4}
         getItemKey={(p) => p.postId}
         renderItem={(post) => (
           <FreeBoardCard post={post} isChip={true} />
