@@ -1,5 +1,5 @@
 import { Tab } from '@/components/tabs/Tab';
-import { TabItem, TabValue } from '@/types/tab.types';
+import { TabItem, CommunityTabValue } from '@/types/tab.types';
 import { useRouter } from 'next/navigation';
 
 /**
@@ -14,24 +14,24 @@ import { useRouter } from 'next/navigation';
  * ```
  */
 
-const BOARDS: TabItem[] = [
+const BOARDS: TabItem<CommunityTabValue>[] = [
   { title: '투표 게시판', value: 'votesboard' },
   { title: '자유 게시판', value: 'freeboard' },
 ];
 
 interface BoardSwitcherProps {
-  current: TabValue;
+  current: CommunityTabValue;
 }
 
 export function BoardSwitcher({ current }: BoardSwitcherProps) {
   const router = useRouter();
 
-  const handleTabChange = (value: TabValue) => {
+  const handleTabChange = (value: CommunityTabValue) => {
     router.push(`/main/community/${value}`);
   };
 
   return (
-    <Tab
+    <Tab<CommunityTabValue>
       tabs={BOARDS}
       activeTab={current}
       onTabChange={handleTabChange}
