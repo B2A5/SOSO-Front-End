@@ -157,7 +157,12 @@ export function Tab<T extends string = string>({
           'absolute bottom-0 h-0.5 bg-soso-600 transition-all duration-300 ease-out',
           !isInitialized ? 'opacity-0' : 'opacity-100',
         )}
-        style={underlineStyle}
+        style={{
+          width: underlineStyle.width
+            ? `${underlineStyle.width}px`
+            : 0,
+          left: underlineStyle.left ? `${underlineStyle.left}px` : 0,
+        }}
         aria-hidden="true"
       />
 
