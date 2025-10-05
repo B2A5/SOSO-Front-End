@@ -3,7 +3,6 @@
 import { Button } from '@/components/buttons/Button';
 import { Search } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
-import { Tab } from '@/components/tabs/Tab';
 import { TabItem } from '@/types/tab.types';
 import { useRouter, usePathname, useParams } from 'next/navigation';
 import Header from '@/components/Header';
@@ -11,6 +10,7 @@ import { useOverlay } from '@/hooks/ui/useOverlay';
 import BottomSheetMenu, {
   MenuAction,
 } from '@/components/BottomSheet';
+import { UnderlineTab } from '@/components/tabs/UnderlineTab';
 
 /**
  * 커뮤니티 페이지에 따른 동적 헤더를 제공합니다.
@@ -19,8 +19,8 @@ import BottomSheetMenu, {
  * - view 페이지에서는 이전 버튼과 메뉴 버튼을 표시
  */
 export const TAB_LIST: TabItem[] = [
-  { title: '투표 게시판', value: 'votesboard' },
-  { title: '자유 게시판', value: 'freeboard' },
+  { label: '투표 게시판', value: 'votesboard' },
+  { label: '자유 게시판', value: 'freeboard' },
 ];
 
 interface CommunityHeaderProps {
@@ -81,7 +81,7 @@ export function CommunityHeader({
   // 탭에 따른 제목 가져오기
   const getTabTitle = (tab: string) => {
     const tabItem = TAB_LIST.find((item) => item.value === tab);
-    return tabItem?.title || '커뮤니티';
+    return tabItem?.label || '커뮤니티';
   };
 
   const headerType = getHeaderType();
@@ -116,7 +116,7 @@ export function CommunityHeader({
         className,
       )}
     >
-      <Tab
+      <UnderlineTab
         tabs={TAB_LIST}
         activeTab={currentTab}
         onTabChange={handleTabChange}
