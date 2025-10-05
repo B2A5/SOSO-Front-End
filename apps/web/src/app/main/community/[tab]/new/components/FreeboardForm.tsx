@@ -12,7 +12,7 @@ import {
   GetPostResponse,
   createPost,
 } from '@/api/posts';
-import { CATEGORIES, Category } from '@/constants/categories';
+import { CATEGORIES, Category } from '../../../constants/categories';
 import SelectDropdown from '@/components/dropdown/SelectDropdown';
 import TextArea from '@/components/inputs/TextArea';
 import { ImageInput } from '@/components/ImageInput';
@@ -37,7 +37,8 @@ export function FreeboardForm({
   const router = useRouter();
   const pathname = usePathname();
   const queryCategory = searchParams.get('category') as Category;
-  const selectedCategory = initialCategory || queryCategory || CATEGORIES[0].value;
+  const selectedCategory =
+    initialCategory || queryCategory || CATEGORIES[0].value;
   const defaultVals = useMemo<PostFormData>(
     () =>
       postData ?? {

@@ -1,4 +1,4 @@
-import { Tab } from '@/components/tabs/Tab';
+import { UnderlineTab } from '@/components/tabs/UnderlineTab';
 import { TabItem, CommunityTabValue } from '@/types/tab.types';
 import { useRouter } from 'next/navigation';
 
@@ -15,15 +15,15 @@ import { useRouter } from 'next/navigation';
  */
 
 const BOARDS: TabItem<CommunityTabValue>[] = [
-  { title: '투표 게시판', value: 'votesboard' },
-  { title: '자유 게시판', value: 'freeboard' },
+  { label: '투표 게시판', value: 'votesboard' },
+  { label: '자유 게시판', value: 'freeboard' },
 ];
 
-interface BoardSwitcherProps {
+interface BoardSwitcherTabProps {
   current: CommunityTabValue;
 }
 
-export function BoardSwitcher({ current }: BoardSwitcherProps) {
+export function BoardSwitcherTab({ current }: BoardSwitcherTabProps) {
   const router = useRouter();
 
   const handleTabChange = (value: CommunityTabValue) => {
@@ -31,7 +31,7 @@ export function BoardSwitcher({ current }: BoardSwitcherProps) {
   };
 
   return (
-    <Tab<CommunityTabValue>
+    <UnderlineTab<CommunityTabValue>
       tabs={BOARDS}
       activeTab={current}
       onTabChange={handleTabChange}

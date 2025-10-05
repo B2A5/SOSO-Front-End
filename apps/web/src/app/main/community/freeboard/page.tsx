@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { PillChips } from '@/components/tabs/PillChipsTab';
+import { PillChipsTab } from '@/components/tabs/PillChipsTab';
 import { CATEGORIES, Category } from '../constants/categories';
 import { FilterHeader } from '../components/FilterHeader';
 import { SortValue } from '@/types/options.types';
@@ -12,15 +12,17 @@ import { mockGetPostsByCursor } from '../mock/mockPosts';
 import type { PostCursorResponse } from '@/api/posts';
 
 /**
- * 커뮤니티 탭 페이지 (레거시 - [tab] 동적 라우팅)
+ * 자유 게시판 메인 페이지
+ *
+ * @description
  * - 카테고리별 게시글 목록을 보여주는 페이지
  * - 무한스크롤 기능 포함
  * - 카테고리 및 정렬 옵션 선택 가능
- * @todo: 목업 데이터를 실제 데이터로 교체
- * @deprecated 새로운 votesboard/freeboard 구조로 마이그레이션 예정
+ *
+ * @todo 목업 데이터를 실제 데이터로 교체
  */
 
-export default function CommunityTabPage() {
+export default function FreeboardPage() {
   const [category, setCategory] = useState<Category | null>(null);
   const [sortOption, setSortOption] = useState<SortValue>(
     SORT_OPTIONS[0].value,
@@ -63,7 +65,7 @@ export default function CommunityTabPage() {
 
   return (
     <div className="w-full h-full flex flex-col">
-      <PillChips<Category>
+      <PillChipsTab<Category>
         chips={CATEGORIES}
         activeValue={category}
         onChange={setCategory}

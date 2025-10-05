@@ -17,9 +17,9 @@ interface UnderlineStyle {
 }
 
 /**
- * 탭 컴포넌트 Props 인터페이스
+ * 언더라인 탭 컴포넌트 Props 인터페이스
  */
-export interface TabProps<T> {
+export interface UnderlineTabProps<T> {
   /** 탭 목록 배열 */
   tabs: TabItem<T>[];
   /** 현재 활성화된 탭 */
@@ -31,16 +31,16 @@ export interface TabProps<T> {
 }
 
 /**
- * 커뮤니티 탭 컴포넌트
+ * 언더라인 애니메이션이 있는 탭 컴포넌트
  *
  * @template T - 탭 value 타입 (string을 확장해야 함)
  */
-export function Tab<T extends string = string>({
+export function UnderlineTab<T extends string = string>({
   tabs,
   activeTab = tabs?.[0]?.value,
   onTabChange,
   className = '',
-}: TabProps<T>) {
+}: UnderlineTabProps<T>) {
   const [underlineStyle, setUnderlineStyle] =
     useState<UnderlineStyle>({});
   const [isInitialized, setIsInitialized] = useState(false);
@@ -146,7 +146,7 @@ export function Tab<T extends string = string>({
             aria-selected={activeTab === tab.value}
             aria-controls={`tabpanel-${tab.value}`}
           >
-            {tab.title}
+            {tab.label}
           </button>
         ))}
       </div>

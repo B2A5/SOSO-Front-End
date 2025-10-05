@@ -3,7 +3,7 @@
 import { Button } from '@/components/buttons/Button';
 import { Search } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
-import { Tab } from '@/components/tabs/Tab';
+import { UnderlineTab } from '@/components/tabs/UnderlineTab';
 import { TabItem } from '@/types/tab.types';
 import { useRouter, usePathname, useParams } from 'next/navigation';
 import Header from '@/components/Header';
@@ -116,7 +116,7 @@ export function CommunityHeader({
         className,
       )}
     >
-      <Tab
+      <UnderlineTab
         tabs={TAB_LIST}
         activeTab={currentTab}
         onTabChange={handleTabChange}

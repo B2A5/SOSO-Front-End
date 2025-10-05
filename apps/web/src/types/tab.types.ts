@@ -6,6 +6,6 @@ export type InitialTabValue = 'all';
 export type CommunityTabValue = 'votesboard' | 'freeboard';
 
 export interface TabItem<T = string> {
-  title: string;
+  label: string;
   value: T;
 }
