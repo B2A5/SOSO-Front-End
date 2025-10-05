@@ -1,22 +1,15 @@
-// apps/web/app/main/community/page.tsx
-
-import { CommunityHeader } from './components/CommunityHeader';
-
 /**
- * 커뮤니티 메인 페이지
+ * 커뮤니티 공통 레이아웃
  *
+ * @description
+ * 투표 게시판과 자유 게시판의 공통 컨테이너
  */
-interface CommunityLayoutProps {
-  children: React.ReactNode;
-}
-
 export default function CommunityLayout({
   children,
-}: CommunityLayoutProps) {
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <div className="flex flex-col h-full w-full">
-      <CommunityHeader className="w-full" />
-      <div className="flex-1 overflow-y-auto">{children}</div>
-    </div>
+    <div className="flex flex-col h-full w-full">{children}</div>
   );
 }
