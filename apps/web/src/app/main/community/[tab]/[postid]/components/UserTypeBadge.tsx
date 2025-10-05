@@ -20,8 +20,8 @@ export function UserTypeBadge({
   className?: string;
 }) {
   const userTypeMap = {
-    founder: { label: '창업자', Icon: Sprout },
-    resident: { label: '주민', Icon: Home },
+    FOUNDER: { label: '창업자', Icon: Sprout },
+    INHABITANT: { label: '주민', Icon: Home },
   } as const;
 
   const { label, Icon } = userTypeMap[type];

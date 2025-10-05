@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { PillChips } from '@/components/tabs/PillChipsTab';
+import { PillChipsTab } from '@/components/tabs/PillChipsTab';
 import { CATEGORIES, Category } from '../constants/categories';
 import { FilterHeader } from '../components/FilterHeader';
 import { SortValue } from '@/types/options.types';
@@ -63,7 +63,7 @@ export default function CommunityTabPage() {
 
   return (
     <div className="w-full h-full flex flex-col">
-      <PillChips<Category>
+      <PillChipsTab<Category>
         chips={CATEGORIES}
         activeValue={category}
         onChange={setCategory}

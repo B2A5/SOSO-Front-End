@@ -19,8 +19,8 @@ import BottomSheetMenu, {
  * - view 페이지에서는 이전 버튼과 메뉴 버튼을 표시
  */
 export const TAB_LIST: TabItem[] = [
-  { title: '투표 게시판', value: 'votesboard' },
-  { title: '자유 게시판', value: 'freeboard' },
+  { label: '투표 게시판', value: 'votesboard' },
+  { label: '자유 게시판', value: 'freeboard' },
 ];
 
 interface CommunityHeaderProps {
@@ -81,7 +81,7 @@ export function CommunityHeader({
   // 탭에 따른 제목 가져오기
   const getTabTitle = (tab: string) => {
     const tabItem = TAB_LIST.find((item) => item.value === tab);
-    return tabItem?.title || '커뮤니티';
+    return tabItem?.label || '커뮤니티';
   };
 
   const headerType = getHeaderType();
