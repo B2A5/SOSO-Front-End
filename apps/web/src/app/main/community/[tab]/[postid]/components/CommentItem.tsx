@@ -7,6 +7,7 @@ import LikeButton from './LikeButton';
 import BottomSheetMenu from '@/components/BottomSheet';
 import { useOverlay } from '@/hooks/ui/useOverlay';
 import { UserProfile } from './UserProfile';
+import { UserType } from '@/types/user.types';
 
 interface CommentItemProps {
   comment: Comment;
@@ -65,9 +66,7 @@ export default function CommentItem({
           <div className="flex min-w-0 items-center gap-2">
             <UserProfile.Name className="text-body2" />
             <UserProfile.Badge>
-              <UserTypeBadge
-                type={userType as 'founder' | 'resident'}
-              />
+              <UserTypeBadge type={userType as UserType} />
             </UserProfile.Badge>
           </div>
 
