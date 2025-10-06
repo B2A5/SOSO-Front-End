@@ -1,3 +1,4 @@
+
 import type { UserTypeRequestUserType } from '@/generated/api/models';
 
 /** 사용자 유형을 나타내는 타입 (FOUNDER 또는 INHABITANT) */
@@ -20,3 +21,4 @@ export interface User {
   /** 계정 정보 최신화 일시 (ISO 8601) */
   updatedAt?: string;
 }
+
