@@ -9,7 +9,9 @@ export const OverlayPortal: React.FC = () => {
   const { element, options, hideOverlay } = useOverlayStore();
 
   useEffect(() => {
-    document.body.style.overflow = options.blockScroll ? 'hidden' : 'auto';
+    document.body.style.overflow = options.blockScroll
+      ? 'hidden'
+      : 'auto';
     return () => {
       document.body.style.overflow = 'auto';
     };
@@ -31,11 +33,9 @@ export const OverlayPortal: React.FC = () => {
         ${options.backdrop ? 'bg-overlay' : 'bg-transparent'}
         pointer-events-auto
       `}
-      onClick={handleBackdropClick}  
+      onClick={handleBackdropClick}
     >
-      <div onClick={(e) => e.stopPropagation()}>
-        {element}
-      </div>
+      <div onClick={(e) => e.stopPropagation()}>{element}</div>
     </div>,
     document.body,
   );

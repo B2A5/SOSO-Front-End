@@ -1,23 +1,19 @@
 'use client';
 
-import { useMutation } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
+import { useKakaoLogin } from '@/generated/api/endpoints/auth/auth';
+import type { KakaoLoginResult } from '@/generated/api/models';
 import { useAuthStore } from '@/stores/authStore';
 import { useToast } from '@/hooks/ui/useToast';
-import { ApiError } from '@/api/error';
-import {
-  buildKakaoAuthUrl,
-  requestKakaoToken,
-} from '@/api/kakaoAuth';
-import { generatePKCE, generateState } from '@/utils/authUtil';
-import {
-  saveKakaoAuthData, // NEW
-  validateCallbackData, // NEW
-  clearKakaoAuthData, // NEW
-} from '@/utils/kakaoAuthValidator';
-import type { LoginResponse } from '@/types/auth.types';
+import * as kakaoAuthService from '@/app/(auth)/kakao/service';
 
+/**
+ * 카카오 로그인 훅
+ * - 카카오 로그인 플로우 관리
+ * - 콜백 처리
+ * - 성공/실패 라우팅
+ */
 export function useKakaoAuth() {
   const router = useRouter();
   const params = useSearchParams();
@@ -25,121 +21,158 @@ export function useKakaoAuth() {
   const { login, setLoading } = useAuthStore();
 
   const REDIRECT_URI = process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI!;
-  const KAKAO_API_KEY = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY!;
+  const CLIENT_ID = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY!;
 
-  // 리엑트 쿼리 뮤테이션 설정
-  const mutation = useMutation<
-    LoginResponse,
-    unknown,
-    { code: string; state?: string }
-  >({
-    mutationFn: async ({ code, state }) => {
-      setLoading(true);
-
-      // validator로 state, verifier 검증 및 반환
-      const codeVerifier = validateCallbackData({
-        stateParam: state,
-      });
-
-      console.log('Kakao 토큰 요청:', {
-        code,
-        codeVerifier,
-        redirectUri: REDIRECT_URI,
-        state,
-      });
-      return requestKakaoToken({
-        code,
-        codeVerifier,
-        redirectUri: REDIRECT_URI,
-        state,
-      });
-    },
-    retry: 0, // 에러 발생 시 재시도하지 않음
-    onSuccess(data) {
-      // 세션 데이터 제거
-      clearKakaoAuthData();
-      setLoading(false);
-      console.log('Kakao 로그인 성공:', data);
-
-      // 신규 유저는 회원가입 이어서
-      if (data.isNewUser) {
-        router.push('/auth/signup');
-      }
-      // 기존 유저는 로그인하고 메인 페이지로
-      else if (data.accessToken) {
-        login({
-          user: { nickname: '어저찌고 문어' },
-          accessToken: data.accessToken,
-        });
-        router.push('/main');
-      }
-      // 로그인 정보가 유효하지 않은 경우
-      else {
-        console.error(
-          '로그인 정보가 유효하지 않습니다.(회원가입은 성공함)',
-          data,
-        );
-        toast('로그인 정보가 유효하지 않습니다.', 'error');
-      }
-    },
-    onError(err) {
-      clearKakaoAuthData();
-      setLoading(false);
-      console.error(err);
-      toast('카카오 로그인에 실패했습니다.', 'error');
-
-      // URL에서 code, state 제거
-      const cleanUrl =
-        window.location.origin + window.location.pathname;
-      window.history.replaceState({}, '', cleanUrl);
-      throw new Error(
-        '카카오 로그인 실패: ' + ApiError.getErrorMessage(err),
-      );
+  /**
+   * 카카오 로그인 API 뮤테이션
+   */
+  const { mutate: kakaoLogin, isPending } = useKakaoLogin({
+    mutation: {
+      retry: 0,
+      onSuccess: handleLoginSuccess,
+      onError: handleLoginError,
     },
   });
 
-  // 콜백 처리
+  /**
+   * 로그인 성공 처리
+   */
+  function handleLoginSuccess(data: KakaoLoginResult) {
+    kakaoAuthService.cleanup();
+    setLoading(false);
+
+    console.log('카카오 로그인 성공:', data);
+
+    // 신규 유저 → 회원가입 페이지
+    if (data.isNewUser) {
+      router.push('/signup');
+    }
+    // 기존 유저 → 메인 페이지
+    else if (data.accessToken) {
+      const mockUser = {
+        nickname: '사용자',
+        userId: 0,
+        userType: 'INHABITANT' as const,
+      };
+      login({
+        user: mockUser,
+        accessToken: data.accessToken,
+      });
+      router.push('/main');
+    }
+    // 로그인 정보 오류
+    else {
+      console.error('로그인 정보가 유효하지 않습니다.', data);
+      toast('로그인 정보가 유효하지 않습니다.', 'error');
+    }
+  }
+
+  /**
+   * 로그인 실패 처리
+   */
+  function handleLoginError(error: unknown) {
+    kakaoAuthService.cleanup();
+    setLoading(false);
+
+    console.error('카카오 로그인 실패:', error);
+    toast('카카오 로그인에 실패했습니다.', 'error');
+
+    // URL 정리
+    const cleanUrl =
+      window.location.origin + window.location.pathname;
+    window.history.replaceState({}, '', cleanUrl);
+  }
+
+  /**
+   * 카카오 콜백 처리
+   */
+  const handleKakaoCallback = useCallback(
+    (code: string, state: string | null) => {
+      try {
+        setLoading(true);
+
+        // 검증 & 요청 데이터 준비
+        const loginRequest = kakaoAuthService.validateCallback({
+          code,
+          state,
+          redirectUri: REDIRECT_URI,
+        });
+
+        // API 호출
+        kakaoLogin({ data: loginRequest });
+      } catch (error) {
+        setLoading(false);
+
+        if (error instanceof kakaoAuthService.KakaoAuthError) {
+          toast(error.message, 'error');
+          console.error(
+            '카카오 인증 오류:',
+            error.code,
+            error.message,
+          );
+        } else {
+          toast('인증 처리 중 오류가 발생했습니다.', 'error');
+          console.error('알 수 없는 오류:', error);
+        }
+
+        kakaoAuthService.cleanup();
+      }
+    },
+    [kakaoLogin, setLoading, toast, REDIRECT_URI],
+  );
+
+  /**
+   * 카카오 로그인 시작
+   */
+  const startKakaoLogin = useCallback(async () => {
+    try {
+      setLoading(true);
+      console.log('카카오 로그인을 시작합니다...');
+
+      // 인증 URL 생성
+      const authUrl = await kakaoAuthService.prepareLogin({
+        clientId: CLIENT_ID,
+        redirectUri: REDIRECT_URI,
+      });
+
+      // 카카오 로그인 페이지로 이동
+      window.location.href = authUrl;
+    } catch (error) {
+      setLoading(false);
+
+      if (error instanceof kakaoAuthService.KakaoAuthError) {
+        toast(error.message, 'error');
+        console.error('카카오 로그인 시작 실패:', error.code);
+      } else {
+        toast('카카오 로그인을 시작할 수 없습니다.', 'error');
+        console.error('알 수 없는 오류:', error);
+      }
+    }
+  }, [setLoading, toast, CLIENT_ID, REDIRECT_URI]);
+
+  /**
+   * URL 파라미터 감지 및 콜백 처리
+   */
   useEffect(() => {
     const code = params.get('code');
     const state = params.get('state');
     const error = params.get('error');
 
+    // 카카오에서 에러 반환
     if (error) {
-      toast('카카오 로그인 중 에러가 발생했습니다.', 'error');
-      console.error(
-        '카카오 로그인 URL 파라미터가 잘못되었습니다.',
-        error,
-      );
+      toast('카카오 로그인 중 오류가 발생했습니다.', 'error');
+      console.error('카카오 OAuth 에러:', error);
       return;
     }
-    if (code && mutation.isIdle) {
-      mutation.mutate({ code, state: state ?? undefined });
-    }
-  }, [params, mutation, toast]);
 
-  // 3) 로그인 시작 함수
-  const startKakaoLogin = async () => {
-    try {
-      console.log('카카오 로그인을 시작합니다...');
-      const { codeVerifier, codeChallenge } = await generatePKCE();
-      const state = generateState();
-      // validator로 세션 저장
-      saveKakaoAuthData({ verifier: codeVerifier, state });
-
-      const url = buildKakaoAuthUrl({
-        clientId: KAKAO_API_KEY,
-        redirectUri: REDIRECT_URI,
-        codeChallenge,
-        state,
-      });
-      window.location.href = url;
-    } catch {
-      console.error('PKCE 생성 실패');
+    // 정상 콜백 처리
+    if (code) {
+      handleKakaoCallback(code, state);
     }
-  };
+  }, [params, handleKakaoCallback, toast]);
 
   return {
     startKakaoLogin,
-    isPending: mutation.isPending,
+    isPending,
   };
 }

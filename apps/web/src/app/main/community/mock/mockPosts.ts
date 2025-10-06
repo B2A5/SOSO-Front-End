@@ -11,31 +11,31 @@ const mockUsers = [
     nickname: '김철수',
     location: '서울시 강남구',
     profileImageUrl: '',
-    userType: 'GENERAL',
+    userType: 'FOUNDER',
   },
   {
     nickname: '이영희',
     location: '부산시 해운대구',
     profileImageUrl: '',
-    userType: 'PREMIUM',
+    userType: 'INHABITANT',
   },
   {
     nickname: '박민수',
     location: '대구시 중구',
     profileImageUrl: '',
-    userType: 'GENERAL',
+    userType: 'FOUNDER',
   },
   {
     nickname: '정수진',
     location: '인천시 송도',
     profileImageUrl: '',
-    userType: 'PREMIUM',
+    userType: 'INHABITANT',
   },
   {
     nickname: '최동원',
     location: '광주시 서구',
     profileImageUrl: '',
-    userType: 'GENERAL',
+    userType: 'FOUNDER',
   },
 ];
 

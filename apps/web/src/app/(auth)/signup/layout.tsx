@@ -1,4 +1,3 @@
-// apps/web/src/app/auth/signup/layout.tsx
 import RedirectIfAuthed from './components/RedirectIfAuthed';
 /**
  * 회원가입 레이아웃

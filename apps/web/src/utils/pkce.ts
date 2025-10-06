@@ -1,4 +1,4 @@
-// apps/web/src/utils/authUtil.ts
+// apps/web/src/utils/pkce.ts
 // crypto API를 이용해 code_verifier, code_challenge 생성
 // 모바일·SPA처럼 클라이언트 시크릿을 숨길 수 없는 “공용 클라이언트”를 위한 OAuth 2.0 확장 규격
 export async function generatePKCE() {
@@ -23,5 +23,8 @@ export async function generatePKCE() {
 /** CSRF 방지용 랜덤 state 생성 */
 //로그인 시퀀스가 다른 사이트에서 조작되는 것을 막기 위해, 클라이언트가 만든 임의의 난수.
 export function generateState(): string {
-  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  return (
+    Math.random().toString(36).substring(2, 15) +
+    Math.random().toString(36).substring(2, 15)
+  );
 }

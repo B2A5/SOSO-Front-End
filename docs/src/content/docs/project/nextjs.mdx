@@ -5,7 +5,6 @@ description: SOSO 프로젝트에서 사용하는 Next.js 14와 App Router의 �
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
 
-
 SOSO 프로젝트는 **Next.js 14**와 **React 18**, **App Router**를 사용하여 현대적이고 성능 최적화된 웹 애플리케이션을 구축합니다.
 
 ## 🚀 Next.js 14 주요 특징
@@ -18,19 +17,15 @@ SOSO 프로젝트는 **Next.js 14**와 **React 18**, **App Router**를 사용하
     - SEO 친화적 구조
   </Card>
 
-  <Card title="🎯 App Router" >
-    **파일 기반 라우팅**
-    - 직관적인 폴더 구조
-    - 레이아웃 중첩 지원
-    - 로딩/에러 상태 관리
-  </Card>
+<Card title="🎯 App Router">
+  **파일 기반 라우팅** - 직관적인 폴더 구조 - 레이아웃 중첩 지원 -
+  로딩/에러 상태 관리
+</Card>
 
-  <Card title="🔥 Turbopack (개발)">
-    **빠른 개발 경험**
-    - Webpack 대비 빠른 HMR
-    - 개발 서버 즉시 시작
-    - 점진적 마이그레이션 지원
-  </Card>
+<Card title="🔥 Turbopack (개발)">
+  **빠른 개발 경험** - Webpack 대비 빠른 HMR - 개발 서버 즉시 시작 -
+  점진적 마이그레이션 지원
+</Card>
 
   <Card title="🛡️ 타입 안정성">
     **TypeScript 네이티브**
@@ -63,7 +58,6 @@ apps/web/src/app/
 ### App Router 핵심 개념
 
 App Router는 **폴더와 파일 이름으로 라우트를 결정**하는 시스템입니다.
-
 
   <Card title="📄 page.tsx">
     **페이지 컴포넌트**
@@ -126,24 +120,21 @@ App Router는 **폴더와 파일 이름으로 라우트를 결정**하는 시스
     3. `app/main/community/page.tsx` (페이지)
   </Card>
 
-
 ## 🎯 서버 컴포넌트와 클라이언트 컴포넌트
 
-
-| 구분 | 서버 컴포넌트 | 클라이언트 컴포넌트 |
-|------|---------------|-------------------|
-| **실행 위치** | 서버에서 렌더링 | 브라우저에서 렌더링 |
-| **번들 크기** | ✅ 포함되지 않음 | ❌ 번들에 포함 |
-| **초기 로딩** | ✅ 빠름 (HTML 즉시 표시) | ❌ 느림 (JS 로드 후 렌더링) |
-| **SEO** | ✅ 완벽 지원 | ❌ 제한적 |
-| **인터랙션** | ❌ 불가능 | ✅ 가능 |
-| **상태 관리** | ❌ useState 불가 | ✅ useState, useEffect 등 |
-| **이벤트 핸들러** | ❌ onClick 등 불가 | ✅ 모든 이벤트 가능 |
-| **브라우저 API** | ❌ 접근 불가 | ✅ 접근 가능 |
-| **데이터 페칭** | ✅ 직접 DB/API 호출 | ✅ useQuery, fetch 등 |
+| 구분              | 서버 컴포넌트            | 클라이언트 컴포넌트         |
+| ----------------- | ------------------------ | --------------------------- |
+| **실행 위치**     | 서버에서 렌더링          | 브라우저에서 렌더링         |
+| **번들 크기**     | ✅ 포함되지 않음         | ❌ 번들에 포함              |
+| **초기 로딩**     | ✅ 빠름 (HTML 즉시 표시) | ❌ 느림 (JS 로드 후 렌더링) |
+| **SEO**           | ✅ 완벽 지원             | ❌ 제한적                   |
+| **인터랙션**      | ❌ 불가능                | ✅ 가능                     |
+| **상태 관리**     | ❌ useState 불가         | ✅ useState, useEffect 등   |
+| **이벤트 핸들러** | ❌ onClick 등 불가       | ✅ 모든 이벤트 가능         |
+| **브라우저 API**  | ❌ 접근 불가             | ✅ 접근 가능                |
+| **데이터 페칭**   | ✅ 직접 DB/API 호출      | ✅ useQuery, fetch 등       |
 
 ### 서버 컴포넌트 사용 시기
-
 
   <Card title="📄 정적 콘텐츠" >
     **데이터 표시가 주목적**
@@ -191,9 +182,7 @@ App Router는 **폴더와 파일 이름으로 라우트를 결정**하는 시스
     ```
   </Card>
 
-
 ### 클라이언트 컴포넌트 사용 시기
-
 
   <Card title="🔄 상태 관리" >
     **useState, useEffect 필요**
@@ -248,7 +237,6 @@ App Router는 **폴더와 파일 이름으로 라우트를 결정**하는 시스
     ```
   </Card>
 
-
 ## 🏗️ SOSO 프로젝트 실제 구조 분석
 
 ### 1. 루트 레이아웃 (app/layout.tsx)
@@ -265,9 +253,7 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body>
-        <QueryProvider>
-          {children}
-        </QueryProvider>
+        <QueryProvider>{children}</QueryProvider>
       </body>
     </html>
   );
@@ -275,6 +261,7 @@ export default function RootLayout({
 ```
 
 **역할:**
+
 - 전체 HTML 구조 정의
 - React Query Provider 제공
 - 전역 스타일 적용
@@ -292,15 +279,14 @@ export default function MainLayout({
   return (
     <div className="min-h-screen">
       <Navigation />
-      <main className="container mx-auto px-4 py-8">
-        {children}
-      </main>
+      <main className="container mx-auto px-4 py-8">{children}</main>
     </div>
   );
 }
 ```
 
 **역할:**
+
 - `/main` 하위 모든 페이지에 네비게이션 제공
 - 공통 레이아웃 스타일 적용
 
@@ -317,7 +303,7 @@ export default function HomePage() {
   );
 }
 
-// app/auth/page.tsx - 로그인 페이지 (/auth)
+// app/auth/page.tsx - 로그인 페이지 (/login)
 import { KakaoLoginButton } from '@/components/buttons/KakaoLoginButton';
 
 export default function AuthPage() {
@@ -349,9 +335,10 @@ export default function CommunityPage() {
 1. **사용자가 `/main/community` 접속**
 
 2. **Next.js가 컴포넌트 트리 구성:**
+
    ```
    app/layout.tsx (RootLayout)
-   └── app/main/layout.tsx (MainLayout)  
+   └── app/main/layout.tsx (MainLayout)
        └── app/main/community/page.tsx (CommunityPage)
    ```
 
@@ -385,11 +372,11 @@ import { getCommunityProposals } from '@/api/community';
 export default async function CommunityPage() {
   // 서버에서 직접 데이터 페칭 (빌드 시 또는 요청 시)
   const proposals = await getCommunityProposals();
-  
+
   return (
     <div>
       <h1>커뮤니티 제안 ({proposals.length}개)</h1>
-      {proposals.map(proposal => (
+      {proposals.map((proposal) => (
         <ProposalCard key={proposal.id} proposal={proposal} />
       ))}
     </div>
@@ -408,18 +395,18 @@ import { useQuery } from '@tanstack/react-query';
 
 export function ProposalCard({ proposalId }: { proposalId: string }) {
   const [isVoting, setIsVoting] = useState(false);
-  
+
   const { data: proposal } = useQuery({
     queryKey: ['proposal', proposalId],
     queryFn: () => getProposal(proposalId),
   });
-  
+
   const handleVote = async () => {
     setIsVoting(true);
     // 투표 처리 로직
     setIsVoting(false);
   };
-  
+
   return (
     <div>
       <h3>{proposal?.title}</h3>
