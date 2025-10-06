@@ -51,7 +51,7 @@ function generateMockComment(
     Date.now() - Math.random() * 1000000000,
   ).toISOString();
   const randomUserType: UserType =
-    Math.random() > 0.5 ? 'founder' : 'resident';
+    Math.random() > 0.5 ? 'FOUNDER' : 'INHABITANT';
 
   return {
     id,

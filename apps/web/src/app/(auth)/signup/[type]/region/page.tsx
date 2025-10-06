@@ -1,43 +1,36 @@
 'use client';
 import React, { useState } from 'react';
 import Button from '@/components/buttons/Button';
-import { LocationButton } from './components/LocationButton';
-import { useMutation } from '@tanstack/react-query';
-import { postRegion } from '@/api/signup';
-import { useRouter, useParams } from 'next/navigation';
+import {
+  AddressSet,
+  LocationButton,
+} from './components/LocationButton';
 import { useToast } from '@/hooks/ui/useToast';
-import type { UserType } from '@/api/signup';
+import { useSetRegion } from '@/generated/api/endpoints/signup/signup';
+import { useSignupFlow } from '@/hooks/useSignupFlow';
 
 export default function RegionPage() {
-  const router = useRouter();
-  const params = useParams();
-  const rawType = Array.isArray(params.type)
-    ? params.type[0]
-    : params.type;
-  const paramType = rawType?.toLowerCase();
-
-  const derivedUserType: UserType | null =
-    paramType === 'founder'
-      ? 'FOUNDER'
-      : paramType === 'inhabitant'
-        ? 'INHABITANT'
-        : null;
   const toast = useToast();
-  const [address, setAddress] = useState<string | null>(null);
+  const { pushNext } = useSignupFlow();
+  const [address, setAddress] = useState<AddressSet | null>(null);
 
-  const { mutate, isPending } = useMutation({
-    mutationFn: postRegion,
-    onSuccess: () => {
-      console.log('지역이 성공적으로 저장되었습니다.');
-      router.push(`/auth/signup/${derivedUserType}/details`);
-    },
-    onError: (error) => {
-      console.error('지역 저장에 실패했습니다.', error);
-      toast('서버 에러가 발생했습니다. 다시 시도해주세요.', 'error');
+  const { mutate, isPending } = useSetRegion({
+    mutation: {
+      onSuccess: () => {
+        console.log('지역이 성공적으로 저장되었습니다.');
+        pushNext('details');
+      },
+      onError: (error) => {
+        console.error('지역 저장에 실패했습니다.', error);
+        toast(
+          '서버 에러가 발생했습니다. 다시 시도해주세요.',
+          'error',
+        );
+      },
     },
   });
   //버튼에서 주소를 선택했을 때 호출되는 핸들러
-  const handleAddressSelected = (address: string) => {
+  const handleAddressSelected = (address: AddressSet) => {
     setAddress(address);
   };
   // 다음 버튼 클릭 핸들러
@@ -46,7 +39,7 @@ export default function RegionPage() {
       console.error('주소가 선택되지 않았습니다.');
       return;
     }
-    mutate(address);
+    mutate({ data: { regionId: address.sigunguCode } });
   };
   return (
     <div className="w-full h-full flex flex-col items-center justify-center">
@@ -58,7 +51,7 @@ export default function RegionPage() {
         </h1>
         <LocationButton
           onAddressSelect={handleAddressSelected}
-          selectedAddress={address}
+          selectedAddress={address?.address ?? null}
         />
         <div className="flex-1" />
       </div>

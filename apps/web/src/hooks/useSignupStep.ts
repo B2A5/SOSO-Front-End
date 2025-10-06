@@ -1,97 +1,120 @@
-import { useMutation } from '@tanstack/react-query';
-import type { AxiosResponse } from 'axios';
-
 import {
-  postAgeRange,
-  postGender,
-  postInterests,
-  postBudget,
-  postExperience,
-} from '@/api/signup';
+  useSetAgeRange,
+  useSetGender,
+  useSetInterests,
+  useSetBudget,
+  useSetExperience,
+} from '@/generated/api/endpoints/signup/signup';
+import type {
+  AgeRangeRequestAgeRange,
+  GenderRequestGender,
+  InterestRequestInterestsItem,
+  BudgetRequestBudget,
+  ExperienceRequestExperience,
+} from '@/generated/api/models';
 
 /**
- * useSignupStep 훅을 사용하여 회원가입 스텝별 API 호출을 관리합니다.
- * step-1 : 나이대 선택
- * step-2 : 성별 선택
- * step-3 : 관심사 선택
- * step-4 : 예산 입력
- * step-5 : 창업 경험 입력
- *
- * @param step - 현재 스텝 번호 (1 ~ 5)
- * @returns
- *   - submit: 해당 스텝의 API 호출 함수
- *   - isLoading: 요청 진행 중 여부
- *   - mutation: React Query useMutation 결과 객체
+ * 스텝별 요청 데이터 타입 매핑
+ * - Orval로 생성된 타입의 필드 타입을 직접 사용
  */
-
-// 스텝별 요청 파라미터 타입 매핑
 export interface StepRequestMap {
-  1: Parameters<typeof postAgeRange>[0]; // AgeRange
-  2: Parameters<typeof postGender>[0]; // Gender
-  3: Parameters<typeof postInterests>[0]; // Interest[]
-  4: Parameters<typeof postBudget>[0]; // Budget | null
-  5: Parameters<typeof postExperience>[0]; // Experience
+  1: AgeRangeRequestAgeRange; // 'TEENS' | 'TWENTIES' | ...
+  2: GenderRequestGender; // 'MALE' | 'FEMALE' | 'NONE'
+  3: InterestRequestInterestsItem[]; // Interest[] - 빈 배열 가능
+  4: BudgetRequestBudget | null; // Budget | null - 선택 사항
+  5: ExperienceRequestExperience; // 'YES' | 'NO'
 }
 
 export type SignupStep = keyof StepRequestMap;
 
-// 2️⃣ 스텝별 응답 데이터 타입 매핑
-interface StepResponseMap {
-  1: string;
-  2: string;
-  3: string;
-  4: string;
-  5: string;
-}
-
 /**
- * useSignupStep 훅
- * @param step - 가입 스텝 번호 (1 ~ 5)
- * @returns
- *   - submit: 해당 스텝의 API 호출 함수
- *   - isLoading: 요청 진행 중 여부
- *   - mutation: React Query useMutation 결과 객체
+ * 회원가입 스텝별 Orval mutation 훅을 통합 관리
+ * - React Hooks 규칙 준수: 모든 훅을 무조건 호출
+ * - Orval 훅을 직접 반환하여 타입 안전성 보장
+ *
+ * @param step - 현재 스텝 번호 (1 ~ 5)
+ * @returns Orval mutation 훅 결과 (mutate, isPending 등)
  */
-export function useSignupStep<Step extends keyof StepRequestMap>(
+export function useSignupStep<Step extends SignupStep>(
   step: Step,
+  options?: {
+    onSuccess?: () => void;
+    onError?: (error: unknown) => void;
+  },
 ): {
-  /** API 호출을 트리거하는 함수 */
-  mutate: (
-    value: StepRequestMap[Step],
-    options?: {
-      onSuccess?: () => void;
-      onError?: (error: unknown) => void;
-    },
-  ) => void;
-  /** 요청 진행 중 여부 */
+  mutate: (value: StepRequestMap[Step]) => void;
   isPending: boolean;
 } {
-  // 3️⃣ 스텝에 따라 적절한 API 호출 분기
-  const mutationFn = (
-    value: StepRequestMap[Step],
-  ): Promise<AxiosResponse<StepResponseMap[Step]>> => {
-    switch (step) {
-      case 1:
-        return postAgeRange(value as StepRequestMap[1]);
-      case 2:
-        return postGender(value as StepRequestMap[2]);
-      case 3:
-        return postInterests(value as StepRequestMap[3]);
-      case 4:
-        return postBudget(value as StepRequestMap[4]);
-      case 5:
-        return postExperience(value as StepRequestMap[5]);
-      default:
-        return Promise.reject(new Error('잘못된 스텝 번호입니다.')); // 예외 처리
-    }
-  };
+  // React Hooks 규칙: 모든 훅을 항상 같은 순서로 호출
+  const ageRange = useSetAgeRange({ mutation: options });
+  const gender = useSetGender({ mutation: options });
+  const interests = useSetInterests({ mutation: options });
+  const budget = useSetBudget({ mutation: options });
+  const experience = useSetExperience({ mutation: options });
 
-  // 4️⃣ React Query mutation 설정
-  const { mutate, isPending } = useMutation({
-    mutationFn: mutationFn as (
-      val: StepRequestMap[Step],
-    ) => Promise<AxiosResponse<StepResponseMap[Step]>>,
-  });
-
-  return { mutate, isPending };
+  // step에 따라 적절한 훅 선택 및 반환
+  switch (step) {
+    case 1:
+      return {
+        mutate: (value: StepRequestMap[Step]) =>
+          ageRange.mutate({
+            data: { ageRange: value as StepRequestMap[1] },
+          }),
+        isPending: ageRange.isPending,
+      } as {
+        mutate: (value: StepRequestMap[Step]) => void;
+        isPending: boolean;
+      };
+    case 2:
+      return {
+        mutate: (value: StepRequestMap[Step]) =>
+          gender.mutate({
+            data: { gender: value as StepRequestMap[2] },
+          }),
+        isPending: gender.isPending,
+      } as {
+        mutate: (value: StepRequestMap[Step]) => void;
+        isPending: boolean;
+      };
+    case 3:
+      return {
+        mutate: (value: StepRequestMap[Step]) =>
+          interests.mutate({
+            data: { interests: value as StepRequestMap[3] },
+          }),
+        isPending: interests.isPending,
+      } as {
+        mutate: (value: StepRequestMap[Step]) => void;
+        isPending: boolean;
+      };
+    case 4:
+      return {
+        mutate: (value: StepRequestMap[Step]) => {
+          // null을 undefined로 변환 (BudgetRequest는 optional이므로 undefined 필요)
+          const budgetValue =
+            value === null
+              ? undefined
+              : (value as BudgetRequestBudget);
+          budget.mutate({ data: { budget: budgetValue } });
+        },
+        isPending: budget.isPending,
+      } as {
+        mutate: (value: StepRequestMap[Step]) => void;
+        isPending: boolean;
+      };
+    case 5:
+      return {
+        mutate: (value: StepRequestMap[Step]) =>
+          experience.mutate({
+            data: { experience: value as StepRequestMap[5] },
+          }),
+        isPending: experience.isPending,
+      } as {
+        mutate: (value: StepRequestMap[Step]) => void;
+        isPending: boolean;
+      };
+    default:
+      // 이 부분은 절대 실행되지 않지만 TypeScript 만족용
+      throw new Error(`Invalid signup step: ${step}`);
+  }
 }

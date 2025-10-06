@@ -10,6 +10,7 @@ import CommentInput from './components/CommentInput';
 import { useParams } from 'next/navigation';
 import { getPost } from './components/mock/mockPosts';
 import { useQuery } from '@tanstack/react-query';
+import { UserType } from '@/types/user.types';
 import { UserProfile } from './components/UserProfile';
 
 export default function PostPage() {
@@ -55,9 +56,7 @@ export default function PostPage() {
                   <UserProfile.Name />
                   <UserProfile.Badge>
                     <UserTypeBadge
-                      type={
-                        post.user.userType as 'founder' | 'resident'
-                      }
+                      type={post.user.userType as UserType}
                     />
                   </UserProfile.Badge>
                 </UserProfile.Header>

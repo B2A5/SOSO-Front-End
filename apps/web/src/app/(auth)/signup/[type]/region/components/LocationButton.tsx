@@ -11,11 +11,16 @@ import { MapPin } from 'lucide-react';
  * 선택된 주소는 selectedAddress로 표시
  */
 
+export interface AddressSet {
+  address: string;
+  sigunguCode: string;
+}
+
 export function LocationButton({
   onAddressSelect,
   selectedAddress,
 }: {
-  onAddressSelect: (address: string) => void;
+  onAddressSelect: (address: AddressSet) => void;
   selectedAddress: string | null;
 }) {
   const open = useDaumPostcodePopup(
@@ -25,6 +30,7 @@ export function LocationButton({
   const handleComplete = (data: DaumPostcodeResponse) => {
     let fullAddress = data.address || '';
     let extraAddress = '';
+    const sigunguCode = data.sigunguCode || '';
 
     if (data.addressType === 'R') {
       if (data.bname !== '') {
@@ -39,8 +45,10 @@ export function LocationButton({
       fullAddress += extraAddress !== '' ? ` (${extraAddress})` : '';
     }
 
-    onAddressSelect(fullAddress); // 주소 선택 후 콜백 함수 호출
-    console.log(fullAddress);
+    onAddressSelect({
+      address: fullAddress,
+      sigunguCode: sigunguCode,
+    }); // 주소 선택 후 콜백 함수 호출
   };
 
   const handleClick = () => {
