@@ -1,28 +1,18 @@
 'use client';
 
-import UserProfileBase from './UserProfileBase';
 import { UserTypeBadge } from './UserTypeBadge';
-import { relativeTime } from '@/utils/relativeTime';
 import { MoreVertical, ThumbsUp } from 'lucide-react';
 import type { Comment } from '@/types/comment.types';
 import LikeButton from './LikeButton';
 import BottomSheetMenu from '@/components/BottomSheet';
 import { useOverlay } from '@/hooks/ui/useOverlay';
+import { UserProfile } from './UserProfile';
 
 interface CommentItemProps {
-  /** 댓글 객체 (내용, 작성자, 작성일, 좋아요 수 등 포함) */
   comment: Comment;
-  /** 액션 영역 커스텀 (기본값: 케밥 메뉴) */
   action?: React.ReactNode;
 }
 
-/**
- * CommentItem 컴포넌트
- *
- * - 댓글 단일 항목을 렌더링
- * - 프로필/닉네임/유형/작성일/좋아요 수 포함
- * - 유저 정보는 UserProfileBase를 통해 표시
- */
 export default function CommentItem({
   comment,
   action,
@@ -34,12 +24,8 @@ export default function CommentItem({
     user: { nickname, profileImageUrl, userType },
   } = comment;
 
-  const timeText = createdAt ? relativeTime(createdAt) : '';
-  const metaRight = [timeText].filter(Boolean).join(' · '); // 우측 메타 표시용
-
   const { openOverlay } = useOverlay();
 
-  // TODO: 현재 유저가 작성한 댓글인 경우에만 수정/삭제 노출
   const handleKebabClick = () => {
     const actions = [
       {
@@ -55,8 +41,7 @@ export default function CommentItem({
         onClick: () => console.log('delete', comment.id),
       },
     ];
-
-    openOverlay(<BottomSheetMenu isOpen={true} actions={actions} />, {
+    openOverlay(<BottomSheetMenu isOpen actions={actions} />, {
       backdrop: true,
       blockScroll: true,
       closeOnBackdrop: true,
@@ -64,39 +49,59 @@ export default function CommentItem({
   };
 
   return (
-    <UserProfileBase
+    <UserProfile
       nickname={nickname}
       profileImageUrl={profileImageUrl}
-      badge={<UserTypeBadge type={userType} />}
-      avatarSize={50}
-      avatarClassName="w-[50px] h-[50px] max-w-none"
+      size={50}
       className="items-start"
-      action={
-        action ?? (
-          <button
-            type="button"
-            onClick={handleKebabClick}
-            aria-label="댓글 메뉴 열기"
-          >
-            <MoreVertical className="w-4 h-4" />
-          </button>
-        )
-      } // 기본 케밥 메뉴
     >
-      {/* 댓글 내용 */}
-      <div className="mt-0.5 text-[14px] text-neutral-800">
-        {content}
-      </div>
+      {/* 왼쪽: 아바타 */}
+      <UserProfile.Avatar className="w-[50px] h-[50px] max-w-none" />
 
-      {/* 메타 정보 (좋아요 수 / 작성 시간 등) */}
-      <div className="mt-2 flex justify-between text-xs text-neutral-500">
-        <LikeButton
-          isLiked={false}
-          likeCount={likeCount}
-          icon={ThumbsUp}
-        />
-        <span>{metaRight}</span>
-      </div>
-    </UserProfileBase>
+      {/* 오른쪽: 헤더(좌/우 분리) + 본문 */}
+      <UserProfile.Right className="gap-1">
+        {/* 상단 줄: 왼쪽(이름/배지) · 오른쪽(액션: 맨 끝) */}
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex min-w-0 items-center gap-2">
+            <UserProfile.Name className="text-body2" />
+            <UserProfile.Badge>
+              <UserTypeBadge
+                type={userType as 'founder' | 'resident'}
+              />
+            </UserProfile.Badge>
+          </div>
+
+          <div className="shrink-0">
+            {action ?? (
+              <button
+                type="button"
+                onClick={handleKebabClick}
+                aria-label="댓글 메뉴 열기"
+                className="p-1 -m-1"
+              >
+                <MoreVertical className="w-4 h-4 text-neutral-500" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        <UserProfile.Body>
+          <div className="mt-0.5 text-input text-neutral-800">
+            {content}
+          </div>
+
+          <UserProfile.Meta className="mt-2 flex items-center justify-between text-xs text-neutral-500">
+            <LikeButton
+              isLiked={false}
+              likeCount={likeCount}
+              icon={ThumbsUp}
+            />
+            <span>
+              <UserProfile.Time value={createdAt} />
+            </span>
+          </UserProfile.Meta>
+        </UserProfile.Body>
+      </UserProfile.Right>
+    </UserProfile>
   );
 }
