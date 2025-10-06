@@ -3,6 +3,7 @@ import type { GetPostResponse } from '@/api/posts';
 import LikeButton from '@/app/main/community/[tab]/[postid]/components/LikeButton';
 import ImageSlider from '@/components/ImageSlider';
 import UserProfile from './components/UserProfile';
+import { UserType } from '@/types/user.types';
 
 const dummyPost: GetPostResponse = {
   postId: 1,
@@ -22,7 +23,7 @@ const dummyPost: GetPostResponse = {
     nickname: '유진',
     location: '서울시 강남구',
     profileImageUrl: '/somoon/default_somoon.svg',
-    userType: 'resident',
+    userType: 'INHABITANT',
   },
 };
 /**
@@ -54,7 +55,7 @@ export default function PostPage() {
           <UserProfile
             nickname={post.user.nickname}
             profileImageUrl={post.user.profileImageUrl}
-            userType={post.user.userType as 'founder' | 'resident'}
+            userType={post.user.userType as UserType}
             location={post.user.location}
             createdAt={post.createdAt}
           />

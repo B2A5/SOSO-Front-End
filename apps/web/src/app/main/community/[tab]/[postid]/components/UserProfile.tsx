@@ -4,11 +4,12 @@
 import { Home, Sprout } from 'lucide-react';
 import Image from 'next/image';
 import { relativeTime } from '@/utils/relativeTime';
+import { UserType } from '@/types/user.types';
 
 export interface UserProfileProps {
   nickname: string;
   profileImageUrl: string;
-  userType: 'founder' | 'resident';
+  userType: UserType;
   location: string;
   createdAt: string;
 }
@@ -33,7 +34,7 @@ export default function UserProfile({
         <div className="flex items-center gap-2">
           <h2 className="text-body font-bold">{nickname}</h2>
           <div className="text-[8px] px-1 py-0.5 rounded-full text-white bg-soso-600 flex gap-0.5 items-center">
-            {userType === 'founder' ? (
+            {userType === 'FOUNDER' ? (
               <>
                 창업자
                 <Sprout className="w-2 h-2" />
