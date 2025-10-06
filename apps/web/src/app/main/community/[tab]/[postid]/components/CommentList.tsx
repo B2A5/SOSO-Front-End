@@ -50,7 +50,7 @@ export default function CommentList({ postId }: CommentListProps) {
     data?.pages.flatMap((page) => page.comments) ?? [];
 
   return (
-    <section className="pt-6 space-y-4">
+    <section className="pt-6 space-y-5">
       {allComments.map((comment) => (
         <CommentItem key={comment.id} comment={comment} />
       ))}
