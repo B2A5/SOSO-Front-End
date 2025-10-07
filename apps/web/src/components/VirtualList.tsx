@@ -44,7 +44,7 @@ export function VirtualList<T>({
 }: VirtualListProps<T>) {
   // 이전 스크롤 위치 불러오기
   const savedOffset =
-    typeof window !== 'undefined'
+    typeof window !== 'undefined' && !resetScroll
       ? Number(sessionStorage.getItem(storageKey) ?? 0)
       : 0;
 
@@ -55,73 +55,87 @@ export function VirtualList<T>({
     estimateSize: () => estimateSize,
     overscan,
     getItemKey: (index) => getItemKey(items[index], index),
-    initialOffset: resetScroll ? 0 : savedOffset,
+    initialOffset: savedOffset,
     gap,
   });
 
-  // 스크롤 위치 저장
+  // 스크롤 위치 저장 및 이탈 직전 보장
   useEffect(() => {
-    const el = parentRef.current;
-    if (!el) return;
+    const scrollContainerElement = parentRef.current;
+    if (!scrollContainerElement) return;
 
     // 초기 측정
     virtualizer.measure();
 
-    // 프레임당 1회만 스크롤 위치 저장
-    const saveScroll = rafThrottle((offset: number) => {
+    // 스크롤 중 저장: 프레임당 1회
+    const saveScrollPosition = rafThrottle((offset: number) => {
       sessionStorage.setItem(storageKey, String(offset));
     });
 
-    const onScroll = () => {
+    const handleScroll = () => {
       if (virtualizer.scrollOffset !== null) {
-        saveScroll(virtualizer.scrollOffset);
+        saveScrollPosition(virtualizer.scrollOffset);
       }
     };
 
-    el.addEventListener('scroll', onScroll, { passive: true });
-
-    // 새로고침/탭 전환 직전에 마지막 값 보장
-    const flush = () => {
-      saveScroll.flush();
-      sessionStorage.setItem(
-        storageKey,
-        String(virtualizer.scrollOffset),
-      );
+    scrollContainerElement.addEventListener('scroll', handleScroll, {
+      passive: true,
+    });
+    const flushLatestPosition = () => {
+      saveScrollPosition.flush();
+      if (virtualizer.scrollOffset !== null) {
+        sessionStorage.setItem(
+          storageKey,
+          String(virtualizer.scrollOffset),
+        );
+      }
     };
-    window.addEventListener('visibilitychange', flush);
-    window.addEventListener('beforeunload', flush);
+    document.addEventListener(
+      'visibilitychange',
+      flushLatestPosition,
+    );
+    window.addEventListener('beforeunload', flushLatestPosition);
 
     return () => {
-      el.removeEventListener('scroll', onScroll);
-      window.removeEventListener('visibilitychange', flush);
-      window.removeEventListener('beforeunload', flush);
-      flush(); // 언마운트 시에도 최종 저장
+      scrollContainerElement.removeEventListener(
+        'scroll',
+        handleScroll,
+      );
+      document.removeEventListener(
+        'visibilitychange',
+        flushLatestPosition,
+      );
+      window.removeEventListener('beforeunload', flushLatestPosition);
+      flushLatestPosition();
     };
   }, [parentRef, storageKey, virtualizer]);
 
-  // 부모 컨테이너 크기 변경 감지
+  // 부모 컨테이너 리사이즈 대응
   useEffect(() => {
-    const element = parentRef.current;
-    if (!element) return;
+    const scrollContainerElement = parentRef.current;
+    if (!scrollContainerElement) return;
 
-    const measureOnNextPaint = rafThrottle(() => {
+    // 측정 빈도 제한: 프레임당 1회
+    const measureOnNextAnimationFrame = rafThrottle(() => {
       virtualizer.measure();
     });
 
+    // 부모 컨테이너 크기 변화 감지
     const resizeObserver = new ResizeObserver(() => {
-      measureOnNextPaint();
+      measureOnNextAnimationFrame();
     });
-    resizeObserver.observe(element);
+    resizeObserver.observe(scrollContainerElement);
 
+    // 창 리사이즈 보조 감지
     const handleWindowResize = () => {
-      measureOnNextPaint();
+      measureOnNextAnimationFrame();
     };
     window.addEventListener('resize', handleWindowResize);
 
     return () => {
       resizeObserver.disconnect();
       window.removeEventListener('resize', handleWindowResize);
-      measureOnNextPaint.cancel?.();
+      measureOnNextAnimationFrame.cancel?.();
     };
   }, [parentRef, virtualizer]);
 
