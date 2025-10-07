@@ -15,7 +15,7 @@ interface VirtualListProps<T> {
   /** 화면 밖 추가 렌더 개수 (기본값: 3) */
   overscan?: number;
   /** 안정적인 key 생성 함수 */
-  getItemKey?: (item: T, i: number) => React.Key;
+  getItemKey: (item: T, i: number) => React.Key;
   /** 스크롤 컨테이너 ref */
   parentRef: React.RefObject<HTMLDivElement>;
   /** 아이템 간 간격(px) */
@@ -53,7 +53,7 @@ export function VirtualList<T>({
     getScrollElement: () => parentRef.current,
     estimateSize: () => estimateSize,
     overscan,
-    getItemKey: (i) => getItemKey?.(items[i], i) ?? i,
+    getItemKey: (index) => getItemKey(items[index], index),
     initialOffset: resetScroll ? 0 : savedOffset,
     gap,
   });
