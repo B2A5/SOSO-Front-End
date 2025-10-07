@@ -48,7 +48,7 @@ export default function PostPage() {
               className="items-start"
             >
               <UserProfile.Avatar className="w-[45px] h-[45px] max-w-none" />
-              <UserProfile.Right className="gap-1.5">
+              <UserProfile.Right>
                 <UserProfile.Header>
                   <UserProfile.Name />
                   <UserProfile.Badge>

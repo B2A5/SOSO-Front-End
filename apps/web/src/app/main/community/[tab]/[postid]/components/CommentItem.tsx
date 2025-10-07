@@ -64,7 +64,7 @@ export default function CommentItem({
         {/* 상단 줄: 왼쪽(이름/배지) · 오른쪽(액션: 맨 끝) */}
         <div className="flex items-start justify-between gap-2">
           <div className="flex min-w-0 items-center gap-2">
-            <UserProfile.Name className="text-body2" />
+            <UserProfile.Name className="text-body2 font-bold" />
             <UserProfile.Badge>
               <UserTypeBadge type={userType as UserType} />
             </UserProfile.Badge>

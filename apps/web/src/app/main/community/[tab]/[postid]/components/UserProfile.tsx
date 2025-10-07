@@ -138,7 +138,7 @@ function Name({
   return (
     <span
       className={twMerge(
-        'text-base font-bold',
+        'text-title2',
         truncate && 'truncate',
         className,
       )}
@@ -196,10 +196,7 @@ function Meta({
 }) {
   return (
     <p
-      className={twMerge(
-        'mt-1.5 text-input-2 text-neutral-500',
-        className,
-      )}
+      className={twMerge('text-neutral-500 leading-none', className)}
     >
       {children}
     </p>
@@ -213,13 +210,13 @@ Meta.Separator = function Separator() {
 
 /** 위치 텍스트(값 없으면 렌더 X) */
 function Location({ value }: { value?: string }) {
-  return value ? <span>{value}</span> : null;
+  return value ? <span className="text-input2">{value}</span> : null;
 }
 
 /** 상대시간 텍스트(값 없으면 렌더 X) */
 function Time({ value }: { value?: string }) {
   if (!value) return null;
-  return <span>{relativeTime(value)}</span>;
+  return <span className="text-input2">{relativeTime(value)}</span>;
 }
 
 /** 오른쪽 영역 컨테이너: Header와 Body를 세로로 묶어 배치 */
