@@ -59,6 +59,7 @@ export function VirtualList<T>({
     gap,
   });
 
+  // 스크롤 위치 저장
   useEffect(() => {
     const el = parentRef.current;
     if (!el) return;
@@ -97,6 +98,32 @@ export function VirtualList<T>({
       flush(); // 언마운트 시에도 최종 저장
     };
   }, [parentRef, storageKey, virtualizer]);
+
+  // 부모 컨테이너 크기 변경 감지
+  useEffect(() => {
+    const element = parentRef.current;
+    if (!element) return;
+
+    const measureOnNextPaint = rafThrottle(() => {
+      virtualizer.measure();
+    });
+
+    const resizeObserver = new ResizeObserver(() => {
+      measureOnNextPaint();
+    });
+    resizeObserver.observe(element);
+
+    const handleWindowResize = () => {
+      measureOnNextPaint();
+    };
+    window.addEventListener('resize', handleWindowResize);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', handleWindowResize);
+      measureOnNextPaint.cancel?.();
+    };
+  }, [parentRef, virtualizer]);
 
   return (
     <div
