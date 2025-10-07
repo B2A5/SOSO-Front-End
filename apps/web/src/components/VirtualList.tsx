@@ -1,6 +1,7 @@
 'use client';
 import React, { useEffect } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
+import { rafThrottle } from '@/utils/rafThrottle';
 
 /**
  * VirtualList 컴포넌트의 props
@@ -28,7 +29,7 @@ interface VirtualListProps<T> {
 
 /**
  * 스크롤 성능을 위한 가상 리스트 컴포넌트
- * - 스크롤 위치를 세션에 저장해 복원 가능
+ * - 스크롤 위치를 세션에 저장해 복원 가능 (rAF 쓰로틀 적용)
  */
 export function VirtualList<T>({
   items,
@@ -59,15 +60,43 @@ export function VirtualList<T>({
   });
 
   useEffect(() => {
-    // 높이 측정 및 스크롤 위치 저장
+    const el = parentRef.current;
+    if (!el) return;
+
+    // 초기 측정
     virtualizer.measure();
-    return () => {
+
+    // 프레임당 1회만 스크롤 위치 저장
+    const saveScroll = rafThrottle((offset: number) => {
+      sessionStorage.setItem(storageKey, String(offset));
+    });
+
+    const onScroll = () => {
+      if (virtualizer.scrollOffset !== null) {
+        saveScroll(virtualizer.scrollOffset);
+      }
+    };
+
+    el.addEventListener('scroll', onScroll, { passive: true });
+
+    // 새로고침/탭 전환 직전에 마지막 값 보장
+    const flush = () => {
+      saveScroll.flush();
       sessionStorage.setItem(
         storageKey,
         String(virtualizer.scrollOffset),
       );
     };
-  }, [virtualizer, storageKey]);
+    window.addEventListener('visibilitychange', flush);
+    window.addEventListener('beforeunload', flush);
+
+    return () => {
+      el.removeEventListener('scroll', onScroll);
+      window.removeEventListener('visibilitychange', flush);
+      window.removeEventListener('beforeunload', flush);
+      flush(); // 언마운트 시에도 최종 저장
+    };
+  }, [parentRef, storageKey, virtualizer]);
 
   return (
     <div
