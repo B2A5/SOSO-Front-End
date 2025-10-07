@@ -27,13 +27,13 @@ const ProfileCtx = createContext<ProfileCtxValue | null>(null);
  * 루트 밖에서 사용 시 즉시 에러 던짐
  */
 function useProfileCtx() {
-  const ctx = useContext(ProfileCtx);
-  if (!ctx) {
+  const context = useContext(ProfileCtx);
+  if (!context) {
     throw new Error(
       'UserProfile.*는 반드시 <UserProfile> 내부에서 사용하세요.',
     );
   }
-  return ctx;
+  return context;
 }
 
 /**

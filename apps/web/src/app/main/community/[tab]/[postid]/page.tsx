@@ -45,12 +45,9 @@ export default function PostPage() {
               nickname={post.user.nickname}
               profileImageUrl={post.user.profileImageUrl}
               size={45}
-              className="items-start" // 아바타-오른쪽 정렬 기준: 위쪽 맞춤(시안에 맞추면 보통 start)
+              className="items-start"
             >
-              {/* 왼쪽 */}
               <UserProfile.Avatar className="w-[45px] h-[45px] max-w-none" />
-
-              {/* 오른쪽(헤더+바디 묶음) */}
               <UserProfile.Right className="gap-1.5">
                 <UserProfile.Header>
                   <UserProfile.Name />
