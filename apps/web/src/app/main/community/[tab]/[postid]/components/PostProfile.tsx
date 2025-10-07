@@ -3,6 +3,7 @@
 import UserProfileBase from './UserProfileBase';
 import { UserTypeBadge } from './UserTypeBadge';
 import { relativeTime } from '@/utils/relativeTime';
+import { UserType } from '@/types/user.types';
 
 interface PostProfileProps {
   /** 닉네임 */
@@ -10,7 +11,7 @@ interface PostProfileProps {
   /** 프로필 이미지 URL */
   profileImageUrl?: string;
   /** 사용자 유형(창업자/주민) */
-  userType: 'founder' | 'resident';
+  userType: UserType;
   /** 위치(예: '서울시 강남구') */
   location?: string;
   /** 작성 시간(ISO 문자열 등) */

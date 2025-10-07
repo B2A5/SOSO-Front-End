@@ -11,7 +11,7 @@ import { useParams } from 'next/navigation';
 
 import { getPost } from './components/mock/mockPosts';
 import { useQuery } from '@tanstack/react-query';
-
+import { UserType } from '@/types/user.types';
 export default function PostPage() {
   const { postid } = useParams<{ postid: string }>();
   const postId = Number(postid);
@@ -47,7 +47,7 @@ export default function PostPage() {
             <PostProfile
               nickname={post.user.nickname}
               profileImageUrl={post.user.profileImageUrl}
-              userType={post.user.userType as 'founder' | 'resident'}
+              userType={post.user.userType as UserType}
               location={post.user.location}
               createdAt={post.createdAt}
             />
