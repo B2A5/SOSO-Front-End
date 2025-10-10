@@ -69,7 +69,7 @@ export function PillChipsTab<T = string>({
       <div
         className="
           flex gap-2 p-3 overflow-x-auto scrollbar-hide
-          bg-fontColor-lightgray dark:bg-neutral-900
+          bg-neutral-50 dark:bg-neutral-900
         "
         style={{
           scrollbarWidth: 'none',

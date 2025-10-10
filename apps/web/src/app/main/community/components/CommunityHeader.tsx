@@ -3,7 +3,6 @@
 import { Button } from '@/components/buttons/Button';
 import { Search } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
-import { UnderlineTab } from '@/components/tabs/UnderlineTab';
 import { TabItem } from '@/types/tab.types';
 import { useRouter, usePathname, useParams } from 'next/navigation';
 import Header from '@/components/Header';
@@ -11,6 +10,7 @@ import { useOverlay } from '@/hooks/ui/useOverlay';
 import BottomSheetMenu, {
   MenuAction,
 } from '@/components/BottomSheet';
+import { UnderlineTab } from '@/components/tabs/UnderlineTab';
 
 /**
  * 커뮤니티 페이지에 따른 동적 헤더를 제공합니다.

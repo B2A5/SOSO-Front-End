@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { PillChipsTab } from '@/components/tabs/PillChipsTab';
 import { CATEGORIES, Category } from '../constants/categories';
@@ -53,6 +53,8 @@ export default function CommunityTabPage() {
     staleTime: 5 * 60 * 1000, // 5분간 캐시 유지
   });
 
+  // 게시글 리스트 스크롤 참조 객체
+  const listScrollRef = useRef<HTMLDivElement>(null);
   // 모든 페이지의 게시글을 하나의 배열로 합치기
   const allPosts = data?.pages.flatMap((page) => page.posts) ?? [];
 
@@ -66,8 +68,7 @@ export default function CommunityTabPage() {
       <PillChipsTab<Category>
         chips={CATEGORIES}
         activeValue={category}
-        onChange={setCategory}
-        showAll
+        onChange={(value) => setCategory(value)}
       />
       <FilterHeader
         totalCount={totalCount}
@@ -75,7 +76,10 @@ export default function CommunityTabPage() {
         filterValue={sortOption}
         onFilterChange={setSortOption}
       />
-      <div className="flex-1 overflow-y-auto px-4">
+      <div
+        ref={listScrollRef}
+        className="flex-1 overflow-y-auto px-4"
+      >
         {error ? (
           <div className="flex flex-col items-center justify-center py-12">
             <p className="text-red-500 text-center">
@@ -90,6 +94,7 @@ export default function CommunityTabPage() {
             isFetchingNextPage={isFetchingNextPage}
             isLoading={isLoading}
             type="freeboard"
+            parentRef={listScrollRef}
           />
         )}
       </div>

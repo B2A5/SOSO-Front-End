@@ -12,7 +12,6 @@ import { useParams } from 'next/navigation';
 import { getPost } from './components/mock/mockPosts';
 import { useQuery } from '@tanstack/react-query';
 import { UserType } from '@/types/user.types';
-
 export default function PostPage() {
   const { postid } = useParams<{ postid: string }>();
   const postId = Number(postid);
