@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { FilterHeader } from '../components/FilterHeader';
+import { FilterHeader } from '../components/SortHeader';
 import { SORT_OPTIONS } from '../constants/sortOptions';
 import { SortValue } from '@/types/options.types';
 

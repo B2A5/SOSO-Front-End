@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { PillChipsTab } from '@/components/tabs/PillChipsTab';
 import { CATEGORIES, Category } from '../constants/categories';
-import { FilterHeader } from '../components/FilterHeader';
+import { SortHeader } from '../components/SortHeader';
 import { SortValue } from '@/types/options.types';
 import { SORT_OPTIONS } from '../constants/sortOptions';
 import FloatingButton from '@/components/buttons/FloatingButton';
@@ -24,9 +24,7 @@ import type { PostCursorResponse } from '@/api/posts';
 
 export default function FreeboardPage() {
   const [category, setCategory] = useState<Category | null>(null);
-  const [sortOption, setSortOption] = useState<SortValue>(
-    SORT_OPTIONS[0].value,
-  );
+  const [sortOption, setSortOption] = useState<SortValue>('LATEST');
 
   // 무한스크롤 데이터 페칭
   const {
@@ -71,10 +69,10 @@ export default function FreeboardPage() {
         onChange={setCategory}
         showAll
       />
-      <FilterHeader
+      <SortHeader
         totalCount={totalCount}
-        options={SORT_OPTIONS}
-        filterValue={sortOption}
+        sortOptions={SORT_OPTIONS}
+        currentValue={sortOption}
         onFilterChange={setSortOption}
       />
       <div className="flex-1 overflow-y-auto px-4">

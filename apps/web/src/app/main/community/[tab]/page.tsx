@@ -3,7 +3,7 @@ import React, { useRef, useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { PillChipsTab } from '@/components/tabs/PillChipsTab';
 import { CATEGORIES, Category } from '../constants/categories';
-import { FilterHeader } from '../components/FilterHeader';
+import { FilterHeader } from '../components/SortHeader';
 import { SortValue } from '@/types/options.types';
 import { SORT_OPTIONS } from '../constants/sortOptions';
 import FloatingButton from '@/components/buttons/FloatingButton';

@@ -2,25 +2,25 @@ import SelectDropdown from '@/components/dropdown/SelectDropdown';
 import { twMerge } from 'tailwind-merge';
 import { SortOption, SortValue } from '@/types/options.types';
 /**
- * 필터 헤더 컴포넌트
- * - 게시글 목록 상단에 필터링 옵션을 제공
+ * 게시글 정렬 헤더 컴포넌트
+ * - 게시글 목록 상단에 정렬 옵션을 제공
  */
 
-interface FilterHeaderProps {
+interface SortHeaderProps {
   className?: string;
   totalCount?: number;
-  options: SortOption[];
-  filterValue: SortValue | null;
+  sortOptions: SortOption[];
+  currentValue: SortValue | null;
   onFilterChange: (filter: SortValue) => void;
 }
 
-export function FilterHeader({
+export function SortHeader({
   className,
   totalCount,
-  options,
-  filterValue,
+  sortOptions,
+  currentValue,
   onFilterChange,
-}: FilterHeaderProps) {
+}: SortHeaderProps) {
   return (
     <div
       className={twMerge(
@@ -33,8 +33,8 @@ export function FilterHeader({
       </p>
 
       <SelectDropdown
-        options={options}
-        value={filterValue}
+        options={sortOptions}
+        value={currentValue}
         onChange={onFilterChange}
       />
     </div>
