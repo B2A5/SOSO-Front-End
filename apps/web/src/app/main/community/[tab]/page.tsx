@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { PillChipsTab } from '@/components/tabs/PillChipsTab';
 import {
@@ -70,6 +70,8 @@ export default function CommunityTabPage() {
   const allCategory = { value: 'all' as Category, label: '전체' };
   const tabCategories = [allCategory, ...CATEGORIES];
 
+  const listScrollRef = useRef<HTMLDivElement>(null);
+
   return (
     <div className="w-full h-full flex flex-col">
       <PillChipsTab
@@ -92,7 +94,10 @@ export default function CommunityTabPage() {
         filterValue={sortOption}
         onFilterChange={setSortOption}
       />
-      <div className="flex-1 overflow-y-auto px-4">
+      <div
+        ref={listScrollRef}
+        className="flex-1 overflow-y-auto px-4"
+      >
         {error ? (
           <div className="flex flex-col items-center justify-center py-12">
             <p className="text-red-500 text-center">
@@ -107,6 +112,7 @@ export default function CommunityTabPage() {
             isFetchingNextPage={isFetchingNextPage}
             isLoading={isLoading}
             type="freeboard"
+            parentRef={listScrollRef}
           />
         )}
       </div>

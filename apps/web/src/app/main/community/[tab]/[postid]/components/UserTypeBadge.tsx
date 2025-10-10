@@ -19,9 +19,12 @@ export function UserTypeBadge({
   /** 추가 Tailwind 클래스 */
   className?: string;
 }) {
-  const userTypeMap = {
-    founder: { label: '창업자', Icon: Sprout },
-    resident: { label: '주민', Icon: Home },
+  const userTypeMap: Record<
+    UserType,
+    { label: string; Icon: React.ElementType }
+  > = {
+    FOUNDER: { label: '창업자', Icon: Sprout },
+    INHABITANT: { label: '주민', Icon: Home },
   } as const;
 
   const { label, Icon } = userTypeMap[type];

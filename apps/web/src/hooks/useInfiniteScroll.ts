@@ -6,6 +6,7 @@ interface UseInfiniteScrollProps {
   fetchNextPage: () => void; // 다음 페이지를 불러오는 함수
   isFetching?: boolean; // 현재 데이터 요청 중인지 여부 (중복 요청 방지용)
   threshold?: number; // 뷰포트에 걸리는 비율 (0~1)
+  rootRef?: React.RefObject<HTMLElement | null>;
 }
 
 /**
@@ -21,12 +22,14 @@ export function useInfiniteScroll({
   fetchNextPage,
   isFetching = false,
   threshold = 0.5,
+  rootRef,
 }: UseInfiniteScrollProps) {
   useEffect(() => {
     const element = targetRef.current;
 
     // 조건 확인: 요소가 없거나, 다음 페이지가 없거나, 로딩 중이면 종료
     if (!element || !hasNextPage || isFetching) return;
+    const rootEl = rootRef?.current ?? null;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -35,7 +38,7 @@ export function useInfiniteScroll({
           fetchNextPage(); // 요소가 화면에 보이면 다음 페이지 로드
         }
       },
-      { threshold },
+      { root: rootEl, threshold },
     );
 
     observer.observe(element); // 옵저버 등록
@@ -49,5 +52,6 @@ export function useInfiniteScroll({
     isFetching,
     fetchNextPage,
     threshold,
+    rootRef,
   ]);
 }

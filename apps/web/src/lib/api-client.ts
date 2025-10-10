@@ -1,4 +1,5 @@
 import Axios, { AxiosRequestConfig } from 'axios';
+import { useAuthStore } from '@/stores/authStore';
 
 export const AXIOS_INSTANCE = Axios.create({
   baseURL:
@@ -7,18 +8,18 @@ export const AXIOS_INSTANCE = Axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // Refresh Token 쿠키 전송
 });
 
 // Request interceptor for adding auth token
 AXIOS_INSTANCE.interceptors.request.use(
   (config) => {
-    // Add authentication token if available
-    const token =
-      typeof window !== 'undefined'
-        ? localStorage.getItem('accessToken')
-        : null;
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    // authStore에서 Access Token 읽기 (SSR 안전)
+    if (typeof window !== 'undefined') {
+      const token = useAuthStore.getState().accessToken;
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
     return config;
   },
@@ -33,10 +34,9 @@ AXIOS_INSTANCE.interceptors.response.use(
   (error) => {
     // Handle 401 unauthorized errors
     if (error.response?.status === 401) {
-      // Redirect to login or refresh token
+      // Access Token 만료 - 자동으로 refresh 시도는 axios.ts에서 처리
       if (typeof window !== 'undefined') {
-        localStorage.removeItem('accessToken');
-        // window.location.href = '/login';
+        console.log('[API] 401 Unauthorized - 토큰 만료');
       }
     }
     return Promise.reject(error);
