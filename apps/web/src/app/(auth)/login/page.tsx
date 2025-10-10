@@ -6,6 +6,8 @@ import { Button } from '@/components/buttons/Button';
 import { useRouter } from 'next/navigation';
 import { Suspense } from 'react';
 
+export const dynamic = 'force-dynamic';
+
 export default function AuthPage() {
   const router = useRouter();
   return (

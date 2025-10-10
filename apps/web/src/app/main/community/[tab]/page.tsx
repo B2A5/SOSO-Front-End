@@ -1,7 +1,7 @@
 'use client';
 import React, { useRef, useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { CategoryTab } from '@/components/tabs/CategoryTab';
+import { PillChipsTab } from '@/components/tabs/PillChipsTab';
 import {
   CATEGORIES,
   Categories,
@@ -74,9 +74,9 @@ export default function CommunityTabPage() {
 
   return (
     <div className="w-full h-full flex flex-col">
-      <CategoryTab
-        tabs={tabCategories}
-        defaultValue={category.value}
+      <PillChipsTab
+        chips={tabCategories}
+        activeValue={category.value}
         onChange={(value) => {
           if (value === 'all') {
             setCategory(CATEGORIES[0]); // 전체 선택시 첫 번째 카테고리로 설정
