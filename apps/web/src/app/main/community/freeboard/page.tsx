@@ -1,5 +1,5 @@
 'use client';
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { PillChipsTab } from '@/components/tabs/PillChipsTab';
 import { CATEGORIES, Category } from '../constants/categories';
@@ -12,15 +12,17 @@ import { mockGetPostsByCursor } from '../mock/mockPosts';
 import type { PostCursorResponse } from '@/api/posts';
 
 /**
- * 커뮤니티 탭 페이지 (레거시 - [tab] 동적 라우팅)
+ * 자유 게시판 메인 페이지
+ *
+ * @description
  * - 카테고리별 게시글 목록을 보여주는 페이지
  * - 무한스크롤 기능 포함
  * - 카테고리 및 정렬 옵션 선택 가능
- * @todo: 목업 데이터를 실제 데이터로 교체
- * @deprecated 새로운 votesboard/freeboard 구조로 마이그레이션 예정
+ *
+ * @todo 목업 데이터를 실제 데이터로 교체
  */
 
-export default function CommunityTabPage() {
+export default function FreeboardPage() {
   const [category, setCategory] = useState<Category | null>(null);
   const [sortOption, setSortOption] = useState<SortValue>(
     SORT_OPTIONS[0].value,
@@ -53,11 +55,9 @@ export default function CommunityTabPage() {
     staleTime: 5 * 60 * 1000, // 5분간 캐시 유지
   });
 
-  // 게시글 리스트 스크롤 참조 객체
-  const listScrollRef = useRef<HTMLDivElement>(null);
   // 모든 페이지의 게시글을 하나의 배열로 합치기
   const allPosts = data?.pages.flatMap((page) => page.posts) ?? [];
-
+  const listScrollRef = React.useRef<HTMLDivElement>(null);
   // 총 게시글 개수 (첫 번째 페이지 기준으로 추정)
   const totalCount = data?.pages[0]?.posts.length
     ? allPosts.length + (hasNextPage ? 10 : 0)
@@ -68,7 +68,8 @@ export default function CommunityTabPage() {
       <PillChipsTab<Category>
         chips={CATEGORIES}
         activeValue={category}
-        onChange={(value) => setCategory(value)}
+        onChange={setCategory}
+        showAll
       />
       <FilterHeader
         totalCount={totalCount}
@@ -76,10 +77,7 @@ export default function CommunityTabPage() {
         filterValue={sortOption}
         onFilterChange={setSortOption}
       />
-      <div
-        ref={listScrollRef}
-        className="flex-1 overflow-y-auto px-4"
-      >
+      <div className="flex-1 overflow-y-auto px-4">
         {error ? (
           <div className="flex flex-col items-center justify-center py-12">
             <p className="text-red-500 text-center">
@@ -88,13 +86,13 @@ export default function CommunityTabPage() {
           </div>
         ) : (
           <ContentsList
+            parentRef={listScrollRef}
             posts={allPosts}
             hasNextPage={hasNextPage || false}
             fetchNextPage={fetchNextPage}
             isFetchingNextPage={isFetchingNextPage}
             isLoading={isLoading}
             type="freeboard"
-            parentRef={listScrollRef}
           />
         )}
       </div>

@@ -3,7 +3,7 @@ import {
   PostCursorResponse,
   CursorDto,
 } from '@/api/posts';
-import { Category } from '@/constants/categories';
+import { Category } from '../constants/categories';
 
 // 목업 사용자 데이터
 const mockUsers = [

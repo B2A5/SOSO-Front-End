@@ -1,10 +1,9 @@
 'use client';
 
 import { useEffect } from 'react';
-import Header from '@/components/Header';
 import { useRouter } from 'next/navigation';
 import { useSignupFlow } from '@/hooks/useSignupFlow';
-
+import { Header } from '@/components/header/Header';
 /**
  * 회원가입 타입별 공통 레이아웃
  * URL 세그먼트 (/signup/[type]/...)에서 founder|inhabitant 을 읽어
@@ -33,8 +32,13 @@ export default function SignUpStepLayout({
   const title = userType === 'FOUNDER' ? '창업자' : '주민';
 
   return (
-    <div className="flex flex-col items-center h-full">
-      <Header title={`${title}로 회원가입`} leftButtonType="back" />
+    <div className="flex flex-col items-center h-full w-full">
+      <Header>
+        <Header.Left>
+          <Header.BackButton />
+        </Header.Left>
+        <Header.Center>{title}로 회원가입</Header.Center>
+      </Header>
       <div className="w-full flex-1 h-full p-layout">{children}</div>
     </div>
   );

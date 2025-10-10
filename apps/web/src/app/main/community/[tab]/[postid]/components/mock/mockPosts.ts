@@ -20,7 +20,7 @@ const MOCK_POST: GetPostResponse = {
     nickname: '유진',
     location: '서울시 강남구',
     profileImageUrl: '/somoon/default_somoon.svg',
-    userType: 'resident',
+    userType: 'INHABITANT',
   },
 };
 
