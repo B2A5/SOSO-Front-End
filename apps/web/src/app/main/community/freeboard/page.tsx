@@ -57,7 +57,7 @@ export default function FreeboardPage() {
 
   // 모든 페이지의 게시글을 하나의 배열로 합치기
   const allPosts = data?.pages.flatMap((page) => page.posts) ?? [];
-
+  const listScrollRef = React.useRef<HTMLDivElement>(null);
   // 총 게시글 개수 (첫 번째 페이지 기준으로 추정)
   const totalCount = data?.pages[0]?.posts.length
     ? allPosts.length + (hasNextPage ? 10 : 0)
@@ -86,6 +86,7 @@ export default function FreeboardPage() {
           </div>
         ) : (
           <ContentsList
+            parentRef={listScrollRef}
             posts={allPosts}
             hasNextPage={hasNextPage || false}
             fetchNextPage={fetchNextPage}
