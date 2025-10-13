@@ -1,9 +1,10 @@
 import { twMerge } from 'tailwind-merge';
 import {
   Category,
-  CATEGORY_LIST,
+  CATEGORY_DETAILS,
   CategoryContent,
-} from '@/constants/categorys';
+} from '../constants/categories';
+
 interface CategoryBadgeProps {
   category: Category;
 }
@@ -12,12 +13,11 @@ interface CategoryBadgeProps {
  * 카테고리 배지 컴포넌트
  * 주어진 카테고리에 따라 배지와 아이콘을 표시
  */
-
 export function CategoryBadge({ category }: CategoryBadgeProps) {
-  if (!CATEGORY_LIST[category]) {
+  if (!CATEGORY_DETAILS[category]) {
     return null; // 카테고리가 정의되지 않은 경우 null 반환
   }
-  const { color, label, icon } = CATEGORY_LIST[
+  const { color, label, icon } = CATEGORY_DETAILS[
     category
   ] as CategoryContent;
 

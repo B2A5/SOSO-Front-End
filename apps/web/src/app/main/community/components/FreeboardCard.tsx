@@ -1,7 +1,7 @@
 // src/components/CommunityCard.tsx
 import Card from '@/components/Card';
 import { CategoryChip } from '@/components/chips/CategoryChip';
-import { Category } from '@/constants/categories';
+import { Category } from '../constants/categories';
 import { relativeTime } from '@/utils/relativeTime';
 import { Heart, MessageSquareMore } from 'lucide-react';
 import { useRouter } from 'next/navigation';

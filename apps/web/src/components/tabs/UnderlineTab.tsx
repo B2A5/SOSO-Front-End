@@ -17,33 +17,35 @@ interface UnderlineStyle {
 }
 
 /**
- * 탭 컴포넌트 Props 인터페이스
+ * 언더라인 탭 컴포넌트 Props 인터페이스
  */
-export interface TabProps {
+export interface UnderlineTabProps<T> {
   /** 탭 목록 배열 */
-  tabs?: TabItem[];
+  tabs: TabItem<T>[];
   /** 현재 활성화된 탭 */
-  activeTab?: TabItem['value'];
+  activeTab?: TabItem<T>['value'];
   /** 탭 변경 시 호출될 콜백 함수 */
-  onTabChange?: (tab: TabItem['value']) => void;
+  onTabChange?: (tab: TabItem<T>['value']) => void;
   /** 추가 CSS 클래스명 */
   className?: string;
 }
 
 /**
- * 커뮤니티 탭 컴포넌트
+ * 언더라인 애니메이션이 있는 탭 컴포넌트
+ *
+ * @template T - 탭 value 타입 (string을 확장해야 함)
  */
-export function Tab({
-  tabs = [{ title: '전체', value: 'all' }],
-  activeTab = 'all',
+export function UnderlineTab<T extends string = string>({
+  tabs,
+  activeTab = tabs?.[0]?.value,
   onTabChange,
   className = '',
-}: TabProps) {
+}: UnderlineTabProps<T>) {
   const [underlineStyle, setUnderlineStyle] =
     useState<UnderlineStyle>({});
   const [isInitialized, setIsInitialized] = useState(false);
 
-  const tabRefs = useRef<{ [key: string]: HTMLButtonElement | null }>(
+  const tabRefs = useRef<Record<string, HTMLButtonElement | null>>(
     {},
   );
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -97,7 +99,7 @@ export function Tab({
   /**
    * 탭 클릭 핸들러
    */
-  const handleTabClick = (tab: string): void => {
+  const handleTabClick = (tab: T): void => {
     onTabChange?.(tab);
   };
 
@@ -106,7 +108,7 @@ export function Tab({
    */
   const handleKeyDown = (
     event: React.KeyboardEvent,
-    tab: string,
+    tab: T,
   ): void => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
@@ -144,7 +146,7 @@ export function Tab({
             aria-selected={activeTab === tab.value}
             aria-controls={`tabpanel-${tab.value}`}
           >
-            {tab.title}
+            {tab.label}
           </button>
         ))}
       </div>
@@ -155,7 +157,12 @@ export function Tab({
           'absolute bottom-0 h-0.5 bg-soso-600 transition-all duration-300 ease-out',
           !isInitialized ? 'opacity-0' : 'opacity-100',
         )}
-        style={underlineStyle}
+        style={{
+          width: underlineStyle.width
+            ? `${underlineStyle.width}px`
+            : 0,
+          left: underlineStyle.left ? `${underlineStyle.left}px` : 0,
+        }}
         aria-hidden="true"
       />
 
