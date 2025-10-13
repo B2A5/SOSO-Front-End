@@ -1,32 +1,20 @@
 'use client';
 
-import UserProfileBase from './UserProfileBase';
 import { UserTypeBadge } from './UserTypeBadge';
-import { relativeTime } from '@/utils/relativeTime';
 import { MoreVertical, ThumbsUp } from 'lucide-react';
 import type { Comment } from '@/types/comment.types';
 import LikeButton from './LikeButton';
 import BottomSheetMenu from '@/components/BottomSheet';
 import { useOverlay } from '@/hooks/ui/useOverlay';
+import { UserProfile } from './UserProfile';
+import { UserType } from '@/types/user.types';
+import { relativeTime } from '@/utils/relativeTime';
 
 interface CommentItemProps {
-  /** 댓글 객체 (내용, 작성자, 작성일, 좋아요 수 등 포함) */
   comment: Comment;
-  /** 액션 영역 커스텀 (기본값: 케밥 메뉴) */
-  action?: React.ReactNode;
 }
 
-/**
- * CommentItem 컴포넌트
- *
- * - 댓글 단일 항목을 렌더링
- * - 프로필/닉네임/유형/작성일/좋아요 수 포함
- * - 유저 정보는 UserProfileBase를 통해 표시
- */
-export default function CommentItem({
-  comment,
-  action,
-}: CommentItemProps) {
+export default function CommentItem({ comment }: CommentItemProps) {
   const {
     content,
     createdAt,
@@ -34,12 +22,8 @@ export default function CommentItem({
     user: { nickname, profileImageUrl, userType },
   } = comment;
 
-  const timeText = createdAt ? relativeTime(createdAt) : '';
-  const metaRight = [timeText].filter(Boolean).join(' · '); // 우측 메타 표시용
-
   const { openOverlay } = useOverlay();
 
-  // TODO: 현재 유저가 작성한 댓글인 경우에만 수정/삭제 노출
   const handleKebabClick = () => {
     const actions = [
       {
@@ -55,8 +39,7 @@ export default function CommentItem({
         onClick: () => console.log('delete', comment.id),
       },
     ];
-
-    openOverlay(<BottomSheetMenu isOpen={true} actions={actions} />, {
+    openOverlay(<BottomSheetMenu isOpen actions={actions} />, {
       backdrop: true,
       blockScroll: true,
       closeOnBackdrop: true,
@@ -64,39 +47,48 @@ export default function CommentItem({
   };
 
   return (
-    <UserProfileBase
-      nickname={nickname}
-      profileImageUrl={profileImageUrl}
-      badge={<UserTypeBadge type={userType} />}
-      avatarSize={50}
-      avatarClassName="w-[50px] h-[50px] max-w-none"
-      className="items-start"
-      action={
-        action ?? (
+    <UserProfile className="items-start">
+      <UserProfile.Left>
+        <UserProfile.Avatar
+          url={profileImageUrl}
+          size={50}
+          alt={`${nickname}의 프로필`}
+        />
+      </UserProfile.Left>
+
+      <UserProfile.Right className="gap-0.5">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <UserProfile.Name
+              nickname={nickname}
+              userType={<UserTypeBadge type={userType as UserType} />}
+              nicknameClassName="text-body2 font-medium"
+            />
+          </div>
+
           <button
             type="button"
             onClick={handleKebabClick}
             aria-label="댓글 메뉴 열기"
+            className="p-1 -m-1"
           >
-            <MoreVertical className="w-4 h-4" />
+            <MoreVertical className="w-4 h-4 text-neutral-500" />
           </button>
-        )
-      } // 기본 케밥 메뉴
-    >
-      {/* 댓글 내용 */}
-      <div className="mt-0.5 text-[14px] text-neutral-800">
-        {content}
-      </div>
+        </div>
 
-      {/* 메타 정보 (좋아요 수 / 작성 시간 등) */}
-      <div className="mt-2 flex justify-between text-xs text-neutral-500">
-        <LikeButton
-          isLiked={false}
-          likeCount={likeCount}
-          icon={ThumbsUp}
-        />
-        <span>{metaRight}</span>
-      </div>
-    </UserProfileBase>
+        <UserProfile.SubContents>
+          <div className="text-input text-neutral-800">{content}</div>
+
+          <div className="mt-2 flex items-center justify-between text-xs text-neutral-500">
+            <LikeButton
+              isLiked={false}
+              likeCount={likeCount}
+              icon={ThumbsUp}
+            />
+            <span>{relativeTime(createdAt)}</span>
+          </div>
+        </UserProfile.SubContents>
+      </UserProfile.Right>
+    </UserProfile>
   );
 }
