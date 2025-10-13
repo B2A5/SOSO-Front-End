@@ -54,18 +54,24 @@ export function FreeBoardCard({
       </div>
       <div className="flex justify-between items-center">
         {/* 작성자 · 시간 */}
-        <label className="text-neutral-500 text-xs">
+        <span className="text-neutral-500 text-xs">
           {author?.nickname ?? '알 수 없음'} ·{' '}
           {createdAt ? relativeTime(createdAt) : ''}
-        </label>
+        </span>
         <div className="flex items-center gap-2">
           {/* 좋아요 */}
-          <div className="flex items-center gap-1">
+          <div
+            className="flex items-center gap-1"
+            aria-label={`좋아요 ${likeCount ?? 0}개`}
+          >
             <Heart className="w-4 h-4 text-neutral-500" />
             <span className="text-xs">{likeCount ?? 0}</span>
           </div>
           {/* 댓글 */}
-          <div className="flex items-center gap-1">
+          <div
+            className="flex items-center gap-1"
+            aria-label={`댓글 ${commentCount ?? 0}개`}
+          >
             <MessageSquareMore className="w-4 h-4 text-neutral-500" />
             <span className="text-xs">{commentCount ?? 0}</span>
           </div>

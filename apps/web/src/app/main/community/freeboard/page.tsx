@@ -22,8 +22,6 @@ import type { FreeboardSummary } from '@/generated/api/models';
  * - 카테고리별 게시글 목록을 보여주는 페이지
  * - 무한스크롤 기능 포함
  * - 카테고리 및 정렬 옵션 선택 가능
- *
- * @todo 목업 데이터를 실제 데이터로 교체
  */
 
 export default function FreeboardPage() {
@@ -40,11 +38,13 @@ export default function FreeboardPage() {
     error,
   } = useInfiniteQuery({
     queryKey: getGetPostsByCursorQueryKey({
-      category: category ?? undefined,
+      // queryKey 생성 함수 사용
+      category: category ?? undefined, // null일 경우 undefined로 변환
       sort: sortOption,
     }),
     queryFn: ({ pageParam, signal }) =>
       getPostsByCursor(
+        //generated api 함수 사용
         {
           category: category ?? undefined,
           sort: sortOption,
@@ -68,12 +68,13 @@ export default function FreeboardPage() {
   const totalCount = data?.pages[0]?.totalCount ?? 0;
 
   return (
-    <div className="w-full h-full flex flex-col">
+    <main className="w-full h-full flex flex-col">
       <PillChipsTab<Category>
         chips={CATEGORIES}
         activeValue={category}
         onChange={setCategory}
         showAll
+        ariaLabel="카테고리 선택 필터"
       />
       <SortHeader
         totalCount={totalCount}
@@ -81,9 +82,12 @@ export default function FreeboardPage() {
         currentValue={sortOption}
         onFilterChange={setSortOption}
       />
-      <div
+      <section
         ref={listScrollRef}
         className="flex-1 overflow-y-auto px-4"
+        aria-label="자유 게시판 게시글 목록"
+        tabIndex={0}
+        aria-busy={isFetchingNextPage}
       >
         {error ? (
           <div className="flex flex-col items-center justify-center py-12">
@@ -108,8 +112,8 @@ export default function FreeboardPage() {
             )}
           />
         )}
-      </div>
+      </section>
       <FloatingButton categories={CATEGORIES} />
-    </div>
+    </main>
   );
 }

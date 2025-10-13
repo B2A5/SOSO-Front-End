@@ -11,28 +11,25 @@ import { TabItem } from '@/types/tab.types';
 interface PillChipsTabProps<T = string> {
   /** Chip 목록 배열 */
   chips: TabItem<T>[];
-
   /** 현재 활성화된 chip value (null일 경우 '전체' 선택됨) */
   activeValue?: T | null;
-
   /** Chip 변경 시 호출될 콜백 함수 (null은 '전체' 선택을 의미) */
   onChange?: (value: T | null) => void;
-
   /** '전체' chip 표시 여부 */
   showAll?: boolean;
-
   /** '전체' chip의 라벨 */
   allLabel?: string;
-
   /** 추가 CSS 클래스명 */
   className?: string;
+  /** 접근성(ARIA) 라벨 */
+  ariaLabel?: string;
 }
 
 /**
- * 알약(pill) 형태의 칩 컴포넌트
+ * 알약(pill) 형태의 칩 탭 컴포넌트
  *
  * @description
- * 카테고리 필터, 태그 선택 등에 사용되는 칩 컴포넌트입니다.
+ * 카테고리 필터, 태그 선택 등에 사용되는 칩 형태의 탭 컴포넌트입니다.
  * '전체' 칩을 표시할 수 있으며, 선택 시 null 값을 반환합니다.
  *
  * @template T - chip value의 타입
@@ -45,6 +42,7 @@ export function PillChipsTab<T = string>({
   showAll = true,
   allLabel = '전체',
   className = '',
+  ariaLabel = 'Pill Chips Tab',
 }: PillChipsTabProps<T>) {
   const [internalActiveValue, setInternalActiveValue] =
     useState<T | null>(activeValue ?? null);
@@ -65,7 +63,10 @@ export function PillChipsTab<T = string>({
   };
 
   return (
-    <div className={twMerge('w-full', className)}>
+    <nav
+      className={twMerge('w-full', className)}
+      aria-label={ariaLabel}
+    >
       <div
         className="
           flex gap-2 p-3 overflow-x-auto scrollbar-hide
@@ -128,6 +129,6 @@ export function PillChipsTab<T = string>({
           </Pressable>
         ))}
       </div>
-    </div>
+    </nav>
   );
 }

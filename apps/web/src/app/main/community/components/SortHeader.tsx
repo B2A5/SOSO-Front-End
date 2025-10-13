@@ -22,11 +22,12 @@ export function SortHeader({
   onFilterChange,
 }: SortHeaderProps) {
   return (
-    <div
+    <header
       className={twMerge(
         'flex items-center justify-between p-4',
         className,
       )}
+      aria-label="정렬 옵션"
     >
       <p className="text-body2 dark:text-white">
         총 {totalCount}개 게시글
@@ -37,6 +38,6 @@ export function SortHeader({
         value={currentValue}
         onChange={onFilterChange}
       />
-    </div>
+    </header>
   );
 }
