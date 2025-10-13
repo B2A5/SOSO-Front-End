@@ -1,6 +1,4 @@
 import { useRef } from 'react';
-import { PostSummary } from '@/api/posts';
-import { FreeBoardCard } from './FreeboardCard';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { twMerge } from 'tailwind-merge';
 import { VirtualList } from '@/components/VirtualList';
@@ -8,21 +6,26 @@ import { VirtualList } from '@/components/VirtualList';
 /**
  * 무한스크롤로 커뮤니티 게시글 카드를 보여주는 컴포넌트입니다.
  * - 게시글 목록을 스크롤할 수 있는 형태로 보여줍니다.
+ * - 제네릭 타입을 사용해 다양한 게시판 요약 타입 지원(자유게시판 및 투표게시판)
  * - useInfiniteScroll 훅을 통해 무한스크롤 지원
  */
-interface ContentsListProps {
-  type: 'votesboard' | 'freeboard'; // 게시판 타입
-  // @todo: 타입에 따라 다른 컴포넌트로 분리할 수도 있음
-  posts: PostSummary[]; // 게시글 데이터 배열(여기에 나중에 투표 타입도 추가)
+interface BoardSummary {
+  postId?: number; // API 응답이 옵셔널이므로 맞춤
+  title?: string;
+}
+
+interface ContentsListProps<T extends BoardSummary> {
+  posts: T[]; // 게시글 데이터 배열
   hasNextPage: boolean; // 다음 페이지 존재 여부
   fetchNextPage: () => void; // 다음 페이지 로드 함수
   isFetchingNextPage: boolean; // 다음 페이지 로딩 상태
   isLoading?: boolean; // 초기 로딩 상태
   className?: string; // 추가 클래스명
   parentRef: React.RefObject<HTMLDivElement>;
+  renderItem: (post: T) => React.ReactNode; // 각 아이템을 렌더링하는 함수
 }
 
-export default function ContentsList({
+export default function ContentsList<T extends BoardSummary>({
   posts,
   hasNextPage,
   fetchNextPage,
@@ -30,7 +33,8 @@ export default function ContentsList({
   isLoading = false,
   className,
   parentRef,
-}: ContentsListProps) {
+  renderItem,
+}: ContentsListProps<T>) {
   const triggerRef = useRef<HTMLDivElement>(null);
 
   // 무한스크롤 훅 설정
@@ -76,16 +80,14 @@ export default function ContentsList({
   return (
     <div className={twMerge('flex flex-col gap-4', className)}>
       {/* 가상 리스트 */}
-      <VirtualList<PostSummary>
+      <VirtualList<T>
         items={posts}
         parentRef={parentRef}
         estimateSize={156} // 카드 평균 높이 추정치 (프로젝트에 맞게 조정)
         overscan={3}
         gap={4}
-        getItemKey={(p) => p.postId}
-        renderItem={(post) => (
-          <FreeBoardCard post={post} isChip={true} />
-        )}
+        getItemKey={(post, index) => post.postId ?? `post-${index}`}
+        renderItem={renderItem}
       />
 
       {/* 무한스크롤 트리거: 같은 스크롤 컨테이너(rootRef) 기준으로 관찰됨 */}

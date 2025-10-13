@@ -6,10 +6,10 @@ import { relativeTime } from '@/utils/relativeTime';
 import { Heart, MessageSquareMore } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-import type { PostSummary } from '@/api/posts';
+import type { FreeboardSummary } from '@/generated/api/models';
 
 export interface FreeBoardCardProps {
-  post: PostSummary; // 변경: 개별 필드 대신 post 하나로
+  post: FreeboardSummary;
   isChip?: boolean; // 칩 표시 여부
 }
 
@@ -20,12 +20,12 @@ export function FreeBoardCard({
   const {
     postId,
     title,
-    content, // 이전의 description → content 로 변경
+    contentPreview, // API에서는 contentPreview 사용
     category,
     likeCount,
     commentCount,
     createdAt,
-    user: { nickname },
+    author, // API에서는 author 사용
   } = post;
 
   const router = useRouter();
@@ -40,7 +40,7 @@ export function FreeBoardCard({
       onClick={handleOnClick}
     >
       <div className="flex flex-col gap-1">
-        {isChip && (
+        {isChip && category && (
           <div className="flex items-center gap-1">
             <CategoryChip category={category as Category} />
           </div>
@@ -48,25 +48,26 @@ export function FreeBoardCard({
         <h3 className="text-title2 truncate" title={title}>
           {title}
         </h3>
-        <p className="text-body truncate" title={content}>
-          {content}
+        <p className="text-body truncate" title={contentPreview}>
+          {contentPreview}
         </p>
       </div>
       <div className="flex justify-between items-center">
         {/* 작성자 · 시간 */}
         <label className="text-neutral-500 text-xs">
-          {nickname} · {relativeTime(createdAt)}
+          {author?.nickname ?? '알 수 없음'} ·{' '}
+          {createdAt ? relativeTime(createdAt) : ''}
         </label>
         <div className="flex items-center gap-2">
           {/* 좋아요 */}
           <div className="flex items-center gap-1">
             <Heart className="w-4 h-4 text-neutral-500" />
-            <span className="text-xs">{likeCount}</span>
+            <span className="text-xs">{likeCount ?? 0}</span>
           </div>
           {/* 댓글 */}
           <div className="flex items-center gap-1">
             <MessageSquareMore className="w-4 h-4 text-neutral-500" />
-            <span className="text-xs">{commentCount}</span>
+            <span className="text-xs">{commentCount ?? 0}</span>
           </div>
         </div>
       </div>

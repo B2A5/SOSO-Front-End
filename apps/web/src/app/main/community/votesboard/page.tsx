@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { FilterHeader } from '../components/SortHeader';
+import { SortHeader } from '../components/SortHeader';
 import { SORT_OPTIONS } from '../constants/sortOptions';
 import { SortValue } from '@/types/options.types';
 
@@ -27,10 +27,10 @@ export default function VotesboardPage() {
   return (
     <div className="w-full h-full flex flex-col">
       {/* 필터 헤더 */}
-      <FilterHeader
+      <SortHeader
         totalCount={0}
-        options={SORT_OPTIONS}
-        filterValue={sortOption}
+        sortOptions={SORT_OPTIONS}
+        currentValue={sortOption}
         onFilterChange={setSortOption}
       />
 

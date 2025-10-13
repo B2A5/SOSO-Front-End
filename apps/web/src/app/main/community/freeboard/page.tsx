@@ -7,9 +7,13 @@ import { SortHeader } from '../components/SortHeader';
 import { SortValue } from '@/types/options.types';
 import { SORT_OPTIONS } from '../constants/sortOptions';
 import FloatingButton from '@/components/buttons/FloatingButton';
+import { FreeBoardCard } from '../components/FreeboardCard';
 import ContentsList from '../components/ContentsList';
-import { mockGetPostsByCursor } from '../mock/mockPosts';
-import type { PostCursorResponse } from '@/api/posts';
+import {
+  getGetPostsByCursorQueryKey,
+  getPostsByCursor,
+} from '@/generated/api/endpoints/freeboard/freeboard';
+import type { FreeboardSummary } from '@/generated/api/models';
 
 /**
  * 자유 게시판 메인 페이지
@@ -31,35 +35,37 @@ export default function FreeboardPage() {
     data,
     fetchNextPage,
     hasNextPage,
-    isFetchingNextPage,
     isLoading,
+    isFetchingNextPage,
     error,
   } = useInfiniteQuery({
-    queryKey: ['posts', category, sortOption],
-    queryFn: ({ pageParam }) =>
-      // 테스트용 mock 데이터 사용
-      mockGetPostsByCursor({
-        category: category ?? undefined,
-        sort: sortOption,
-        cursor: pageParam,
-        size: 10,
-      }),
-    initialPageParam: '1',
-    getNextPageParam: (lastPage: PostCursorResponse) => {
-      return lastPage.nextCursor.hasNext
-        ? lastPage.nextCursor.cursor
-        : undefined;
+    queryKey: getGetPostsByCursorQueryKey({
+      category: category ?? undefined,
+      sort: sortOption,
+    }),
+    queryFn: ({ pageParam, signal }) =>
+      getPostsByCursor(
+        {
+          category: category ?? undefined,
+          sort: sortOption,
+          cursor: pageParam,
+          size: '10',
+        },
+        signal,
+      ),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (lastPage) => {
+      return lastPage.hasNext ? lastPage.nextCursor : undefined;
     },
-    staleTime: 5 * 60 * 1000, // 5분간 캐시 유지
   });
 
-  // 모든 페이지의 게시글을 하나의 배열로 합치기
-  const allPosts = data?.pages.flatMap((page) => page.posts) ?? [];
+  // 스크롤 컨테이너
   const listScrollRef = React.useRef<HTMLDivElement>(null);
-  // 총 게시글 개수 (첫 번째 페이지 기준으로 추정)
-  const totalCount = data?.pages[0]?.posts.length
-    ? allPosts.length + (hasNextPage ? 10 : 0)
-    : 0;
+  // 모든 페이지의 게시글을 하나의 배열로 합치기
+  const allFreeboardPosts: FreeboardSummary[] =
+    data?.pages.flatMap((page) => page.posts ?? []) ?? [];
+  // 총 게시글 개수
+  const totalCount = data?.pages[0]?.totalCount ?? 0;
 
   return (
     <div className="w-full h-full flex flex-col">
@@ -75,7 +81,10 @@ export default function FreeboardPage() {
         currentValue={sortOption}
         onFilterChange={setSortOption}
       />
-      <div className="flex-1 overflow-y-auto px-4">
+      <div
+        ref={listScrollRef}
+        className="flex-1 overflow-y-auto px-4"
+      >
         {error ? (
           <div className="flex flex-col items-center justify-center py-12">
             <p className="text-red-500 text-center">
@@ -83,14 +92,20 @@ export default function FreeboardPage() {
             </p>
           </div>
         ) : (
-          <ContentsList
+          <ContentsList<FreeboardSummary>
             parentRef={listScrollRef}
-            posts={allPosts}
+            posts={allFreeboardPosts}
             hasNextPage={hasNextPage || false}
             fetchNextPage={fetchNextPage}
             isFetchingNextPage={isFetchingNextPage}
             isLoading={isLoading}
-            type="freeboard"
+            renderItem={(post) => (
+              <FreeBoardCard
+                key={post.postId}
+                post={post}
+                isChip={true}
+              />
+            )}
           />
         )}
       </div>
