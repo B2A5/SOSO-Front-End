@@ -12,6 +12,7 @@ import { getPost } from './components/mock/mockPosts';
 import { useQuery } from '@tanstack/react-query';
 import { UserType } from '@/types/user.types';
 import { UserProfile } from './components/UserProfile';
+import { relativeTime } from '@/utils/relativeTime';
 
 export default function PostPage() {
   const { postid } = useParams<{ postid: string }>();
@@ -27,54 +28,53 @@ export default function PostPage() {
     enabled: Number.isFinite(postId),
   });
 
+  // TODO: 로딩 및 에러 상태 처리 수정 예정
   if (isLoading) return <div className="p-5">로딩 중...</div>;
   if (isError || !post)
     return <div className="p-5">게시글을 불러올 수 없습니다.</div>;
 
   return (
     <div>
-      <main className="space-y-6 ">
+      <main className="space-y-6">
         <div className="p-5 border-b flex flex-col space-y-4 border-neutral-0">
           {/* 카테고리 및 유저 정보 */}
-          <div className="flex flex-col space-y-2 ">
+          <div className="flex flex-col space-y-2">
             <span className="inline-block text-xs font-bold text-green-950 pl-1">
               {post.category}
             </span>
 
-            <UserProfile
-              nickname={post.user.nickname}
-              profileImageUrl={post.user.profileImageUrl}
-              size={45}
-              className="items-start"
-            >
-              <UserProfile.Avatar className="w-[45px] h-[45px] max-w-none" />
+            <UserProfile className="items-start">
+              <UserProfile.Left>
+                <UserProfile.Avatar
+                  url={post.user.profileImageUrl}
+                  size={45}
+                  alt={`${post.user.nickname}의 프로필 이미지`}
+                />
+              </UserProfile.Left>
+
               <UserProfile.Right>
-                <UserProfile.Header>
-                  <UserProfile.Name />
-                  <UserProfile.Badge>
+                <UserProfile.Name
+                  nickname={post.user.nickname}
+                  userType={
                     <UserTypeBadge
                       type={post.user.userType as UserType}
                     />
-                  </UserProfile.Badge>
-                </UserProfile.Header>
+                  }
+                />
 
-                <UserProfile.Body>
-                  {(post.user.location || post.createdAt) && (
-                    <UserProfile.Meta className="mt-0">
-                      {post.user.location && (
-                        <UserProfile.Location
-                          value={post.user.location}
-                        />
-                      )}
-                      {post.user.location && post.createdAt && (
-                        <UserProfile.Meta.Separator />
-                      )}
-                      {post.createdAt && (
-                        <UserProfile.Time value={post.createdAt} />
-                      )}
-                    </UserProfile.Meta>
-                  )}
-                </UserProfile.Body>
+                <UserProfile.SubContents>
+                  <div className="text-input2 text-neutral-500">
+                    {post.user.location && (
+                      <span>{post.user.location}</span>
+                    )}
+                    {post.user.location && post.createdAt && (
+                      <span className="mx-1">·</span>
+                    )}
+                    {post.createdAt && (
+                      <span>{relativeTime(post.createdAt)}</span>
+                    )}
+                  </div>
+                </UserProfile.SubContents>
               </UserProfile.Right>
             </UserProfile>
           </div>
@@ -95,7 +95,6 @@ export default function PostPage() {
             </p>
           </div>
 
-          {/* 좋아요 / 조회수 */}
           <div className="flex justify-between items-center mt-4">
             <LikeButton
               isLiked={post.isLiked}
@@ -108,9 +107,7 @@ export default function PostPage() {
           </div>
         </div>
 
-        {/* 댓글 리스트 */}
         <div className="px-5 space-y-4">
-          {/* <div>댓글 {post.commentCount}개</div> */}
           <CommentList postId={post.postId} />
         </div>
       </main>
