@@ -40,7 +40,11 @@ export function BackButton({ onClick }: { onClick?: () => void }) {
   };
 
   return (
-    <Button variant="ghost" onClick={handleClick}>
+    <Button
+      variant="ghost"
+      onClick={handleClick}
+      aria-label="뒤로가기"
+    >
       <ChevronLeft className="w-6 h-6" />
     </Button>
   );
@@ -111,7 +115,7 @@ export function CancelButton({ onClick }: { onClick?: () => void }) {
  */
 export function MenuButton({ onClick }: { onClick?: () => void }) {
   return (
-    <Button variant="ghost" onClick={onClick}>
+    <Button variant="ghost" onClick={onClick} aria-label="메뉴">
       <EllipsisVertical className="w-5 h-5" />
     </Button>
   );
@@ -140,7 +144,7 @@ export function MenuButton({ onClick }: { onClick?: () => void }) {
  */
 export function SearchButton({ onClick }: { onClick?: () => void }) {
   return (
-    <Button variant="ghost" onClick={onClick}>
+    <Button variant="ghost" onClick={onClick} aria-label="검색">
       <Search className="w-5 h-5" />
     </Button>
   );
