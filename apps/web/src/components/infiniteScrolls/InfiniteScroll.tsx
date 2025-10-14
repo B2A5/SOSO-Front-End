@@ -1,8 +1,9 @@
+'use client';
+
 import React, { createContext, useContext } from 'react';
 import { cn } from '@/utils/cn';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { VirtualList } from '@/components/infiniteScrolls/VirtualList';
-import { Spinner } from '../loadings/Spinner';
 
 interface InfiniteScrollProps<T> {
   items: T[]; // 렌더링할 아이템 배열
@@ -163,7 +164,7 @@ interface InfiniteScrollContentsProps<T> {
   className?: string;
   virtualScroll?: VirtualScrollConfig; // 가상 스크롤 설정 (기본값: false)
   scrollStore?: ScrollStoreConfig; // 스크롤 위치 저장 설정 (기본값: true)
-  getItemKey: (item: T, i: number) => React.Key; // 안정적인 key 생성 함수
+  getItemKey: (item: T, i: number) => React.Key; // 안정적인 key 생성 함수 (필수)
   renderItem: (item: T, index: number) => React.ReactNode; // 각 아이템을 렌더링하는 함수
   gap?: number; // 아이템 간격(px) (기본값: 0)
   threshold?: number; // IntersectionObserver threshold (기본값: 0.8)
@@ -190,7 +191,7 @@ function InfiniteScrollContents<T>({
     triggerRef,
   } = useInfiniteScrollContext<T>();
 
-  //
+  // 무한 스크롤 훅 설정
   useInfiniteScroll({
     targetRef: triggerRef,
     hasNextPage,
@@ -281,7 +282,9 @@ function InfiniteScrollTrigger({
         // 아이템 로딩 중
         children || (
           <div className="flex items-center gap-2">
-            {spinner && <Spinner className="w-5 h-5" />}
+            {spinner && (
+              <div className="w-5 h-5 border-2 border-soso-600 border-t-transparent rounded-full animate-spin" />
+            )}
             <span className="text-neutral-500">{loadingText}</span>
           </div>
         )
