@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { twMerge } from 'tailwind-merge';
-import { VirtualList } from '@/components/VirtualList';
+import { VirtualList } from '@/components/infiniteScrolls/VirtualList';
 
 /**
  * 무한스크롤로 커뮤니티 게시글 카드를 보여주는 컴포넌트입니다.
