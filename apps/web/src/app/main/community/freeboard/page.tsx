@@ -8,7 +8,7 @@ import { SortValue } from '@/types/options.types';
 import { SORT_OPTIONS } from '../constants/sortOptions';
 import FloatingButton from '@/components/buttons/FloatingButton';
 import { FreeBoardCard } from '../components/FreeboardCard';
-import ContentsList from '../components/ContentsList';
+import CommunityPostList from '../components/CommunityPostList';
 import {
   getGetPostsByCursorQueryKey,
   getPostsByCursor,
@@ -59,8 +59,6 @@ export default function FreeboardPage() {
     },
   });
 
-  // 스크롤 컨테이너
-  const listScrollRef = React.useRef<HTMLDivElement>(null);
   // 모든 페이지의 게시글을 하나의 배열로 합치기
   const allFreeboardPosts: FreeboardSummary[] =
     data?.pages.flatMap((page) => page.posts ?? []) ?? [];
@@ -82,37 +80,30 @@ export default function FreeboardPage() {
         currentValue={sortOption}
         onFilterChange={setSortOption}
       />
-      <section
-        ref={listScrollRef}
-        className="flex-1 overflow-y-auto px-4"
-        aria-label="자유 게시판 게시글 목록"
-        tabIndex={0}
-        aria-busy={isFetchingNextPage}
-      >
-        {error ? (
-          <div className="flex flex-col items-center justify-center py-12">
-            <p className="text-red-500 text-center">
-              게시글을 불러오는 중 오류가 발생했습니다.
-            </p>
-          </div>
-        ) : (
-          <ContentsList<FreeboardSummary>
-            parentRef={listScrollRef}
-            posts={allFreeboardPosts}
-            hasNextPage={hasNextPage || false}
-            fetchNextPage={fetchNextPage}
-            isFetchingNextPage={isFetchingNextPage}
-            isLoading={isLoading}
-            renderItem={(post) => (
-              <FreeBoardCard
-                key={post.postId}
-                post={post}
-                isChip={true}
-              />
-            )}
-          />
-        )}
-      </section>
+      {error ? (
+        <div className="flex-1 flex flex-col items-center justify-center px-4">
+          <p className="text-red-500 text-center">
+            게시글을 불러오는 중 오류가 발생했습니다.
+          </p>
+        </div>
+      ) : (
+        <CommunityPostList<FreeboardSummary>
+          items={allFreeboardPosts}
+          hasNextPage={hasNextPage || false}
+          fetchNextPage={fetchNextPage}
+          isFetchingNextPage={isFetchingNextPage}
+          initialLoading={isLoading}
+          getItemKey={(post, index) => post.postId ?? `post-${index}`}
+          renderItem={(post) => (
+            <FreeBoardCard
+              key={post.postId}
+              post={post}
+              isChip={true}
+            />
+          )}
+          emptyMessage="아직 작성된 게시글이 없습니다."
+        />
+      )}
       <FloatingButton categories={CATEGORIES} />
     </main>
   );
