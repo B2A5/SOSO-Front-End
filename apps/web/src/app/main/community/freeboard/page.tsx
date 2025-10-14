@@ -49,7 +49,7 @@ export default function FreeboardPage() {
           category: category ?? undefined,
           sort: sortOption,
           cursor: pageParam,
-          size: '10',
+          size: 10,
         },
         signal,
       ),
