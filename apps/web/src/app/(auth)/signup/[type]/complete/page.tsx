@@ -1,7 +1,7 @@
 'use client';
+
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/buttons/Button';
-//import { SlotMachineText } from '@/components/SlotMachineText';
 import CompleteImg from './components/CompleteImg';
 import { useAuthStore } from '@/stores/authStore';
 import { useRouter } from 'next/navigation';
@@ -10,8 +10,8 @@ import {
   useCompleteSignup,
 } from '@/generated/api/endpoints/signup/signup';
 import { useSignupFlow } from '@/hooks/useSignupFlow';
-import { User } from '@/types/user.types';
 import { MotionSlotMachineText } from '@/components/MotionSlotMachineText';
+import { SignupCompleteResponse } from '@/generated/api/models';
 
 export default function SignUpCompletePage() {
   const login = useAuthStore((state) => state.login);
@@ -30,13 +30,13 @@ export default function SignUpCompletePage() {
   ];
 
   // 회원가입 완료 후 로그인 및 리다이렉트 처리
-  const handleSuccess = (
-    jwtAccessToken: string,
-    nickname: string,
-  ) => {
+  const handleSuccess = ({
+    user,
+    accessToken,
+  }: SignupCompleteResponse) => {
     login({
-      user: { nickname } as User,
-      accessToken: jwtAccessToken,
+      user,
+      accessToken,
     });
     console.log('회원가입 및 로그인 완료:', { nickname });
     router.replace('/main');
@@ -46,10 +46,12 @@ export default function SignUpCompletePage() {
   const { mutate: completeSignup, isPending: isCompletingSignup } =
     useCompleteSignup({
       mutation: {
-        onSuccess: (data) => {
-          const { jwtAccessToken } = data;
-          if (nickname && jwtAccessToken) {
-            handleSuccess(jwtAccessToken, nickname);
+        onSuccess: (data: SignupCompleteResponse) => {
+          if (data) {
+            handleSuccess({
+              user: data.user,
+              accessToken: data.accessToken,
+            });
           } else {
             console.error('닉네임 또는 토큰 정보가 없습니다.');
           }
