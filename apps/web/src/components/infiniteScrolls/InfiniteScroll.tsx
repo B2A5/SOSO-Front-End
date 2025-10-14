@@ -264,7 +264,13 @@ function InfiniteScrollTrigger({
   return (
     <div
       ref={triggerRef as React.RefObject<HTMLDivElement>}
-      className={className}
+      className={cn(
+        'flex justify-center items-center py-4',
+        className,
+      )}
+      style={{ minHeight: '1px' }}
+      aria-live="polite"
+      aria-busy={isFetchingNextPage}
     >
       {!hasNextPage ? (
         // 아이템이 더 이상 없음
@@ -279,13 +285,7 @@ function InfiniteScrollTrigger({
             <span className="text-neutral-500">{loadingText}</span>
           </div>
         )
-      ) : (
-        // 아이템 대기 중 (투명한 트리거)
-        <div
-          className="w-full h-1 bg-transparent"
-          aria-hidden="true"
-        />
-      )}
+      ) : null}
     </div>
   );
 }
