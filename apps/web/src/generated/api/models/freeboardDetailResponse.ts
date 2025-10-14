@@ -13,32 +13,32 @@ import type { FreeboardDetailResponseCategory } from './freeboardDetailResponseC
  */
 export interface FreeboardDetailResponse {
   /** 게시글 ID */
-  postId?: number;
+  postId: number;
   /** 작성자 정보 */
-  author?: PostDetailAuthorInfo;
+  author: PostDetailAuthorInfo;
   /** 카테고리 */
-  category?: FreeboardDetailResponseCategory;
+  category: FreeboardDetailResponseCategory;
   /** 제목 */
-  title?: string;
+  title: string;
   /** 내용 */
-  content?: string;
+  content: string;
   /** 첨부된 이미지 URL 목록 */
-  imageUrls?: string[];
+  imageUrls: string[];
   /** 좋아요 수 */
-  likeCount?: number;
+  likeCount: number;
   /** 댓글 수 */
-  commentCount?: number;
+  commentCount: number;
   /** 조회 수 */
-  viewCount?: number;
+  viewCount: number;
   /** 작성 시간 */
-  createdAt?: string;
+  createdAt: string;
   /** 수정 시간 */
   updatedAt?: string;
   /** 편집 가능 여부 (인증된 사용자이고 작성자인 경우) */
-  canEdit?: boolean;
+  canEdit: boolean;
   /** 삭제 가능 여부 (인증된 사용자이고 작성자인 경우) */
-  canDelete?: boolean;
+  canDelete: boolean;
   liked?: boolean;
   /** 현재 사용자의 좋아요 여부 */
-  isLiked?: boolean;
+  isLiked: boolean;
 }

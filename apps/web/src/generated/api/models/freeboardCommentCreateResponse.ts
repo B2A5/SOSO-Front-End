@@ -11,5 +11,5 @@
  */
 export interface FreeboardCommentCreateResponse {
   /** 생성/수정된 댓글 ID */
-  commentId?: number;
+  commentId: number;
 }

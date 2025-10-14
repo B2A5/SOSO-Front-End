@@ -12,28 +12,28 @@ import type { CommentAuthorInfo } from './commentAuthorInfo';
  */
 export interface FreeboardCommentSummary {
   /** 댓글 ID */
-  commentId?: number;
+  commentId: number;
   /** 게시글 ID */
-  postId?: number;
+  postId: number;
   /** 부모 댓글 ID (대댓글인 경우) */
   parentCommentId?: number;
   /** 작성자 정보 */
-  author?: CommentAuthorInfo;
+  author: CommentAuthorInfo;
   /** 댓글 내용 */
-  content?: string;
+  content: string;
   /** 대댓글 수 */
-  replyCount?: number;
+  replyCount: number;
   /** 댓글 좋아요 수 */
-  likeCount?: number;
+  likeCount: number;
   /** 댓글 깊이 (0: 일반 댓글, 1: 대댓글) */
-  depth?: number;
+  depth: number;
   /** 삭제된 댓글 여부 */
-  deleted?: boolean;
+  deleted: boolean;
   /** 작성 시간 */
-  createdAt?: string;
+  createdAt: string;
   /** 수정 시간 */
   updatedAt?: string;
   liked?: boolean;
   /** 현재 사용자의 댓글 좋아요 여부 */
-  isLiked?: boolean;
+  isLiked: boolean;
 }
