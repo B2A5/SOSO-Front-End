@@ -24,8 +24,8 @@ jobs:
           fi
 
           # ──────────────── 2) dev 보호 ────────────────
-          #  - feat/*, fix/* 만 dev 로 PR 가능
-          if [[ "$BASE" == "dev" && ! "$HEAD" =~ ^(feat|fix)/.+ ]]; then
-            echo "❌  dev 으로는 feat/* 또는 fix/* PR만 허용됩니다."
+          #  - feat/*, fix/*, refactor/* 만 dev 로 PR 가능
+          if [[ "$BASE" == "dev" && ! "$HEAD" =~ ^(feat|fix|refactor)/.+ ]]; then
+            echo "❌  dev 으로는 'feat/*', 'fix/*', 'refactor/*' PR만 허용됩니다."
             exit 1
           fi

@@ -11,7 +11,7 @@ export const AXIOS_INSTANCE = Axios.create({
   withCredentials: true, // Refresh Token 쿠키 전송
 });
 
-// Request interceptor for adding auth token
+// 요청 시 Access Token 자동 헤더 설정
 AXIOS_INSTANCE.interceptors.request.use(
   (config) => {
     // authStore에서 Access Token 읽기 (SSR 안전)
@@ -28,10 +28,19 @@ AXIOS_INSTANCE.interceptors.request.use(
   },
 );
 
-// Response interceptor for handling errors
+// 에러 핸들링 인터셉터
 AXIOS_INSTANCE.interceptors.response.use(
   (response) => response,
   (error) => {
+    // 개발 모드에서 에러 로깅
+    if (process.env.NEXT_PUBLIC_DEV_MODE === 'true') {
+      const status = error.response?.status;
+      const data = error.response?.data;
+      const url = error.config?.url;
+
+      console.error(`[API Error ${status}] ${url}`, data);
+    }
+
     // Handle 401 unauthorized errors
     if (error.response?.status === 401) {
       // Access Token 만료 - 자동으로 refresh 시도는 axios.ts에서 처리

@@ -3,13 +3,17 @@ import React, { useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { PillChipsTab } from '@/components/tabs/PillChipsTab';
 import { CATEGORIES, Category } from '../constants/categories';
-import { FilterHeader } from '../components/FilterHeader';
+import { SortHeader } from '../components/SortHeader';
 import { SortValue } from '@/types/options.types';
 import { SORT_OPTIONS } from '../constants/sortOptions';
 import FloatingButton from '@/components/buttons/FloatingButton';
+import { FreeBoardCard } from '../components/FreeboardCard';
 import ContentsList from '../components/ContentsList';
-import { mockGetPostsByCursor } from '../mock/mockPosts';
-import type { PostCursorResponse } from '@/api/posts';
+import {
+  getGetPostsByCursorQueryKey,
+  getPostsByCursor,
+} from '@/generated/api/endpoints/freeboard/freeboard';
+import type { FreeboardSummary } from '@/generated/api/models';
 
 /**
  * 자유 게시판 메인 페이지
@@ -18,66 +22,73 @@ import type { PostCursorResponse } from '@/api/posts';
  * - 카테고리별 게시글 목록을 보여주는 페이지
  * - 무한스크롤 기능 포함
  * - 카테고리 및 정렬 옵션 선택 가능
- *
- * @todo 목업 데이터를 실제 데이터로 교체
  */
 
 export default function FreeboardPage() {
   const [category, setCategory] = useState<Category | null>(null);
-  const [sortOption, setSortOption] = useState<SortValue>(
-    SORT_OPTIONS[0].value,
-  );
+  const [sortOption, setSortOption] = useState<SortValue>('LATEST');
 
   // 무한스크롤 데이터 페칭
   const {
     data,
     fetchNextPage,
     hasNextPage,
-    isFetchingNextPage,
     isLoading,
+    isFetchingNextPage,
     error,
   } = useInfiniteQuery({
-    queryKey: ['posts', category, sortOption],
-    queryFn: ({ pageParam }) =>
-      // 테스트용 mock 데이터 사용
-      mockGetPostsByCursor({
-        category: category ?? undefined,
-        sort: sortOption,
-        cursor: pageParam,
-        size: 10,
-      }),
-    initialPageParam: '1',
-    getNextPageParam: (lastPage: PostCursorResponse) => {
-      return lastPage.nextCursor.hasNext
-        ? lastPage.nextCursor.cursor
-        : undefined;
+    queryKey: getGetPostsByCursorQueryKey({
+      // queryKey 생성 함수 사용
+      category: category ?? undefined, // null일 경우 undefined로 변환
+      sort: sortOption,
+    }),
+    queryFn: ({ pageParam, signal }) =>
+      getPostsByCursor(
+        //generated api 함수 사용
+        {
+          category: category ?? undefined,
+          sort: sortOption,
+          cursor: pageParam,
+          size: '10',
+        },
+        signal,
+      ),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (lastPage) => {
+      return lastPage.hasNext ? lastPage.nextCursor : undefined;
     },
-    staleTime: 5 * 60 * 1000, // 5분간 캐시 유지
   });
 
-  // 모든 페이지의 게시글을 하나의 배열로 합치기
-  const allPosts = data?.pages.flatMap((page) => page.posts) ?? [];
+  // 스크롤 컨테이너
   const listScrollRef = React.useRef<HTMLDivElement>(null);
-  // 총 게시글 개수 (첫 번째 페이지 기준으로 추정)
-  const totalCount = data?.pages[0]?.posts.length
-    ? allPosts.length + (hasNextPage ? 10 : 0)
-    : 0;
+  // 모든 페이지의 게시글을 하나의 배열로 합치기
+  const allFreeboardPosts: FreeboardSummary[] =
+    data?.pages.flatMap((page) => page.posts ?? []) ?? [];
+  // 총 게시글 개수
+  const totalCount = data?.pages[0]?.totalCount ?? 0;
 
   return (
-    <div className="w-full h-full flex flex-col">
+    <main className="w-full h-full flex flex-col">
       <PillChipsTab<Category>
         chips={CATEGORIES}
         activeValue={category}
         onChange={setCategory}
         showAll
+        ariaLabel="카테고리 선택 필터"
       />
-      <FilterHeader
+      <SortHeader
         totalCount={totalCount}
-        options={SORT_OPTIONS}
-        filterValue={sortOption}
+        sortOptions={SORT_OPTIONS}
+        currentValue={sortOption}
         onFilterChange={setSortOption}
       />
-      <div className="flex-1 overflow-y-auto px-4">
+      <section
+        ref={listScrollRef}
+        className="flex-1 overflow-y-auto px-4"
+        aria-label="자유 게시판 게시글 목록"
+        tabIndex={0}
+        aria-busy={isFetchingNextPage}
+      >
         {error ? (
           <div className="flex flex-col items-center justify-center py-12">
             <p className="text-red-500 text-center">
@@ -85,18 +96,24 @@ export default function FreeboardPage() {
             </p>
           </div>
         ) : (
-          <ContentsList
+          <ContentsList<FreeboardSummary>
             parentRef={listScrollRef}
-            posts={allPosts}
+            posts={allFreeboardPosts}
             hasNextPage={hasNextPage || false}
             fetchNextPage={fetchNextPage}
             isFetchingNextPage={isFetchingNextPage}
             isLoading={isLoading}
-            type="freeboard"
+            renderItem={(post) => (
+              <FreeBoardCard
+                key={post.postId}
+                post={post}
+                isChip={true}
+              />
+            )}
           />
         )}
-      </div>
+      </section>
       <FloatingButton categories={CATEGORIES} />
-    </div>
+    </main>
   );
 }
