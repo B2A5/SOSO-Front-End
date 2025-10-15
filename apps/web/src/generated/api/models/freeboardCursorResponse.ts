@@ -12,13 +12,13 @@ import type { FreeboardSummary } from './freeboardSummary';
  */
 export interface FreeboardCursorResponse {
   /** 게시글 목록 */
-  posts?: FreeboardSummary[];
+  posts: FreeboardSummary[];
   /** 다음 페이지 존재 여부 */
-  hasNext?: boolean;
+  hasNext: boolean;
   /** 다음 페이지를 위한 커서 값 */
   nextCursor?: string;
   /** 현재 페이지 크기 */
-  size?: number;
+  size: number;
   /** 총 게시글 수 */
-  totalCount?: number;
+  totalCount: number;
 }

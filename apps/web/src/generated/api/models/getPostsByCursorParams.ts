@@ -41,5 +41,5 @@ export type GetPostsByCursorParams = {
    * @minimum 1
    * @maximum 50
    */
-  size?: string;
+  size?: number;
 };

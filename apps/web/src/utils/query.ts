@@ -8,21 +8,28 @@ import { ApiError } from '@/api/error';
  * - 그 외 오류는 재시도하지 않음
  *
  * @param failureCount 지금까지 실패한 횟수
+ * @param error 발생한 오류 객체 (ApiError 인스턴스여야 함)
  * @param targetCount 재시도할 최대 횟수 (기본값: 3)
- * @param error 발생한 오류 객체
  * @returns 재시도할지 여부
  */
 export function retryFn(
   failureCount: number,
-  error: ApiError,
+  error: ApiError | unknown,
   targetCount = 3,
 ): boolean {
+  // ApiError가 아닌 경우 재시도하지 않음
+  if (!(error instanceof ApiError)) {
+    return false;
+  }
+
   // 인증 오류면 더 이상 재시도하지 않습니다.
   if (error.isAuthError()) return false;
+
   // 네트워크나 서버 오류면 최대 원하는 만큼 재시도
   if (error.isNetworkError() || error.isServerError()) {
     return failureCount < targetCount;
   }
+
   // 그 외 오류는 재시도하지 않음
   return false;
 }

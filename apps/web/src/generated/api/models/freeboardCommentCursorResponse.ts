@@ -12,11 +12,11 @@ import type { FreeboardCommentSummary } from './freeboardCommentSummary';
  */
 export interface FreeboardCommentCursorResponse {
   /** 댓글 목록 */
-  comments?: FreeboardCommentSummary[];
+  comments: FreeboardCommentSummary[];
   /** 다음 페이지 존재 여부 */
-  hasNext?: boolean;
+  hasNext: boolean;
   /** 다음 페이지를 위한 커서 값 */
   nextCursor?: string;
   /** 현재 페이지 크기 */
-  size?: number;
+  size: number;
 }

@@ -7,14 +7,13 @@
  */
 
 /**
- * 성별
+ * 사용자 유형 (FOUNDER: 예비 창업자, INHABITANT: 일반 거주민)
  */
-export type GenderRequestGender =
-  (typeof GenderRequestGender)[keyof typeof GenderRequestGender];
+export type UserResponseUserType =
+  (typeof UserResponseUserType)[keyof typeof UserResponseUserType];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
-export const GenderRequestGender = {
-  MALE: 'MALE',
-  FEMALE: 'FEMALE',
-  NONE: 'NONE',
+export const UserResponseUserType = {
+  FOUNDER: 'FOUNDER',
+  INHABITANT: 'INHABITANT',
 } as const;

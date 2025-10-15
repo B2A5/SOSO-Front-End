@@ -11,9 +11,9 @@
  */
 export interface CommentAuthorInfo {
   /** 작성자 ID */
-  userId?: string;
+  userId: string;
   /** 작성자 닉네임 */
-  nickname?: string;
+  nickname: string;
   /** 작성자 프로필 이미지 URL */
   profileImageUrl?: string;
 }
