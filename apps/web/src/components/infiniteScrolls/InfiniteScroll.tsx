@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, Component } from 'react';
 import { cn } from '@/utils/cn';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { VirtualList } from '@/components/infiniteScrolls/VirtualList';
@@ -11,8 +11,9 @@ interface InfiniteScrollProps<T> {
   fetchNextPage: () => void; // 다음 페이지 로드 함수
   isFetchingNextPage: boolean; // 다음 페이지 로딩 상태
   initialLoading: boolean; // 초기 로딩 상태
+  error?: Error | null; // API 에러 (옵셔널)
   className?: string; // 컨테이너 추가 클래스
-  children: React.ReactNode; // 내부에 포함될 컴포넌트들 (Skeleton, Empty, Contents, Trigger)
+  children: React.ReactNode; // 내부에 포함될 컴포넌트들 (Skeleton, Empty, Error, Contents, Trigger)
 }
 
 interface InfiniteScrollContext<T> {
@@ -21,6 +22,7 @@ interface InfiniteScrollContext<T> {
   fetchNextPage: () => void; // 다음 페이지 로드 함수
   isFetchingNextPage: boolean; // 다음 페이지 로딩 상태
   initialLoading: boolean; // 초기 로딩 상태
+  error?: Error | null; // API 에러
   parentRef: React.RefObject<HTMLDivElement | null>; // 스크롤 컨테이너 ref
   triggerRef: React.RefObject<HTMLDivElement | null>; // 로딩 트리거 ref
 }
@@ -43,6 +45,60 @@ const useInfiniteScrollContext = <T,>() => {
   return context;
 };
 
+/**
+ * Error Boundary: 컴포넌트 렌더링 중 발생하는 동기 에러를 catch
+ */
+interface ErrorBoundaryProps {
+  children: React.ReactNode;
+  fallback?: React.ReactNode;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error?: Error;
+}
+
+class InfiniteScrollErrorBoundary extends Component<
+  ErrorBoundaryProps,
+  ErrorBoundaryState
+> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error(
+      'InfiniteScroll Error Boundary caught:',
+      error,
+      errorInfo,
+    );
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        this.props.fallback || (
+          <div className="flex flex-col items-center justify-center py-12">
+            <p className="text-red-500 text-center">
+              데이터를 표시하는 중 오류가 발생했습니다.
+            </p>
+            <p className="text-sm text-neutral-500 mt-2">
+              {this.state.error?.message}
+            </p>
+          </div>
+        )
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
 function InfiniteScrollContainer<T>({
   children,
   items,
@@ -50,6 +106,7 @@ function InfiniteScrollContainer<T>({
   fetchNextPage,
   isFetchingNextPage,
   initialLoading = false,
+  error = null,
   className,
 }: InfiniteScrollProps<T>) {
   // refs
@@ -62,16 +119,58 @@ function InfiniteScrollContainer<T>({
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
+    error,
     parentRef,
     triggerRef,
   };
 
-  return (
-    <InfiniteScrollContext.Provider value={contextValue}>
-      <div ref={parentRef} className={className}>
-        {children}
+  // 1. API 에러가 있으면 Error 슬롯 찾아서 렌더링
+  if (error) {
+    const errorSlot = React.Children.toArray(children).find(
+      (child) =>
+        React.isValidElement(child) &&
+        typeof child.type === 'function' &&
+        'displayName' in child.type &&
+        child.type.displayName === 'InfiniteScrollError',
+    );
+
+    if (errorSlot && React.isValidElement(errorSlot)) {
+      return (
+        <div className={className}>
+          <InfiniteScrollContext.Provider value={contextValue}>
+            {errorSlot}
+          </InfiniteScrollContext.Provider>
+        </div>
+      );
+    }
+
+    // Error 슬롯이 없으면 기본 에러 UI
+    return (
+      <div
+        className={cn(
+          'flex flex-col items-center justify-center py-12',
+          className,
+        )}
+      >
+        <p className="text-red-500 text-center">
+          데이터를 불러오는 중 오류가 발생했습니다.
+        </p>
+        <p className="text-sm text-neutral-500 mt-2">
+          {error.message}
+        </p>
       </div>
-    </InfiniteScrollContext.Provider>
+    );
+  }
+
+  // 2. 정상 흐름: Error Boundary로 동기 에러 catch
+  return (
+    <InfiniteScrollErrorBoundary>
+      <InfiniteScrollContext.Provider value={contextValue}>
+        <div ref={parentRef} className={className}>
+          {children}
+        </div>
+      </InfiniteScrollContext.Provider>
+    </InfiniteScrollErrorBoundary>
   );
 }
 
@@ -139,6 +238,44 @@ function InfiniteScrollEmpty({
     </div>
   );
 }
+
+/**
+ * 무한 스크롤 에러 표시 컴포넌트
+ * - API 에러가 있을 때 렌더링
+ * - error prop과 함께 사용
+ */
+interface InfiniteScrollErrorProps {
+  className?: string;
+  children: React.ReactNode;
+}
+
+function InfiniteScrollError({
+  className,
+  children,
+}: InfiniteScrollErrorProps) {
+  const { error } = useInfiniteScrollContext();
+
+  // error가 없으면 렌더링하지 않음
+  if (!error) {
+    return null;
+  }
+
+  return (
+    <div
+      className={cn(
+        'w-full flex flex-col items-center justify-center py-12',
+        className,
+      )}
+      role="alert"
+      aria-live="assertive"
+    >
+      {children}
+    </div>
+  );
+}
+
+// displayName 설정 (Container에서 슬롯 찾기 위해 필요)
+InfiniteScrollError.displayName = 'InfiniteScrollError';
 
 /**
  * 무한 스크롤 콘텐츠 리스트
@@ -296,6 +433,7 @@ function InfiniteScrollTrigger({
 export const InfiniteScroll = Object.assign(InfiniteScrollContainer, {
   Skeleton: InfiniteScrollSkeleton,
   Empty: InfiniteScrollEmpty,
+  Error: InfiniteScrollError,
   Contents: InfiniteScrollContents,
   Trigger: InfiniteScrollTrigger,
 });

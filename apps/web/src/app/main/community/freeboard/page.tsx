@@ -36,6 +36,7 @@ export default function FreeboardPage() {
     isLoading,
     isFetchingNextPage,
     error,
+    refetch,
   } = useInfiniteQuery({
     queryKey: getGetPostsByCursorQueryKey({
       // queryKey 생성 함수 사용
@@ -80,30 +81,24 @@ export default function FreeboardPage() {
         currentValue={sortOption}
         onFilterChange={setSortOption}
       />
-      {error ? (
-        <div className="flex-1 flex flex-col items-center justify-center px-4">
-          <p className="text-red-500 text-center">
-            게시글을 불러오는 중 오류가 발생했습니다.
-          </p>
-        </div>
-      ) : (
-        <CommunityPostList<FreeboardSummary>
-          items={allFreeboardPosts}
-          hasNextPage={hasNextPage || false}
-          fetchNextPage={fetchNextPage}
-          isFetchingNextPage={isFetchingNextPage}
-          initialLoading={isLoading}
-          getItemKey={(post, index) => post.postId ?? `post-${index}`}
-          renderItem={(post) => (
-            <FreeBoardCard
-              key={post.postId}
-              post={post}
-              isChip={true}
-            />
-          )}
-          emptyMessage="아직 작성된 게시글이 없습니다."
-        />
-      )}
+      <CommunityPostList<FreeboardSummary>
+        items={allFreeboardPosts}
+        hasNextPage={hasNextPage || false}
+        fetchNextPage={fetchNextPage}
+        isFetchingNextPage={isFetchingNextPage}
+        initialLoading={isLoading}
+        error={error}
+        onRetry={() => refetch()}
+        getItemKey={(post, index) => post.postId ?? `post-${index}`}
+        renderItem={(post) => (
+          <FreeBoardCard
+            key={post.postId}
+            post={post}
+            isChip={true}
+          />
+        )}
+        storageKey="freeboard-post-list-scroll"
+      />
       <FloatingButton categories={CATEGORIES} />
     </main>
   );
