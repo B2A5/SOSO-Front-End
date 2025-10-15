@@ -1,26 +1,32 @@
 'use client';
 
-import { UserTypeBadge } from './UserTypeBadge';
+// import { UserTypeBadge } from './UserTypeBadge';
 import { MoreVertical, ThumbsUp } from 'lucide-react';
-import type { Comment } from '@/types/comment.types';
+import type { FreeboardCommentSummary } from '@/generated/api/models';
 import LikeButton from './LikeButton';
 import BottomSheetMenu from '@/components/BottomSheet';
 import { useOverlay } from '@/hooks/ui/useOverlay';
 import { UserProfile } from './UserProfile';
-import { UserType } from '@/types/user.types';
 import { relativeTime } from '@/utils/relativeTime';
 
 interface CommentItemProps {
-  comment: Comment;
+  comment: FreeboardCommentSummary;
 }
 
+/**
+ * 댓글 아이템
+ * @todo 백엔드에서 댓글 작성자의 userType 필드 추가 예정 (현재 없음)
+ */
 export default function CommentItem({ comment }: CommentItemProps) {
   const {
+    author,
     content,
     createdAt,
     likeCount,
-    user: { nickname, profileImageUrl, userType },
+    isLiked,
+    commentId,
   } = comment;
+  const { nickname, profileImageUrl /* userType */ } = author ?? {};
 
   const { openOverlay } = useOverlay();
 
@@ -28,15 +34,15 @@ export default function CommentItem({ comment }: CommentItemProps) {
     const actions = [
       {
         label: '공유하기',
-        onClick: () => console.log('share', comment.id),
+        onClick: () => console.log('share', commentId),
       },
       {
         label: '수정하기',
-        onClick: () => console.log('edit', comment.id),
+        onClick: () => console.log('edit', commentId),
       },
       {
         label: '삭제하기',
-        onClick: () => console.log('delete', comment.id),
+        onClick: () => console.log('delete', commentId),
       },
     ];
     openOverlay(<BottomSheetMenu isOpen actions={actions} />, {
@@ -52,7 +58,7 @@ export default function CommentItem({ comment }: CommentItemProps) {
         <UserProfile.Avatar
           url={profileImageUrl}
           size={50}
-          alt={`${nickname}의 프로필`}
+          alt={`${nickname ?? '사용자'}의 프로필`}
         />
       </UserProfile.Left>
 
@@ -60,8 +66,9 @@ export default function CommentItem({ comment }: CommentItemProps) {
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
             <UserProfile.Name
-              nickname={nickname}
-              userType={<UserTypeBadge type={userType as UserType} />}
+              nickname={nickname ?? '익명'}
+              // @todo userType은 현재 CommentAuthorInfo에 없음 → 백엔드 확장 필요
+              // userType={userType && <UserTypeBadge type={userType} />}
               nicknameClassName="text-body2 font-medium"
             />
           </div>
@@ -77,15 +84,18 @@ export default function CommentItem({ comment }: CommentItemProps) {
         </div>
 
         <UserProfile.SubContents>
-          <div className="text-input text-neutral-800">{content}</div>
+          <div className="text-input text-neutral-800">
+            {comment.deleted ? '삭제된 댓글입니다.' : content}
+          </div>
 
           <div className="mt-2 flex items-center justify-between text-xs text-neutral-500">
             <LikeButton
-              isLiked={false}
-              likeCount={likeCount}
+              postId={commentId ?? 0}
+              isLiked={isLiked ?? false}
+              likeCount={likeCount ?? 0}
               icon={ThumbsUp}
             />
-            <span>{relativeTime(createdAt)}</span>
+            <span>{relativeTime(createdAt ?? '')}</span>
           </div>
         </UserProfile.SubContents>
       </UserProfile.Right>
