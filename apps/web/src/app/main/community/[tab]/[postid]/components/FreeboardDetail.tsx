@@ -95,6 +95,7 @@ export default function FreeboardDetail({
       {/* 하단 좋아요 + 조회수 */}
       <div className="flex justify-between items-center mt-4">
         <LikeButton
+          postId={postId}
           isLiked={post?.isLiked ?? false}
           likeCount={post?.likeCount ?? 0}
         />
