@@ -13,27 +13,27 @@ import type { FreeboardSummaryCategory } from './freeboardSummaryCategory';
  */
 export interface FreeboardSummary {
   /** 게시글 ID */
-  postId?: number;
+  postId: number;
   /** 작성자 정보 */
-  author?: PostAuthorInfo;
+  author: PostAuthorInfo;
   /** 카테고리 */
-  category?: FreeboardSummaryCategory;
+  category: FreeboardSummaryCategory;
   /** 제목 */
-  title?: string;
+  title: string;
   /** 내용 미리보기 (100자 제한) */
-  contentPreview?: string;
+  contentPreview: string;
   /** 첫 번째 이미지 URL (썸네일용) */
   thumbnailUrl?: string;
   /** 이미지 개수 */
-  imageCount?: number;
+  imageCount: number;
   /** 좋아요 수 */
-  likeCount?: number;
+  likeCount: number;
   /** 댓글 수 */
-  commentCount?: number;
+  commentCount: number;
   /** 조회 수 */
-  viewCount?: number;
+  viewCount: number;
   /** 작성 시간 */
-  createdAt?: string;
+  createdAt: string;
   /** 수정 시간 */
   updatedAt?: string;
   liked?: boolean;

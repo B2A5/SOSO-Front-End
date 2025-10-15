@@ -7,13 +7,13 @@
  */
 
 /**
- * 성별
+ * 성별 (MALE: 남성, FEMALE: 여성, NONE: 선택 안함)
  */
-export type GenderRequestGender =
-  (typeof GenderRequestGender)[keyof typeof GenderRequestGender];
+export type UserResponseGender =
+  (typeof UserResponseGender)[keyof typeof UserResponseGender];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
-export const GenderRequestGender = {
+export const UserResponseGender = {
   MALE: 'MALE',
   FEMALE: 'FEMALE',
   NONE: 'NONE',

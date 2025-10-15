@@ -1,10 +1,10 @@
 'use client';
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/buttons/Button';
 import { SelectCard } from './components/SelectCard';
 import { useToast } from '@/hooks/ui/useToast';
 import { useSetUserType } from '@/generated/api/endpoints/signup/signup';
-import { useSignupFlow } from '@/hooks/useSignupFlow';
 import type { UserType } from '@/types/user.types';
 
 /**
@@ -13,8 +13,8 @@ import type { UserType } from '@/types/user.types';
  * @returns
  */
 export default function SignUpPage() {
+  const router = useRouter();
   const toast = useToast();
-  const { pushNext } = useSignupFlow();
   const [userType, setUserType] = useState<UserType | null>(null);
 
   // 선택한 유저 타입을 서버에 전송하는 mutation
@@ -22,7 +22,8 @@ export default function SignUpPage() {
     mutation: {
       onSuccess: () => {
         console.log('유저 타입이 성공적으로 저장되었습니다.');
-        pushNext('region');
+        const typePrefix = userType?.toLowerCase();
+        router.push(`/signup/${typePrefix}/region`);
       },
       onError: (error) => {
         console.error('유저 타입이 일치하지 않습니다.', error);

@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useCallback } from 'react';
 import { useKakaoLogin } from '@/generated/api/endpoints/auth/auth';
-import type { KakaoLoginResult } from '@/generated/api/models';
+import type { KakaoLoginResponse } from '@/generated/api/models';
 import { useAuthStore } from '@/stores/authStore';
 import { useToast } from '@/hooks/ui/useToast';
 import * as kakaoAuthService from '@/app/(auth)/kakao/service';
@@ -37,7 +37,7 @@ export function useKakaoAuth() {
   /**
    * 로그인 성공 처리
    */
-  function handleLoginSuccess(data: KakaoLoginResult) {
+  function handleLoginSuccess(data: KakaoLoginResponse) {
     kakaoAuthService.cleanup();
     setLoading(false);
 
@@ -48,14 +48,9 @@ export function useKakaoAuth() {
       router.push('/signup');
     }
     // 기존 유저 → 메인 페이지
-    else if (data.accessToken) {
-      const mockUser = {
-        nickname: '사용자',
-        userId: 0,
-        userType: 'INHABITANT' as const,
-      };
+    else if (data.accessToken && data.user) {
       login({
-        user: mockUser,
+        user: data.user,
         accessToken: data.accessToken,
       });
       router.push('/main');

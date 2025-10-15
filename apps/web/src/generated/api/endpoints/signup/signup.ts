@@ -28,7 +28,6 @@ import type {
   ExperienceRequest,
   GenderRequest,
   InterestRequest,
-  JwtTokenDto,
   RegionRequest,
   SetAgeRange200,
   SetBudget200,
@@ -37,6 +36,7 @@ import type {
   SetInterests200,
   SetRegion200,
   SetUserType200,
+  SignupCompleteResponse,
   UserTypeRequest,
 } from '../../models';
 
@@ -554,11 +554,11 @@ export const useSetExperience = <
   return useMutation(mutationOptions, queryClient);
 };
 /**
- * 회원가입을 완료하고 사용자 계정을 생성합니다. JWT 토큰을 발급하고 Refresh Token은 HttpOnly 쿠키로 설정됩니다.
+ * 회원가입을 완료하고 사용자 계정을 생성합니다. JWT 토큰 및 사용자 정보를 반환하며, Refresh Token은 HttpOnly 쿠키로 설정됩니다.
  * @summary [9단계] 회원가입 완료
  */
 export const completeSignup = (signal?: AbortSignal) => {
-  return customInstance<JwtTokenDto>({
+  return customInstance<SignupCompleteResponse>({
     url: `/signup/complete`,
     method: 'POST',
     signal,
@@ -566,7 +566,7 @@ export const completeSignup = (signal?: AbortSignal) => {
 };
 
 export const getCompleteSignupMutationOptions = <
-  TError = JwtTokenDto | JwtTokenDto,
+  TError = ErrorResponse | ErrorResponse,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -604,13 +604,15 @@ export type CompleteSignupMutationResult = NonNullable<
   Awaited<ReturnType<typeof completeSignup>>
 >;
 
-export type CompleteSignupMutationError = JwtTokenDto | JwtTokenDto;
+export type CompleteSignupMutationError =
+  | ErrorResponse
+  | ErrorResponse;
 
 /**
  * @summary [9단계] 회원가입 완료
  */
 export const useCompleteSignup = <
-  TError = JwtTokenDto | JwtTokenDto,
+  TError = ErrorResponse | ErrorResponse,
   TContext = unknown,
 >(
   options?: {
@@ -822,7 +824,7 @@ export const getGetExperienceQueryKey = () => {
 
 export const getGetExperienceQueryOptions = <
   TData = Awaited<ReturnType<typeof getExperience>>,
-  TError = ExperienceRequest | ExperienceRequest,
+  TError = ErrorResponse | ErrorResponse,
 >(options?: {
   query?: Partial<
     UseQueryOptions<
@@ -851,13 +853,11 @@ export const getGetExperienceQueryOptions = <
 export type GetExperienceQueryResult = NonNullable<
   Awaited<ReturnType<typeof getExperience>>
 >;
-export type GetExperienceQueryError =
-  | ExperienceRequest
-  | ExperienceRequest;
+export type GetExperienceQueryError = ErrorResponse | ErrorResponse;
 
 export function useGetExperience<
   TData = Awaited<ReturnType<typeof getExperience>>,
-  TError = ExperienceRequest | ExperienceRequest,
+  TError = ErrorResponse | ErrorResponse,
 >(
   options: {
     query: Partial<
@@ -882,7 +882,7 @@ export function useGetExperience<
 };
 export function useGetExperience<
   TData = Awaited<ReturnType<typeof getExperience>>,
-  TError = ExperienceRequest | ExperienceRequest,
+  TError = ErrorResponse | ErrorResponse,
 >(
   options?: {
     query?: Partial<
@@ -907,7 +907,7 @@ export function useGetExperience<
 };
 export function useGetExperience<
   TData = Awaited<ReturnType<typeof getExperience>>,
-  TError = ExperienceRequest | ExperienceRequest,
+  TError = ErrorResponse | ErrorResponse,
 >(
   options?: {
     query?: Partial<
@@ -928,7 +928,7 @@ export function useGetExperience<
 
 export function useGetExperience<
   TData = Awaited<ReturnType<typeof getExperience>>,
-  TError = ExperienceRequest | ExperienceRequest,
+  TError = ErrorResponse | ErrorResponse,
 >(
   options?: {
     query?: Partial<

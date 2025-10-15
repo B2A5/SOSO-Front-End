@@ -11,5 +11,5 @@
  */
 export interface FreeboardCreateResponse {
   /** 생성/수정된 게시글 ID */
-  postId?: number;
+  postId: number;
 }

@@ -17,7 +17,7 @@ import type {
   ErrorResponse,
   JwtTokenDto,
   KakaoLoginRequest,
-  KakaoLoginResult,
+  KakaoLoginResponse,
 } from '../../models';
 
 import { customInstance } from '../../../../lib/api-client';
@@ -178,14 +178,14 @@ export const useLogout = <TError = void, TContext = unknown>(
   return useMutation(mutationOptions, queryClient);
 };
 /**
- * 카카오 인가 코드를 통해 사용자 로그인을 처리하고 JWT 토큰을 반환합니다.
+ * 카카오 인가 코드를 통해 사용자 로그인을 처리합니다. 기존 사용자는 JWT 토큰 및 사용자 정보를 반환하고, 신규 사용자는 회원가입 세션을 생성합니다.
  * @summary 카카오 로그인
  */
 export const kakaoLogin = (
   kakaoLoginRequest: KakaoLoginRequest,
   signal?: AbortSignal,
 ) => {
-  return customInstance<KakaoLoginResult>({
+  return customInstance<KakaoLoginResponse>({
     url: `/auth/kakao/login`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -195,7 +195,7 @@ export const kakaoLogin = (
 };
 
 export const getKakaoLoginMutationOptions = <
-  TError = KakaoLoginResult | KakaoLoginResult,
+  TError = ErrorResponse | ErrorResponse | ErrorResponse,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -236,14 +236,15 @@ export type KakaoLoginMutationResult = NonNullable<
 >;
 export type KakaoLoginMutationBody = KakaoLoginRequest;
 export type KakaoLoginMutationError =
-  | KakaoLoginResult
-  | KakaoLoginResult;
+  | ErrorResponse
+  | ErrorResponse
+  | ErrorResponse;
 
 /**
  * @summary 카카오 로그인
  */
 export const useKakaoLogin = <
-  TError = KakaoLoginResult | KakaoLoginResult,
+  TError = ErrorResponse | ErrorResponse | ErrorResponse,
   TContext = unknown,
 >(
   options?: {
