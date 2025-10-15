@@ -1,0 +1,111 @@
+'use client';
+
+import { Eye } from 'lucide-react';
+import ImageSlider from '@/components/ImageSlider';
+import { UserProfile } from './UserProfile';
+import { UserTypeBadge } from './UserTypeBadge';
+import { relativeTime } from '@/utils/relativeTime';
+import { useGetPost } from '@/generated/api/endpoints/freeboard/freeboard';
+import type { FreeboardDetailResponse } from '@/generated/api/models';
+import LikeButton from './LikeButton';
+
+/** 자유게시판 게시글 상세 본문 */
+export default function FreeboardDetail({
+  postId,
+}: {
+  postId: number;
+}) {
+  const { data: post } = useGetPost<FreeboardDetailResponse>(postId, {
+    query: {
+      enabled: Number.isFinite(postId),
+      staleTime: 1000 * 60 * 3, // 3분 캐시
+    },
+  });
+
+  const author = post?.author;
+  const images = post?.imageUrls ?? [];
+  const viewCount = post?.viewCount ?? 0;
+  const category = post?.category ?? '';
+  const title = post?.title ?? '';
+  const content = post?.content ?? '';
+  const createdAt = post?.createdAt ?? '';
+
+  const hasAddress = Boolean(author?.address);
+  const hasTime = Boolean(createdAt);
+  const hasMetaInfo = hasAddress || hasTime;
+
+  return (
+    <div className="space-y-6 p-5 border-b border-neutral-0">
+      {/* 카테고리 */}
+      {category && (
+        <span className="inline-block text-xs font-bold text-green-950 pl-1">
+          {category}
+        </span>
+      )}
+
+      {/* 작성자 정보 */}
+      <UserProfile className="items-start">
+        <UserProfile.Left>
+          <UserProfile.Avatar
+            url={author?.profileImageUrl}
+            size={45}
+            alt={`${author?.nickname ?? '사용자'}의 프로필 이미지`}
+          />
+        </UserProfile.Left>
+
+        <UserProfile.Right>
+          <UserProfile.Name
+            nickname={author?.nickname ?? ''}
+            userType={
+              author?.userType && (
+                <UserTypeBadge type={author.userType} />
+              )
+            }
+          />
+
+          {hasMetaInfo && (
+            <UserProfile.SubContents>
+              <div className="text-input2 text-neutral-500">
+                {hasAddress && <span>{author?.address}</span>}
+                {hasAddress && hasTime && (
+                  <span className="mx-1">·</span>
+                )}
+                {hasTime && <span>{relativeTime(createdAt)}</span>}
+              </div>
+            </UserProfile.SubContents>
+          )}
+        </UserProfile.Right>
+      </UserProfile>
+
+      {/* 본문 */}
+      <div className="flex flex-col space-y-6">
+        <h1 className="text-2xl font-bold">Q. {title}</h1>
+
+        {images.length > 0 && (
+          <ImageSlider
+            images={images}
+            className="w-full min-h-[200px]"
+          />
+        )}
+
+        {content && (
+          <p className="text-textBox text-neutral-1000">{content}</p>
+        )}
+      </div>
+      {/* 하단 좋아요 + 조회수 */}
+      <div className="flex justify-between items-center mt-4">
+        <LikeButton
+          isLiked={post?.isLiked ?? false}
+          likeCount={post?.likeCount ?? 0}
+        />
+
+        <div className="flex items-center gap-1.5">
+          <Eye className="inline w-6 h-6 text-neutral-200" />
+          <span className="text-neutral-500 text-input2">
+            {viewCount}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
