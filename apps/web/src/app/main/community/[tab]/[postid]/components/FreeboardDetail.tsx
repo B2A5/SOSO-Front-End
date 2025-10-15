@@ -7,7 +7,7 @@ import { UserTypeBadge } from './UserTypeBadge';
 import { relativeTime } from '@/utils/relativeTime';
 import { useGetPost } from '@/generated/api/endpoints/freeboard/freeboard';
 import type { FreeboardDetailResponse } from '@/generated/api/models';
-import LikeButton from './LikeButton';
+import LikeButtonPost from './LikeButtonPost';
 
 /** 자유게시판 게시글 상세 본문 */
 export default function FreeboardDetail({
@@ -94,7 +94,7 @@ export default function FreeboardDetail({
       </div>
       {/* 하단 좋아요 + 조회수 */}
       <div className="flex justify-between items-center mt-4">
-        <LikeButton
+        <LikeButtonPost
           postId={postId}
           isLiked={post?.isLiked ?? false}
           likeCount={post?.likeCount ?? 0}

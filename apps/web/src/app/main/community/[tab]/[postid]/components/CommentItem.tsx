@@ -1,23 +1,23 @@
 'use client';
 
-// import { UserTypeBadge } from './UserTypeBadge';
-import { MoreVertical, ThumbsUp } from 'lucide-react';
+import { MoreVertical } from 'lucide-react';
 import type { FreeboardCommentSummary } from '@/generated/api/models';
-import LikeButton from './LikeButton';
 import BottomSheetMenu from '@/components/BottomSheet';
 import { useOverlay } from '@/hooks/ui/useOverlay';
 import { UserProfile } from './UserProfile';
 import { relativeTime } from '@/utils/relativeTime';
-
-interface CommentItemProps {
-  comment: FreeboardCommentSummary;
-}
+import LikeButtonComment from './LikeButtonComment';
 
 /**
  * 댓글 아이템
  * @todo 백엔드에서 댓글 작성자의 userType 필드 추가 예정 (현재 없음)
+ * @todo 바텀시트 메뉴 기능 구현 필요 (공유, 수정, 삭제 등)
  */
-export default function CommentItem({ comment }: CommentItemProps) {
+export default function CommentItem({
+  comment,
+}: {
+  comment: FreeboardCommentSummary;
+}) {
   const {
     author,
     content,
@@ -25,8 +25,9 @@ export default function CommentItem({ comment }: CommentItemProps) {
     likeCount,
     isLiked,
     commentId,
+    postId,
   } = comment;
-  const { nickname, profileImageUrl /* userType */ } = author ?? {};
+  const { nickname, profileImageUrl } = author ?? {};
 
   const { openOverlay } = useOverlay();
 
@@ -64,14 +65,10 @@ export default function CommentItem({ comment }: CommentItemProps) {
 
       <UserProfile.Right className="gap-0.5">
         <div className="flex items-start justify-between gap-2">
-          <div className="flex items-center gap-2 min-w-0">
-            <UserProfile.Name
-              nickname={nickname ?? '익명'}
-              // @todo userType은 현재 CommentAuthorInfo에 없음 → 백엔드 확장 필요
-              // userType={userType && <UserTypeBadge type={userType} />}
-              nicknameClassName="text-body2 font-medium"
-            />
-          </div>
+          <UserProfile.Name
+            nickname={nickname ?? '익명'}
+            nicknameClassName="text-body2 font-medium"
+          />
 
           <button
             type="button"
@@ -89,11 +86,11 @@ export default function CommentItem({ comment }: CommentItemProps) {
           </div>
 
           <div className="mt-2 flex items-center justify-between text-xs text-neutral-500">
-            <LikeButton
-              postId={commentId ?? 0}
+            <LikeButtonComment
+              postId={postId ?? 0}
+              commentId={commentId ?? 0}
               isLiked={isLiked ?? false}
               likeCount={likeCount ?? 0}
-              icon={ThumbsUp}
             />
             <span>{relativeTime(createdAt ?? '')}</span>
           </div>

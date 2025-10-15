@@ -6,7 +6,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/ui/useToast';
 import { useToggleLike } from '@/generated/api/endpoints/freeboard-like/freeboard-like';
 
-interface LikeButtonProps {
+interface LikeButtonPostProps {
   postId: number;
   isLiked: boolean;
   likeCount: number;
@@ -18,12 +18,12 @@ interface LikeButtonProps {
  * - 낙관적 업데이트
  * - 실패 시 롤백 + Toast 안내
  */
-export default function LikeButton({
+export default function LikeButtonPost({
   postId,
   isLiked,
   likeCount,
   icon: Icon = Heart,
-}: LikeButtonProps) {
+}: LikeButtonPostProps) {
   const queryClient = useQueryClient();
   const toast = useToast();
 
@@ -64,9 +64,7 @@ export default function LikeButton({
 
     try {
       await toggleLike({ freeboardId: postId });
-    } catch {
-      /* onError에서 이미 처리 */
-    }
+    } catch {}
   };
 
   return (
