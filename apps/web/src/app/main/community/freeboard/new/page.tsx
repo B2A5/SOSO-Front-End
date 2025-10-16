@@ -28,10 +28,7 @@ export default function FreeboardNewPage() {
         <Header.Center>자유 글 작성</Header.Center>
       </Header>
       <main className="w-full h-full p-layout">
-        <FreeboardForm
-          initialData={null}
-          initialCategory={category}
-        />
+        <FreeboardForm initialCategory={category} />
       </main>
     </div>
   );

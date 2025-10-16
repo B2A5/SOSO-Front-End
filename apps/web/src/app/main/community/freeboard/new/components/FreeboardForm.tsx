@@ -1,16 +1,14 @@
 import React, { useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'next/navigation';
 import Input from '@/components/inputs/Input';
 import { CATEGORIES, Category } from '../../../constants/categories';
 import SelectDropdown from '@/components/dropdown/SelectDropdown';
 import TextArea from '@/components/inputs/TextArea';
 import { ImageInput } from '@/components/ImageInput';
 import { Button } from '@/components/buttons/Button';
-import { useToast } from '@/hooks/ui/useToast';
 import type { FreeboardCreateRequest } from '@/generated/api/models';
-import { useCreatePost } from '@/generated/api/endpoints/freeboard/freeboard';
+import { useFreeboardMutation } from '@/hooks/useFreeboardMutation';
 import {
   freeboardSchema,
   type FreeboardFormData,
@@ -20,19 +18,21 @@ import {
  * FreeboardForm 컴포넌트
  * 자유게시판 게시글 작성 및 수정 폼
  *
+ * @param freeboardId - 수정할 게시글 ID (없으면 생성 모드)
+ * @param initialData - 초기 폼 데이터 (수정 모드에서 사용)
+ * @param initialCategory - 초기 선택된 카테고리 (생성 모드에서 사용)
  */
 export interface FreeboardFormProps {
-  initialData: FreeboardCreateRequest | null;
+  freeboardId?: number;
+  initialData?: FreeboardCreateRequest;
   initialCategory?: Category;
 }
 
 export function FreeboardForm({
-  initialData = null,
+  freeboardId,
+  initialData,
   initialCategory,
 }: FreeboardFormProps) {
-  const router = useRouter();
-  const toast = useToast();
-
   const selectedCategory = initialCategory || CATEGORIES[0].value;
   const defaultVals = useMemo<FreeboardFormData>(
     () => ({
@@ -65,26 +65,12 @@ export function FreeboardForm({
     });
   };
 
-  // 게시글 작성 mutation
-  const { mutate: createPost, isPending } = useCreatePost({
-    mutation: {
-      onSuccess: () => {
-        toast('게시글이 성공적으로 작성되었습니다.', 'success');
-        router.push('/community/freeboard');
-      },
-      onError: () => {
-        toast(
-          '게시글 작성 중 오류가 발생했습니다. 다시 시도해주세요.',
-          'error',
-        );
-      },
-    },
-  });
+  // 게시글 생성/수정 mutation
+  const { submitPost, isPending } = useFreeboardMutation(freeboardId);
 
   // form 제출 핸들러
   const onSubmit = (data: FreeboardFormData) => {
-    // FreeboardFormData와 FreeboardCreateRequest는 타입이 일치합니다
-    createPost({ data });
+    submitPost(data);
   };
 
   return (
