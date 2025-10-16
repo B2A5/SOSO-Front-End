@@ -174,7 +174,7 @@ export function ImageUploader({
               {...IMAGE_ANIMATION}
               onClick={handleImageClick}
               aria-label={`이미지 추가 (${totalImageCount}/${maxImages})`}
-              className="flex-shrink-0 w-20 h-20 rounded-[10px] flex items-center justify-center bg-light-gray hover:bg-gray-200 cursor-pointer transition focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="flex-shrink-0 w-20 h-20 rounded-[10px] flex items-center justify-center bg-light-gray hover:bg-gray-200 cursor-pointer transition focus:outline-none focus-visible:ring-2 focus-visible:ring-soso-500"
               whileTap={{ scale: 0.95 }}
             >
               <Plus
