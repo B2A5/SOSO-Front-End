@@ -1,8 +1,8 @@
 'use client';
 
+import { createComment } from '@/api/comment';
 import { useToast } from '@/hooks/ui/useToast';
 //실제 api 연동 시 import 경로 변경 필요
-import { mockCreateComment as createComment } from './mock/comment.mock';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
