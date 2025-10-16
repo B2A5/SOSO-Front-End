@@ -18,8 +18,6 @@ const IMAGE_ANIMATION = {
 
 const BUTTON_HOVER = { scale: 1.1 } as const;
 const BUTTON_TAP = { scale: 0.9 } as const;
-const ADD_BUTTON_HOVER = { scale: 1.05 } as const;
-const ADD_BUTTON_TAP = { scale: 0.95 } as const;
 
 /**
  * 새로 추가한 이미지 (파일 업로드)
@@ -144,7 +142,7 @@ export function ImageUploader({
   return (
     <div className="flex flex-col gap-2 ">
       {/* 이미지 컨테이너 (가로 스크롤) */}
-      <div className="flex gap-2 overflow-x-auto p-2">
+      <div className="flex gap-2 overflow-x-auto p-2 pl-0">
         <input
           type="file"
           accept=".png, .jpg, .jpeg, .webp, .gif"
@@ -164,8 +162,7 @@ export function ImageUploader({
               {...IMAGE_ANIMATION}
               onClick={handleImageClick}
               className="flex-shrink-0 w-20 h-20 rounded-[10px] flex items-center justify-center bg-light-gray hover:bg-gray-200 cursor-pointer transition"
-              whileHover={ADD_BUTTON_HOVER}
-              whileTap={ADD_BUTTON_TAP}
+              whileTap={{ scale: 0.95 }}
             >
               <Plus className="w-6 h-6 text-neutral-200" />
             </motion.div>

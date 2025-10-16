@@ -69,8 +69,7 @@ export function useFreeboardMutation(freeboardId?: number) {
    *
    * @remarks
    * freeboardId 유무에 따라 자동으로 생성/수정 API를 호출합니다.
-   * FreeboardFormData → FreeboardCreateRequest/UpdateRequest 변환은
-   * 타입 호환성이 보장되어 있어 안전합니다.
+   * 카테고리는 프론트엔드 형식(kebab-case)에서 백엔드 형식(UPPERCASE)으로 변환됩니다.
    */
   const submitPost = (
     data: FreeboardFormData,
@@ -90,7 +89,14 @@ export function useFreeboardMutation(freeboardId?: number) {
       });
     } else {
       // 생성 모드: POST 요청
-      createMutation.mutate({ data });
+      createMutation.mutate({
+        data: {
+          category: data.category,
+          title: data.title,
+          content: data.content,
+          images: data.images,
+        },
+      });
     }
   };
 

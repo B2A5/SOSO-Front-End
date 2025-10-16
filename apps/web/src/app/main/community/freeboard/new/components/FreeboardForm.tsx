@@ -2,11 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Input from '@/components/inputs/Input';
-import {
-  CATEGORIES,
-  Category,
-  convertCategoryToKebab,
-} from '../../../constants/categories';
+import { CATEGORIES, Category } from '../../../constants/categories';
 import SelectDropdown from '@/components/dropdown/SelectDropdown';
 import TextArea from '@/components/inputs/TextArea';
 import { ImageUploader } from '@/components/ImageUploader';
@@ -42,16 +38,13 @@ export function FreeboardForm({
   // 삭제할 기존 이미지 ID 목록
   const [deleteImageIds, setDeleteImageIds] = useState<number[]>([]);
 
-  const selectedCategory = initialCategory || CATEGORIES[0].value;
   const defaultVals = useMemo<FreeboardFormData>(
     () => ({
       title: initialData?.title ?? '',
       content: initialData?.content ?? '',
-      category: initialData?.category
-        ? convertCategoryToKebab(initialData.category)
-        : (selectedCategory as Category),
+      category: initialCategory || CATEGORIES[0].value,
     }),
-    [selectedCategory, initialData],
+    [initialCategory, initialData],
   );
   const {
     register,
@@ -132,7 +125,7 @@ export function FreeboardForm({
 
         {/* 이미지 업로드 */}
         <div className="flex flex-col">
-          <label className="block text-sm font-medium text-neutral-1000 dark:text-neutral-200 mb-2">
+          <label className="block text-sm font-medium text-neutral-1000 dark:text-neutral-200">
             사진 첨부 (선택)
           </label>
           <ImageUploader
