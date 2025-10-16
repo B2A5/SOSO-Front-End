@@ -1,10 +1,25 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useMemo } from 'react';
 import { Plus, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '@/hooks/ui/useToast';
 import type { ImageInfo } from '@/generated/api/models';
+
+/**
+ * 애니메이션 상수
+ */
+const IMAGE_ANIMATION = {
+  initial: { opacity: 0, scale: 0.8 },
+  animate: { opacity: 1, scale: 1 },
+  exit: { opacity: 0, scale: 0.8 },
+  transition: { duration: 0.2 },
+} as const;
+
+const BUTTON_HOVER = { scale: 1.1 } as const;
+const BUTTON_TAP = { scale: 0.9 } as const;
+const ADD_BUTTON_HOVER = { scale: 1.05 } as const;
+const ADD_BUTTON_TAP = { scale: 0.95 } as const;
 
 /**
  * 새로 추가한 이미지 (파일 업로드)
@@ -38,20 +53,6 @@ interface ImageUploaderProps {
  * - 기존 이미지 삭제 시 deleteImageIds에 추가
  * - 새 이미지 선택 시 미리보기로 표시
  * - framer-motion으로 자연스러운 애니메이션 제공
- * - 가로 레이아웃, 하단에 개수 라벨 표시
- *
- * @example
- * ```tsx
- * // 생성 모드
- * <ImageUploader onFileSelect={handleFileSelect} />
- *
- * // 수정 모드
- * <ImageUploader
- *   initialImages={data.images}
- *   onFileSelect={handleFileSelect}
- *   onDeleteExisting={handleDeleteExisting}
- * />
- * ```
  */
 export function ImageUploader({
   initialImages = [],
@@ -66,9 +67,13 @@ export function ImageUploader({
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const toast = useToast();
 
-  // 삭제되지 않은 기존 이미지만 필터링 (computed value)
-  const existingImages = initialImages.filter(
-    (img) => !deletedImageIds.includes(img.imageId),
+  // 삭제되지 않은 기존 이미지만 필터링 (useMemo로 최적화)
+  const existingImages = useMemo(
+    () =>
+      initialImages.filter(
+        (img) => !deletedImageIds.includes(img.imageId),
+      ),
+    [initialImages, deletedImageIds],
   );
 
   const totalImageCount = existingImages.length + newImages.length;
@@ -85,23 +90,6 @@ export function ImageUploader({
     const files = Array.from(e.target.files).filter(
       (file): file is File => file instanceof File,
     );
-
-    // 파일 형식 검증
-    const allowedTypes = [
-      'image/png',
-      'image/jpeg',
-      'image/webp',
-      'image/gif',
-    ];
-    const allValid = files.every((file) =>
-      allowedTypes.includes(file.type),
-    );
-
-    if (!allValid) {
-      toast('지원하지 않는 파일 형식입니다.', 'error');
-      e.target.value = '';
-      return;
-    }
 
     // 최대 제한 검증
     const total = totalImageCount + files.length;
@@ -156,30 +144,7 @@ export function ImageUploader({
   return (
     <div className="flex flex-col gap-2 ">
       {/* 이미지 컨테이너 (가로 스크롤) */}
-      <div className="flex gap-2 overflow-x-auto pb-2 pt-2 pr-2">
-        {/* 이미지 추가 버튼 */}
-        <motion.div
-          layout
-          onClick={() => {
-            if (totalImageCount >= maxImages) return;
-            handleImageClick();
-          }}
-          className={`flex-shrink-0 w-20 h-20 rounded-[10px] flex items-center justify-center transition
-            ${
-              totalImageCount >= maxImages
-                ? 'bg-gray-100 cursor-not-allowed opacity-50'
-                : 'bg-light-gray hover:bg-gray-200 cursor-pointer'
-            }`}
-          whileHover={
-            totalImageCount < maxImages ? { scale: 0.95 } : undefined
-          }
-          whileTap={
-            totalImageCount < maxImages ? { scale: 0.95 } : undefined
-          }
-        >
-          <Plus className="w-6 h-6 text-neutral-200" />
-        </motion.div>
-
+      <div className="flex gap-2 overflow-x-auto p-2">
         <input
           type="file"
           accept=".png, .jpg, .jpeg, .webp, .gif"
@@ -191,6 +156,20 @@ export function ImageUploader({
 
         {/* 이미지 목록 (애니메이션) */}
         <AnimatePresence mode="popLayout">
+          {/* 이미지 추가 버튼 - 4장 미만일 때만 표시 */}
+          {totalImageCount < maxImages && (
+            <motion.div
+              key="add-button"
+              layout
+              {...IMAGE_ANIMATION}
+              onClick={handleImageClick}
+              className="flex-shrink-0 w-20 h-20 rounded-[10px] flex items-center justify-center bg-light-gray hover:bg-gray-200 cursor-pointer transition"
+              whileHover={ADD_BUTTON_HOVER}
+              whileTap={ADD_BUTTON_TAP}
+            >
+              <Plus className="w-6 h-6 text-neutral-200" />
+            </motion.div>
+          )}
           {/* 기존 이미지 (서버에서 받은 이미지) */}
           {existingImages
             .sort((a, b) => a.sequence - b.sequence)
@@ -198,10 +177,7 @@ export function ImageUploader({
               <motion.div
                 key={`existing-${image.imageId}`}
                 layout
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                transition={{ duration: 0.2 }}
+                {...IMAGE_ANIMATION}
                 className="flex-shrink-0 w-20 h-20 rounded-[10px] relative"
               >
                 <img
@@ -215,8 +191,8 @@ export function ImageUploader({
                     handleExistingImageRemove(image.imageId)
                   }
                   className="absolute -top-1 -right-1 bg-black bg-opacity-50 rounded-full p-1 text-white hover:bg-opacity-70 cursor-pointer z-10"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
+                  whileHover={BUTTON_HOVER}
+                  whileTap={BUTTON_TAP}
                 >
                   <X size={12} />
                 </motion.button>
@@ -228,10 +204,7 @@ export function ImageUploader({
             <motion.div
               key={`new-${item.id}`}
               layout
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ duration: 0.2 }}
+              {...IMAGE_ANIMATION}
               className="flex-shrink-0 w-20 h-20 rounded-[10px] relative"
             >
               <img
@@ -243,8 +216,8 @@ export function ImageUploader({
                 type="button"
                 onClick={() => handleNewImageRemove(item.id)}
                 className="absolute -top-1 -right-1 bg-black bg-opacity-50 rounded-full p-1 text-white hover:bg-opacity-70 cursor-pointer z-10"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
+                whileHover={BUTTON_HOVER}
+                whileTap={BUTTON_TAP}
               >
                 <X size={12} />
               </motion.button>

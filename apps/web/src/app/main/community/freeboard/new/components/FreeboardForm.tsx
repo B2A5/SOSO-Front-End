@@ -61,7 +61,7 @@ export function FreeboardForm({
     formState: { errors, touchedFields, isValid },
   } = useForm<FreeboardFormData>({
     resolver: zodResolver(freeboardSchema),
-    mode: 'onChange', // 실시간 validation을 위해 onChange로 변경
+    mode: 'onTouched',
     reValidateMode: 'onChange',
     defaultValues: defaultVals,
   });
