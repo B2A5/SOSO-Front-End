@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import Input from '@/components/inputs/Input';
 import { CATEGORIES, Category } from '../../../constants/categories';
@@ -10,6 +11,10 @@ import { Button } from '@/components/buttons/Button';
 import { useToast } from '@/hooks/ui/useToast';
 import type { FreeboardCreateRequest } from '@/generated/api/models';
 import { useCreatePost } from '@/generated/api/endpoints/freeboard/freeboard';
+import {
+  freeboardSchema,
+  type FreeboardFormData,
+} from '../../../schema/freeboardSchema';
 
 /**
  * FreeboardForm 컴포넌트
@@ -29,14 +34,14 @@ export function FreeboardForm({
   const toast = useToast();
 
   const selectedCategory = initialCategory || CATEGORIES[0].value;
-  const defaultVals = useMemo<FreeboardCreateRequest>(
-    () =>
-      initialData ?? {
-        title: '',
-        content: '',
-        category: selectedCategory as Category,
-        images: [],
-      },
+  const defaultVals = useMemo<FreeboardFormData>(
+    () => ({
+      title: initialData?.title ?? '',
+      content: initialData?.content ?? '',
+      category:
+        initialData?.category ?? (selectedCategory as Category),
+      images: initialData?.images,
+    }),
     [selectedCategory, initialData],
   );
   const {
@@ -45,7 +50,8 @@ export function FreeboardForm({
     setValue,
     handleSubmit,
     formState: { errors, touchedFields, isValid },
-  } = useForm<FreeboardCreateRequest>({
+  } = useForm<FreeboardFormData>({
+    resolver: zodResolver(freeboardSchema),
     mode: 'onChange', // 실시간 validation을 위해 onChange로 변경
     reValidateMode: 'onChange',
     defaultValues: defaultVals,
@@ -76,7 +82,8 @@ export function FreeboardForm({
   });
 
   // form 제출 핸들러
-  const onSubmit = (data: FreeboardCreateRequest) => {
+  const onSubmit = (data: FreeboardFormData) => {
+    // FreeboardFormData와 FreeboardCreateRequest는 타입이 일치합니다
     createPost({ data });
   };
 
@@ -110,15 +117,7 @@ export function FreeboardForm({
           isError={!!errors.title}
           isSuccess={touchedFields.title && !errors.title}
           errorMessage={errors.title?.message}
-          {...register('title', {
-            required: '제목은 필수입니다.',
-            validate: (value) =>
-              value?.trim().length > 0 || '제목을 입력해주세요.',
-            maxLength: {
-              value: 20,
-              message: '제목은 최대 20자까지 입력 가능합니다.',
-            },
-          })}
+          {...register('title')}
         />
         <TextArea
           label="내용"
@@ -128,20 +127,7 @@ export function FreeboardForm({
           isSuccess={touchedFields.content && !errors.content}
           errorMessage={errors.content?.message}
           placeholder="내용을 입력하세요..."
-          {...register('content', {
-            required: '내용은 필수입니다.',
-            validate: (value) =>
-              value?.trim().length >= 5 ||
-              '내용을 5자 이상 입력해주세요.',
-            minLength: {
-              value: 5,
-              message: '내용은 최소 5자 이상 입력해야 합니다.',
-            },
-            maxLength: {
-              value: 500,
-              message: '내용은 최대 500자까지 입력 가능합니다.',
-            },
-          })}
+          {...register('content')}
         />
 
         {/* 이미지 업로드 */}

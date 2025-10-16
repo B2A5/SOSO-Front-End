@@ -6,17 +6,18 @@ import {
   Guitar,
   Palette,
 } from 'lucide-react';
-import type { GetPostsByCursorCategory } from '@/generated/api/models';
+import { GetPostsByCursorCategory } from '@/generated/api/models';
 import type { TabItem } from '@/types/tab.types';
 
 /**
- * 카테고리 타입
+ * 카테고리 타입과 상수
  *
  * @description
  * API의 GetPostsByCursorCategory 타입을 사용합니다.
  * 'all' 타입은 없으며, '전체' 선택 시 null 값을 사용합니다.
  */
 export type Category = GetPostsByCursorCategory;
+export const CategoryEnum = GetPostsByCursorCategory;
 
 /**
  * 카테고리 탭 아이템 타입
