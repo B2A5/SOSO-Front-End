@@ -4,14 +4,16 @@ import { Eye } from 'lucide-react';
 import type { GetPostResponse } from '@/api/posts';
 import LikeButton from '@/app/main/community/[tab]/[postid]/components/LikeButton';
 import ImageSlider from '@/components/ImageSlider';
-import PostProfile from './components/PostProfile';
+import { UserTypeBadge } from './components/UserTypeBadge';
 import CommentList from './components/CommentList';
 import CommentInput from './components/CommentInput';
 import { useParams } from 'next/navigation';
-
 import { getPost } from './components/mock/mockPosts';
 import { useQuery } from '@tanstack/react-query';
 import { UserType } from '@/types/user.types';
+import { UserProfile } from './components/UserProfile';
+import { relativeTime } from '@/utils/relativeTime';
+
 export default function PostPage() {
   const { postid } = useParams<{ postid: string }>();
   const postId = Number(postid);
@@ -26,31 +28,55 @@ export default function PostPage() {
     enabled: Number.isFinite(postId),
   });
 
-  if (isLoading) {
-    return <div className="p-5">로딩 중...</div>;
-  }
-
-  if (isError || !post) {
+  // TODO: 로딩 및 에러 상태 처리 수정 예정
+  if (isLoading) return <div className="p-5">로딩 중...</div>;
+  if (isError || !post)
     return <div className="p-5">게시글을 불러올 수 없습니다.</div>;
-  }
 
   return (
     <div>
-      <main className="space-y-6 ">
+      <main className="space-y-6">
         <div className="p-5 border-b flex flex-col space-y-4 border-neutral-0">
           {/* 카테고리 및 유저 정보 */}
-          <div className="flex flex-col space-y-2 ">
+          <div className="flex flex-col space-y-2">
             <span className="inline-block text-xs font-bold text-green-950 pl-1">
               {post.category}
             </span>
 
-            <PostProfile
-              nickname={post.user.nickname}
-              profileImageUrl={post.user.profileImageUrl}
-              userType={post.user.userType as UserType}
-              location={post.user.location}
-              createdAt={post.createdAt}
-            />
+            <UserProfile className="items-start">
+              <UserProfile.Left>
+                <UserProfile.Avatar
+                  url={post.user.profileImageUrl}
+                  size={45}
+                  alt={`${post.user.nickname}의 프로필 이미지`}
+                />
+              </UserProfile.Left>
+
+              <UserProfile.Right>
+                <UserProfile.Name
+                  nickname={post.user.nickname}
+                  userType={
+                    <UserTypeBadge
+                      type={post.user.userType as UserType}
+                    />
+                  }
+                />
+
+                <UserProfile.SubContents>
+                  <div className="text-input2 text-neutral-500">
+                    {post.user.location && (
+                      <span>{post.user.location}</span>
+                    )}
+                    {post.user.location && post.createdAt && (
+                      <span className="mx-1">·</span>
+                    )}
+                    {post.createdAt && (
+                      <span>{relativeTime(post.createdAt)}</span>
+                    )}
+                  </div>
+                </UserProfile.SubContents>
+              </UserProfile.Right>
+            </UserProfile>
           </div>
 
           {/* 본문 */}
@@ -69,7 +95,6 @@ export default function PostPage() {
             </p>
           </div>
 
-          {/* 좋아요 / 조회수 */}
           <div className="flex justify-between items-center mt-4">
             <LikeButton
               isLiked={post.isLiked}
@@ -82,7 +107,6 @@ export default function PostPage() {
           </div>
         </div>
 
-        {/* 댓글 리스트 */}
         <div className="px-5 space-y-4">
           <CommentList postId={post.postId} />
         </div>
@@ -90,8 +114,7 @@ export default function PostPage() {
 
       <div className="fixed inset-x-0 bottom-16 z-50 bg-transparent">
         <CommentInput postId={post.postId} />
-        <div className="backdrop-blur-[2px] bg-white/90 w-full h-full absolute top-0 z-[-1]"></div>
-        {/* iOS 안전 영역 보정 */}
+        <div className="backdrop-blur-[2px] bg-white/90 w-full h-full absolute top-0 z-[-1]" />
         <div className="h-[env(safe-area-inset-bottom)]" />
       </div>
     </div>
