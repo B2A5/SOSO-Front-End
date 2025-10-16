@@ -1,6 +1,3 @@
-'use client';
-
-import { useSearchParams } from 'next/navigation';
 import { FreeboardForm } from './components/FreeboardForm';
 import { Header } from '@/components/header/Header';
 import {
@@ -8,9 +5,12 @@ import {
   type Category,
 } from '../../constants/categories';
 
-export default function FreeboardNewPage() {
-  const params = useSearchParams();
-  const rawCategory = params.get('category');
+export default function FreeboardNewPage({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined };
+}) {
+  const rawCategory = searchParams.category;
 
   // 유효한 카테고리인지 검증
   const category: Category | undefined =
