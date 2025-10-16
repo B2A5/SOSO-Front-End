@@ -42,7 +42,10 @@ export function FreeboardForm({
     () => ({
       title: initialData?.title ?? '',
       content: initialData?.content ?? '',
-      category: initialCategory || CATEGORIES[0].value,
+      category:
+        initialData?.category ??
+        initialCategory ??
+        CATEGORIES[0].value,
     }),
     [initialCategory, initialData],
   );

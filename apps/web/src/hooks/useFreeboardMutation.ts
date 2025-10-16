@@ -1,4 +1,5 @@
 import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/ui/useToast';
 import {
   useCreatePost,
@@ -20,19 +21,28 @@ import type { FreeboardFormData } from '@/app/main/community/schema/freeboardSch
  * - isPending: 생성/수정 요청이 진행 중인지 여부
  *
  * @remarks
- * - 생성 성공 시: /community/freeboard로 리다이렉트
- * - 수정 성공 시: /community/freeboard/[freeboardId]로 리다이렉트
+ * **생성 모드:**
+ * - 성공 시: 목록 쿼리 invalidate 후, /community/freeboard로 리다이렉트
+ *
+ * **수정 모드:**
+ * - 성공 시: 상세 쿼리 + 목록 쿼리 invalidate 후, /community/freeboard/[id]로 리다이렉트
+ *
+ * **공통:**
  * - 에러 발생 시: 에러 토스트 표시
- * - FormData는 내부적으로 API 스펙에 맞게 변환됩니다
+ * - React Query 캐시 자동 업데이트로 최신 데이터 보장
  */
 export function useFreeboardMutation(freeboardId?: number) {
   const router = useRouter();
   const toast = useToast();
+  const queryClient = useQueryClient();
 
   // 생성 mutation
   const createMutation = useCreatePost({
     mutation: {
       onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ['/community/freeboard'],
+        });
         toast('게시글이 성공적으로 작성되었습니다.', 'success');
         router.push('/main/community/freeboard');
       },
@@ -49,6 +59,12 @@ export function useFreeboardMutation(freeboardId?: number) {
   const updateMutation = useUpdatePost({
     mutation: {
       onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: [`/community/freeboard/${freeboardId}`],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['/community/freeboard'],
+        });
         toast('게시글이 성공적으로 수정되었습니다.', 'success');
         router.push(`/main/community/freeboard/${freeboardId}`);
       },
@@ -69,7 +85,6 @@ export function useFreeboardMutation(freeboardId?: number) {
    *
    * @remarks
    * freeboardId 유무에 따라 자동으로 생성/수정 API를 호출합니다.
-   * 카테고리는 프론트엔드 형식(kebab-case)에서 백엔드 형식(UPPERCASE)으로 변환됩니다.
    */
   const submitPost = (
     data: FreeboardFormData,
