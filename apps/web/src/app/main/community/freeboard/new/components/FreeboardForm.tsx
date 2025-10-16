@@ -5,19 +5,15 @@ import {
   useRouter,
   usePathname,
 } from 'next/navigation';
-import { useMutation } from '@tanstack/react-query';
 import Input from '@/components/inputs/Input';
-import {
-  PostFormData,
-  GetPostResponse,
-  createPost,
-} from '@/api/posts';
 import { CATEGORIES, Category } from '../../../constants/categories';
 import SelectDropdown from '@/components/dropdown/SelectDropdown';
 import TextArea from '@/components/inputs/TextArea';
 import { ImageInput } from '@/components/ImageInput';
 import { Button } from '@/components/buttons/Button';
 import { useToast } from '@/hooks/ui/useToast';
+import type { FreeboardCreateRequest } from '@/generated/api/models';
+import { useCreatePost } from '@/generated/api/endpoints/freeboard/freeboard';
 
 /**
  * FreeboardForm 컴포넌트
@@ -25,8 +21,8 @@ import { useToast } from '@/hooks/ui/useToast';
  *
  */
 export interface FreeboardFormProps {
-  initialData: GetPostResponse | null;
-  initialCategory?: string;
+  initialData: FreeboardCreateRequest | null;
+  initialCategory?: Category;
 }
 
 export function FreeboardForm({
@@ -41,7 +37,7 @@ export function FreeboardForm({
 
   const selectedCategory =
     initialCategory || queryCategory || CATEGORIES[0].value;
-  const defaultVals = useMemo<PostFormData>(
+  const defaultVals = useMemo<FreeboardCreateRequest>(
     () =>
       initialData ?? {
         title: '',
@@ -49,15 +45,15 @@ export function FreeboardForm({
         category: selectedCategory as Category,
         images: [],
       },
-    [initialCategory, selectedCategory],
+    [selectedCategory, initialData],
   );
   const {
     register,
     control,
     setValue,
     handleSubmit,
-    formState: { errors, touchedFields, isSubmitting, isValid },
-  } = useForm<PostFormData>({
+    formState: { errors, touchedFields, isValid },
+  } = useForm<FreeboardCreateRequest>({
     mode: 'onChange', // 실시간 validation을 위해 onChange로 변경
     reValidateMode: 'onChange',
     defaultValues: defaultVals,
@@ -79,25 +75,24 @@ export function FreeboardForm({
   };
 
   // 게시글 작성 mutation
-  const createPostMutation = useMutation({
-    mutationFn: createPost,
-    onSuccess: () => {
-      toast('게시글이 성공적으로 작성되었습니다!', 'success');
-      // 작성 완료 후 해당 게시글로 이동 또는 목록으로 이동
-      router.push(`/main/community/`);
-    },
-    onError: (error) => {
-      console.error('게시글 작성 실패:', error);
-      toast(
-        '게시글 작성에 실패했습니다. 다시 시도해주세요.',
-        'error',
-      );
+  const { mutate: createPost, isPending } = useCreatePost({
+    mutation: {
+      onSuccess: () => {
+        toast('게시글이 성공적으로 작성되었습니다.', 'success');
+        router.push('/community/freeboard');
+      },
+      onError: () => {
+        toast(
+          '게시글 작성 중 오류가 발생했습니다. 다시 시도해주세요.',
+          'error',
+        );
+      },
     },
   });
 
   // form 제출 핸들러
-  const onSubmit = (data: PostFormData) => {
-    createPostMutation.mutate(data);
+  const onSubmit = (data: FreeboardCreateRequest) => {
+    createPost({ data });
   };
 
   return (
@@ -178,8 +173,8 @@ export function FreeboardForm({
       <Button
         type="submit"
         form="freeboard-form"
-        disabled={!isValid}
-        isLoading={isSubmitting}
+        disabled={!isValid || isPending}
+        isLoading={isPending}
         loadingText="게시글 작성 중..."
         className="absolute bottom-0 w-full"
         onClick={handleSubmit(onSubmit)}
