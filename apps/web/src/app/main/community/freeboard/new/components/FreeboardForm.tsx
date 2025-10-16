@@ -83,6 +83,12 @@ export function FreeboardForm({
 
   // form 제출 핸들러
   const onSubmit = (data: FreeboardFormData) => {
+    console.log(
+      '폼 제출 데이터:',
+      data,
+      '삭제 이미지 IDs:',
+      deleteImageIds,
+    );
     submitPost(data, deleteImageIds);
   };
 

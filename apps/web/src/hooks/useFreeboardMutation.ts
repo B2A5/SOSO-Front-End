@@ -39,7 +39,8 @@ export function useFreeboardMutation(freeboardId?: number) {
   // 생성 mutation
   const createMutation = useCreatePost({
     mutation: {
-      onSuccess: () => {
+      onSuccess: (response) => {
+        console.log('게시글 생성 응답:', response);
         queryClient.invalidateQueries({
           queryKey: ['/community/freeboard'],
         });
@@ -58,7 +59,8 @@ export function useFreeboardMutation(freeboardId?: number) {
   // 수정 mutation
   const updateMutation = useUpdatePost({
     mutation: {
-      onSuccess: () => {
+      onSuccess: (response) => {
+        console.log('게시글 수정 응답:', response);
         queryClient.invalidateQueries({
           queryKey: [`/community/freeboard/${freeboardId}`],
         });
