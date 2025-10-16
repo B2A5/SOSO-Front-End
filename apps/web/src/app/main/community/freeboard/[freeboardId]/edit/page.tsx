@@ -4,38 +4,6 @@ import { useParams, useRouter } from 'next/navigation';
 import { FreeboardForm } from '../../new/components/FreeboardForm';
 import { Header } from '@/components/header/Header';
 import { useGetPost } from '@/generated/api/endpoints/freeboard/freeboard';
-import type {
-  FreeboardCreateRequest,
-  FreeboardDetailResponseCategory,
-} from '@/generated/api/models';
-import type { Category } from '../../../constants/categories';
-
-/**
- * 카테고리 타입 변환 함수
- *
- * @description
- * 백엔드 API 응답(DetailResponse)의 카테고리 형식(대문자 스네이크 케이스)을
- * 프론트엔드에서 사용하는 형식(케밥 케이스)으로 변환합니다.
- *
- * @remarks
- * 백엔드 API 스펙 불일치로 인한 임시 해결책입니다.
- * - Response 타입: DAILY_HOBBY, RESTAURANT, ...
- * - Request 타입: daily-hobby, restaurant, ...
- * TODO: 백엔드 API 스펙 통일 후 제거 예정
- */
-function convertCategoryToKebab(
-  category: FreeboardDetailResponseCategory,
-): Category {
-  const mapping: Record<FreeboardDetailResponseCategory, Category> = {
-    DAILY_HOBBY: 'daily-hobby',
-    RESTAURANT: 'restaurant',
-    LIVING_CONVENIENCE: 'living-convenience',
-    NEIGHBORHOOD_NEWS: 'neighborhood-news',
-    STARTUP: 'startup',
-    OTHERS: 'others',
-  };
-  return mapping[category];
-}
 
 /**
  * 자유게시판 게시글 수정 페이지
@@ -53,7 +21,7 @@ function convertCategoryToKebab(
 export default function FreeboardEditPage() {
   const params = useParams();
   const router = useRouter();
-  const postId = Number(params.id);
+  const postId = Number(params.freeboardId);
 
   // 게시글 데이터 조회
   const { data, isLoading, error } = useGetPost(postId);
@@ -127,18 +95,6 @@ export default function FreeboardEditPage() {
     );
   }
 
-  // 카테고리 변환 (대문자 스네이크 케이스 → 케밥 케이스)
-  const convertedCategory = convertCategoryToKebab(data.category);
-
-  // FreeboardForm에 전달할 초기 데이터 변환
-  const initialData: FreeboardCreateRequest = {
-    category: convertedCategory,
-    title: data.title,
-    content: data.content,
-    // 기존 이미지는 imageUrls로 표시되며, 수정 시 새로운 파일만 업로드
-    // TODO: Step 8에서 ImageUploader 개선 시 기존 이미지 표시 기능 추가
-  };
-
   return (
     <div className="w-full h-full">
       <Header>
@@ -148,11 +104,7 @@ export default function FreeboardEditPage() {
         <Header.Center>글 수정</Header.Center>
       </Header>
       <main className="w-full h-full p-layout">
-        <FreeboardForm
-          freeboardId={postId}
-          initialData={initialData}
-          initialCategory={convertedCategory}
-        />
+        <FreeboardForm freeboardId={postId} initialData={data} />
       </main>
     </div>
   );

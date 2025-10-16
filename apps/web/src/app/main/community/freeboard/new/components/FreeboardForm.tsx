@@ -1,13 +1,17 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Input from '@/components/inputs/Input';
-import { CATEGORIES, Category } from '../../../constants/categories';
+import {
+  CATEGORIES,
+  Category,
+  convertCategoryToKebab,
+} from '../../../constants/categories';
 import SelectDropdown from '@/components/dropdown/SelectDropdown';
 import TextArea from '@/components/inputs/TextArea';
-import { ImageInput } from '@/components/ImageInput';
+import { ImageUploader } from '@/components/ImageUploader';
 import { Button } from '@/components/buttons/Button';
-import type { FreeboardCreateRequest } from '@/generated/api/models';
+import type { FreeboardDetailResponse } from '@/generated/api/models';
 import { useFreeboardMutation } from '@/hooks/useFreeboardMutation';
 import {
   freeboardSchema,
@@ -21,10 +25,12 @@ import {
  * @param freeboardId - 수정할 게시글 ID (없으면 생성 모드)
  * @param initialData - 초기 폼 데이터 (수정 모드에서 사용)
  * @param initialCategory - 초기 선택된 카테고리 (생성 모드에서 사용)
+ *
  */
+
 export interface FreeboardFormProps {
   freeboardId?: number;
-  initialData?: FreeboardCreateRequest;
+  initialData?: FreeboardDetailResponse;
   initialCategory?: Category;
 }
 
@@ -33,14 +39,17 @@ export function FreeboardForm({
   initialData,
   initialCategory,
 }: FreeboardFormProps) {
+  // 삭제할 기존 이미지 ID 목록
+  const [deleteImageIds, setDeleteImageIds] = useState<number[]>([]);
+
   const selectedCategory = initialCategory || CATEGORIES[0].value;
   const defaultVals = useMemo<FreeboardFormData>(
     () => ({
       title: initialData?.title ?? '',
       content: initialData?.content ?? '',
-      category:
-        initialData?.category ?? (selectedCategory as Category),
-      images: initialData?.images,
+      category: initialData?.category
+        ? convertCategoryToKebab(initialData.category)
+        : (selectedCategory as Category),
     }),
     [selectedCategory, initialData],
   );
@@ -57,7 +66,7 @@ export function FreeboardForm({
     defaultValues: defaultVals,
   });
 
-  // 이미지 선택 핸들러
+  // 새 이미지 선택 핸들러
   const handleImageSelect = (files: File[]) => {
     setValue('images', files, {
       shouldValidate: true,
@@ -65,12 +74,17 @@ export function FreeboardForm({
     });
   };
 
+  // 기존 이미지 삭제 핸들러
+  const handleDeleteExisting = (deletedIds: number[]) => {
+    setDeleteImageIds(deletedIds);
+  };
+
   // 게시글 생성/수정 mutation
   const { submitPost, isPending } = useFreeboardMutation(freeboardId);
 
   // form 제출 핸들러
   const onSubmit = (data: FreeboardFormData) => {
-    submitPost(data);
+    submitPost(data, deleteImageIds);
   };
 
   return (
@@ -121,7 +135,11 @@ export function FreeboardForm({
           <label className="block text-sm font-medium text-neutral-1000 dark:text-neutral-200 mb-2">
             사진 첨부 (선택)
           </label>
-          <ImageInput onFileSelect={handleImageSelect} />
+          <ImageUploader
+            initialImages={initialData?.images}
+            onFileSelect={handleImageSelect}
+            onDeleteExisting={handleDeleteExisting}
+          />
         </div>
       </form>
       <Button

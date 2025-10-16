@@ -65,13 +65,17 @@ export function useFreeboardMutation(freeboardId?: number) {
    * 게시글 제출 함수
    *
    * @param data - Zod 스키마로 검증된 폼 데이터
+   * @param deleteImageIds - 삭제할 기존 이미지 ID 목록 (수정 모드에서 사용)
    *
    * @remarks
    * freeboardId 유무에 따라 자동으로 생성/수정 API를 호출합니다.
    * FreeboardFormData → FreeboardCreateRequest/UpdateRequest 변환은
    * 타입 호환성이 보장되어 있어 안전합니다.
    */
-  const submitPost = (data: FreeboardFormData) => {
+  const submitPost = (
+    data: FreeboardFormData,
+    deleteImageIds?: number[],
+  ) => {
     if (freeboardId) {
       // 수정 모드: PATCH 요청
       updateMutation.mutate({
@@ -81,7 +85,7 @@ export function useFreeboardMutation(freeboardId?: number) {
           title: data.title,
           content: data.content,
           images: data.images,
-          // deleteImageIds는 추후 ImageUploader 개선 시 추가
+          deleteImageIds: deleteImageIds,
         },
       });
     } else {

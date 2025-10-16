@@ -6,7 +6,10 @@ import {
   Guitar,
   Palette,
 } from 'lucide-react';
-import { GetPostsByCursorCategory } from '@/generated/api/models';
+import {
+  GetPostsByCursorCategory,
+  FreeboardDetailResponseCategory,
+} from '@/generated/api/models';
 import type { TabItem } from '@/types/tab.types';
 
 /**
@@ -105,4 +108,28 @@ export function getCategoryDetails(
  */
 export function getCategoryLabel(category: Category): string {
   return CATEGORY_DETAILS[category].label;
+}
+
+/**
+ * 카테고리 타입 변환 함수
+ *
+ * @description
+ * 백엔드 API 응답(DetailResponse)의 카테고리 형식(대문자 스네이크 케이스)을
+ * 프론트엔드에서 사용하는 형식(케밥 케이스)으로 변환합니다.
+ *
+ * @param category - 백엔드 응답의 카테고리 (DAILY_HOBBY, RESTAURANT 등)
+ * @returns 프론트엔드 카테고리 (daily-hobby, restaurant 등)
+ */
+export function convertCategoryToKebab(
+  category: FreeboardDetailResponseCategory,
+): Category {
+  const mapping: Record<FreeboardDetailResponseCategory, Category> = {
+    DAILY_HOBBY: 'daily-hobby',
+    RESTAURANT: 'restaurant',
+    LIVING_CONVENIENCE: 'living-convenience',
+    NEIGHBORHOOD_NEWS: 'neighborhood-news',
+    STARTUP: 'startup',
+    OTHERS: 'others',
+  };
+  return mapping[category];
 }
