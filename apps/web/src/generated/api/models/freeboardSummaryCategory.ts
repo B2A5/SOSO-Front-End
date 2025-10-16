@@ -14,10 +14,10 @@ export type FreeboardSummaryCategory =
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const FreeboardSummaryCategory = {
-  DAILY_HOBBY: 'DAILY_HOBBY',
-  RESTAURANT: 'RESTAURANT',
-  LIVING_CONVENIENCE: 'LIVING_CONVENIENCE',
-  NEIGHBORHOOD_NEWS: 'NEIGHBORHOOD_NEWS',
-  STARTUP: 'STARTUP',
-  OTHERS: 'OTHERS',
+  'daily-hobby': 'daily-hobby',
+  restaurant: 'restaurant',
+  'living-convenience': 'living-convenience',
+  'neighborhood-news': 'neighborhood-news',
+  startup: 'startup',
+  others: 'others',
 } as const;
