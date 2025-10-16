@@ -1,6 +1,6 @@
 'use client';
 
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { FreeboardForm } from '../../new/components/FreeboardForm';
 import { Header } from '@/components/header/Header';
 import { useGetPost } from '@/generated/api/endpoints/freeboard/freeboard';
@@ -20,101 +20,24 @@ import { useGetPost } from '@/generated/api/endpoints/freeboard/freeboard';
  */
 export default function FreeboardEditPage() {
   const params = useParams();
-  const router = useRouter();
   const postId = Number(params.freeboardId);
 
   // 게시글 데이터 조회
-  const { data, isLoading, error } = useGetPost(postId);
-
-  // 로딩 중
-  if (isLoading) {
-    return (
-      <div className="w-full h-full">
-        <Header>
-          <Header.Left>
-            <Header.BackButton />
-          </Header.Left>
-          <Header.Center>글 수정</Header.Center>
-        </Header>
-        <main className="w-full h-full p-layout flex items-center justify-center">
-          <div
-            role="status"
-            aria-live="polite"
-            className="text-neutral-600 dark:text-neutral-400"
-          >
-            게시글을 불러오는 중...
-          </div>
-        </main>
-      </div>
-    );
-  }
-
-  // 에러 또는 데이터 없음
-  if (error || !data) {
-    return (
-      <div className="w-full h-full">
-        <Header>
-          <Header.Left>
-            <Header.BackButton />
-          </Header.Left>
-          <Header.Center>글 수정</Header.Center>
-        </Header>
-        <main className="w-full h-full p-layout flex flex-col items-center justify-center gap-4">
-          <div
-            role="alert"
-            aria-live="assertive"
-            className="text-neutral-600 dark:text-neutral-400"
-          >
-            게시글을 불러올 수 없습니다.
-          </div>
-          <button
-            onClick={() => router.back()}
-            className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-          >
-            돌아가기
-          </button>
-        </main>
-      </div>
-    );
-  }
-
-  // 수정 권한 체크
-  if (!data.canEdit) {
-    return (
-      <div className="w-full h-full">
-        <Header>
-          <Header.Left>
-            <Header.BackButton />
-          </Header.Left>
-          <Header.Center>글 수정</Header.Center>
-        </Header>
-        <main className="w-full h-full p-layout flex flex-col items-center justify-center gap-4">
-          <div
-            role="alert"
-            aria-live="assertive"
-            className="text-neutral-600 dark:text-neutral-400"
-          >
-            이 게시글을 수정할 권한이 없습니다.
-          </div>
-          <button
-            onClick={() => router.back()}
-            className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-          >
-            돌아가기
-          </button>
-        </main>
-      </div>
-    );
-  }
+  const { data, isLoading } = useGetPost(postId);
 
   return (
     <div className="w-full h-full">
       <Header>
         <Header.Left>
-          <Header.CancelButton />
+          {isLoading || !data?.canEdit ? (
+            <Header.BackButton />
+          ) : (
+            <Header.CancelButton />
+          )}
         </Header.Left>
         <Header.Center>글 수정</Header.Center>
       </Header>
+
       <main className="w-full h-full p-layout">
         <FreeboardForm freeboardId={postId} initialData={data} />
       </main>
