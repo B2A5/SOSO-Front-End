@@ -25,29 +25,31 @@ import { useToast } from '@/hooks/ui/useToast';
  *
  */
 export interface FreeboardFormProps {
-  postData: GetPostResponse | null;
+  initialData: GetPostResponse | null;
   initialCategory?: string;
 }
 
 export function FreeboardForm({
-  postData = null,
+  initialData = null,
   initialCategory,
 }: FreeboardFormProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+  const toast = useToast();
   const queryCategory = searchParams.get('category') as Category;
+
   const selectedCategory =
     initialCategory || queryCategory || CATEGORIES[0].value;
   const defaultVals = useMemo<PostFormData>(
     () =>
-      postData ?? {
+      initialData ?? {
         title: '',
         content: '',
         category: selectedCategory as Category,
         images: [],
       },
-    [postData, selectedCategory],
+    [initialCategory, selectedCategory],
   );
   const {
     register,
@@ -60,8 +62,6 @@ export function FreeboardForm({
     reValidateMode: 'onChange',
     defaultValues: defaultVals,
   });
-
-  const toast = useToast();
 
   // 드롭다운 변경 시 URL 업데이트
   const handleCategoryChange = (value: Category) => {
