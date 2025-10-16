@@ -3,9 +3,21 @@
 import { useSearchParams } from 'next/navigation';
 import { FreeboardForm } from './components/FreeboardForm';
 import { Header } from '@/components/header/Header';
+import {
+  CATEGORIES,
+  type Category,
+} from '../../constants/categories';
 
 export default function FreeboardNewPage() {
-  const category = useSearchParams().get('category') || undefined;
+  const params = useSearchParams();
+  const rawCategory = params.get('category');
+
+  // 유효한 카테고리인지 검증
+  const category: Category | undefined =
+    rawCategory &&
+    CATEGORIES.some((category) => category.value === rawCategory)
+      ? (rawCategory as Category)
+      : undefined;
 
   return (
     <div className=" w-full h-full">

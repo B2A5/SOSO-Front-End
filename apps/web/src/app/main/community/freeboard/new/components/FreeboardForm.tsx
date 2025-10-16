@@ -1,10 +1,6 @@
 import React, { useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import {
-  useSearchParams,
-  useRouter,
-  usePathname,
-} from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Input from '@/components/inputs/Input';
 import { CATEGORIES, Category } from '../../../constants/categories';
 import SelectDropdown from '@/components/dropdown/SelectDropdown';
@@ -29,14 +25,10 @@ export function FreeboardForm({
   initialData = null,
   initialCategory,
 }: FreeboardFormProps) {
-  const searchParams = useSearchParams();
   const router = useRouter();
-  const pathname = usePathname();
   const toast = useToast();
-  const queryCategory = searchParams.get('category') as Category;
 
-  const selectedCategory =
-    initialCategory || queryCategory || CATEGORIES[0].value;
+  const selectedCategory = initialCategory || CATEGORIES[0].value;
   const defaultVals = useMemo<FreeboardCreateRequest>(
     () =>
       initialData ?? {
@@ -58,13 +50,6 @@ export function FreeboardForm({
     reValidateMode: 'onChange',
     defaultValues: defaultVals,
   });
-
-  // 드롭다운 변경 시 URL 업데이트
-  const handleCategoryChange = (value: Category) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set('category', value);
-    router.replace(`${pathname}?${params.toString()}`);
-  };
 
   // 이미지 선택 핸들러
   const handleImageSelect = (files: File[]) => {
@@ -113,10 +98,7 @@ export function FreeboardForm({
               <SelectDropdown
                 options={CATEGORIES}
                 placeholder="원하는 카테고리를 선택하세요"
-                onChange={(value) => {
-                  field.onChange(value);
-                  handleCategoryChange(value as Category);
-                }}
+                onChange={field.onChange}
                 className="w-full border border-gray-300 dark:border-neutral-700 rounded-lg"
                 value={field.value}
               />
