@@ -51,6 +51,7 @@ export function FreeboardForm({
     }),
     [initialCategory, initialData],
   );
+
   const {
     register,
     control,
@@ -72,7 +73,7 @@ export function FreeboardForm({
     });
   };
 
-  // 기존 이미지 삭제 핸들러
+  // 기존 이미지 삭제 핸들러(수정용)
   const handleDeleteExisting = (deletedIds: number[]) => {
     setDeleteImageIds(deletedIds);
   };
@@ -94,7 +95,7 @@ export function FreeboardForm({
             ? '자유게시판 게시글 수정'
             : '자유게시판 게시글 작성'
         }
-        className="flex flex-col gap-5 w-full h-full overflow-auto p-1 transition-transform duration-300 ease-in-out"
+        className="flex flex-col gap-5 w-full flex-1 overflow-auto pb-20 p-1 transition-transform duration-300 ease-in-out"
         onSubmit={handleSubmit(onSubmit)}
       >
         <div>
@@ -164,7 +165,6 @@ export function FreeboardForm({
         isLoading={isPending}
         loadingText="게시글 작성 중..."
         className="absolute bottom-0 w-full"
-        onClick={handleSubmit(onSubmit)}
       >
         저장하기
       </Button>

@@ -1,7 +1,7 @@
 'use client';
 
 import { ChevronDown } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 /**
@@ -49,6 +49,10 @@ export default function SelectDropdown<T extends string | number>({
   id,
   className,
 }: SelectDropdownProps<T>) {
+  const generatedId = useId();
+  const componentId = id ?? generatedId;
+  const listId = `${componentId}-list`;
+
   const [isOpen, setIsOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -142,10 +146,10 @@ export default function SelectDropdown<T extends string | number>({
       <button
         ref={toggleButtonRef}
         type="button"
-        id={id}
+        id={componentId}
         aria-haspopup="true"
         aria-expanded={isOpen}
-        aria-controls="select-dropdown-list"
+        aria-controls={listId}
         aria-label={ariaLabel}
         onClick={toggleDropdown}
         className={twMerge(
@@ -168,7 +172,7 @@ export default function SelectDropdown<T extends string | number>({
 
       {isMounted && (
         <ul
-          id="select-dropdown-list"
+          id={listId}
           role="menu"
           ref={menuRef}
           onKeyDown={handleKeyDown}

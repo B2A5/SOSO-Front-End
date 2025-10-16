@@ -26,7 +26,7 @@ export default function FreeboardEditPage() {
   const { data, isLoading } = useGetPost(postId);
 
   return (
-    <div className="w-full h-full">
+    <div className="flex flex-col w-full h-full">
       <Header>
         <Header.Left>
           {isLoading || !data?.canEdit ? (
@@ -38,7 +38,7 @@ export default function FreeboardEditPage() {
         <Header.Center>글 수정</Header.Center>
       </Header>
 
-      <main className="w-full h-full p-layout">
+      <main className="flex-1 w-full overflow-hidden p-layout">
         <FreeboardForm freeboardId={postId} initialData={data} />
       </main>
     </div>

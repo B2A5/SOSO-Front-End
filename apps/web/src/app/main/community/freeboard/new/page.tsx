@@ -20,14 +20,14 @@ export default function FreeboardNewPage({
       : undefined;
 
   return (
-    <div className=" w-full h-full">
+    <div className="flex flex-col w-full h-full">
       <Header>
         <Header.Left>
           <Header.CancelButton />
         </Header.Left>
         <Header.Center>자유 글 작성</Header.Center>
       </Header>
-      <main className="w-full h-full p-layout">
+      <main className="flex-1 w-full overflow-hidden p-layout">
         <FreeboardForm initialCategory={category} />
       </main>
     </div>

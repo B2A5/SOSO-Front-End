@@ -76,12 +76,14 @@ export const freeboardSchema = z.object({
    * - 허용된 카테고리만 선택 가능
    *
    * @remarks
-   * z.enum을 사용하여 타입 안전성을 보장합니다.
-   * Generated API 타입과 일치하도록 설정했습니다.
+   * z.enum을 사용하여 런타임·타입 모두 안전하게 검증합니다.
+   * Generated API의 enum-like 객체 값들과 일치하도록 설정했습니다.
    *
-   * @see {@link FreeboardCreateRequestCategory}
+   * @see {@link GetPostsByCursorCategory}
    */
-  category: z.enum(Object.values(CategoryEnum)),
+  category: z.enum(
+    Object.values(CategoryEnum) as [string, ...string[]],
+  ),
 
   /**
    * 첨부 이미지 파일 배열
@@ -97,7 +99,7 @@ export const freeboardSchema = z.object({
    * - 브라우저 File input은 File 객체를 반환하며, File은 Blob을 상속하므로 호환됩니다
    * - 타입 안전성을 위해 API 스펙과 정확히 일치시켰습니다
    *
-   * @see {@link ImageInput}
+   * @see {@link ImageUploader}
    */
   images: z
     .array(
