@@ -81,9 +81,7 @@ export const freeboardSchema = z.object({
    *
    * @see {@link GetPostsByCursorCategory}
    */
-  category: z.enum(
-    Object.values(CategoryEnum) as [string, ...string[]],
-  ),
+  category: z.enum(Object.values(CategoryEnum)),
 
   /**
    * 첨부 이미지 파일 배열
