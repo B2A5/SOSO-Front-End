@@ -140,37 +140,53 @@ export function ImageUploader({
   };
 
   return (
-    <div className="flex flex-col gap-2 ">
+    <div className="flex flex-col gap-2">
+      {/* 이미지 개수 정보 (스크린 리더용) */}
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {totalImageCount}개의 이미지가 선택되었습니다. 최대{' '}
+        {maxImages}개까지 업로드 가능합니다.
+      </div>
+
       {/* 이미지 컨테이너 (가로 스크롤) */}
       <div className="flex gap-2 overflow-x-auto p-2 pl-0">
+        <label htmlFor="image-upload" className="sr-only">
+          이미지 파일 선택
+        </label>
         <input
+          id="image-upload"
           type="file"
           accept=".png, .jpg, .jpeg, .webp, .gif"
           onChange={handleFileChange}
           ref={fileInputRef}
           className="hidden"
           multiple
+          aria-label="이미지 파일 선택"
         />
 
         {/* 이미지 목록 (애니메이션) */}
         <AnimatePresence mode="popLayout">
           {/* 이미지 추가 버튼 - 4장 미만일 때만 표시 */}
           {totalImageCount < maxImages && (
-            <motion.div
+            <motion.button
+              type="button"
               key="add-button"
               layout
               {...IMAGE_ANIMATION}
               onClick={handleImageClick}
-              className="flex-shrink-0 w-20 h-20 rounded-[10px] flex items-center justify-center bg-light-gray hover:bg-gray-200 cursor-pointer transition"
+              aria-label={`이미지 추가 (${totalImageCount}/${maxImages})`}
+              className="flex-shrink-0 w-20 h-20 rounded-[10px] flex items-center justify-center bg-light-gray hover:bg-gray-200 cursor-pointer transition focus:outline-none focus:ring-2 focus:ring-primary-500"
               whileTap={{ scale: 0.95 }}
             >
-              <Plus className="w-6 h-6 text-neutral-200" />
-            </motion.div>
+              <Plus
+                className="w-6 h-6 text-neutral-200"
+                aria-hidden="true"
+              />
+            </motion.button>
           )}
           {/* 기존 이미지 (서버에서 받은 이미지) */}
           {existingImages
             .sort((a, b) => a.sequence - b.sequence)
-            .map((image) => (
+            .map((image, index) => (
               <motion.div
                 key={`existing-${image.imageId}`}
                 layout
@@ -179,7 +195,7 @@ export function ImageUploader({
               >
                 <img
                   src={image.imageUrl}
-                  alt="기존 이미지"
+                  alt={`업로드된 이미지 ${index + 1}`}
                   className="w-full h-full object-cover rounded-md"
                 />
                 <motion.button
@@ -187,17 +203,18 @@ export function ImageUploader({
                   onClick={() =>
                     handleExistingImageRemove(image.imageId)
                   }
-                  className="absolute -top-1 -right-1 bg-black bg-opacity-50 rounded-full p-1 text-white hover:bg-opacity-70 cursor-pointer z-10"
+                  aria-label={`이미지 ${index + 1} 삭제`}
+                  className="absolute -top-1 -right-1 bg-black bg-opacity-50 rounded-full p-1 text-white hover:bg-opacity-70 cursor-pointer z-10 focus:outline-none focus:ring-2 focus:ring-white"
                   whileHover={BUTTON_HOVER}
                   whileTap={BUTTON_TAP}
                 >
-                  <X size={12} />
+                  <X size={12} aria-hidden="true" />
                 </motion.button>
               </motion.div>
             ))}
 
           {/* 새로 추가한 이미지 (파일 업로드) */}
-          {newImages.map((item) => (
+          {newImages.map((item, index) => (
             <motion.div
               key={`new-${item.id}`}
               layout
@@ -206,17 +223,18 @@ export function ImageUploader({
             >
               <img
                 src={item.preview}
-                alt="새 이미지"
+                alt={`새로 선택한 이미지 ${existingImages.length + index + 1}`}
                 className="w-full h-full object-cover rounded-md"
               />
               <motion.button
                 type="button"
                 onClick={() => handleNewImageRemove(item.id)}
-                className="absolute -top-1 -right-1 bg-black bg-opacity-50 rounded-full p-1 text-white hover:bg-opacity-70 cursor-pointer z-10"
+                aria-label={`이미지 ${existingImages.length + index + 1} 삭제`}
+                className="absolute -top-1 -right-1 bg-black bg-opacity-50 rounded-full p-1 text-white hover:bg-opacity-70 cursor-pointer z-10 focus:outline-none focus:ring-2 focus:ring-white"
                 whileHover={BUTTON_HOVER}
                 whileTap={BUTTON_TAP}
               >
-                <X size={12} />
+                <X size={12} aria-hidden="true" />
               </motion.button>
             </motion.div>
           ))}

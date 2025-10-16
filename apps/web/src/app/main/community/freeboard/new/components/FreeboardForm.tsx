@@ -87,12 +87,23 @@ export function FreeboardForm({
     <div className="relative flex flex-col h-full w-full">
       <form
         id="freeboard-form"
+        aria-label={
+          freeboardId
+            ? '자유게시판 게시글 수정'
+            : '자유게시판 게시글 작성'
+        }
         className="flex flex-col gap-5 w-full h-full overflow-auto p-1 transition-transform duration-300 ease-in-out"
         onSubmit={handleSubmit(onSubmit)}
       >
         <div>
-          <label className="block text-sm font-medium text-neutral-1000 dark:text-neutral-200 mb-2">
+          <label
+            htmlFor="category"
+            className="block text-sm font-medium text-neutral-1000 dark:text-neutral-200 mb-2"
+          >
             카테고리
+            <span className="ml-1 text-red-500" aria-label="필수">
+              *
+            </span>
           </label>
           <Controller
             name="category"
@@ -104,19 +115,25 @@ export function FreeboardForm({
                 onChange={field.onChange}
                 className="w-full border border-gray-300 dark:border-neutral-700 rounded-lg"
                 value={field.value}
+                id="category"
+                aria-required="true"
               />
             )}
           />
         </div>
         <Input
+          id="title"
           label="제목"
+          required
           isError={!!errors.title}
           isSuccess={touchedFields.title && !errors.title}
           errorMessage={errors.title?.message}
           {...register('title')}
         />
         <TextArea
+          id="content"
           label="내용"
+          required
           maxLength={500}
           rows={8}
           isError={!!errors.content}

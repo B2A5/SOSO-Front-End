@@ -37,7 +37,11 @@ export default function FreeboardEditPage() {
           <Header.Center>글 수정</Header.Center>
         </Header>
         <main className="w-full h-full p-layout flex items-center justify-center">
-          <div className="text-neutral-600 dark:text-neutral-400">
+          <div
+            role="status"
+            aria-live="polite"
+            className="text-neutral-600 dark:text-neutral-400"
+          >
             게시글을 불러오는 중...
           </div>
         </main>
@@ -56,12 +60,16 @@ export default function FreeboardEditPage() {
           <Header.Center>글 수정</Header.Center>
         </Header>
         <main className="w-full h-full p-layout flex flex-col items-center justify-center gap-4">
-          <div className="text-neutral-600 dark:text-neutral-400">
+          <div
+            role="alert"
+            aria-live="assertive"
+            className="text-neutral-600 dark:text-neutral-400"
+          >
             게시글을 불러올 수 없습니다.
           </div>
           <button
             onClick={() => router.back()}
-            className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600"
+            className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
           >
             돌아가기
           </button>
@@ -81,12 +89,16 @@ export default function FreeboardEditPage() {
           <Header.Center>글 수정</Header.Center>
         </Header>
         <main className="w-full h-full p-layout flex flex-col items-center justify-center gap-4">
-          <div className="text-neutral-600 dark:text-neutral-400">
+          <div
+            role="alert"
+            aria-live="assertive"
+            className="text-neutral-600 dark:text-neutral-400"
+          >
             이 게시글을 수정할 권한이 없습니다.
           </div>
           <button
             onClick={() => router.back()}
-            className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600"
+            className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
           >
             돌아가기
           </button>

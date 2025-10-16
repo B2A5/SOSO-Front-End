@@ -32,6 +32,8 @@ interface SelectDropdownProps<T> {
   ariaLabel?: string;
   /** 값이 없을 때 보여줄 placeholder 텍스트*/
   placeholder?: string;
+  /** 컴포넌트 ID */
+  id?: string;
   className?: string;
 }
 
@@ -44,6 +46,7 @@ export default function SelectDropdown<T extends string | number>({
   onChange,
   ariaLabel = '선택 드롭다운',
   placeholder = '선택하세요',
+  id,
   className,
 }: SelectDropdownProps<T>) {
   const [isOpen, setIsOpen] = useState(false);
@@ -139,6 +142,7 @@ export default function SelectDropdown<T extends string | number>({
       <button
         ref={toggleButtonRef}
         type="button"
+        id={id}
         aria-haspopup="true"
         aria-expanded={isOpen}
         aria-controls="select-dropdown-list"
