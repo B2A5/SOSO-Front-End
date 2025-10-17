@@ -40,6 +40,7 @@ export * from './getPostsByCursorParams';
 export * from './getPostsByCursorSort';
 export * from './hardDeleteComment204';
 export * from './hardDeletePost204';
+export * from './imageInfo';
 export * from './interestRequest';
 export * from './interestRequestInterestsItem';
 export * from './jwtTokenDto';
