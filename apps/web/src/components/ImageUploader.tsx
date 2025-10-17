@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useState, useMemo } from 'react';
+import React, { useRef, useState, useMemo, useEffect } from 'react';
 import { Plus, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '@/hooks/ui/useToast';
@@ -63,7 +63,13 @@ export function ImageUploader({
     [],
   );
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const newImagesRef = useRef<NewImage[]>([]);
   const toast = useToast();
+
+  // 최신 newImages를 ref에 동기화
+  useEffect(() => {
+    newImagesRef.current = newImages;
+  }, [newImages]);
 
   // 삭제되지 않은 기존 이미지만 필터링 (useMemo로 최적화)
   const existingImages = useMemo(
@@ -75,6 +81,16 @@ export function ImageUploader({
   );
 
   const totalImageCount = existingImages.length + newImages.length;
+
+  // Cleanup: 컴포넌트 언마운트 시 모든 preview URL 해제
+  useEffect(() => {
+    return () => {
+      // ref를 통해 최신 newImages 참조
+      newImagesRef.current.forEach((item) => {
+        URL.revokeObjectURL(item.preview);
+      });
+    };
+  }, []);
 
   const handleImageClick = () => {
     fileInputRef.current?.click();
@@ -124,6 +140,12 @@ export function ImageUploader({
   // 새 이미지 삭제
   const handleNewImageRemove = (removeId: string) => {
     setNewImages((prev) => {
+      // 삭제할 이미지의 preview URL 해제
+      const toRemove = prev.find((item) => item.id === removeId);
+      if (toRemove) {
+        URL.revokeObjectURL(toRemove.preview);
+      }
+
       const filtered = prev.filter((item) => item.id !== removeId);
       onFileSelect?.(filtered.map((item) => item.file));
       return filtered;
