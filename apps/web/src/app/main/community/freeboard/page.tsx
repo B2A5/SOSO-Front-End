@@ -91,11 +91,7 @@ export default function FreeboardPage() {
         onRetry={() => refetch()}
         getItemKey={(post, index) => post.postId ?? `post-${index}`}
         renderItem={(post) => (
-          <FreeBoardCard
-            key={post.postId}
-            post={post}
-            isChip={true}
-          />
+          <FreeBoardCard post={post} isChip={true} />
         )}
         storageKey="freeboard-post-list-scroll"
       />

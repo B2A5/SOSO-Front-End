@@ -1,4 +1,4 @@
-import { FreeboardForm } from './components/FreeboardForm';
+import { FreeboardForm } from '../components/FreeboardForm';
 import { Header } from '@/components/header/Header';
 import {
   CATEGORIES,

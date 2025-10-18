@@ -4,7 +4,7 @@ import React, { useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Input from '@/components/inputs/Input';
-import { CATEGORIES, Category } from '../../../constants/categories';
+import { CATEGORIES, Category } from '../../constants/categories';
 import SelectDropdown from '@/components/dropdown/SelectDropdown';
 import TextArea from '@/components/inputs/TextArea';
 import { ImageUploader } from '@/components/ImageUploader';
@@ -14,7 +14,7 @@ import { useFreeboardMutation } from '@/hooks/useFreeboardMutation';
 import {
   freeboardSchema,
   type FreeboardFormData,
-} from '../../../schema/freeboardSchema';
+} from '../../schema/freeboardSchema';
 
 /**
  * FreeboardForm 컴포넌트
@@ -101,7 +101,7 @@ export function FreeboardForm({
             ? '자유게시판 게시글 수정'
             : '자유게시판 게시글 작성'
         }
-        className="flex flex-col gap-5 w-full flex-1 overflow-auto pb-20 p-1 transition-transform duration-300 ease-in-out"
+        className="flex flex-col gap-4 w-full flex-1 overflow-auto p-1 transition-transform duration-300 ease-in-out"
         onSubmit={handleSubmit(onSubmit)}
       >
         <div>
