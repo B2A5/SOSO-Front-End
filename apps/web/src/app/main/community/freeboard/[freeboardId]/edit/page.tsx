@@ -16,8 +16,9 @@ import { useGetPost } from '@/generated/api/endpoints/freeboard/freeboard';
  *
  * @remarks
  * - 게시글 데이터 로딩 중에는 스켈레톤 UI 표시
- * - 권한이 없거나 게시글이 없으면 에러 모달 표시
  * - 로딩 완료 후 FreeboardForm에 postId와 initialData 전달
+ * @todo
+ * - 권한이 없거나 게시글이 없으면 에러 모달 표시
  */
 export default function FreeboardEditPage() {
   const params = useParams();

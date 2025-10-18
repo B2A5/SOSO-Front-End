@@ -190,6 +190,7 @@ export default function SelectDropdown<T extends string | number>({
           {options.map((opt) => (
             <li key={String(opt.value)} className="px-1 py-1">
               <button
+                type="button"
                 role="menuitem"
                 tabIndex={opt.value === value ? 0 : -1}
                 onClick={() => {
