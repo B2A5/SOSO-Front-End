@@ -7,9 +7,9 @@ import {
   getGetCommentsByCursorQueryKey,
 } from '@/generated/api/endpoints/freeboard-comment/freeboard-comment';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
-import { VirtualList } from '@/components/VirtualList';
 import CommentItem from './CommentItem';
 import type { FreeboardCommentSummary } from '@/generated/api/models';
+import { VirtualList } from '@/components/infiniteScrolls/VirtualList';
 
 interface CommentListProps {
   postId: number;
