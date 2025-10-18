@@ -8,6 +8,8 @@ import { relativeTime } from '@/utils/relativeTime';
 import { useGetPost } from '@/generated/api/endpoints/freeboard/freeboard';
 import type { FreeboardDetailResponse } from '@/generated/api/models';
 import LikeButtonPost from './LikeButtonPost';
+import { CategoryChip } from '@/components/chips/CategoryChip';
+import { Category } from '../../../constants/categories';
 
 /** 자유게시판 게시글 상세 본문 */
 export default function FreeboardDetail({
@@ -35,16 +37,16 @@ export default function FreeboardDetail({
   const hasMetaInfo = hasAddress || hasTime;
 
   return (
-    <div className="space-y-6 p-5 border-b border-neutral-0">
+    <div className="p-5 border-b border-neutral-0">
       {/* 카테고리 */}
       {category && (
-        <span className="inline-block text-xs font-bold text-green-950 pl-1">
-          {category}
-        </span>
+        <div className="flex items-center gap-1 pb-2">
+          <CategoryChip category={category as Category} />
+        </div>
       )}
 
       {/* 작성자 정보 */}
-      <UserProfile className="items-start">
+      <UserProfile className="items-start pb-9">
         <UserProfile.Left>
           <UserProfile.Avatar
             url={author?.profileImageUrl}
@@ -78,7 +80,7 @@ export default function FreeboardDetail({
       </UserProfile>
 
       {/* 본문 */}
-      <div className="flex flex-col space-y-6">
+      <div className="flex flex-col space-y-2">
         <h1 className="text-2xl font-bold">Q. {title}</h1>
 
         {images.length > 0 && (
@@ -89,7 +91,9 @@ export default function FreeboardDetail({
         )}
 
         {content && (
-          <p className="text-textBox text-neutral-1000">{content}</p>
+          <p className="text-textBox text-neutral-1000 min-h-20">
+            {content}
+          </p>
         )}
       </div>
       {/* 하단 좋아요 + 조회수 */}
