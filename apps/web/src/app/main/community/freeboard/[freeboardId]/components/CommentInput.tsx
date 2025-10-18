@@ -31,7 +31,7 @@ export default function CommentInput({
 
   const { mutate, isPending } = useMutation({
     mutationFn: (content: string) =>
-      createComment(postId, { content }), // ✅ 수정 포인트
+      createComment(postId, { content }),
     onSuccess: () => {
       toast('댓글이 등록되었습니다', 'success');
       setValue('');

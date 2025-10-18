@@ -75,7 +75,7 @@ export default function CommentList({ postId }: CommentListProps) {
   return (
     <section
       ref={scrollRef}
-      className="pt-6 space-y-5 overflow-y-auto max-h-[60vh]"
+      className="overflow-y-auto overflow-x-hidden max-h-[60vh]"
       aria-label="댓글 목록"
     >
       <VirtualList
@@ -84,7 +84,7 @@ export default function CommentList({ postId }: CommentListProps) {
         getItemKey={(comment) =>
           comment.commentId ?? `fallback-key-${Math.random()}`
         }
-        estimateSize={90} // 댓글 평균 높이 (대략)
+        estimateSize={120} // 댓글 평균 높이 (대략)
         overscan={5}
         storageKey={`comment-scroll-${postId}`}
         renderItem={(comment) => (

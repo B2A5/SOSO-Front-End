@@ -39,7 +39,7 @@ export default function PostPage() {
 
       <div className="px-5 space-y-4">
         {/* 댓글 영역 */}
-        <div className="px-5 space-y-4 pb-[100px]">
+        <div className="pb-[100px]">
           <CommentList postId={postId} />
         </div>
 

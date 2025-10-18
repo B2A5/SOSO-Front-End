@@ -54,7 +54,7 @@ export default function CommentItem({
   };
 
   return (
-    <UserProfile className="items-start">
+    <UserProfile className="items-start gap-4">
       <UserProfile.Left>
         <UserProfile.Avatar
           url={profileImageUrl}
