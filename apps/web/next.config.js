@@ -13,7 +13,10 @@ const nextConfig = {
   output: 'standalone',
   //추후 제거 필요
   images: {
-    domains: ['picsum.photos'],
+    domains: [
+      'picsum.photos',
+      'k.kakaocdn.net', // 카카오 로그인 이미지
+    ],
   },
   experimental: {
     typedRoutes: false,
