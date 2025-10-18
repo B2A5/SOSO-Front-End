@@ -1,8 +1,7 @@
 'use client';
 
-import { createComment } from '@/api/comment';
+import { createComment } from '@/generated/api/endpoints/freeboard-comment/freeboard-comment';
 import { useToast } from '@/hooks/ui/useToast';
-//실제 api 연동 시 import 경로 변경 필요
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
@@ -31,7 +30,8 @@ export default function CommentInput({
   const toast = useToast();
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (content: string) => createComment(postId, content),
+    mutationFn: (content: string) =>
+      createComment(postId, { content }), // ✅ 수정 포인트
     onSuccess: () => {
       toast('댓글이 등록되었습니다', 'success');
       setValue('');
@@ -82,9 +82,7 @@ export default function CommentInput({
   };
 
   return (
-    <div
-      className={twMerge('mx-auto w-full max-w-screen-md px-5 py-3')}
-    >
+    <div className="w-full">
       <div
         className={twMerge(
           'rounded-3xl bg-white border border-gray-200',

@@ -38,8 +38,15 @@ export default function PostPage() {
       </ErrorBoundary>
 
       <div className="px-5 space-y-4">
-        <CommentList postId={postId} />
-        <CommentInput postId={postId} />
+        {/* 댓글 영역 */}
+        <div className="px-5 space-y-4 pb-[100px]">
+          <CommentList postId={postId} />
+        </div>
+
+        {/* 고정 입력창 */}
+        <div className="fixed bottom-16 left-0 right-0 z-50 px-5 py-3">
+          <CommentInput postId={postId} />
+        </div>
       </div>
 
       <div className="fixed inset-x-0 bottom-16 z-50 bg-transparent">
