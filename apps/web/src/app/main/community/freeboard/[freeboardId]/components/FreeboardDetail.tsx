@@ -25,7 +25,8 @@ export default function FreeboardDetail({
   });
 
   const author = post?.author;
-  const images = post?.imageUrls ?? [];
+  const images = post?.images ?? [];
+  const imageUrls = images.map((image) => image.imageUrl);
   const viewCount = post?.viewCount ?? 0;
   const category = post?.category ?? '';
   const title = post?.title ?? '';
@@ -85,7 +86,7 @@ export default function FreeboardDetail({
 
         {images.length > 0 && (
           <ImageSlider
-            images={images}
+            images={imageUrls}
             className="w-full min-h-[200px]"
           />
         )}

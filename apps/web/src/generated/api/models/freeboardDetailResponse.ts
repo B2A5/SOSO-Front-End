@@ -7,6 +7,7 @@
  */
 import type { PostDetailAuthorInfo } from './postDetailAuthorInfo';
 import type { FreeboardDetailResponseCategory } from './freeboardDetailResponseCategory';
+import type { ImageInfo } from './imageInfo';
 
 /**
  * 자유게시판 글 상세 조회 응답
@@ -22,8 +23,8 @@ export interface FreeboardDetailResponse {
   title: string;
   /** 내용 */
   content: string;
-  /** 첨부된 이미지 URL 목록 */
-  imageUrls: string[];
+  /** 첨부된 이미지 정보 목록 */
+  images: ImageInfo[];
   /** 좋아요 수 */
   likeCount: number;
   /** 댓글 수 */
