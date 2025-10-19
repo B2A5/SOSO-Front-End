@@ -130,6 +130,12 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       ? 'bg-gray-50 cursor-not-allowed'
       : 'bg-white';
 
+    // aria 연결을 위한 ID 생성
+    const errorId = errorMessage && id ? `${id}-error` : undefined;
+    const helpId = helpMessage && id ? `${id}-help` : undefined;
+    const describedBy =
+      [errorId, helpId].filter(Boolean).join(' ') || undefined;
+
     return (
       <div className={twMerge('flex w-full flex-col', className)}>
         {/* Label */}
@@ -142,6 +148,11 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             )}
           >
             {label}
+            {props.required && (
+              <span className="ml-1 text-red-500" aria-label="필수">
+                *
+              </span>
+            )}
           </label>
         )}
 
@@ -175,6 +186,8 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             disabled={disabled}
             onFocus={handleFocus}
             onBlur={handleBlur}
+            aria-invalid={isError || undefined}
+            aria-describedby={describedBy}
             className={twMerge(
               'w-full rounded-lg border px-4 py-3 text-sm transition-all duration-200',
               'placeholder:text-gray-400 focus:outline-none',
@@ -216,12 +229,19 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {(errorMessage || helpMessage) && (
           <div className="mt-1 min-h-[1.25rem]">
             {errorMessage && (
-              <p className="flex items-center gap-1 text-xs text-red-600">
+              <p
+                id={errorId}
+                role="alert"
+                aria-live="polite"
+                className="flex items-center gap-1 text-xs text-red-600"
+              >
                 {errorMessage}
               </p>
             )}
             {!errorMessage && helpMessage && (
-              <p className="text-xs text-gray-500">{helpMessage}</p>
+              <p id={helpId} className="text-xs text-gray-500">
+                {helpMessage}
+              </p>
             )}
           </div>
         )}
