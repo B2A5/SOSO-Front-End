@@ -17,6 +17,14 @@ const nextConfig = {
       'picsum.photos',
       'k.kakaocdn.net', // 카카오 로그인 이미지
     ],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname:
+          'dreampaste-soso-image-storage.s3.ap-northeast-2.amazonaws.com',
+        pathname: '/freeboard/**',
+      },
+    ],
   },
   experimental: {
     typedRoutes: false,
