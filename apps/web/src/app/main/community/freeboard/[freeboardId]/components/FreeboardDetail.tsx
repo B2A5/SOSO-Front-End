@@ -14,6 +14,7 @@ import {
   QueryFunction,
   useSuspenseQuery,
 } from '@tanstack/react-query';
+import { formatCappedCount } from '@/utils/formatCount';
 
 /** 자유게시판 게시글 상세 본문 */
 export default function FreeboardDetail({
@@ -125,7 +126,7 @@ export default function FreeboardDetail({
             suppressHydrationWarning
             className="text-neutral-500 text-input2"
           >
-            {viewCount}
+            {formatCappedCount(viewCount)}
           </span>
         </div>
       </div>

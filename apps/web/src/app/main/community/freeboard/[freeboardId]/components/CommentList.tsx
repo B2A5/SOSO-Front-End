@@ -11,6 +11,7 @@ import { InfiniteScroll } from '@/components/infiniteScrolls/InfiniteScroll';
 import CommentItem from './CommentItem';
 import Skeleton from '@/components/loadings/Skeleton';
 import { cn } from '@/utils/cn';
+import { formatCappedCount } from '@/utils/formatCount';
 
 interface CommentListProps {
   postId: number;
@@ -68,7 +69,11 @@ export default function CommentList({ postId }: CommentListProps) {
         댓글
       </h2>
       <p className="pb-2" aria-live="polite">
-        댓글 {comments.length}개
+        댓글
+        <span className="text-soso-600 pl-1 font-medium">
+          {formatCappedCount(comments.length)}
+        </span>
+        개
       </p>
 
       <div

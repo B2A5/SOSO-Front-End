@@ -5,6 +5,7 @@ import { Heart } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/ui/useToast';
 import { useToggleLike } from '@/generated/api/endpoints/freeboard-like/freeboard-like';
+import { formatCappedCount } from '../../../../../../utils/formatCount';
 
 interface LikeButtonPostProps {
   postId: number;
@@ -79,7 +80,9 @@ export default function LikeButtonPost({
           liked ? 'fill-soso-600 text-soso-600' : 'fill-transparent'
         }`}
       />
-      <span className="text-neutral-500 text-input2">{count}</span>
+      <span className="text-neutral-500 text-input2">
+        {formatCappedCount(count)}
+      </span>
     </button>
   );
 }
