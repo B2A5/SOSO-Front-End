@@ -47,7 +47,7 @@ export default function FreeboardDetail({
       )}
 
       {/* 작성자 정보 */}
-      <UserProfile className="items-start pb-9">
+      <UserProfile className="items-start pb-6">
         <UserProfile.Left>
           <UserProfile.Avatar
             url={author?.profileImageUrl}
@@ -81,7 +81,7 @@ export default function FreeboardDetail({
       </UserProfile>
 
       {/* 본문 */}
-      <div className="flex flex-col space-y-2">
+      <div className="flex flex-col space-y-2 pb-6">
         <h1 className="text-2xl font-bold">Q. {title}</h1>
 
         {images.length > 0 && (
@@ -92,13 +92,11 @@ export default function FreeboardDetail({
         )}
 
         {content && (
-          <p className="text-textBox text-neutral-1000 min-h-20">
-            {content}
-          </p>
+          <p className="text-textBox text-neutral-1000">{content}</p>
         )}
       </div>
       {/* 하단 좋아요 + 조회수 */}
-      <div className="flex justify-between items-center mt-4">
+      <div className="flex justify-between items-center">
         <LikeButtonPost
           postId={postId}
           isLiked={post?.isLiked ?? false}
