@@ -4,10 +4,19 @@ import { Suspense } from 'react';
 import { useParams } from 'next/navigation';
 import CommentList from './components/CommentList';
 import CommentInput from './components/CommentInput';
-import FreeboardDetail from './components/FreeboardDetail';
 import { ErrorBoundary } from 'react-error-boundary';
 import ErrorFallback from '@/components/ErrorFallback';
 import FreeboardDetailSkeleton from './components/FreeboardDetailSkeleton';
+import dynamic from 'next/dynamic';
+
+const FreeboardDetail = dynamic(
+  () => import('./components/FreeboardDetail'),
+  {
+    ssr: false,
+    suspense: false,
+    loading: () => <FreeboardDetailSkeleton />,
+  },
+);
 
 /** 자유게시판 게시글 상세 페이지 */
 export default function PostPage() {
@@ -19,7 +28,7 @@ export default function PostPage() {
       : null;
 
   if (!postId) {
-    return <FreeboardDetailSkeleton full />;
+    return <FreeboardDetailSkeleton />;
   }
 
   return (
@@ -32,14 +41,14 @@ export default function PostPage() {
           />
         )}
       >
-        <Suspense fallback={<FreeboardDetailSkeleton full />}>
+        <Suspense fallback={<FreeboardDetailSkeleton />}>
           <FreeboardDetail postId={postId} />
         </Suspense>
       </ErrorBoundary>
 
       <div className="px-5 space-y-4">
         {/* 댓글 영역 */}
-        <div className="pb-[100px]">
+        <div>
           <CommentList postId={postId} />
         </div>
 

@@ -5,11 +5,15 @@ import ImageSlider from '@/components/ImageSlider';
 import { UserProfile } from './UserProfile';
 import { UserTypeBadge } from './UserTypeBadge';
 import { relativeTime } from '@/utils/relativeTime';
-import { useGetPost } from '@/generated/api/endpoints/freeboard/freeboard';
+import { getGetPostQueryOptions } from '@/generated/api/endpoints/freeboard/freeboard';
 import type { FreeboardDetailResponse } from '@/generated/api/models';
 import LikeButtonPost from './LikeButtonPost';
 import { CategoryChip } from '@/components/chips/CategoryChip';
 import { Category } from '../../../constants/categories';
+import {
+  QueryFunction,
+  useSuspenseQuery,
+} from '@tanstack/react-query';
 
 /** 자유게시판 게시글 상세 본문 */
 export default function FreeboardDetail({
@@ -17,21 +21,29 @@ export default function FreeboardDetail({
 }: {
   postId: number;
 }) {
-  const { data: post } = useGetPost<FreeboardDetailResponse>(postId, {
-    query: {
-      enabled: Number.isFinite(postId),
-      staleTime: 1000 * 60 * 3, // 3분 캐시
-    },
+  // 1) orval이 만든 옵션 팩토리에서 queryKey/queryFn 받기
+  const { queryKey, queryFn } =
+    getGetPostQueryOptions<FreeboardDetailResponse>(postId);
+
+  // 2) Suspense 전용 훅 사용 (로딩은 상위 <Suspense fallback>이 담당)
+  const { data: post } = useSuspenseQuery({
+    queryKey,
+    queryFn: queryFn as QueryFunction<FreeboardDetailResponse>,
+    staleTime: 1000 * 60 * 3,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
 
-  const author = post?.author;
-  const images = post?.images ?? [];
-  const imageUrls = images.map((image) => image.imageUrl);
-  const viewCount = post?.viewCount ?? 0;
-  const category = post?.category ?? '';
-  const title = post?.title ?? '';
-  const content = post?.content ?? '';
-  const createdAt = post?.createdAt ?? '';
+  // 여기부터는 post가 보장됨 (optional chaining 남발 X)
+  const author = post.author;
+  const images = post.images ?? [];
+  const imagesUrl = images.map((image) => image.imageUrl);
+  const viewCount = post.viewCount ?? 0;
+  const category = post.category ?? '';
+  const title = post.title ?? '';
+  const content = post.content ?? '';
+  const createdAt = post.createdAt ?? '';
 
   const hasAddress = Boolean(author?.address);
   const hasTime = Boolean(createdAt);
@@ -73,7 +85,11 @@ export default function FreeboardDetail({
                 {hasAddress && hasTime && (
                   <span className="mx-1">·</span>
                 )}
-                {hasTime && <span>{relativeTime(createdAt)}</span>}
+                {hasTime && (
+                  <span suppressHydrationWarning>
+                    {relativeTime(createdAt)}
+                  </span>
+                )}
               </div>
             </UserProfile.SubContents>
           )}
@@ -86,7 +102,7 @@ export default function FreeboardDetail({
 
         {images.length > 0 && (
           <ImageSlider
-            images={imageUrls}
+            images={imagesUrl}
             className="w-full min-h-[200px]"
           />
         )}
@@ -105,7 +121,10 @@ export default function FreeboardDetail({
 
         <div className="flex items-center gap-1.5">
           <Eye className="inline w-6 h-6 text-neutral-200" />
-          <span className="text-neutral-500 text-input2">
+          <span
+            suppressHydrationWarning
+            className="text-neutral-500 text-input2"
+          >
             {viewCount}
           </span>
         </div>
