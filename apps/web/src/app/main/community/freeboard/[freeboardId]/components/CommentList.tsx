@@ -68,7 +68,7 @@ export default function CommentList({ postId }: CommentListProps) {
         댓글
       </h2>
       <p className="pb-2" aria-live="polite">
-        댓글 {comments.length}개 표시 중
+        댓글 {comments.length}개
       </p>
 
       <div
