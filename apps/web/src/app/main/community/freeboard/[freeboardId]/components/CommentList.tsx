@@ -1,48 +1,40 @@
 'use client';
 
-import { useRef } from 'react';
+import { useMemo } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import {
   getCommentsByCursor,
   getGetCommentsByCursorQueryKey,
 } from '@/generated/api/endpoints/freeboard-comment/freeboard-comment';
-import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
-import CommentItem from './CommentItem';
 import type { FreeboardCommentSummary } from '@/generated/api/models';
-import { VirtualList } from '@/components/infiniteScrolls/VirtualList';
+import { InfiniteScroll } from '@/components/infiniteScrolls/InfiniteScroll';
+import CommentItem from './CommentItem';
+import Skeleton from '@/components/loadings/Skeleton';
+import { cn } from '@/utils/cn';
 
 interface CommentListProps {
   postId: number;
 }
 
 /**
- * 댓글 리스트 (API 기반 + VirtualList + 무한 스크롤)
- * - Orval 자동 생성 API(getCommentsByCursor) 연동
- * - 커서 기반 페이지네이션 + Intersection Observer
- * - TanStack Virtualizer로 성능 최적화
- * @todo 백엔드 댓글 작성자 정보에 userType 필드 추가 필요
+ * 댓글 리스트
+ * TODO: 백엔드 댓글 총 개수 제공 시 헤더에 추가 예정
  */
 export default function CommentList({ postId }: CommentListProps) {
-  const scrollRef = useRef<HTMLDivElement | null>(null);
-  const observerRef = useRef<HTMLDivElement | null>(null);
-
   const {
     data,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-    isError,
+    isLoading,
     error,
+    refetch,
   } = useInfiniteQuery({
     queryKey: getGetCommentsByCursorQueryKey(postId),
     queryFn: ({ pageParam, signal }) =>
       getCommentsByCursor(
         postId,
-        {
-          cursor: pageParam,
-          size: 10,
-          sort: 'LATEST',
-        },
+        { cursor: pageParam, size: 10, sort: 'LATEST' },
         signal,
       ),
     initialPageParam: undefined as string | undefined,
@@ -50,57 +42,112 @@ export default function CommentList({ postId }: CommentListProps) {
       lastPage.nextCursor ? lastPage.nextCursor : undefined,
   });
 
-  // 무한 스크롤 트리거
-  useInfiniteScroll({
-    targetRef: observerRef,
-    hasNextPage: !!hasNextPage,
-    fetchNextPage,
-    isFetching: isFetchingNextPage,
-    threshold: 0.4,
-    rootRef: scrollRef, // VirtualList 스크롤 영역 내에서 관찰
-  });
-
-  const allComments: FreeboardCommentSummary[] =
-    data?.pages.flatMap((page) => page.comments ?? []) ?? [];
-
-  if (isError) {
-    console.error('댓글 로딩 실패:', error);
-    return (
-      <p className="text-center text-sm text-red-500 mt-6">
-        댓글을 불러오는 중 오류가 발생했습니다.
-      </p>
+  // 페이지 단위로 내려오는 comments를
+  // 1. 모두 합치고(flatten)
+  // 2. key로 쓸 수 있도록 commentId가 확실한 항목만 남김
+  // 3. data가 바뀔 때에만 재계산(성능)
+  const comments = useMemo<
+    Array<FreeboardCommentSummary & { commentId: number }>
+  >(() => {
+    const allPages = data?.pages ?? [];
+    const allComments = allPages.flatMap(
+      (page) => page.comments ?? [],
     );
-  }
+
+    return allComments.filter(
+      (
+        comment,
+      ): comment is FreeboardCommentSummary & { commentId: number } =>
+        typeof comment.commentId === 'number',
+    );
+  }, [data]);
 
   return (
-    <section
-      ref={scrollRef}
-      className="overflow-y-auto overflow-x-hidden max-h-[60vh]"
-      aria-label="댓글 목록"
-    >
-      <VirtualList
-        items={allComments}
-        parentRef={scrollRef}
-        getItemKey={(comment) =>
-          comment.commentId ?? `fallback-key-${Math.random()}`
-        }
-        estimateSize={120} // 댓글 평균 높이 (대략)
-        overscan={5}
-        storageKey={`comment-scroll-${postId}`}
-        renderItem={(comment) => (
-          <CommentItem key={comment.commentId} comment={comment} />
-        )}
-      />
+    <section aria-label="댓글 섹션" className="flex-1">
+      <h2 id="comments-heading" className="sr-only">
+        댓글
+      </h2>
+      <p className="pb-2" aria-live="polite">
+        댓글 {comments.length}개 표시 중
+      </p>
 
-      {/* 무한 스크롤 트리거용 */}
-      <div ref={observerRef} className="h-4" />
+      <div
+        role="region"
+        aria-labelledby="comments-heading"
+        aria-busy={isFetchingNextPage || isLoading}
+      >
+        <InfiniteScroll
+          items={comments}
+          hasNextPage={!!hasNextPage}
+          fetchNextPage={fetchNextPage}
+          isFetchingNextPage={isFetchingNextPage}
+          initialLoading={isLoading}
+          error={error as Error | null}
+          className={cn(
+            'max-h-[60vh] overflow-y-auto overflow-x-hidden',
+            '[&::-webkit-scrollbar]:hidden [scrollbar-width:none] [-ms-overflow-style:none]',
+          )}
+        >
+          <InfiniteScroll.Skeleton
+            skeletonCount={3}
+            className="min-h-[60vh]"
+          >
+            <div aria-hidden="true">
+              <Skeleton className="w-full h-24 rounded-lg mb-4" />
+            </div>
+          </InfiniteScroll.Skeleton>
 
-      {/* 로딩 상태 */}
-      {isFetchingNextPage && (
-        <p className="text-center text-sm text-neutral-500 py-2">
-          댓글 불러오는 중...
-        </p>
-      )}
+          <InfiniteScroll.Error>
+            <div role="alert" className="py-4 text-center">
+              <p className="text-sm text-red-500">
+                댓글을 불러오는 중 문제가 발생했습니다.
+              </p>
+              <button
+                type="button"
+                onClick={() => refetch()}
+                className="mt-2 rounded-md px-3 py-1 text-sm border"
+                aria-label="댓글 다시 불러오기"
+              >
+                다시 시도
+              </button>
+            </div>
+          </InfiniteScroll.Error>
+
+          <InfiniteScroll.Empty>
+            <div className="py-10 text-center text-neutral-500">
+              <p>댓글이 없습니다.</p>
+            </div>
+          </InfiniteScroll.Empty>
+
+          <InfiniteScroll.Contents
+            virtualScroll={{
+              enabled: true,
+              estimateSize: 110,
+              overscan: 3,
+            }}
+            scrollStore={{
+              enabled: true,
+              storageKey: `comment-scroll-${postId}`,
+              resetScroll: false,
+            }}
+            getItemKey={(
+              comment: FreeboardCommentSummary & {
+                commentId: number;
+              },
+            ) => comment.commentId}
+            renderItem={(comment) => (
+              <CommentItem comment={comment} />
+            )}
+            gap={8}
+            threshold={0.6}
+          >
+            <InfiniteScroll.Trigger
+              loadingText="댓글을 불러오는 중…"
+              notMoreText="모든 댓글을 확인했습니다."
+            />
+          </InfiniteScroll.Contents>
+        </InfiniteScroll>
+      </div>
     </section>
   );
 }

@@ -46,7 +46,7 @@ export default function PostPage() {
         </Suspense>
       </ErrorBoundary>
 
-      <div className="px-5 space-y-4">
+      <div className="px-5 pb-6">
         {/* 댓글 영역 */}
         <div>
           <CommentList postId={postId} />
