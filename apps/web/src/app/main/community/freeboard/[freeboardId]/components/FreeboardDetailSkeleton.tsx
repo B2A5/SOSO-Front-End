@@ -3,13 +3,9 @@
 import Skeleton from '@/components/loadings/Skeleton';
 
 /** 게시글 상세 로딩 스켈레톤 */
-export default function LoadingFallback({
-  full = false,
-}: {
-  full?: boolean;
-}) {
+export default function LoadingFallback() {
   return (
-    <div className={`p-5 space-y-6 ${full ? 'min-h-screen' : ''}`}>
+    <div className="p-5 space-y-6">
       {/* 카테고리 */}
       <Skeleton className="w-16 h-4" />
 
@@ -32,11 +28,10 @@ export default function LoadingFallback({
       <div className="space-y-3">
         <Skeleton className="w-full h-4" />
         <Skeleton className="w-5/6 h-4" />
-        <Skeleton className="w-4/5 h-4" />
       </div>
 
       {/* 하단 (좋아요 / 조회수) */}
-      <div className="flex justify-between items-center mt-4">
+      <div className="flex justify-between items-center">
         <Skeleton className="w-16 h-4" />
         <Skeleton className="w-10 h-4" />
       </div>
