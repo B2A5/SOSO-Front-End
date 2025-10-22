@@ -1,8 +1,10 @@
 'use client';
 
+import {
+  createComment,
+  getGetCommentsByCursorQueryKey,
+} from '@/generated/api/endpoints/freeboard-comment/freeboard-comment';
 import { useToast } from '@/hooks/ui/useToast';
-//실제 api 연동 시 import 경로 변경 필요
-import { mockCreateComment as createComment } from './mock/comment.mock';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
@@ -31,12 +33,13 @@ export default function CommentInput({
   const toast = useToast();
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (content: string) => createComment(postId, content),
+    mutationFn: (content: string) =>
+      createComment(postId, { content }),
     onSuccess: () => {
       toast('댓글이 등록되었습니다', 'success');
       setValue('');
       queryClient.invalidateQueries({
-        queryKey: ['comments', postId],
+        queryKey: getGetCommentsByCursorQueryKey(postId),
       });
     },
     onError: () => {
@@ -63,7 +66,7 @@ export default function CommentInput({
   };
 
   const handleSubmit = () => {
-    if (!value.trim()) return;
+    if (!value.trim() || isPending) return;
     mutate(value.trim());
   };
 
@@ -82,9 +85,7 @@ export default function CommentInput({
   };
 
   return (
-    <div
-      className={twMerge('mx-auto w-full max-w-screen-md px-5 py-3')}
-    >
+    <div className="w-full">
       <div
         className={twMerge(
           'rounded-3xl bg-white border border-gray-200',
@@ -97,6 +98,7 @@ export default function CommentInput({
           rows={1}
           placeholder="댓글을 입력하세요"
           value={value}
+          aria-label="댓글 입력"
           onChange={handleChangeInput}
           onKeyDown={handleKeyDown}
           disabled={isPending}
