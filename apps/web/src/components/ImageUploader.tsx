@@ -196,11 +196,11 @@ export function ImageUploader({
               {...IMAGE_ANIMATION}
               onClick={handleImageClick}
               aria-label={`이미지 추가 (${totalImageCount}/${maxImages})`}
-              className="flex-shrink-0 w-20 h-20 rounded-[10px] flex items-center justify-center bg-light-gray hover:bg-gray-200 cursor-pointer transition focus:outline-none focus-visible:ring-2 focus-visible:ring-soso-500"
+              className="flex-shrink-0 w-20 h-20 rounded-[10px] flex items-center justify-center bg-light-gray hover:bg-gray-200 active:bg-gray-200 cursor-pointer transition focus:outline-none focus-visible:ring-2 focus-visible:ring-soso-500"
               whileTap={{ scale: 0.95 }}
             >
               <Plus
-                className="w-6 h-6 text-neutral-200"
+                className="w-6 h-6 text-neutral-200 active:text-neutral-400"
                 aria-hidden="true"
               />
             </motion.button>

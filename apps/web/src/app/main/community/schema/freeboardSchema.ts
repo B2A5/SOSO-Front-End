@@ -92,7 +92,7 @@ export const freeboardSchema = z.object({
    * - Blob 객체 허용 (File은 Blob의 서브타입이므로 자동 호환)
    *
    * @remarks
-   * - 파일 타입 및 크기 검증은 ImageInput 컴포넌트에서 처리합니다
+   * - 파일 타입 및 크기 검증은 ImageUploader 컴포넌트에서 처리합니다
    * - API 스펙에 맞춰 Blob[] 타입을 사용합니다
    * - 브라우저 File input은 File 객체를 반환하며, File은 Blob을 상속하므로 호환됩니다
    * - 타입 안전성을 위해 API 스펙과 정확히 일치시켰습니다
