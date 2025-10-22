@@ -1,12 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
+import { motion, type HTMLMotionProps } from 'framer-motion';
 import { twMerge } from 'tailwind-merge';
-
-/**
- * TextArea 컴포넌트의 상태 타입
- */
-type InputState = 'default' | 'focus' | 'error' | 'success';
+import { useInputState } from '@/hooks/ui/useInputState';
+import { useFieldAnimation } from '@/hooks/ui/useFieldAnimation';
+import { AnimatedMessage } from '@/components/primitives/AnimatedMessage';
+import { Pressable } from '@/components/primitives/Pressable';
+import { FOCUS_ANIMATION } from '@/styles/tokens/animation';
 
 /**
  * TextArea 컴포넌트 Props 인터페이스
@@ -54,8 +55,7 @@ const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
     },
     ref,
   ) => {
-    const [isFocused, setIsFocused] = useState(false);
-    // ✨ 현재 글자 수 상태
+    // 글자 수 상태
     const [valueLength, setValueLength] = useState(
       // 초기값: value 혹은 defaultValue 기반
       typeof value === 'string'
@@ -65,34 +65,27 @@ const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
           : 0,
     );
 
-    // InputState 계산
-    const getInputState = (): InputState => {
-      if (isError) return 'error';
-      if (isSuccess) return 'success';
-      if (isFocused) return 'focus';
-      return 'default';
-    };
+    // 상태 관리 훅
+    const {
+      state,
+      handleFocus: onFocusInternal,
+      handleBlur: onBlurInternal,
+    } = useInputState({
+      isError,
+      isSuccess,
+    });
 
-    // 상태별 border/ring 클래스
-    const getBorderClass = (state: InputState): string => {
-      const borderClasses = {
-        default:
-          'border-neutral-100 hover:border-neutral-700 dark:border-neutral-700 dark:hover:border-neutral-500',
-        focus: 'border-none ring-1 ring-neutral-700',
-        error: 'border-none ring-1 ring-red-300',
-        success: 'border-none ring-1 ring-soso-500',
-      };
-      return borderClasses[state];
-    };
+    // 애니메이션 훅
+    const { borderClass, ringClass } = useFieldAnimation({ state });
 
     const handleFocus = (
       e: React.FocusEvent<HTMLTextAreaElement>,
     ) => {
-      setIsFocused(true);
+      onFocusInternal();
       onFocus?.(e);
     };
     const handleBlur = (e: React.FocusEvent<HTMLTextAreaElement>) => {
-      setIsFocused(false);
+      onBlurInternal();
       onBlur?.(e);
     };
 
@@ -109,8 +102,6 @@ const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
       handler?.();
     };
 
-    const currentState = getInputState();
-    const borderClass = getBorderClass(currentState);
     const disabledClass = disabled
       ? 'bg-gray-50 cursor-not-allowed'
       : 'bg-white';
@@ -165,30 +156,40 @@ const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
           )}
 
           {/* TextArea Field */}
-          <textarea
-            ref={ref}
-            id={id}
-            disabled={disabled}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
-            onChange={handleChange} // ✨ 변경된 부분
-            aria-invalid={isError || undefined}
-            aria-describedby={describedBy}
-            className={twMerge(
-              'w-full rounded-lg border px-4 py-3 text-sm transition-all duration-200',
-              'placeholder:text-gray-400 focus:outline-none',
-              'dark:bg-neutral-900 dark:text-neutral-200',
-              leftIcon && 'pl-10',
-              rightIcon && 'pr-10',
-              borderClass,
-              disabledClass,
-              inputClassName,
-            )}
-            maxLength={maxLength} // ✨ 최대 글자 수 설정
-            value={value}
-            defaultValue={defaultValue}
-            {...props}
-          />
+          <Pressable disabled={disabled} className="w-full">
+            <motion.textarea
+              ref={ref}
+              id={id}
+              disabled={disabled}
+              onFocus={handleFocus}
+              onBlur={handleBlur}
+              onChange={handleChange}
+              aria-invalid={isError || undefined}
+              aria-describedby={describedBy}
+              className={twMerge(
+                'w-full rounded-lg border px-4 py-3 text-sm transition-all duration-200',
+                'placeholder:text-gray-400',
+                'dark:bg-neutral-900 dark:text-neutral-200',
+                // 키보드 포커스 스타일 (접근성)
+                FOCUS_ANIMATION.ring,
+                // 아이콘 위치에 따른 패딩
+                leftIcon && 'pl-10',
+                rightIcon && 'pr-10',
+                // 상태 스타일 (border + ring)
+                borderClass,
+                ringClass,
+                disabledClass,
+                inputClassName,
+              )}
+              maxLength={maxLength}
+              value={value}
+              defaultValue={defaultValue}
+              {...(props as Omit<
+                HTMLMotionProps<'textarea'>,
+                'animate'
+              >)}
+            />
+          </Pressable>
 
           {/* Right Icon */}
           {rightIcon && (
@@ -219,25 +220,12 @@ const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
           )}
         </div>
 
-        {/* 에러/헬프 메시지 */}
-        {(errorMessage || helpMessage) && (
-          <div className="mt-1 min-h-[1.25rem]">
-            {errorMessage ? (
-              <p
-                id={errorId}
-                role="alert"
-                aria-live="polite"
-                className="flex items-center gap-1 text-xs text-red-600"
-              >
-                {errorMessage}
-              </p>
-            ) : (
-              <p id={helpId} className="text-xs text-gray-500">
-                {helpMessage}
-              </p>
-            )}
-          </div>
-        )}
+        {/* 에러/헬프 메시지 - AnimatedMessage 사용 */}
+        <AnimatedMessage
+          message={errorMessage || helpMessage}
+          type={errorMessage ? 'error' : 'help'}
+          id={errorMessage ? errorId : helpId}
+        />
       </div>
     );
   },

@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
+import { motion, type HTMLMotionProps } from 'framer-motion';
 import { twMerge } from 'tailwind-merge';
-
-/**
- * Input 컴포넌트의 상태 타입
- */
-type InputState = 'default' | 'focus' | 'error' | 'success';
+import { useInputState } from '@/hooks/ui/useInputState';
+import { useFieldAnimation } from '@/hooks/ui/useFieldAnimation';
+import { AnimatedMessage } from '@/components/primitives/AnimatedMessage';
+import { Pressable } from '@/components/primitives/Pressable';
+import { FOCUS_ANIMATION } from '@/styles/tokens/animation';
 
 /**
  * Input 컴포넌트 Props 인터페이스
@@ -69,32 +70,18 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     },
     ref,
   ) => {
-    const [isFocused, setIsFocused] = useState(false);
+    // 상태 관리 훅
+    const {
+      state,
+      handleFocus: onFocusInternal,
+      handleBlur: onBlurInternal,
+    } = useInputState({
+      isError,
+      isSuccess,
+    });
 
-    /**
-     * 현재 Input 상태를 계산합니다
-     */
-    const getInputState = (): InputState => {
-      if (isError) return 'error';
-      if (isSuccess) return 'success';
-      if (isFocused) return 'focus';
-      return 'default';
-    };
-
-    /**
-     * 상태별 border 클래스를 반환합니다
-     */
-    const getBorderClass = (state: InputState): string => {
-      const borderClasses = {
-        default:
-          'border-neutral-100 hover:border-neutral-700 dark:border-neutral-700 dark:hover:border-neutral-500',
-        focus: 'border-none ring-1 ring-neutral-700',
-        error: 'border-none ring-1 ring-red-300',
-        success: 'border-none ring-1 ring-soso-500',
-      };
-
-      return borderClasses[state];
-    };
+    // 애니메이션 훅
+    const { borderClass, ringClass } = useFieldAnimation({ state });
 
     /**
      * Focus 이벤트 핸들러
@@ -102,7 +89,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const handleFocus = (
       event: React.FocusEvent<HTMLInputElement>,
     ) => {
-      setIsFocused(true);
+      onFocusInternal();
       onFocus?.(event);
     };
 
@@ -112,7 +99,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const handleBlur = (
       event: React.FocusEvent<HTMLInputElement>,
     ) => {
-      setIsFocused(false);
+      onBlurInternal();
       onBlur?.(event);
     };
 
@@ -124,8 +111,6 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       handler?.();
     };
 
-    const currentState = getInputState();
-    const borderClass = getBorderClass(currentState);
     const disabledClass = disabled
       ? 'bg-gray-50 cursor-not-allowed'
       : 'bg-white';
@@ -180,28 +165,36 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           )}
 
           {/* Input Field */}
-          <input
-            ref={ref}
-            id={id}
-            disabled={disabled}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
-            aria-invalid={isError || undefined}
-            aria-describedby={describedBy}
-            className={twMerge(
-              'w-full rounded-lg border px-4 py-3 text-sm transition-all duration-200',
-              'placeholder:text-gray-400 focus:outline-none',
-              'dark:bg-neutral-900 dark:text-neutral-200',
-              // 아이콘 위치에 따른 패딩
-              leftIcon && 'pl-10',
-              rightIcon && 'pr-10',
-              // 상태 스타일
-              borderClass,
-              disabledClass,
-              inputClassName,
-            )}
-            {...props}
-          />
+          <Pressable disabled={disabled} className="w-full">
+            <motion.input
+              ref={ref}
+              id={id}
+              disabled={disabled}
+              onFocus={handleFocus}
+              onBlur={handleBlur}
+              aria-invalid={isError || undefined}
+              aria-describedby={describedBy}
+              className={twMerge(
+                'w-full rounded-lg border px-4 py-3 text-sm transition-all duration-200',
+                'placeholder:text-gray-400',
+                'dark:bg-neutral-900 dark:text-neutral-200',
+                // 키보드 포커스 스타일 (접근성)
+                FOCUS_ANIMATION.ring,
+                // 아이콘 위치에 따른 패딩
+                leftIcon && 'pl-10',
+                rightIcon && 'pr-10',
+                // 상태 스타일 (border + ring)
+                borderClass,
+                ringClass,
+                disabledClass,
+                inputClassName,
+              )}
+              {...(props as Omit<
+                HTMLMotionProps<'input'>,
+                'animate'
+              >)}
+            />
+          </Pressable>
 
           {/* Right Icon */}
           {rightIcon && (
@@ -225,26 +218,12 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           )}
         </div>
 
-        {/* Message */}
-        {(errorMessage || helpMessage) && (
-          <div className="mt-1 min-h-[1.25rem]">
-            {errorMessage && (
-              <p
-                id={errorId}
-                role="alert"
-                aria-live="polite"
-                className="flex items-center gap-1 text-xs text-red-600"
-              >
-                {errorMessage}
-              </p>
-            )}
-            {!errorMessage && helpMessage && (
-              <p id={helpId} className="text-xs text-gray-500">
-                {helpMessage}
-              </p>
-            )}
-          </div>
-        )}
+        {/* Message - AnimatedMessage 사용 */}
+        <AnimatedMessage
+          message={errorMessage || helpMessage}
+          type={errorMessage ? 'error' : 'help'}
+          id={errorMessage ? errorId : helpId}
+        />
       </div>
     );
   },
