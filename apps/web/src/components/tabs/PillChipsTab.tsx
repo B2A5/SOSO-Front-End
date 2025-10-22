@@ -156,8 +156,8 @@ export function PillChipsTab<T = string>({
                 'transition-all duration-200 ease-in-out flex-shrink-0',
                 'border border-neutral-200 dark:border-neutral-700',
 
-                // 포커스 스타일 (접근성)
-                'focus:outline-none focus:ring-2 focus:ring-soso-500 focus:ring-offset-2',
+                // 포커스 스타일
+                'focus:outline-none',
 
                 // 반응형 크기
                 'sm:px-4 lg:px-5 sm:py-2',
