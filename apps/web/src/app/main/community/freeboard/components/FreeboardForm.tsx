@@ -4,8 +4,8 @@ import React, { useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Input from '@/components/inputs/Input';
-import { CATEGORIES, Category } from '../../../constants/categories';
-import SelectDropdown from '@/components/dropdown/SelectDropdown';
+import { CATEGORIES, Category } from '../../constants/categories';
+import { Select } from '@/components/select/Select';
 import TextArea from '@/components/inputs/TextArea';
 import { ImageUploader } from '@/components/ImageUploader';
 import { Button } from '@/components/buttons/Button';
@@ -14,7 +14,7 @@ import { useFreeboardMutation } from '@/hooks/useFreeboardMutation';
 import {
   freeboardSchema,
   type FreeboardFormData,
-} from '../../../schema/freeboardSchema';
+} from '../../schema/freeboardSchema';
 
 /**
  * FreeboardForm 컴포넌트
@@ -101,7 +101,7 @@ export function FreeboardForm({
             ? '자유게시판 게시글 수정'
             : '자유게시판 게시글 작성'
         }
-        className="flex flex-col gap-5 w-full flex-1 overflow-auto pb-20 p-1 transition-transform duration-300 ease-in-out"
+        className="flex flex-col gap-4 w-full flex-1 overflow-auto p-1 transition-transform duration-300 ease-in-out"
         onSubmit={handleSubmit(onSubmit)}
       >
         <div>
@@ -118,15 +118,27 @@ export function FreeboardForm({
             name="category"
             control={control}
             render={({ field }) => (
-              <SelectDropdown
-                options={CATEGORIES}
-                placeholder="원하는 카테고리를 선택하세요"
-                onChange={field.onChange}
-                className="w-full border border-gray-300 dark:border-neutral-700 rounded-lg"
+              <Select
                 value={field.value}
-                id="category"
-                aria-required="true"
-              />
+                onValueChange={field.onChange}
+              >
+                <Select.Trigger
+                  placeholder="원하는 카테고리를 선택하세요"
+                  className="w-full border border-gray-300 dark:border-neutral-700 rounded-lg"
+                />
+                <Select.Portal>
+                  <Select.Content>
+                    {CATEGORIES.map((category) => (
+                      <Select.Item
+                        key={category.value}
+                        value={category.value}
+                      >
+                        {category.label}
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select.Portal>
+              </Select>
             )}
           />
         </div>
