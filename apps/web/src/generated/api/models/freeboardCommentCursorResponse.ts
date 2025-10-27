@@ -19,4 +19,9 @@ export interface FreeboardCommentCursorResponse {
   nextCursor?: string;
   /** 현재 페이지 크기 */
   size: number;
+  /** 총 댓글 수 (삭제된 댓글 포함) */
+  total: number;
+  authorized?: boolean;
+  /** 요청한 사용자가 인증되었는지 여부 (액세스 토큰 제공 여부) */
+  isAuthorized: boolean;
 }

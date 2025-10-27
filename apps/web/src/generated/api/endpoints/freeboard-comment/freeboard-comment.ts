@@ -44,7 +44,20 @@ import { customInstance } from '../../../../lib/api-client';
 **특징:**
 - 계층 구조 지원 (부모 댓글 → 대댓글)
 - 삭제된 댓글은 "삭제된 댓글입니다" 표시
-- 작성자 정보 포함
+- 총 댓글 수 제공 (total)
+- 인증/비인증 사용자 모두 조회 가능
+
+**인증 사용자:**
+- isAuthorized: true
+- isLiked: boolean (좋아요 상태)
+- canEdit: boolean (수정 권한)
+- canDelete: boolean (삭제 권한)
+
+**비인증 사용자:**
+- isAuthorized: false
+- isLiked: null
+- canEdit: null
+- canDelete: null
 
  * @summary 댓글 목록 조회 (커서 기반)
  */

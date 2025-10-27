@@ -29,11 +29,17 @@ export interface FreeboardCommentSummary {
   depth: number;
   /** 삭제된 댓글 여부 */
   deleted: boolean;
+  /** 댓글 수정 가능 여부 (비인증 사용자인 경우 null) */
+  canEdit: boolean;
+  /** 댓글 삭제 가능 여부 (비인증 사용자인 경우 null) */
+  canDelete: boolean;
   /** 작성 시간 */
   createdAt: string;
   /** 수정 시간 */
   updatedAt?: string;
   liked?: boolean;
-  /** 현재 사용자의 댓글 좋아요 여부 */
+  /** 현재 사용자가 작성한 댓글인지 */
+  isAuthor: boolean;
+  /** 현재 사용자의 댓글 좋아요 여부 (비인증 사용자인 경우 null) */
   isLiked: boolean;
 }
