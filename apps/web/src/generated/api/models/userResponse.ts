@@ -33,7 +33,7 @@ export interface UserResponse {
   budget?: string;
   /** 창업 경험 여부 */
   startupExperience?: string;
-  /** 지역명 */
+  /** 지역명 (시군구코드가 변환된 도시명, 변환 불가 시 '소소 타운') */
   location: string;
   /** 관심 업종 목록 */
   interests?: string[];

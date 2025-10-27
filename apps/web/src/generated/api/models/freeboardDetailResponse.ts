@@ -35,11 +35,16 @@ export interface FreeboardDetailResponse {
   createdAt: string;
   /** 수정 시간 */
   updatedAt?: string;
-  /** 편집 가능 여부 (인증된 사용자이고 작성자인 경우) */
+  /** 편집 가능 여부 (비인증 사용자인 경우 null) */
   canEdit: boolean;
-  /** 삭제 가능 여부 (인증된 사용자이고 작성자인 경우) */
+  /** 삭제 가능 여부 (비인증 사용자인 경우 null) */
   canDelete: boolean;
+  authorized?: boolean;
   liked?: boolean;
-  /** 현재 사용자의 좋아요 여부 */
+  /** 요청한 사용자가 인증되었는지 여부 (액세스 토큰 제공 여부) */
+  isAuthorized: boolean;
+  /** 작성자 여부 (현재 사용자가 작성자인지) */
+  isAuthor: boolean;
+  /** 현재 사용자의 좋아요 여부 (비인증 사용자인 경우 null) */
   isLiked: boolean;
 }

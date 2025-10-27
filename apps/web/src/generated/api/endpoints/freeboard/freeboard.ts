@@ -323,7 +323,25 @@ export const useCreatePost = <
   return useMutation(mutationOptions, queryClient);
 };
 /**
- * 게시글 ID를 통해 특정 게시글의 상세 정보를 조회합니다. 조회 시 조회수가 증가합니다.
+ * 게시글 ID를 통해 특정 게시글의 상세 정보를 조회합니다.
+
+**특징:**
+- 조회 시 조회수 자동 증가
+- 인증/비인증 사용자 모두 조회 가능
+- 인증 여부에 따라 isLiked, canEdit, canDelete 값 변경
+
+**인증 사용자:**
+- isAuthorized: true
+- isLiked: boolean (좋아요 상태)
+- canEdit: boolean (수정 권한)
+- canDelete: boolean (삭제 권한)
+
+**비인증 사용자:**
+- isAuthorized: false
+- isLiked: null
+- canEdit: null
+- canDelete: null
+
  * @summary 자유게시판 글 상세 조회
  */
 export const getPost = (
@@ -628,6 +646,7 @@ export const getUpdatePostMutationOptions = <
     | ErrorResponse
     | ErrorResponse
     | ErrorResponse
+    | ErrorResponse
     | ErrorResponse,
   TContext = unknown,
 >(options?: {
@@ -672,6 +691,7 @@ export type UpdatePostMutationError =
   | ErrorResponse
   | ErrorResponse
   | ErrorResponse
+  | ErrorResponse
   | ErrorResponse;
 
 /**
@@ -679,6 +699,7 @@ export type UpdatePostMutationError =
  */
 export const useUpdatePost = <
   TError =
+    | ErrorResponse
     | ErrorResponse
     | ErrorResponse
     | ErrorResponse

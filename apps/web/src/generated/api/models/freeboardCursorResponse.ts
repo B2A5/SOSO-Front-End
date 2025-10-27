@@ -21,4 +21,5 @@ export interface FreeboardCursorResponse {
   size: number;
   /** 총 게시글 수 */
   totalCount: number;
+  authorized?: boolean;
 }
