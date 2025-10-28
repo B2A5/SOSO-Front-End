@@ -1,11 +1,15 @@
+// apps/web/src/app/main/community/freeboard/[freeboardId]/components/LikeButtonPost.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
 import { Heart } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/ui/useToast';
+import { useAuthGuard } from '@/hooks/useAuthGuard';
+import { useAuthRestore } from '@/hooks/useAuth';
 import { useToggleLike } from '@/generated/api/endpoints/freeboard-like/freeboard-like';
-import { formatCappedCount } from '../../../../../../utils/formatCount';
+import { getGetPostQueryKey } from '@/generated/api/endpoints/freeboard/freeboard';
+import { formatCappedCount } from '@/utils/formatCount';
 
 interface LikeButtonPostProps {
   postId: number;
@@ -14,66 +18,95 @@ interface LikeButtonPostProps {
   icon?: React.ElementType;
 }
 
-/**
- * 자유게시판 좋아요 버튼
- * - 낙관적 업데이트
- * - 실패 시 롤백 + Toast 안내
- */
+const FREEBOARD_LIST_ROOT_KEY = ['/community/freeboard'] as const;
+
 export default function LikeButtonPost({
   postId,
   isLiked,
   likeCount,
   icon: Icon = Heart,
 }: LikeButtonPostProps) {
+  const { isRestoring, isAuthenticated } = useAuthRestore();
   const queryClient = useQueryClient();
   const toast = useToast();
-
-  const [liked, setLiked] = useState(isLiked);
-  const [count, setCount] = useState(likeCount);
-
-  // 외부 데이터 변경 시 동기화
-  useEffect(() => setLiked(isLiked), [isLiked]);
-  useEffect(() => setCount(likeCount), [likeCount]);
-
-  // 좋아요 토글 mutation
-  const { mutateAsync: toggleLike, isPending } = useToggleLike({
-    mutation: {
-      onSuccess: () => {
-        // 서버 반영 후 데이터 최신화
-        queryClient.invalidateQueries({
-          queryKey: [`/community/freeboard/${postId}`],
-        });
-        queryClient.invalidateQueries({
-          queryKey: [`/community/freeboard/${postId}/like`],
-        });
-      },
-      onError: () => {
-        // 에러 발생 시 상태 롤백 및 사용자 안내
-        setLiked(isLiked);
-        setCount(likeCount);
-        toast('좋아요 처리 중 오류가 발생했습니다.', 'error');
-      },
-    },
+  const { guard } = useAuthGuard({
+    onUnauthed: () => toast('로그인이 필요합니다.', 'error'),
   });
 
-  // 클릭 핸들러 (낙관적 업데이트)
-  const handleClick = async () => {
-    if (isPending) return;
+  // SSR 초기값
+  const [liked, setLiked] = useState<boolean>(!!isLiked);
+  const [count, setCount] = useState<number>(likeCount);
 
-    setLiked((prev) => !prev);
-    setCount((prev) => (liked ? prev - 1 : prev + 1));
+  // 부모 props 변경 동기화
+  useEffect(() => setLiked(!!isLiked), [isLiked]);
+  useEffect(() => setCount(likeCount), [likeCount]);
 
-    try {
-      await toggleLike({ freeboardId: postId });
-    } catch {}
-  };
+  const toggleLike = useToggleLike();
 
+  const handleClick = () =>
+    guard(() => {
+      if (toggleLike.isPending) return;
+
+      // 낙관적 업데이트 없이 서버 응답으로만 맞춘다 (혼선 최소화)
+      toggleLike.mutate(
+        { freeboardId: postId },
+        {
+          onSuccess: (data) => {
+            if (typeof data === 'boolean') {
+              const next = data;
+              setLiked(next);
+              setCount((c) => Math.max(0, c + (next ? 1 : -1)));
+            } else if (data && typeof data === 'object') {
+              const d = data as {
+                isLiked?: boolean;
+                likeCount?: number;
+              };
+              if (typeof d.isLiked === 'boolean') setLiked(d.isLiked);
+              if (typeof d.likeCount === 'number')
+                setCount(d.likeCount);
+            }
+          },
+          onError: () => {
+            toast('좋아요 처리 중 오류가 발생했습니다.', 'error');
+          },
+          onSettled: () => {
+            // 상세/리스트 캐시 최신화
+            queryClient.invalidateQueries({
+              queryKey: getGetPostQueryKey(postId),
+            });
+            queryClient.invalidateQueries({
+              queryKey: FREEBOARD_LIST_ROOT_KEY,
+              exact: false,
+            });
+          },
+        },
+      );
+    });
+
+  // 🔒 옵션 B: 복원 중엔 비활성 표시(조회수 추가 호출 없음)
+  if (isRestoring) {
+    return (
+      <button
+        className="flex items-center gap-1.5 opacity-60 cursor-wait"
+        disabled
+        aria-label="좋아요 로딩 중"
+      >
+        <Icon className="inline w-4 h-4 text-neutral-200" />
+        <span className="text-neutral-500 text-input2">
+          {formatCappedCount(count)}
+        </span>
+      </button>
+    );
+  }
+
+  // 복원 완료 후 표준 버튼 (미로그인이어도 guard가 막아줌)
   return (
     <button
       onClick={handleClick}
       className="flex items-center gap-1.5"
-      disabled={isPending}
+      disabled={toggleLike.isPending}
       aria-label={liked ? '좋아요 취소' : '좋아요'}
+      title={!isAuthenticated ? '로그인이 필요합니다' : undefined}
     >
       <Icon
         className={`inline w-4 h-4 text-neutral-200 transition-colors ${

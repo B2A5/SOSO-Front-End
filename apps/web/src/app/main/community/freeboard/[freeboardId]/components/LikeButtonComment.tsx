@@ -1,10 +1,14 @@
+// apps/web/src/app/main/community/freeboard/[freeboardId]/components/LikeButtonComment.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
 import { ThumbsUp } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/ui/useToast';
+import { useAuthGuard } from '@/hooks/useAuthGuard';
+import { useAuthRestore } from '@/hooks/useAuth';
 import { useToggleCommentLike } from '@/generated/api/endpoints/freeboard-comment-like/freeboard-comment-like';
+import { getGetCommentsByCursorQueryKey } from '@/generated/api/endpoints/freeboard-comment/freeboard-comment';
 
 interface LikeButtonCommentProps {
   postId: number;
@@ -14,11 +18,6 @@ interface LikeButtonCommentProps {
   icon?: React.ElementType;
 }
 
-/**
- * 댓글 좋아요 버튼
- * - 낙관적 업데이트
- * - 실패 시 롤백 + Toast 안내
- */
 export default function LikeButtonComment({
   postId,
   commentId,
@@ -26,53 +25,78 @@ export default function LikeButtonComment({
   likeCount,
   icon: Icon = ThumbsUp,
 }: LikeButtonCommentProps) {
+  const { isRestoring, isAuthenticated } = useAuthRestore();
   const queryClient = useQueryClient();
   const toast = useToast();
+  const { guard } = useAuthGuard({
+    onUnauthed: () => toast('로그인이 필요합니다.', 'error'),
+  });
 
-  const [liked, setLiked] = useState(isLiked);
-  const [count, setCount] = useState(likeCount);
+  const [liked, setLiked] = useState<boolean>(!!isLiked);
+  const [count, setCount] = useState<number>(likeCount);
 
-  // 외부 데이터 변경 시 동기화
-  useEffect(() => setLiked(isLiked), [isLiked]);
+  useEffect(() => setLiked(!!isLiked), [isLiked]);
   useEffect(() => setCount(likeCount), [likeCount]);
 
-  // 댓글 좋아요 토글 mutation
-  const { mutateAsync: toggleCommentLike, isPending } =
-    useToggleCommentLike({
-      mutation: {
-        onSuccess: () => {
-          // 서버 반영 후 댓글 목록 최신화
-          queryClient.invalidateQueries({
-            queryKey: [`/community/freeboard/${postId}/comments`],
-          });
+  const toggle = useToggleCommentLike();
+
+  const handleClick = () =>
+    guard(() => {
+      if (toggle.isPending) return;
+
+      toggle.mutate(
+        { freeboardId: postId, commentId },
+        {
+          onSuccess: (data) => {
+            if (typeof data === 'boolean') {
+              const next = data;
+              setLiked(next);
+              setCount((c) => Math.max(0, c + (next ? 1 : -1)));
+            } else if (data && typeof data === 'object') {
+              const d = data as {
+                isLiked?: boolean;
+                likeCount?: number;
+              };
+              if (typeof d.isLiked === 'boolean') setLiked(d.isLiked);
+              if (typeof d.likeCount === 'number')
+                setCount(d.likeCount);
+            }
+          },
+          onError: () => {
+            toast(
+              '댓글 좋아요 처리 중 오류가 발생했습니다.',
+              'error',
+            );
+          },
+          onSettled: () => {
+            queryClient.invalidateQueries({
+              queryKey: getGetCommentsByCursorQueryKey(postId),
+            });
+          },
         },
-        onError: () => {
-          // 에러 발생 시 상태 롤백 및 사용자 안내
-          setLiked(isLiked);
-          setCount(likeCount);
-          toast('댓글 좋아요 처리 중 오류가 발생했습니다.', 'error');
-        },
-      },
+      );
     });
 
-  // 클릭 핸들러 (낙관적 업데이트)
-  const handleClick = async () => {
-    if (isPending) return;
-
-    setLiked((prev) => !prev);
-    setCount((prev) => (liked ? prev - 1 : prev + 1));
-
-    try {
-      await toggleCommentLike({ freeboardId: postId, commentId });
-    } catch {}
-  };
+  if (isRestoring) {
+    return (
+      <button
+        className="flex items-center gap-1.5 opacity-60 cursor-wait"
+        disabled
+        aria-label="좋아요 로딩 중"
+      >
+        <Icon className="inline w-4 h-4 text-neutral-200" />
+        <span className="text-neutral-500 text-input2">{count}</span>
+      </button>
+    );
+  }
 
   return (
     <button
       onClick={handleClick}
       className="flex items-center gap-1.5"
-      disabled={isPending}
+      disabled={toggle.isPending}
       aria-label={liked ? '좋아요 취소' : '좋아요'}
+      title={!isAuthenticated ? '로그인이 필요합니다' : undefined}
     >
       <Icon
         className={`inline w-4 h-4 text-neutral-200 transition-colors ${
