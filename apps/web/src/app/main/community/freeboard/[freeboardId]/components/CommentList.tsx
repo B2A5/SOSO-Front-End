@@ -15,13 +15,13 @@ import { formatCappedCount } from '@/utils/formatCount';
 
 interface CommentListProps {
   postId: number;
+  initialCount?: number;
 }
 
-/**
- * 댓글 리스트
- * TODO: 백엔드 댓글 총 개수 제공 시 헤더에 추가 예정
- */
-export default function CommentList({ postId }: CommentListProps) {
+export default function CommentList({
+  postId,
+  initialCount,
+}: CommentListProps) {
   const {
     data,
     fetchNextPage,
@@ -43,10 +43,6 @@ export default function CommentList({ postId }: CommentListProps) {
       lastPage.nextCursor ? lastPage.nextCursor : undefined,
   });
 
-  // 페이지 단위로 내려오는 comments를
-  // 1. 모두 합치고(flatten)
-  // 2. key로 쓸 수 있도록 commentId가 확실한 항목만 남김
-  // 3. data가 바뀔 때에만 재계산(성능)
   const comments = useMemo<
     Array<FreeboardCommentSummary & { commentId: number }>
   >(() => {
@@ -54,7 +50,6 @@ export default function CommentList({ postId }: CommentListProps) {
     const allComments = allPages.flatMap(
       (page) => page.comments ?? [],
     );
-
     return allComments.filter(
       (
         comment,
@@ -62,6 +57,9 @@ export default function CommentList({ postId }: CommentListProps) {
         typeof comment.commentId === 'number',
     );
   }, [data]);
+
+  const headerCount =
+    typeof initialCount === 'number' ? initialCount : comments.length;
 
   return (
     <section aria-label="댓글 섹션" className="flex-1">
@@ -71,7 +69,7 @@ export default function CommentList({ postId }: CommentListProps) {
       <p className="pb-2" aria-live="polite">
         댓글
         <span className="text-soso-600 pl-1 font-medium">
-          {formatCappedCount(comments.length)}
+          {formatCappedCount(headerCount)}
         </span>
         개
       </p>
