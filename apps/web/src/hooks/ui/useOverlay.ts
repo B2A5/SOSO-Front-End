@@ -10,13 +10,19 @@ import {
 
 /**
  * 전역 오버레이 표시/숨기기를 간편하게 사용할 수 있는 훅
+ * Immer 기반 스토어와 통합되어 더 우아한 상태 관리를 지원합니다.
  */
 export const useOverlay = () => {
-  // zustand 스토어에서 액션 가져오기
-  const push = useOverlayStore((state) => state.push);
-  const pop = useOverlayStore((state) => state.pop);
-  const show = useOverlayStore((state) => state.showOverlay);
-  const hide = useOverlayStore((state) => state.hideOverlay);
+  // zustand 스토어에서 액션과 상태 가져오기
+  const {
+    stack,
+    push,
+    pop,
+    updateItem,
+    getCurrent,
+    showOverlay,
+    hideOverlay,
+  } = useOverlayStore();
 
   /**
    * 오버레이 열기 (기존 API - 하위 호환)
@@ -27,12 +33,12 @@ export const useOverlay = () => {
     element: ReactNode,
     options?: OverlayOptions,
   ) => {
-    show(element, options);
+    showOverlay(element, options);
   };
 
   /** 오버레이 닫기 (기존 API - 하위 호환) */
   const closeOverlay = () => {
-    hide();
+    hideOverlay();
   };
 
   /**
@@ -47,21 +53,37 @@ export const useOverlay = () => {
    * ));
    */
   const open = <T = unknown>(
-    renderer: (props: { close: (result: T) => void }) => ReactNode,
+    renderer: (props: {
+      close: (result: T) => void;
+      closeWithAnimation: (result: T, duration?: number) => void;
+    }) => ReactNode,
     options?: OverlayOptions,
   ): Promise<T> => {
     return new Promise((resolve) => {
       const id = `overlay-${Date.now()}-${Math.random()}`;
 
+      // 즉시 닫기 (애니메이션 없음)
       const close = (result: T) => {
-        // 스택에서 제거
         pop(id);
-        // Promise 완료
+        resolve(result);
+      };
+
+      // 애니메이션과 함께 닫기 (Toss 패턴)
+      const closeWithAnimation = (result: T, duration = 300) => {
+        // 1. isOpen을 false로 설정 (애니메이션 시작)
+        updateItem(id, { isOpen: false });
+
+        // 2. 애니메이션 완료 후 DOM에서 제거
+        setTimeout(() => {
+          pop(id);
+        }, duration);
+
+        // 3. Promise 즉시 resolve (사용자는 애니메이션 완료를 기다리지 않음)
         resolve(result);
       };
 
       // renderer 실행하여 element 생성
-      const element = renderer({ close });
+      const element = renderer({ close, closeWithAnimation });
 
       // 스택에 추가
       const item: OverlayItem<T> = {
@@ -76,9 +98,48 @@ export const useOverlay = () => {
     });
   };
 
+  /**
+   * 현재 활성화된 오버레이 가져오기 (Toss 패턴)
+   * @returns 현재 활성화된 오버레이 또는 undefined
+   */
+  const getCurrentOverlay = () => {
+    return getCurrent();
+  };
+
+  /**
+   * 모든 오버레이 닫기
+   * @param withAnimation 애니메이션 적용 여부
+   * @param duration 애니메이션 지속 시간 (ms)
+   */
+  const closeAll = (withAnimation = false, duration = 300) => {
+    if (!withAnimation) {
+      // 즉시 모든 오버레이 제거
+      stack.forEach((item) => {
+        pop(item.id);
+      });
+    } else {
+      // 애니메이션과 함께 제거
+      stack.forEach((item) => {
+        updateItem(item.id, { isOpen: false });
+      });
+      setTimeout(() => {
+        stack.forEach((item) => {
+          pop(item.id);
+        });
+      }, duration);
+    }
+  };
+
   return {
-    openOverlay, // 기존 API
-    closeOverlay, // 기존 API
-    open, // 새로운 Promise API
+    // 기존 API (하위 호환)
+    openOverlay,
+    closeOverlay,
+
+    // Promise API
+    open,
+
+    // 유틸리티 메서드
+    getCurrentOverlay,
+    closeAll,
   };
 };
