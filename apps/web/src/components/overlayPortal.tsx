@@ -6,37 +6,55 @@ import { createPortal } from 'react-dom';
 import { useOverlayStore } from '@/stores/overlayStore';
 
 export const OverlayPortal: React.FC = () => {
-  const { element, options, hideOverlay } = useOverlayStore();
+  const stack = useOverlayStore((state) => state.stack);
+  const pop = useOverlayStore((state) => state.pop);
+
+  // 스택에 하나라도 blockScroll이 있으면 스크롤 차단
+  const shouldBlockScroll = stack.some(
+    (item) => item.options.blockScroll,
+  );
 
   useEffect(() => {
-    document.body.style.overflow = options.blockScroll
+    document.body.style.overflow = shouldBlockScroll
       ? 'hidden'
       : 'auto';
     return () => {
       document.body.style.overflow = 'auto';
     };
-  }, [options.blockScroll]);
+  }, [shouldBlockScroll]);
 
-  if (!element) return null;
-
-  const handleBackdropClick = () => {
-    if (options.closeOnBackdrop) {
-      hideOverlay();
-    }
-  };
+  if (stack.length === 0) return null;
 
   return createPortal(
-    <div
-      className={`
-        fixed inset-0 z-[2000]
-        flex items-end md:items-center justify-center
-        ${options.backdrop ? 'bg-overlay' : 'bg-transparent'}
-        pointer-events-auto
-      `}
-      onClick={handleBackdropClick}
-    >
-      <div onClick={(e) => e.stopPropagation()}>{element}</div>
-    </div>,
+    <>
+      {stack.map((item, index) => {
+        const handleBackdropClick = () => {
+          if (item.options.closeOnBackdrop) {
+            pop(item.id);
+          }
+        };
+
+        return (
+          <div
+            key={item.id}
+            className={`
+              fixed inset-0
+              flex items-end md:items-center justify-center
+              ${item.options.backdrop ? 'bg-overlay' : 'bg-transparent'}
+              pointer-events-auto
+            `}
+            style={{
+              zIndex: 2000 + index, // 스택 순서대로 z-index 증가
+            }}
+            onClick={handleBackdropClick}
+          >
+            <div onClick={(e) => e.stopPropagation()}>
+              {item.element}
+            </div>
+          </div>
+        );
+      })}
+    </>,
     document.body,
   );
 };
