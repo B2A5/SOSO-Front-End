@@ -68,7 +68,7 @@
 
   /* 백그라운드 색상 */
   --color-modal: rgba(255, 255, 255, 0.95);
-  --color-overlay: rgba(0, 0, 0, 0.6);
+  --color-overlay: rgba(0, 0, 0, 0.5);
   --color-light-gray: #fafafa;
 
   /* 에러 색상 */
@@ -177,6 +177,73 @@
       opacity: 0;
       transform: translateY(10px);
     }
+  }
+}
+
+/* 백드롭 전용 애니메이션 */
+@keyframes backdropBlurIn {
+  0% {
+    opacity: 0;
+    backdrop-filter: blur(0px) saturate(100%);
+  }
+  100% {
+    opacity: 1;
+    backdrop-filter: blur(10px) saturate(180%);
+  }
+}
+
+@keyframes backdropBlurOut {
+  0% {
+    opacity: 1;
+    backdrop-filter: blur(10px) saturate(180%);
+  }
+  100% {
+    opacity: 0;
+    backdrop-filter: blur(0px) saturate(100%);
+  }
+}
+
+/* 백드롭 블러 클래스 */
+.backdrop-blur-in {
+  animation: backdropBlurIn 0.3s cubic-bezier(0.25, 0.06, 0.45, 0.94)
+    forwards;
+  -webkit-backdrop-filter: blur(10px) saturate(180%);
+  backdrop-filter: blur(10px) saturate(180%);
+  will-change: opacity, backdrop-filter;
+}
+
+.backdrop-blur-out {
+  animation: backdropBlurOut 0.25s
+    cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  will-change: opacity, backdrop-filter;
+}
+
+/* 폴백: 블러 미지원 브라우저용 심플한 페이드 */
+@supports not (backdrop-filter: blur(1px)) {
+  .backdrop-blur-in {
+    animation: backdropFadeIn 0.2s ease-out forwards;
+  }
+
+  .backdrop-blur-out {
+    animation: backdropFadeOut 0.15s ease-in forwards;
+  }
+}
+
+@keyframes backdropFadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes backdropFadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
   }
 }
 

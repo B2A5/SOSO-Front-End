@@ -167,7 +167,7 @@ export default function FloatingMenu({
         aria-label="카테고리 메뉴"
         className={twMerge(
           'grid grid-cols-2 gap-4 w-max p-4',
-          'animate-fadeIn',
+          // 'animate-fadeIn',
           className,
         )}
         onKeyDown={handleArrowKeyNavigation}

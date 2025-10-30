@@ -4,6 +4,7 @@
 import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useOverlayStore } from '@/stores/overlayStore';
+import { cn } from '@/utils/cn';
 
 export const OverlayPortal: React.FC = () => {
   const { stack, pop } = useOverlayStore();
@@ -34,24 +35,44 @@ export const OverlayPortal: React.FC = () => {
         };
 
         return (
-          <div
-            key={item.id}
-            className={`
-              fixed inset-0
-              flex items-end md:items-center justify-center
-              ${item.options.backdrop ? 'bg-overlay' : 'bg-transparent'}
-              pointer-events-auto
-              ${item.isOpen ? 'fade-in' : 'fade-out'}
-            `}
-            style={{
-              zIndex: 2000 + index, // 스택 순서대로 z-index 증가
-            }}
-            onClick={handleBackdropClick}
-          >
-            <div onClick={(e) => e.stopPropagation()}>
-              {item.element}
+          <React.Fragment key={item.id}>
+            {/* 백드롭 레이어 (블러 애니메이션) */}
+            {item.options.backdrop && (
+              <div
+                className={cn(
+                  'fixed inset-0',
+                  'bg-overlay',
+                  'pointer-events-auto',
+                  item.isOpen
+                    ? 'backdrop-blur-in'
+                    : 'backdrop-blur-out',
+                )}
+                style={{
+                  zIndex: 2000 + index,
+                }}
+                onClick={handleBackdropClick}
+              />
+            )}
+
+            {/* 콘텐츠 레이어 (fade 애니메이션, 포지셔닝 방해 없음) */}
+            <div
+              className={cn(
+                'fixed inset-0',
+                'pointer-events-none', // 백드롭 클릭을 방해하지 않음
+                item.isOpen ? 'fade-in' : 'fade-out',
+              )}
+              style={{
+                zIndex: 2000 + index + 1, // 백드롭보다 위
+              }}
+            >
+              <div
+                className="pointer-events-auto" // 콘텐츠는 클릭 가능
+                onClick={(e) => e.stopPropagation()}
+              >
+                {item.element}
+              </div>
             </div>
-          </div>
+          </React.Fragment>
         );
       })}
     </>,
