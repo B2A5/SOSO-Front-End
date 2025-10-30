@@ -60,7 +60,7 @@ export const useOverlay = () => {
     options?: OverlayOptions,
   ): Promise<T> => {
     return new Promise((resolve) => {
-      const id = `overlay-${Date.now()}-${Math.random()}`;
+      const id = `overlay-${crypto.randomUUID()}`;
 
       // 즉시 닫기 (애니메이션 없음)
       const close = (result: T) => {
