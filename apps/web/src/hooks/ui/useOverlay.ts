@@ -48,42 +48,55 @@ export const useOverlay = () => {
    * @returns Promise<T> 사용자가 close에 전달한 값
    *
    * @example
+   * // 기본: fadeOut 애니메이션 포함 (300ms)
    * const confirmed = await open(({ close }) => (
    *   <Dialog onConfirm={() => close(true)} onCancel={() => close(false)} />
+   * ));
+   *
+   * @example
+   * // fadeOut 지속 시간 커스텀
+   * const result = await open(({ close }) => (
+   *   <Modal onClose={() => close(null, { duration: 500 })} />
+   * ));
+   *
+   * @example
+   * // fadeOut 비활성화 (즉시 닫기)
+   * const result = await open(({ close }) => (
+   *   <Toast onClose={() => close(null, { fadeOut: false })} />
    * ));
    */
   const open = <T = unknown>(
     renderer: (props: {
-      close: (result: T) => void;
-      closeWithAnimation: (result: T, duration?: number) => void;
+      close: (
+        result: T,
+        closeOptions?: { fadeOut?: boolean; duration?: number },
+      ) => void;
     }) => ReactNode,
     options?: OverlayOptions,
   ): Promise<T> => {
     return new Promise((resolve) => {
       const id = `overlay-${crypto.randomUUID()}`;
 
-      // 즉시 닫기 (애니메이션 없음)
-      const close = (result: T) => {
-        pop(id);
-        resolve(result);
-      };
+      const close = (
+        result: T,
+        closeOptions: { fadeOut?: boolean; duration?: number } = {},
+      ) => {
+        const { fadeOut = true, duration = 300 } = closeOptions;
 
-      // 애니메이션과 함께 닫기 (Toss 패턴)
-      const closeWithAnimation = (result: T, duration = 300) => {
-        // 1. isOpen을 false로 설정 (애니메이션 시작)
-        updateItem(id, { isOpen: false });
-
-        // 2. 애니메이션 완료 후 DOM에서 제거
-        setTimeout(() => {
+        if (!fadeOut) {
           pop(id);
-        }, duration);
-
-        // 3. Promise 즉시 resolve (사용자는 애니메이션 완료를 기다리지 않음)
-        resolve(result);
+          resolve(result);
+        } else {
+          updateItem(id, { isOpen: false });
+          setTimeout(() => {
+            pop(id);
+          }, duration);
+          resolve(result);
+        }
       };
 
       // renderer 실행하여 element 생성
-      const element = renderer({ close, closeWithAnimation });
+      const element = renderer({ close });
 
       // 스택에 추가
       const item: OverlayItem<T> = {

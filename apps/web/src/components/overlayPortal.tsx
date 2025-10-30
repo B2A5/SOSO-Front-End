@@ -6,8 +6,7 @@ import { createPortal } from 'react-dom';
 import { useOverlayStore } from '@/stores/overlayStore';
 
 export const OverlayPortal: React.FC = () => {
-  const stack = useOverlayStore((state) => state.stack);
-  const pop = useOverlayStore((state) => state.pop);
+  const { stack, pop } = useOverlayStore();
 
   // 스택에 하나라도 blockScroll이 있으면 스크롤 차단
   const shouldBlockScroll = stack.some(
@@ -42,6 +41,7 @@ export const OverlayPortal: React.FC = () => {
               flex items-end md:items-center justify-center
               ${item.options.backdrop ? 'bg-overlay' : 'bg-transparent'}
               pointer-events-auto
+              ${item.isOpen ? 'fade-in' : 'fade-out'}
             `}
             style={{
               zIndex: 2000 + index, // 스택 순서대로 z-index 증가
