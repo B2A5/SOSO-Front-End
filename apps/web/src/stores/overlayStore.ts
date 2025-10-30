@@ -14,6 +14,7 @@ export interface OverlayOptions {
 export interface OverlayItem<T = unknown> {
   id: string; // 고유 ID
   element: ReactNode; // 렌더링할 요소
+  isOpen: boolean; // 열림 상태
   options: OverlayOptions; // 옵션
   resolve?: (value: T) => void; // Promise resolve 함수
 }
@@ -73,7 +74,12 @@ export const useOverlayStore = create<OverlayState>((set, get) => ({
   // showOverlay: 스택에 추가하고 ID 반환
   showOverlay: (element, options = {}) => {
     const id = `overlay-${++overlayIdCounter}`;
-    const item: OverlayItem<unknown> = { id, element, options };
+    const item: OverlayItem<unknown> = {
+      id,
+      element,
+      options,
+      isOpen: true,
+    };
     get().push(item);
     return id;
   },

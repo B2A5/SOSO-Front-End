@@ -67,6 +67,7 @@ export const useOverlay = () => {
       const item: OverlayItem<T> = {
         id,
         element,
+        isOpen: true,
         options: options || {},
         resolve,
       };
