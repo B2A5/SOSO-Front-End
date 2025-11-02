@@ -8,6 +8,21 @@
 import { SnapPoint } from './DrawerContext';
 
 /**
+ * iOS 디바이스 감지
+ * @returns iOS 여부
+ */
+export function isIOS(): boolean {
+  if (typeof window === 'undefined') return false;
+
+  const platform = navigator.platform;
+  return (
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    // iPad Pro on iOS 13+ detection
+    (platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+  );
+}
+
+/**
  * 스냅 포인트를 비율(0~1)로 파싱
  * @example
  * parseSnapPoint(0.5) // 0.5

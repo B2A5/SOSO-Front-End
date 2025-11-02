@@ -17,7 +17,7 @@ import {
   VELOCITY_THRESHOLD,
 } from './constants';
 import { cn } from '@/utils/cn';
-import { findClosestSnapPoint, snapPointToY } from './utils';
+import { findClosestSnapPoint, snapPointToY, isIOS } from './utils';
 
 /**
  * Drawer Content Props
@@ -58,11 +58,11 @@ export function DrawerContent({
     setIsOpen,
     position,
     dismissible,
+    isDragging,
     setIsDragging,
     snapPoints,
     activeSnapPointIndex,
     setActiveSnapPointIndex,
-    closeThreshold,
   } = useDrawerContext();
 
   const contentRef = useRef<HTMLDivElement>(null);
@@ -118,7 +118,6 @@ export function DrawerContent({
         snapPoints,
         velocityY,
         activeSnapPointIndex,
-        closeThreshold,
       );
 
       // -1이면 닫기
@@ -198,6 +197,36 @@ export function DrawerContent({
     animate(y, targetY, SPRING_CONFIG);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeSnapPointIndex]); // activeSnapPointIndex 변경 시에만 (y, snapPoints, isOpen은 의도적으로 제외)
+
+  // iOS Safari 최적화
+  useEffect(() => {
+    if (!isIOS() || !isOpen) return;
+
+    // 1. 스크롤 bounce 제거
+    const preventBounce = (e: TouchEvent) => {
+      if (isDragging) {
+        e.preventDefault();
+      }
+    };
+
+    document.body.addEventListener('touchmove', preventBounce, {
+      passive: false,
+    });
+
+    // 2. 주소창 높이 변화 대응 (iOS Safari의 동적 주소창 문제 해결)
+    const updateVH = () => {
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+    };
+
+    window.addEventListener('resize', updateVH);
+    updateVH(); // 초기 설정
+
+    return () => {
+      document.body.removeEventListener('touchmove', preventBounce);
+      window.removeEventListener('resize', updateVH);
+    };
+  }, [isOpen, isDragging]);
 
   // position에 따른 초기 위치 및 애니메이션 방향 설정
   const getAnimationProps = () => {
