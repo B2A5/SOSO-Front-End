@@ -18,6 +18,7 @@ import {
 } from './constants';
 import { cn } from '@/utils/cn';
 import { findClosestSnapPoint, snapPointToY, isIOS } from './utils';
+import { useFocusTrap } from './useFocusTrap';
 
 /**
  * Drawer Content Props
@@ -228,6 +229,24 @@ export function DrawerContent({
     };
   }, [isOpen, isDragging]);
 
+  // 접근성: ESC 키로 닫기
+  useEffect(() => {
+    if (!isOpen || !dismissible) return;
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () =>
+      document.removeEventListener('keydown', handleEscape);
+  }, [isOpen, dismissible, setIsOpen]);
+
+  // 접근성: 포커스 트랩
+  useFocusTrap(contentRef, isOpen);
+
   // position에 따른 초기 위치 및 애니메이션 방향 설정
   const getAnimationProps = () => {
     const hasSnapPoints = snapPoints && snapPoints.length > 1;
@@ -339,6 +358,9 @@ export function DrawerContent({
                 : undefined,
             zIndex: Z_INDEX.CONTENT,
           }}
+          role="dialog"
+          aria-modal="true"
+          tabIndex={-1}
           className={cn(
             'fixed bg-white dark:bg-gray-900',
             'max-h-[95vh] overflow-hidden',

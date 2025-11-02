@@ -587,6 +587,132 @@ export default function DrawerTestPage() {
           </Drawer>
         </section>
 
+        {/* 7. 접근성 (Accessibility) 테스트 */}
+        <section className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            7. 접근성 (Accessibility)
+          </h2>
+          <p className="text-gray-600 mb-4">
+            키보드 내비게이션, ARIA 속성, 포커스 트랩을 테스트합니다.
+          </p>
+
+          <div className="space-y-4">
+            {/* 포커스 트랩 테스트 */}
+            <div className="border border-gray-200 rounded-lg p-4">
+              <h3 className="font-semibold text-gray-900 mb-2">
+                7.1 포커스 트랩 (Focus Trap)
+              </h3>
+              <p className="text-sm text-gray-600 mb-3">
+                Tab 키로 Drawer 내부를 순환합니다. ESC 키로 닫을 수
+                있습니다.
+              </p>
+              <Drawer>
+                <Drawer.Trigger className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                  접근성 테스트 열기
+                </Drawer.Trigger>
+                <Drawer.Overlay />
+                <Drawer.Content className="max-w-md mx-auto">
+                  <h3 className="text-lg font-semibold mb-4">
+                    접근성 테스트
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    Tab 키를 눌러 아래 요소들을 순환해보세요. 마지막
+                    요소에서 Tab을 누르면 첫 요소로 돌아갑니다.
+                  </p>
+                  <div className="space-y-3">
+                    <button className="w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg">
+                      첫 번째 버튼
+                    </button>
+                    <input
+                      type="text"
+                      placeholder="텍스트 입력"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                    />
+                    <select className="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                      <option>옵션 1</option>
+                      <option>옵션 2</option>
+                    </select>
+                    <textarea
+                      placeholder="텍스트 영역"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                      rows={3}
+                    />
+                    <Drawer.Items>마지막 요소 (닫기)</Drawer.Items>
+                  </div>
+                  <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                    <p className="text-sm text-blue-900">
+                      💡 <strong>키보드 인터랙션:</strong>
+                    </p>
+                    <ul className="text-sm text-blue-800 mt-2 space-y-1">
+                      <li>• Tab: 다음 요소로 이동</li>
+                      <li>• Shift + Tab: 이전 요소로 이동</li>
+                      <li>• Escape: Drawer 닫기</li>
+                    </ul>
+                  </div>
+                </Drawer.Content>
+              </Drawer>
+            </div>
+
+            {/* ARIA 속성 테스트 */}
+            <div className="border border-gray-200 rounded-lg p-4">
+              <h3 className="font-semibold text-gray-900 mb-2">
+                7.2 ARIA 속성 & 스크린 리더
+              </h3>
+              <p className="text-sm text-gray-600 mb-3">
+                role=dialog, aria-modal=true 속성이 적용되어 스크린
+                리더와 호환됩니다.
+              </p>
+              <Drawer>
+                <Drawer.Trigger className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+                  ARIA 테스트
+                </Drawer.Trigger>
+                <Drawer.Overlay />
+                <Drawer.Content className="max-w-md mx-auto">
+                  <h3 className="text-lg font-semibold mb-4">
+                    스크린 리더 테스트
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    이 Drawer는 role=dialog와 aria-modal=true 속성을
+                    가지고 있어 스크린 리더가 모달임을 인식합니다.
+                  </p>
+                  <div className="space-y-3">
+                    <button className="w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg">
+                      접근 가능한 버튼
+                    </button>
+                    <Drawer.Items>닫기</Drawer.Items>
+                  </div>
+                </Drawer.Content>
+              </Drawer>
+            </div>
+
+            {/* dismissible=false에서 ESC 비활성화 */}
+            <div className="border border-gray-200 rounded-lg p-4">
+              <h3 className="font-semibold text-gray-900 mb-2">
+                7.3 dismissible=false (ESC 비활성화)
+              </h3>
+              <p className="text-sm text-gray-600 mb-3">
+                dismissible=false일 때는 ESC 키로 닫을 수 없습니다.
+              </p>
+              <Drawer dismissible={false}>
+                <Drawer.Trigger className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                  ESC 비활성화 테스트
+                </Drawer.Trigger>
+                <Drawer.Overlay />
+                <Drawer.Content className="max-w-md mx-auto">
+                  <h3 className="text-lg font-semibold mb-4">
+                    ESC 키가 작동하지 않습니다
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    dismissible=false이므로 ESC 키로 닫을 수 없습니다.
+                    아래 버튼이나 배경을 클릭하세요.
+                  </p>
+                  <Drawer.Items>닫기 버튼으로만 닫기</Drawer.Items>
+                </Drawer.Content>
+              </Drawer>
+            </div>
+          </div>
+        </section>
+
         {/* 테스트 완료 */}
         <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
           <p className="text-lg font-semibold text-green-900 mb-2">
