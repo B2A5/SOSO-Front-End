@@ -4,12 +4,11 @@
 import { useEffect, useState } from 'react';
 import { Heart } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/hooks/ui/useToast';
-import { useAuthGuard } from '@/hooks/useAuthGuard';
-import { useAuthRestore } from '@/hooks/useAuth';
+import { useAuthGuard, useAuthRestore } from '@/hooks/useAuth';
 import { useToggleLike } from '@/generated/api/endpoints/freeboard-like/freeboard-like';
 import { getGetPostQueryKey } from '@/generated/api/endpoints/freeboard/freeboard';
 import { formatCappedCount } from '@/utils/formatCount';
+import { useToast } from '@/hooks/ui/useToast';
 
 interface LikeButtonPostProps {
   postId: number;
@@ -18,8 +17,14 @@ interface LikeButtonPostProps {
   icon?: React.ElementType;
 }
 
-const FREEBOARD_LIST_ROOT_KEY = ['/community/freeboard'] as const;
-
+/**
+ * 게시글 좋아요 버튼
+ * 동작 순서:
+ * 1) 서버로 요청을 보내기 전에 화면의 상태만 먼저 토글하여 즉시 반응을 보여 준다.
+ * 2) 요청이 실패하면 저장해 둔 이전 값으로 되돌린다.
+ * 3) 요청이 성공하고 서버가 절대값(좋아요 여부, 좋아요 수)을 보내면 그 값으로 화면을 맞춘다.
+ * 4) 마지막에 관련 쿼리를 다시 가져와 실제 서버 값과 화면을 일치시킨다.
+ */
 export default function LikeButtonPost({
   postId,
   isLiked,
@@ -29,61 +34,69 @@ export default function LikeButtonPost({
   const { isRestoring, isAuthenticated } = useAuthRestore();
   const queryClient = useQueryClient();
   const toast = useToast();
-  const { guard } = useAuthGuard({
-    onUnauthed: () => toast('로그인이 필요합니다.', 'error'),
-  });
+  const { guard } = useAuthGuard();
 
-  // SSR 초기값
-  const [liked, setLiked] = useState<boolean>(!!isLiked);
-  const [count, setCount] = useState<number>(likeCount);
+  // 화면 전용 상태
+  const [liked, setLiked] = useState(!!isLiked);
+  const [count, setCount] = useState(likeCount);
 
-  // 부모 props 변경 동기화
+  // 부모로부터 내려오는 값이 바뀌면 동기화한다.
   useEffect(() => setLiked(!!isLiked), [isLiked]);
   useEffect(() => setCount(likeCount), [likeCount]);
 
-  const toggleLike = useToggleLike();
+  // 게시글 상세 쿼리 키
+  const detailKey = getGetPostQueryKey(postId);
+
+  const toggleLike = useToggleLike({
+    mutation: {
+      mutationKey: ['togglePostLike', postId],
+
+      // 서버 요청 전에 화면만 즉시 토글하고, 롤백을 위한 스냅샷을 반환한다.
+      onMutate: async () => {
+        await queryClient.cancelQueries({ queryKey: detailKey });
+        const snapshot = { liked, count };
+
+        const next = !liked;
+        setLiked(next);
+        setCount((c) => Math.max(0, c + (next ? 1 : -1)));
+
+        return { snapshot };
+      },
+
+      // 실패하면 화면 상태를 스냅샷으로 되돌린다.
+      onError: (_error, _variables, context) => {
+        if (context?.snapshot) {
+          setLiked(context.snapshot.liked);
+          setCount(context.snapshot.count);
+        }
+        toast('좋아요 처리 중 오류가 발생했습니다.', 'error');
+      },
+
+      // 성공하면 서버가 절대값을 보낸 경우에만 그 값으로 맞춘다.
+      // 서버가 불리언만 보낸 경우에는 추가 수정 없이 끝낸다.
+      onSuccess: (data) => {
+        if (data && typeof data === 'object') {
+          const d = data as { isLiked?: boolean; likeCount?: number };
+          if (typeof d.isLiked === 'boolean') setLiked(d.isLiked);
+          if (typeof d.likeCount === 'number')
+            setCount(Math.max(0, d.likeCount));
+        }
+        toast('좋아요가 반영되었습니다.', 'success');
+      },
+
+      // 마지막으로 게시글 상세 데이터를 다시 가져와 실제 값과 화면을 일치시킨다.
+      onSettled: () => {
+        queryClient.invalidateQueries({ queryKey: detailKey });
+      },
+    },
+  });
 
   const handleClick = () =>
     guard(() => {
       if (toggleLike.isPending) return;
-
-      // 낙관적 업데이트 없이 서버 응답으로만 맞춘다 (혼선 최소화)
-      toggleLike.mutate(
-        { freeboardId: postId },
-        {
-          onSuccess: (data) => {
-            if (typeof data === 'boolean') {
-              const next = data;
-              setLiked(next);
-              setCount((c) => Math.max(0, c + (next ? 1 : -1)));
-            } else if (data && typeof data === 'object') {
-              const d = data as {
-                isLiked?: boolean;
-                likeCount?: number;
-              };
-              if (typeof d.isLiked === 'boolean') setLiked(d.isLiked);
-              if (typeof d.likeCount === 'number')
-                setCount(d.likeCount);
-            }
-          },
-          onError: () => {
-            toast('좋아요 처리 중 오류가 발생했습니다.', 'error');
-          },
-          onSettled: () => {
-            // 상세/리스트 캐시 최신화
-            queryClient.invalidateQueries({
-              queryKey: getGetPostQueryKey(postId),
-            });
-            queryClient.invalidateQueries({
-              queryKey: FREEBOARD_LIST_ROOT_KEY,
-              exact: false,
-            });
-          },
-        },
-      );
+      toggleLike.mutate({ freeboardId: postId });
     });
 
-  // 🔒 옵션 B: 복원 중엔 비활성 표시(조회수 추가 호출 없음)
   if (isRestoring) {
     return (
       <button
@@ -99,7 +112,6 @@ export default function LikeButtonPost({
     );
   }
 
-  // 복원 완료 후 표준 버튼 (미로그인이어도 guard가 막아줌)
   return (
     <button
       onClick={handleClick}
