@@ -713,6 +713,182 @@ export default function DrawerTestPage() {
           </div>
         </section>
 
+        {/* 8. 스크롤 처리 테스트 */}
+        <section className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            8. 스크롤 처리 (Scroll Handling)
+          </h2>
+          <p className="text-gray-600 mb-4">
+            Drawer 내부 스크롤과 드래그의 조화를 테스트합니다. (Vaul
+            방식)
+          </p>
+
+          <div className="space-y-4">
+            {/* 긴 콘텐츠 스크롤 테스트 */}
+            <div className="border border-gray-200 rounded-lg p-4">
+              <h3 className="font-semibold text-gray-900 mb-2">
+                8.1 스크롤 가능한 긴 콘텐츠
+              </h3>
+              <p className="text-sm text-gray-600 mb-3">
+                스크롤이 맨 위일 때만 드래그 가능합니다. 스크롤을
+                아래로 내린 후 드래그하면 작동하지 않습니다.
+              </p>
+              <Drawer>
+                <Drawer.Trigger className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                  긴 콘텐츠 Drawer 열기
+                </Drawer.Trigger>
+                <Drawer.Overlay />
+                <Drawer.Content className="max-w-md mx-auto">
+                  <h3 className="text-lg font-semibold mb-4">
+                    스크롤 테스트
+                  </h3>
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+                    <p className="text-sm text-yellow-900">
+                      💡 <strong>테스트 방법:</strong>
+                    </p>
+                    <ul className="text-sm text-yellow-800 mt-2 space-y-1">
+                      <li>1. 핸들을 드래그 → 작동함 (스크롤 top)</li>
+                      <li>2. 콘텐츠를 아래로 스크롤</li>
+                      <li>
+                        3. 다시 핸들 드래그 → 작동 안함 (스크롤 중)
+                      </li>
+                      <li>4. 스크롤을 맨 위로 올림</li>
+                      <li>5. 다시 핸들 드래그 → 작동함</li>
+                    </ul>
+                  </div>
+
+                  <div className="h-[400px] overflow-y-auto space-y-4">
+                    {Array.from({ length: 20 }, (_, i) => (
+                      <div
+                        key={i}
+                        className="p-4 bg-gray-100 rounded-lg"
+                      >
+                        <h4 className="font-semibold text-gray-900 mb-2">
+                          항목 {i + 1}
+                        </h4>
+                        <p className="text-gray-600 text-sm">
+                          이 콘텐츠를 스크롤할 수 있습니다. 스크롤이
+                          맨 위가 아닐 때는 드래그가 작동하지
+                          않습니다.
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <Drawer.Items className="mt-4">닫기</Drawer.Items>
+                </Drawer.Content>
+              </Drawer>
+            </div>
+
+            {/* 중첩 스크롤 테스트 */}
+            <div className="border border-gray-200 rounded-lg p-4">
+              <h3 className="font-semibold text-gray-900 mb-2">
+                8.2 중첩 스크롤 영역
+              </h3>
+              <p className="text-sm text-gray-600 mb-3">
+                여러 스크롤 영역이 있을 때 각각의 스크롤 위치를
+                체크합니다.
+              </p>
+              <Drawer>
+                <Drawer.Trigger className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700">
+                  중첩 스크롤 테스트
+                </Drawer.Trigger>
+                <Drawer.Overlay />
+                <Drawer.Content className="max-w-md mx-auto">
+                  <h3 className="text-lg font-semibold mb-4">
+                    중첩 스크롤 영역
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    내부에 독립적인 스크롤 영역이 있습니다.
+                  </p>
+
+                  <div className="space-y-4">
+                    <div className="border border-gray-300 rounded-lg p-4 max-h-[200px] overflow-y-auto">
+                      <h4 className="font-semibold mb-2">
+                        독립 스크롤 영역 1
+                      </h4>
+                      {Array.from({ length: 10 }, (_, i) => (
+                        <p
+                          key={i}
+                          className="text-sm text-gray-600 mb-2"
+                        >
+                          스크롤 항목 {i + 1}
+                        </p>
+                      ))}
+                    </div>
+
+                    <div className="border border-gray-300 rounded-lg p-4 max-h-[200px] overflow-y-auto">
+                      <h4 className="font-semibold mb-2">
+                        독립 스크롤 영역 2
+                      </h4>
+                      {Array.from({ length: 10 }, (_, i) => (
+                        <p
+                          key={i}
+                          className="text-sm text-gray-600 mb-2"
+                        >
+                          스크롤 항목 {i + 1}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+
+                  <Drawer.Items className="mt-4">닫기</Drawer.Items>
+                </Drawer.Content>
+              </Drawer>
+            </div>
+
+            {/* scrollLockTimeout 테스트 */}
+            <div className="border border-gray-200 rounded-lg p-4">
+              <h3 className="font-semibold text-gray-900 mb-2">
+                8.3 scrollLockTimeout (500ms)
+              </h3>
+              <p className="text-sm text-gray-600 mb-3">
+                스크롤 후 500ms 동안은 드래그가 차단됩니다.
+              </p>
+              <Drawer>
+                <Drawer.Trigger className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700">
+                  scrollLockTimeout 테스트
+                </Drawer.Trigger>
+                <Drawer.Overlay />
+                <Drawer.Content className="max-w-md mx-auto">
+                  <h3 className="text-lg font-semibold mb-4">
+                    스크롤 락 타임아웃 테스트
+                  </h3>
+                  <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-4">
+                    <p className="text-sm text-orange-900">
+                      🕐 <strong>타이밍 테스트:</strong>
+                    </p>
+                    <ul className="text-sm text-orange-800 mt-2 space-y-1">
+                      <li>1. 콘텐츠를 빠르게 스크롤</li>
+                      <li>
+                        2. 즉시 핸들 드래그 시도 → 차단됨 (500ms 이내)
+                      </li>
+                      <li>3. 0.5초 대기</li>
+                      <li>4. 다시 드래그 시도 → 작동함</li>
+                    </ul>
+                  </div>
+
+                  <div className="h-[350px] overflow-y-auto space-y-3">
+                    {Array.from({ length: 15 }, (_, i) => (
+                      <div
+                        key={i}
+                        className="p-3 bg-gray-100 rounded-lg"
+                      >
+                        <p className="text-sm text-gray-700">
+                          스크롤 항목 {i + 1} - 빠르게 스크롤한 후
+                          즉시 드래그해보세요
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <Drawer.Items className="mt-4">닫기</Drawer.Items>
+                </Drawer.Content>
+              </Drawer>
+            </div>
+          </div>
+        </section>
+
         {/* 테스트 완료 */}
         <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
           <p className="text-lg font-semibold text-green-900 mb-2">

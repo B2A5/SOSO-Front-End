@@ -67,12 +67,60 @@ export function DrawerContent({
   } = useDrawerContext();
 
   const contentRef = useRef<HTMLDivElement>(null);
+  const lastTimeDragPrevented = useRef<Date | null>(null);
+  const SCROLL_LOCK_TIMEOUT = 500; // 스크롤 후 드래그 차단 시간 (ms)
 
   // Motion values for drag
   const y = useMotionValue(0);
 
+  /**
+   * 드래그 가능 여부 체크 (Vaul 방식)
+   * 스크롤 가능한 요소의 scrollTop이 0이 아니면 드래그 불허
+   */
+  const shouldDrag = (target: HTMLElement): boolean => {
+    let element: HTMLElement | null = target;
+
+    // DOM 트리를 순회하며 스크롤 가능한 요소 체크
+    while (element && element !== contentRef.current) {
+      // 스크롤 가능한 요소인지 체크
+      if (element.scrollHeight > element.clientHeight) {
+        // 스크롤이 top이 아니면 드래그 불허
+        if (element.scrollTop !== 0) {
+          lastTimeDragPrevented.current = new Date();
+          return false;
+        }
+      }
+      element = element.parentElement;
+    }
+
+    // 최근에 스크롤로 인해 드래그가 차단되었는지 체크
+    if (lastTimeDragPrevented.current) {
+      const now = new Date();
+      const timeSinceLastPrevent =
+        now.getTime() - lastTimeDragPrevented.current.getTime();
+
+      // scrollLockTimeout 이내면 드래그 불허
+      if (timeSinceLastPrevent < SCROLL_LOCK_TIMEOUT) {
+        return false;
+      }
+    }
+
+    return true;
+  };
+
   // 드래그 시작 핸들러
-  const handleDragStart = () => {
+  const handleDragStart = (
+    event: MouseEvent | TouchEvent | PointerEvent,
+  ) => {
+    // 스크롤 가능 영역에서 드래그 시작 시 체크
+    const target = event.target as HTMLElement;
+
+    if (!shouldDrag(target)) {
+      // 드래그 불가능하면 이벤트 중단
+      event.preventDefault();
+      return;
+    }
+
     setIsDragging(true);
   };
 
@@ -373,7 +421,7 @@ export function DrawerContent({
           {showHandle && position === 'bottom' && <DrawerHandle />}
 
           {/* 실제 콘텐츠 */}
-          <div className="overflow-y-auto max-h-full">{children}</div>
+          {children}
         </motion.div>
       )}
     </AnimatePresence>

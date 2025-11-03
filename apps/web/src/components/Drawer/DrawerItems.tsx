@@ -62,6 +62,7 @@ export function DrawerItems({
 
   return (
     <button
+      type="button"
       onClick={handleClick}
       disabled={disabled}
       className={cn(
