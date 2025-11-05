@@ -86,11 +86,21 @@ export default function LikeButtonPost({
         toast('좋아요 처리 중 오류가 발생했습니다.', 'error');
       },
 
-      onSuccess: (data) => {
-        if (typeof data === 'boolean') {
-          setIsLikedLocal(data);
+      onSuccess: (data, _variables, onMutateResult) => {
+        // 서버가 불리언만 주는 토글 결과에 맞춘 검증/보정
+        const snap = onMutateResult?.snapshot;
+        if (typeof data === 'boolean' && snap) {
+          const expected = !snap.isLiked; // 낙관 시나리오에서 예상했던 값
+          if (data !== expected) {
+            // 서버와 낙관값이 불일치 → 스냅샷 기준으로 보정
+            const delta = data ? 1 : -1;
+            setIsLikedLocal(data);
+            setLikeCountLocal(
+              clampNonNegative(snap.likeCount + delta),
+            );
+          }
+          // 일치하면 아무 것도 안 함(이미 낙관값이 서버와 동일)
           toast('좋아요가 반영되었습니다.', 'success');
-          return;
         }
       },
 
