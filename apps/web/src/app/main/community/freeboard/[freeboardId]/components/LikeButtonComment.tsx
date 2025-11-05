@@ -1,4 +1,3 @@
-// apps/web/src/app/main/community/freeboard/[freeboardId]/components/LikeButtonComment.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -6,8 +5,8 @@ import { ThumbsUp } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuthGuard, useAuthRestore } from '@/hooks/useAuth';
 import { useToggleCommentLike } from '@/generated/api/endpoints/freeboard-comment-like/freeboard-comment-like';
-import { getGetCommentsByCursorQueryKey } from '@/generated/api/endpoints/freeboard-comment/freeboard-comment';
 import { useToast } from '@/hooks/ui/useToast';
+import { getGetCommentsByCursor1QueryKey } from '@/generated/api/endpoints/freeboard-comment/freeboard-comment';
 
 interface LikeButtonCommentProps {
   postId: number;
@@ -17,13 +16,20 @@ interface LikeButtonCommentProps {
   icon?: React.ElementType;
 }
 
+type ToggleCommentLikeResponse = {
+  isLiked: boolean | null;
+  likeCount: number;
+};
+
+// 음수 방지(보정) 헬퍼
+const clampNonNegative = (n: number) => (n < 0 ? 0 : n);
+
 /**
  * 댓글 좋아요 버튼
- * 동작 순서:
- * 1) 서버로 요청을 보내기 전에 화면의 상태만 먼저 토글하여 즉시 반응을 보여 준다.
- * 2) 요청이 실패하면 저장해 둔 이전 값으로 되돌린다.
- * 3) 요청이 성공하고 서버가 절대값(좋아요 여부, 좋아요 수)을 보내면 그 값으로 화면을 맞춘다.
- * 4) 마지막에 관련 쿼리를 다시 가져와 실제 서버 값과 화면을 일치시킨다.
+ *
+ * 전략:
+ * - 낙관적 토글(로컬 UI 먼저 반영) → 실패 시 스냅샷으로 롤백 → 성공 시 서버 절대값으로 보정
+ * - 마지막엔 관련 쿼리 invalidate로 캐시/화면 동기화
  */
 export default function LikeButtonComment({
   postId,
@@ -37,94 +43,112 @@ export default function LikeButtonComment({
   const toast = useToast();
   const { guard } = useAuthGuard();
 
-  // 화면 전용 상태
-  const [liked, setLiked] = useState(!!isLiked);
-  const [count, setCount] = useState(likeCount);
+  // UI 전용 상태(부모 props와 동기화됨)
+  const [isLikedLocal, setIsLikedLocal] = useState(!!isLiked);
+  const [likeCountLocal, setLikeCountLocal] = useState(likeCount);
 
-  // 부모로부터 내려오는 값이 바뀌면 동기화한다.
-  useEffect(() => setLiked(!!isLiked), [isLiked]);
-  useEffect(() => setCount(likeCount), [likeCount]);
+  useEffect(() => setIsLikedLocal(!!isLiked), [isLiked]);
+  useEffect(() => setLikeCountLocal(likeCount), [likeCount]);
 
-  // 댓글 목록 쿼리 키
-  const listKey = getGetCommentsByCursorQueryKey(postId);
+  // 이 게시글의 댓글 목록 쿼리 키 (취소/무효화에 사용)
+  const commentListKey = getGetCommentsByCursor1QueryKey(postId);
 
   const toggle = useToggleCommentLike({
     mutation: {
       mutationKey: ['toggleCommentLike', postId, commentId],
 
-      // 서버 요청 전에 화면만 즉시 토글하고, 롤백을 위한 스냅샷을 반환한다.
       onMutate: async () => {
-        await queryClient.cancelQueries({ queryKey: listKey });
-        const snapshot = { liked, count };
+        // (1) 진행 중/예정인 refetch 취소 → 낙관 업데이트 보존
+        await queryClient.cancelQueries({ queryKey: commentListKey });
 
-        const next = !liked;
-        setLiked(next);
-        setCount((c) => Math.max(0, c + (next ? 1 : -1)));
+        // (2) 롤백용 스냅샷
+        const snapshot = {
+          isLiked: isLikedLocal,
+          likeCount: likeCountLocal,
+        };
 
+        // (3) 낙관적 토글 + 카운트 보정
+        setIsLikedLocal((prev) => {
+          const next = !prev;
+          const delta = next ? 1 : -1;
+          setLikeCountLocal((c) => clampNonNegative(c + delta));
+          return next;
+        });
+
+        // (4) 스냅샷 전달
         return { snapshot };
       },
 
-      // 실패하면 화면 상태를 스냅샷으로 되돌린다.
-      onError: (_error, _variables, context) => {
-        if (context?.snapshot) {
-          setLiked(context.snapshot.liked);
-          setCount(context.snapshot.count);
+      onError: (_error, _variables, onMutateResult) => {
+        // 실패 시 스냅샷으로 롤백
+        const snap = onMutateResult?.snapshot;
+        if (snap) {
+          setIsLikedLocal(snap.isLiked);
+          setLikeCountLocal(snap.likeCount);
         }
         toast('댓글 좋아요 처리 중 오류가 발생했습니다.', 'error');
       },
 
-      // 성공하면 서버가 절대값을 보낸 경우에만 그 값으로 맞춘다.
-      // 서버가 불리언만 보낸 경우에는 추가 수정 없이 끝낸다.
       onSuccess: (data) => {
-        if (data && typeof data === 'object') {
-          const d = data as { isLiked?: boolean; likeCount?: number };
-          if (typeof d.isLiked === 'boolean') setLiked(d.isLiked);
-          if (typeof d.likeCount === 'number')
-            setCount(Math.max(0, d.likeCount));
-        }
+        // 서버 절대값으로 보정 (isLiked가 null이면 현 상태 유지)
+        const { isLiked, likeCount } =
+          data as ToggleCommentLikeResponse;
+        setLikeCountLocal(clampNonNegative(likeCount));
+        if (isLiked != null) setIsLikedLocal(isLiked);
         toast('좋아요가 반영되었습니다.', 'success');
       },
 
-      // 마지막으로 댓글 목록 데이터를 다시 가져와 실제 값과 화면을 일치시킨다.
       onSettled: () => {
-        queryClient.invalidateQueries({ queryKey: listKey });
+        // 성공/실패와 무관하게 최종적으로 서버 상태와 동기화
+        queryClient.invalidateQueries({ queryKey: commentListKey });
       },
     },
   });
 
+  // 클릭 시: 가드 통과 후, 중복 요청 방지 & 뮤테이션 트리거
   const handleClick = () =>
     guard(() => {
       if (toggle.isPending) return;
       toggle.mutate({ freeboardId: postId, commentId });
     });
 
+  // 인증 복원 중임을 명시(시각적 피드백)
   if (isRestoring) {
     return (
       <button
         className="flex items-center gap-1.5 opacity-60 cursor-wait"
         disabled
         aria-label="좋아요 로딩 중"
+        type="button"
       >
         <Icon className="inline w-4 h-4 text-neutral-200" />
-        <span className="text-neutral-500 text-input2">{count}</span>
+        <span className="text-neutral-500 text-input2">
+          {likeCountLocal}
+        </span>
       </button>
     );
   }
 
   return (
     <button
+      type="button"
+      aria-pressed={isLikedLocal}
       onClick={handleClick}
       className="flex items-center gap-1.5"
       disabled={toggle.isPending}
-      aria-label={liked ? '좋아요 취소' : '좋아요'}
+      aria-label={isLikedLocal ? '좋아요 취소' : '좋아요'}
       title={!isAuthenticated ? '로그인이 필요합니다' : undefined}
     >
       <Icon
         className={`inline w-4 h-4 text-neutral-200 transition-colors ${
-          liked ? 'fill-soso-600 text-soso-600' : 'fill-transparent'
+          isLikedLocal
+            ? 'fill-soso-600 text-soso-600'
+            : 'fill-transparent'
         }`}
       />
-      <span className="text-neutral-500 text-input2">{count}</span>
+      <span className="text-neutral-500 text-input2">
+        {likeCountLocal}
+      </span>
     </button>
   );
 }
