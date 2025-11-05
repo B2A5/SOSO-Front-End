@@ -16,11 +16,6 @@ interface LikeButtonPostProps {
   icon?: React.ElementType;
 }
 
-type TogglePostLikeResponse = {
-  isLiked: boolean | null;
-  likeCount: number;
-};
-
 // 음수 방지(보정) 헬퍼
 const clampNonNegative = (n: number) => (n < 0 ? 0 : n);
 
@@ -92,11 +87,11 @@ export default function LikeButtonPost({
       },
 
       onSuccess: (data) => {
-        // 서버 절대값으로 보정 (isLiked가 null이면 현 상태 유지)
-        const { isLiked, likeCount } = data as TogglePostLikeResponse;
-        setLikeCountLocal(clampNonNegative(likeCount));
-        if (isLiked != null) setIsLikedLocal(isLiked);
-        toast('좋아요가 반영되었습니다.', 'success');
+        if (typeof data === 'boolean') {
+          setIsLikedLocal(data);
+          toast('좋아요가 반영되었습니다.', 'success');
+          return;
+        }
       },
 
       onSettled: () => {
