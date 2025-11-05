@@ -5,9 +5,9 @@ import {
   motion,
   useMotionValue,
   AnimatePresence,
-  PanInfo,
   animate,
-} from 'framer-motion';
+} from 'motion/react';
+import type { PanInfo } from 'motion/react';
 import { useDrawerContext } from './DrawerContext';
 import { DrawerHandle } from './DrawerHandle';
 import {

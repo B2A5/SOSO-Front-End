@@ -1,7 +1,7 @@
 'use client';
 
 import { ReactNode } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { useDrawerContext } from './DrawerContext';
 import { Z_INDEX } from './constants';
 import { cn } from '@/utils/cn';
