@@ -1,8 +1,8 @@
 'use client';
 
 import {
-  createComment,
-  getGetCommentsByCursorQueryKey,
+  createComment1,
+  getGetCommentsByCursor1QueryKey,
 } from '@/generated/api/endpoints/freeboard-comment/freeboard-comment';
 import { useToast } from '@/hooks/ui/useToast';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -34,12 +34,12 @@ export default function CommentInput({
 
   const { mutate, isPending } = useMutation({
     mutationFn: (content: string) =>
-      createComment(postId, { content }),
+      createComment1(postId, { content }),
     onSuccess: () => {
       toast('댓글이 등록되었습니다', 'success');
       setValue('');
       queryClient.invalidateQueries({
-        queryKey: getGetCommentsByCursorQueryKey(postId),
+        queryKey: getGetCommentsByCursor1QueryKey(postId),
       });
     },
     onError: () => {
