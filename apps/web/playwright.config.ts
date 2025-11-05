@@ -1,7 +1,12 @@
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
-  testDir: './tests/e2e',
+  // 여러 위치의 테스트 파일을 지원
+  testDir: './',
+  testMatch: [
+    'tests/e2e/**/*.spec.ts',
+    'src/components/**/__tests__/e2e/**/*.spec.ts',
+  ],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
