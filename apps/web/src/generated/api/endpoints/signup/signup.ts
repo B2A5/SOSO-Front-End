@@ -554,7 +554,16 @@ export const useSetExperience = <
   return useMutation(mutationOptions, queryClient);
 };
 /**
- * 회원가입을 완료하고 사용자 계정을 생성합니다. JWT 토큰 및 사용자 정보를 반환하며, Refresh Token은 HttpOnly 쿠키로 설정됩니다.
+ * 회원가입을 완료하고 사용자 계정을 생성합니다.
+
+**토큰 발급 방식:**
+- Response Body: accessToken 포함 (기존 호환성 유지)
+- Set-Cookie 헤더: accessToken, refreshToken 쿠키 설정 (SSR 지원)
+
+**쿠키 속성:**
+- accessToken: HttpOnly=false (JavaScript 접근 가능, 30분)
+- refreshToken: HttpOnly=true (XSS 보호, 7일)
+
  * @summary [9단계] 회원가입 완료
  */
 export const completeSignup = (signal?: AbortSignal) => {

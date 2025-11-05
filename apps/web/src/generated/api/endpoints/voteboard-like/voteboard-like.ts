@@ -26,36 +26,36 @@ import type { ErrorResponse } from '../../models';
 import { customInstance } from '../../../../lib/api-client';
 
 /**
- * 사용자가 특정 게시글에 좋아요를 했는지 확인합니다.
+ * 사용자가 특정 투표 게시글에 좋아요를 했는지 확인합니다.
 
 **인증:** 로그인 필수
 
- * @summary 자유게시판 글 좋아요 상태 확인
+ * @summary 투표 게시글 좋아요 상태 확인
  */
-export const getLikeStatus2 = (
-  freeboardId: number,
+export const getLikeStatus = (
+  votePostId: number,
   signal?: AbortSignal,
 ) => {
   return customInstance<unknown>({
-    url: `/community/freeboard/${freeboardId}/like`,
+    url: `/community/votesboard/${votePostId}/like`,
     method: 'GET',
     signal,
   });
 };
 
-export const getGetLikeStatus2QueryKey = (freeboardId?: number) => {
-  return [`/community/freeboard/${freeboardId}/like`] as const;
+export const getGetLikeStatusQueryKey = (votePostId?: number) => {
+  return [`/community/votesboard/${votePostId}/like`] as const;
 };
 
-export const getGetLikeStatus2QueryOptions = <
-  TData = Awaited<ReturnType<typeof getLikeStatus2>>,
+export const getGetLikeStatusQueryOptions = <
+  TData = Awaited<ReturnType<typeof getLikeStatus>>,
   TError = ErrorResponse | ErrorResponse,
 >(
-  freeboardId: number,
+  votePostId: number,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getLikeStatus2>>,
+        Awaited<ReturnType<typeof getLikeStatus>>,
         TError,
         TData
       >
@@ -65,47 +65,47 @@ export const getGetLikeStatus2QueryOptions = <
   const { query: queryOptions } = options ?? {};
 
   const queryKey =
-    queryOptions?.queryKey ?? getGetLikeStatus2QueryKey(freeboardId);
+    queryOptions?.queryKey ?? getGetLikeStatusQueryKey(votePostId);
 
   const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof getLikeStatus2>>
-  > = ({ signal }) => getLikeStatus2(freeboardId, signal);
+    Awaited<ReturnType<typeof getLikeStatus>>
+  > = ({ signal }) => getLikeStatus(votePostId, signal);
 
   return {
     queryKey,
     queryFn,
-    enabled: !!freeboardId,
+    enabled: !!votePostId,
     ...queryOptions,
   } as UseQueryOptions<
-    Awaited<ReturnType<typeof getLikeStatus2>>,
+    Awaited<ReturnType<typeof getLikeStatus>>,
     TError,
     TData
   > & { queryKey: DataTag<QueryKey, TData, TError> };
 };
 
-export type GetLikeStatus2QueryResult = NonNullable<
-  Awaited<ReturnType<typeof getLikeStatus2>>
+export type GetLikeStatusQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getLikeStatus>>
 >;
-export type GetLikeStatus2QueryError = ErrorResponse | ErrorResponse;
+export type GetLikeStatusQueryError = ErrorResponse | ErrorResponse;
 
-export function useGetLikeStatus2<
-  TData = Awaited<ReturnType<typeof getLikeStatus2>>,
+export function useGetLikeStatus<
+  TData = Awaited<ReturnType<typeof getLikeStatus>>,
   TError = ErrorResponse | ErrorResponse,
 >(
-  freeboardId: number,
+  votePostId: number,
   options: {
     query: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getLikeStatus2>>,
+        Awaited<ReturnType<typeof getLikeStatus>>,
         TError,
         TData
       >
     > &
       Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getLikeStatus2>>,
+          Awaited<ReturnType<typeof getLikeStatus>>,
           TError,
-          Awaited<ReturnType<typeof getLikeStatus2>>
+          Awaited<ReturnType<typeof getLikeStatus>>
         >,
         'initialData'
       >;
@@ -114,24 +114,24 @@ export function useGetLikeStatus2<
 ): DefinedUseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 };
-export function useGetLikeStatus2<
-  TData = Awaited<ReturnType<typeof getLikeStatus2>>,
+export function useGetLikeStatus<
+  TData = Awaited<ReturnType<typeof getLikeStatus>>,
   TError = ErrorResponse | ErrorResponse,
 >(
-  freeboardId: number,
+  votePostId: number,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getLikeStatus2>>,
+        Awaited<ReturnType<typeof getLikeStatus>>,
         TError,
         TData
       >
     > &
       Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getLikeStatus2>>,
+          Awaited<ReturnType<typeof getLikeStatus>>,
           TError,
-          Awaited<ReturnType<typeof getLikeStatus2>>
+          Awaited<ReturnType<typeof getLikeStatus>>
         >,
         'initialData'
       >;
@@ -140,15 +140,15 @@ export function useGetLikeStatus2<
 ): UseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 };
-export function useGetLikeStatus2<
-  TData = Awaited<ReturnType<typeof getLikeStatus2>>,
+export function useGetLikeStatus<
+  TData = Awaited<ReturnType<typeof getLikeStatus>>,
   TError = ErrorResponse | ErrorResponse,
 >(
-  freeboardId: number,
+  votePostId: number,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getLikeStatus2>>,
+        Awaited<ReturnType<typeof getLikeStatus>>,
         TError,
         TData
       >
@@ -159,18 +159,18 @@ export function useGetLikeStatus2<
   queryKey: DataTag<QueryKey, TData, TError>;
 };
 /**
- * @summary 자유게시판 글 좋아요 상태 확인
+ * @summary 투표 게시글 좋아요 상태 확인
  */
 
-export function useGetLikeStatus2<
-  TData = Awaited<ReturnType<typeof getLikeStatus2>>,
+export function useGetLikeStatus<
+  TData = Awaited<ReturnType<typeof getLikeStatus>>,
   TError = ErrorResponse | ErrorResponse,
 >(
-  freeboardId: number,
+  votePostId: number,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getLikeStatus2>>,
+        Awaited<ReturnType<typeof getLikeStatus>>,
         TError,
         TData
       >
@@ -180,8 +180,8 @@ export function useGetLikeStatus2<
 ): UseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 } {
-  const queryOptions = getGetLikeStatus2QueryOptions(
-    freeboardId,
+  const queryOptions = getGetLikeStatusQueryOptions(
+    votePostId,
     options,
   );
 
@@ -196,7 +196,7 @@ export function useGetLikeStatus2<
 }
 
 /**
- * 게시글에 좋아요를 추가하거나 취소합니다.
+ * 투표 게시글에 좋아요를 추가하거나 취소합니다.
 
 **동작 방식:**
 - 이미 좋아요한 게시글이면 좋아요를 취소하고 false 반환
@@ -204,36 +204,36 @@ export function useGetLikeStatus2<
 
 **인증:** 로그인 필수
 
- * @summary 자유게시판 글 좋아요 토글
+ * @summary 투표 게시글 좋아요 토글
  */
-export const toggleLike2 = (
-  freeboardId: number,
+export const toggleLike = (
+  votePostId: number,
   signal?: AbortSignal,
 ) => {
   return customInstance<unknown>({
-    url: `/community/freeboard/${freeboardId}/like`,
+    url: `/community/votesboard/${votePostId}/like`,
     method: 'POST',
     signal,
   });
 };
 
-export const getToggleLike2MutationOptions = <
+export const getToggleLikeMutationOptions = <
   TError = ErrorResponse | ErrorResponse,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof toggleLike2>>,
+    Awaited<ReturnType<typeof toggleLike>>,
     TError,
-    { freeboardId: number },
+    { votePostId: number },
     TContext
   >;
 }): UseMutationOptions<
-  Awaited<ReturnType<typeof toggleLike2>>,
+  Awaited<ReturnType<typeof toggleLike>>,
   TError,
-  { freeboardId: number },
+  { votePostId: number },
   TContext
 > => {
-  const mutationKey = ['toggleLike2'];
+  const mutationKey = ['toggleLike'];
   const { mutation: mutationOptions } = options
     ? options.mutation &&
       'mutationKey' in options.mutation &&
@@ -243,46 +243,46 @@ export const getToggleLike2MutationOptions = <
     : { mutation: { mutationKey } };
 
   const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof toggleLike2>>,
-    { freeboardId: number }
+    Awaited<ReturnType<typeof toggleLike>>,
+    { votePostId: number }
   > = (props) => {
-    const { freeboardId } = props ?? {};
+    const { votePostId } = props ?? {};
 
-    return toggleLike2(freeboardId);
+    return toggleLike(votePostId);
   };
 
   return { mutationFn, ...mutationOptions };
 };
 
-export type ToggleLike2MutationResult = NonNullable<
-  Awaited<ReturnType<typeof toggleLike2>>
+export type ToggleLikeMutationResult = NonNullable<
+  Awaited<ReturnType<typeof toggleLike>>
 >;
 
-export type ToggleLike2MutationError = ErrorResponse | ErrorResponse;
+export type ToggleLikeMutationError = ErrorResponse | ErrorResponse;
 
 /**
- * @summary 자유게시판 글 좋아요 토글
+ * @summary 투표 게시글 좋아요 토글
  */
-export const useToggleLike2 = <
+export const useToggleLike = <
   TError = ErrorResponse | ErrorResponse,
   TContext = unknown,
 >(
   options?: {
     mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof toggleLike2>>,
+      Awaited<ReturnType<typeof toggleLike>>,
       TError,
-      { freeboardId: number },
+      { votePostId: number },
       TContext
     >;
   },
   queryClient?: QueryClient,
 ): UseMutationResult<
-  Awaited<ReturnType<typeof toggleLike2>>,
+  Awaited<ReturnType<typeof toggleLike>>,
   TError,
-  { freeboardId: number },
+  { votePostId: number },
   TContext
 > => {
-  const mutationOptions = getToggleLike2MutationOptions(options);
+  const mutationOptions = getToggleLikeMutationOptions(options);
 
   return useMutation(mutationOptions, queryClient);
 };
