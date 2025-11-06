@@ -11,25 +11,25 @@ import { useToggleLike2 } from '@/generated/api/endpoints/freeboard-like/freeboa
 
 interface LikeButtonPostProps {
   postId: number;
-  isLiked: boolean;
-  likeCount: number;
+  initialLiked: boolean;
+  initialLikeCount: number;
   icon?: React.ElementType;
 }
 
 // 음수 방지(보정) 헬퍼
-const clampNonNegative = (n: number) => (n < 0 ? 0 : n);
+const clampMin0 = (n: number) => (n < 0 ? 0 : n);
 
 /**
  * 게시글 좋아요 버튼
  *
  * 전략:
- * - 낙관적 토글(로컬 UI 먼저 반영) → 실패 시 스냅샷으로 롤백 → 성공 시 서버 절대값으로 보정
+ * - 낙관적 토글(로컬 UI 먼저 반영) → 실패 시 스냅샷으로 롤백 → 성공 시 토스트
  * - 마지막엔 관련 쿼리 invalidate로 캐시/화면 동기화
  */
 export default function LikeButtonPost({
   postId,
-  isLiked,
-  likeCount,
+  initialLiked,
+  initialLikeCount,
   icon: Icon = Heart,
 }: LikeButtonPostProps) {
   const { isRestoring } = useAuthRestore();
@@ -38,17 +38,17 @@ export default function LikeButtonPost({
   const { guard } = useAuthGuard();
 
   // UI 전용 상태(부모 props와 동기화됨)
-  const [isLikedLocal, setIsLikedLocal] = useState(isLiked);
-  const [likeCountLocal, setLikeCountLocal] = useState(likeCount);
+  const [liked, setLiked] = useState(initialLiked);
+  const [likeCount, setLikeCount] = useState(initialLikeCount);
 
   // 부모 값 변경 시 동기화
-  useEffect(() => setIsLikedLocal(isLiked), [isLiked]);
-  useEffect(() => setLikeCountLocal(likeCount), [likeCount]);
+  useEffect(() => setLiked(initialLiked), [initialLiked]);
+  useEffect(() => setLikeCount(initialLikeCount), [initialLikeCount]);
 
   // 이 게시글 상세 쿼리 키 (취소/무효화에 사용)
   const postDetailKey = getGetPostQueryKey(postId);
 
-  const toggleLikeMutation = useToggleLike2({
+  const toggleLike = useToggleLike2({
     mutation: {
       mutationKey: ['togglePostLike', postId],
 
@@ -58,17 +58,15 @@ export default function LikeButtonPost({
 
         // (2) 롤백용 스냅샷 저장
         const snapshot = {
-          isLiked: isLikedLocal,
-          likeCount: likeCountLocal,
+          prevLiked: liked,
+          prevLikeCount: likeCount,
         };
 
         // (3) 낙관적 토글 + 카운트 보정(음수 방지)
-        setIsLikedLocal((prev) => {
+        setLiked((prev) => {
           const next = !prev;
           const delta = next ? 1 : -1;
-          setLikeCountLocal((count) =>
-            clampNonNegative(count + delta),
-          );
+          setLikeCount((count) => clampMin0(count + delta));
           return next;
         });
 
@@ -80,28 +78,14 @@ export default function LikeButtonPost({
         // 실패 시 스냅샷으로 UI 롤백
         const snap = onMutateResult?.snapshot;
         if (snap) {
-          setIsLikedLocal(snap.isLiked);
-          setLikeCountLocal(snap.likeCount);
+          setLiked(snap.prevLiked);
+          setLikeCount(snap.prevLikeCount);
         }
         toast('좋아요 처리 중 오류가 발생했습니다.', 'error');
       },
 
-      onSuccess: (data, _variables, onMutateResult) => {
-        // 서버가 불리언만 주는 토글 결과에 맞춘 검증/보정
-        const snap = onMutateResult?.snapshot;
-        if (typeof data === 'boolean' && snap) {
-          const expected = !snap.isLiked; // 낙관 시나리오에서 예상했던 값
-          if (data !== expected) {
-            // 서버와 낙관값이 불일치 → 스냅샷 기준으로 보정
-            const delta = data ? 1 : -1;
-            setIsLikedLocal(data);
-            setLikeCountLocal(
-              clampNonNegative(snap.likeCount + delta),
-            );
-          }
-          // 일치하면 아무 것도 안 함(이미 낙관값이 서버와 동일)
-          toast('좋아요가 반영되었습니다.', 'success');
-        }
+      onSuccess: () => {
+        toast('좋아요가 반영되었습니다.', 'success');
       },
 
       onSettled: () => {
@@ -112,10 +96,10 @@ export default function LikeButtonPost({
   });
 
   // 클릭 시: 가드 통과 후, 중복 요청 방지 & 뮤테이션 트리거
-  const handleClick = () =>
+  const handleToggleLike = () =>
     guard(() => {
-      if (toggleLikeMutation.isPending) return;
-      toggleLikeMutation.mutate({ freeboardId: postId });
+      if (toggleLike.isPending) return;
+      toggleLike.mutate({ freeboardId: postId });
     });
 
   // 인증 복원 중임을 명시(시각적 피드백)
@@ -128,7 +112,7 @@ export default function LikeButtonPost({
       >
         <Icon className="inline w-4 h-4 text-neutral-200" />
         <span className="text-neutral-500 text-input2">
-          {formatCappedCount(likeCountLocal)}
+          {formatCappedCount(likeCount)}
         </span>
       </button>
     );
@@ -137,21 +121,19 @@ export default function LikeButtonPost({
   return (
     <button
       type="button"
-      aria-pressed={isLikedLocal}
-      onClick={handleClick}
+      aria-pressed={liked}
+      onClick={handleToggleLike}
       className="flex items-center gap-1.5"
-      disabled={toggleLikeMutation.isPending}
-      aria-label={isLikedLocal ? '좋아요 취소' : '좋아요'}
+      disabled={toggleLike.isPending}
+      aria-label={liked ? '좋아요 취소' : '좋아요'}
     >
       <Icon
         className={`inline w-4 h-4 text-neutral-200 transition-colors ${
-          isLikedLocal
-            ? 'fill-soso-600 text-soso-600'
-            : 'fill-transparent'
+          liked ? 'fill-soso-600 text-soso-600' : 'fill-transparent'
         }`}
       />
       <span className="text-neutral-500 text-input2">
-        {formatCappedCount(likeCountLocal)}
+        {formatCappedCount(likeCount)}
       </span>
     </button>
   );

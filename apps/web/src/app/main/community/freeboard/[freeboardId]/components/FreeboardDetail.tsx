@@ -75,8 +75,8 @@ export default function FreeboardDetail({
       <div className="flex justify-between items-center">
         <LikeButtonPost
           postId={post.postId}
-          isLiked={post.isLiked}
-          likeCount={post.likeCount}
+          initialLiked={post.isLiked}
+          initialLikeCount={post.likeCount}
         />
         <div className="flex items-center gap-1.5">
           <Eye className="inline w-6 h-6 text-neutral-200" />
