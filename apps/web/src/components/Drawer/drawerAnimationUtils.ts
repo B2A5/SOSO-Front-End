@@ -1,4 +1,4 @@
-import { DrawerPosition, SnapPoint } from './DrawerContext';
+import { DrawerPosition, SnapPoint } from './DrawerRoot';
 
 /**
  * Drawer 애니메이션 유틸리티 함수

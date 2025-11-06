@@ -339,6 +339,30 @@ interface DrawerSnapProps {
 4. **타입 안전성**: TypeScript 완벽 지원
 5. **접근성 우선**: WCAG 2.1 AA 준수
 
+### 설계 결정: Root와 Provider 통합
+
+이전에는 `DrawerRoot`와 `DrawerProvider`를 분리했지만, DrawerRoot가 단순히 props를 전달하는 역할만 하여 불필요한 추상화였습니다.
+
+**통합 후 개선 사항:**
+
+- ✅ Props → State → Context 흐름이 한 파일에서 완결
+- ✅ 코드 중복 제거 (Props 정의 1회)
+- ✅ 파일 간 이동 없이 전체 로직 파악 가능
+- ✅ Radix UI, Headless UI 등 다른 라이브러리와 패턴 일치
+
+**Before (분리)**:
+
+```
+DrawerRoot.tsx (97줄)     → Props 전달만
+DrawerContext.tsx (235줄) → 실제 로직
+```
+
+**After (통합)**:
+
+```
+DrawerRoot.tsx (248줄) → Context + 로직 통합
+```
+
 ### 핵심 로직
 
 #### 1. 드래그 제스처 처리 (`useDragHandlers`)
@@ -572,8 +596,7 @@ export function useIOSOptimization({ isOpen, isDragging }) {
 
 ```
 Drawer/
-├── DrawerRoot.tsx (97줄)          # Context Provider wrapper
-├── DrawerContext.tsx (168줄)      # 상태 관리 & Context
+├── DrawerRoot.tsx (248줄)         # Context + Root 통합
 ├── DrawerContent.tsx (165줄)      # 메인 콘텐츠 (리팩토링됨)
 ├── DrawerOverlay.tsx (83줄)       # 배경 오버레이
 ├── DrawerTrigger.tsx (78줄)       # 트리거 버튼

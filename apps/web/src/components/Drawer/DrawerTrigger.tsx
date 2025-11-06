@@ -1,7 +1,7 @@
 'use client';
 
 import React, { ReactNode } from 'react';
-import { useDrawerContext } from './DrawerContext';
+import { useDrawerContext } from './DrawerRoot';
 
 /**
  * Drawer Trigger Props

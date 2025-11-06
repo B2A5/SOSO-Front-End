@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { animate, type MotionValue } from 'motion/react';
-import { SnapPoint } from '../DrawerContext';
+import { SnapPoint } from '../DrawerRoot';
 import { SPRING_CONFIG } from '../constants';
 import { snapPointToY } from '../utils';
 

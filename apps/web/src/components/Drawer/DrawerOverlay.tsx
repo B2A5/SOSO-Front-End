@@ -2,7 +2,7 @@
 
 import { ReactNode } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { useDrawerContext } from './DrawerContext';
+import { useDrawerContext } from './DrawerRoot';
 import { Z_INDEX } from './constants';
 import { cn } from '@/utils/cn';
 

@@ -1,7 +1,7 @@
 import { useRef, useCallback } from 'react';
 import { useMotionValue, animate } from 'motion/react';
 import type { PanInfo } from 'motion/react';
-import { DrawerPosition, SnapPoint } from '../DrawerContext';
+import { DrawerPosition, SnapPoint } from '../DrawerRoot';
 import {
   SPRING_CONFIG,
   CLOSE_THRESHOLD,

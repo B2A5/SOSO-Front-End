@@ -1,7 +1,7 @@
 'use client';
 
 import { ReactNode } from 'react';
-import { useDrawerContext } from './DrawerContext';
+import { useDrawerContext } from './DrawerRoot';
 import { cn } from '@/utils/cn';
 
 /**

@@ -46,7 +46,7 @@ export const Drawer = Object.assign(DrawerRoot, {
 });
 
 // Context와 Hook
-export { useDrawerContext } from './DrawerContext';
+export { useDrawerContext } from './DrawerRoot';
 
 // 타입 exports
 export type { DrawerRootProps } from './DrawerRoot';
@@ -59,7 +59,7 @@ export type {
   DrawerPosition,
   SnapPoint,
   DrawerContextValue,
-} from './DrawerContext';
+} from './DrawerRoot';
 
 // 상수 exports
 export {

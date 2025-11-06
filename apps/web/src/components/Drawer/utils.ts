@@ -5,7 +5,7 @@
  * https://github.com/emilkowalski/vaul/blob/main/src/use-snap-points.ts
  */
 
-import { SnapPoint } from './DrawerContext';
+import { SnapPoint } from './DrawerRoot';
 
 /**
  * iOS 디바이스 감지
