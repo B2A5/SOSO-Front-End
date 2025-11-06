@@ -36,33 +36,6 @@ export interface DrawerContentProps {
   scrollLockTimeout?: number;
 }
 
-/**
- * Drawer Content Component (Refactored)
- *
- * 개선 사항:
- * - Issue #2: Body 스크롤 잠금 → useBodyScrollLock 훅
- * - Issue #3: Date 객체 비효율 → useDragHandlers 훅에서 Date.now() 사용
- * - Issue #4: useEffect 의존성 → useSnapPointAnimation 훅에서 ref 사용
- * - Issue #6: SCROLL_LOCK_TIMEOUT 하드코딩 → props로 전달
- *
- * 추상화:
- * - 드래그 로직 → useDragHandlers
- * - 스냅 포인트 애니메이션 → useSnapPointAnimation
- * - 접근성 (ESC + 포커스 트랩) → useDrawerAccessibility
- * - iOS 최적화 → useIOSOptimization
- * - 애니메이션 헬퍼 → drawerAnimationUtils
- *
- * @example
- * ```tsx
- * <Drawer.Root>
- *   <Drawer.Overlay />
- *   <Drawer.Content scrollLockTimeout={300}>
- *     <h1>Title</h1>
- *     <p>Content</p>
- *   </Drawer.Content>
- * </Drawer.Root>
- * ```
- */
 export function DrawerContent({
   className,
   children,
@@ -73,7 +46,7 @@ export function DrawerContent({
     isOpen,
     setIsOpen,
     position,
-    dismissible,
+    closeOnDrag,
     isDragging,
     setIsDragging,
     snapPoints,
@@ -91,7 +64,7 @@ export function DrawerContent({
   const { y, x, handleDragStart, handleDrag, handleDragEnd } =
     useDragHandlers({
       position,
-      dismissible,
+      closeOnDrag,
       snapPoints,
       activeSnapPointIndex,
       setActiveSnapPointIndex,
@@ -101,7 +74,7 @@ export function DrawerContent({
       scrollLockTimeout,
     });
 
-  // 3. 스냅 포인트 애니메이션 (Issue #4 해결)
+  // 3. 스냅 포인트 애니메이션
   useSnapPointAnimation({
     isOpen,
     snapPoints,
@@ -113,7 +86,7 @@ export function DrawerContent({
   // 4. 접근성 (ESC 키 + 포커스 트랩)
   useDrawerAccessibility({
     isOpen,
-    dismissible,
+    closeOnDrag,
     setIsOpen,
     contentRef,
   });
@@ -135,7 +108,7 @@ export function DrawerContent({
       {isOpen && (
         <motion.div
           ref={contentRef}
-          drag={dismissible ? getDragDirection(position) : false}
+          drag={closeOnDrag ? getDragDirection(position) : false}
           dragConstraints={animationProps.dragConstraints}
           dragElastic={animationProps.dragElastic}
           onDragStart={handleDragStart}

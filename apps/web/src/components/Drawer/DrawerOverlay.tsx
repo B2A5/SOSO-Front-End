@@ -34,12 +34,12 @@ export function DrawerOverlay({
   className,
   children,
 }: DrawerOverlayProps) {
-  const { isOpen, setIsOpen, modal, dismissible } =
+  const { isOpen, setIsOpen, closeOnBackground, closeOnDrag } =
     useDrawerContext();
 
   // 오버레이 클릭 핸들러
   const handleClick = () => {
-    if (modal && dismissible) {
+    if (closeOnBackground && closeOnDrag) {
       setIsOpen(false);
     }
   };

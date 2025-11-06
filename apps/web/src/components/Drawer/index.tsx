@@ -1,31 +1,3 @@
-/**
- * Drawer Component
- *
- * 드래그 가능한 Drawer 컴포넌트입니다.
- * Vaul/Shadcn Drawer를 참고하여 제작되었으며, Framer Motion을 사용합니다.
- *
- * @features
- * - Framer Motion 기반 드래그 제스처
- * - 스냅 포인트 지원
- * - iOS Safari 최적화
- * - 제어/비제어 모드 지원
- * - 합성 컴포넌트 패턴
- * - Context 기반 상태 관리
- *
- * @example
- * ```tsx
- * <Drawer>
- *   <Drawer.Trigger>Open Drawer</Drawer.Trigger>
- *
- *   <Drawer.Overlay className="fixed inset-0 bg-black/40" />
- *   <Drawer.Content>
- *     <Drawer.Items>수정하기</Drawer.Items>
- *     <Drawer.Items destructive onClick={handleDelete}>삭제하기</Drawer.Items>
- *   </Drawer.Content>
- * </Drawer>
- * ```
- */
-
 import { DrawerRoot } from './DrawerRoot';
 import { DrawerTrigger } from './DrawerTrigger';
 import { DrawerContent } from './DrawerContent';

@@ -3,7 +3,7 @@ import { useFocusTrap } from '../useFocusTrap';
 
 export interface UseDrawerAccessibilityProps {
   isOpen: boolean;
-  dismissible: boolean;
+  closeOnDrag: boolean;
   setIsOpen: (open: boolean) => void;
   contentRef: React.RefObject<HTMLElement>;
 }
@@ -17,7 +17,7 @@ export interface UseDrawerAccessibilityProps {
  * ```tsx
  * useDrawerAccessibility({
  *   isOpen,
- *   dismissible,
+ *   closeOnDrag,
  *   setIsOpen,
  *   contentRef,
  * });
@@ -25,13 +25,13 @@ export interface UseDrawerAccessibilityProps {
  */
 export function useDrawerAccessibility({
   isOpen,
-  dismissible,
+  closeOnDrag,
   setIsOpen,
   contentRef,
 }: UseDrawerAccessibilityProps) {
   // ESC 키로 닫기
   useEffect(() => {
-    if (!isOpen || !dismissible) return;
+    if (!isOpen || !closeOnDrag) return;
 
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -42,7 +42,7 @@ export function useDrawerAccessibility({
     document.addEventListener('keydown', handleEscape);
     return () =>
       document.removeEventListener('keydown', handleEscape);
-  }, [isOpen, dismissible, setIsOpen]);
+  }, [isOpen, closeOnDrag, setIsOpen]);
 
   // 포커스 트랩
   useFocusTrap(contentRef, isOpen);

@@ -11,7 +11,7 @@ import { findClosestSnapPoint, snapPointToY } from '../utils';
 
 export interface UseDragHandlersProps {
   position: DrawerPosition;
-  dismissible: boolean;
+  closeOnDrag: boolean;
   snapPoints?: SnapPoint[];
   activeSnapPointIndex: number;
   setActiveSnapPointIndex: (index: number) => void;
@@ -44,14 +44,14 @@ export interface UseDragHandlersReturn {
  * ```tsx
  * const { y, x, handleDragStart, handleDrag, handleDragEnd } = useDragHandlers({
  *   position: 'bottom',
- *   dismissible: true,
+ *   closeOnDrag: true,
  *   // ...
  * });
  * ```
  */
 export function useDragHandlers({
   position,
-  dismissible,
+  closeOnDrag,
   snapPoints,
   activeSnapPointIndex,
   setActiveSnapPointIndex,
@@ -157,8 +157,8 @@ export function useDragHandlers({
     ) => {
       setIsDragging(false);
 
-      if (!dismissible) {
-        // dismissible이 false면 원위치로 복귀
+      if (!closeOnDrag) {
+        // closeOnDrag이 false면 원위치로 복귀
         y.set(0);
         x.set(0);
         return;
@@ -217,7 +217,7 @@ export function useDragHandlers({
       }
     },
     [
-      dismissible,
+      closeOnDrag,
       snapPoints,
       activeSnapPointIndex,
       contentRef,
