@@ -8,14 +8,6 @@ import { cn } from '@/utils/cn';
  *
  * Drawer 상단의 드래그 핸들 UI 컴포넌트입니다.
  * 사용자가 드래그할 수 있는 시각적 표시를 제공합니다.
- *
- * @example
- * ```tsx
- * <Drawer.Content>
- *   <Drawer.Handle />
- *   <div>Content</div>
- * </Drawer.Content>
- * ```
  */
 export function DrawerHandle({ className }: { className?: string }) {
   return (

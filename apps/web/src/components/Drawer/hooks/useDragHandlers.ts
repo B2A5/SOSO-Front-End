@@ -38,16 +38,6 @@ export interface UseDragHandlersReturn {
  * Drawer 드래그 핸들러 훅
  *
  * 드래그 제스처를 처리하고 스크롤과의 충돌을 방지합니다.
- * Issue #3 해결: Date 객체 대신 Date.now() 사용
- *
- * @example
- * ```tsx
- * const { y, x, handleDragStart, handleDrag, handleDragEnd } = useDragHandlers({
- *   position: 'bottom',
- *   closeOnDrag: true,
- *   // ...
- * });
- * ```
  */
 export function useDragHandlers({
   position,
@@ -67,10 +57,7 @@ export function useDragHandlers({
   // Issue #3 해결: Date 객체 → number로 변경
   const lastTimeDragPrevented = useRef<number | null>(null);
 
-  /**
-   * 드래그 가능 여부 체크 (Vaul 방식)
-   * 스크롤 가능한 요소의 scrollTop이 0이 아니면 드래그 불허
-   */
+  // 드래그 허용 여부 판단 함수
   const shouldDrag = useCallback(
     (target: HTMLElement): boolean => {
       let element: HTMLElement | null = target;

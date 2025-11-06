@@ -1,6 +1,12 @@
 'use client';
 
-import { useRef, ReactNode } from 'react';
+import {
+  useRef,
+  ReactNode,
+  useState,
+  useEffect,
+  useMemo,
+} from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useDrawerContext } from './DrawerRoot';
 import { DrawerHandle } from './DrawerHandle';
@@ -21,6 +27,7 @@ import {
   getDragDirection,
   hasSnapPoints,
 } from './drawerAnimationUtils';
+import { snapPointToY } from './utils';
 
 /**
  * Drawer Content Props
@@ -56,11 +63,34 @@ export function DrawerContent({
 
   const contentRef = useRef<HTMLDivElement>(null);
 
-  // 커스텀 훅들로 로직 분리
-  // 1. Body 스크롤 잠금 (Issue #2)
+  // ResizeObserver로 Drawer 높이/너비 추적
+  const [contentHeight, setContentHeight] = useState(0);
+
+  useEffect(() => {
+    if (!contentRef.current) return;
+
+    // 초기 높이 즉시 설정 (ResizeObserver 전)
+    setContentHeight(contentRef.current.offsetHeight);
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (!entry) return;
+
+      const height = entry.contentRect.height;
+
+      // 성능 최적화: 5px 미만 변화는 무시
+      setContentHeight((prev) => {
+        if (Math.abs(prev - height) < 5) return prev;
+        return height;
+      });
+    });
+
+    resizeObserver.observe(contentRef.current);
+    return () => resizeObserver.disconnect();
+  }, []);
+
   useBodyScrollLock(isOpen);
 
-  // 2. 드래그 핸들러 (Issue #3 해결, Issue #6 해결)
   const { y, x, handleDragStart, handleDrag, handleDragEnd } =
     useDragHandlers({
       position,
@@ -74,16 +104,15 @@ export function DrawerContent({
       scrollLockTimeout,
     });
 
-  // 3. 스냅 포인트 애니메이션
   useSnapPointAnimation({
-    isOpen,
     snapPoints,
     activeSnapPointIndex,
     y,
-    contentRef,
+    x,
+    contentHeight,
+    position,
   });
 
-  // 4. 접근성 (ESC 키 + 포커스 트랩)
   useDrawerAccessibility({
     isOpen,
     closeOnDrag,
@@ -91,7 +120,6 @@ export function DrawerContent({
     contentRef,
   });
 
-  // 5. iOS Safari 최적화
   useIOSOptimization({
     isOpen,
     isDragging,
@@ -102,6 +130,26 @@ export function DrawerContent({
     position,
     hasSnapPoints(snapPoints),
   );
+
+  // 스냅 포인트가 있을 때 목표 위치 계산 (모든 position 지원)
+  const targetSnapPosition = useMemo(() => {
+    if (!hasSnapPoints(snapPoints) || contentHeight === 0) {
+      return { y: 0, x: 0 };
+    }
+
+    const snapValue = snapPointToY(
+      snapPoints[activeSnapPointIndex],
+      contentHeight,
+    );
+
+    // Position에 따라 y/x 값 결정
+    if (position === 'bottom') return { y: snapValue, x: 0 };
+    if (position === 'top') return { y: -snapValue, x: 0 };
+    if (position === 'left') return { y: 0, x: -snapValue };
+    if (position === 'right') return { y: 0, x: snapValue };
+
+    return { y: 0, x: 0 };
+  }, [snapPoints, activeSnapPointIndex, contentHeight, position]);
 
   return (
     <AnimatePresence>
@@ -115,7 +163,23 @@ export function DrawerContent({
           onDrag={handleDrag}
           onDragEnd={handleDragEnd}
           initial={animationProps.initial}
-          animate={animationProps.animate}
+          animate={{
+            ...animationProps.animate,
+            // 스냅 포인트가 있고 드래그 중이 아닐 때만 애니메이션
+            // isDragging 중에는 style의 MotionValue가 우선
+            y:
+              !isDragging &&
+              hasSnapPoints(snapPoints) &&
+              (position === 'bottom' || position === 'top')
+                ? targetSnapPosition.y
+                : animationProps.animate.y,
+            x:
+              !isDragging &&
+              hasSnapPoints(snapPoints) &&
+              (position === 'left' || position === 'right')
+                ? targetSnapPosition.x
+                : animationProps.animate.x,
+          }}
           exit={animationProps.exit}
           transition={SPRING_CONFIG}
           style={{

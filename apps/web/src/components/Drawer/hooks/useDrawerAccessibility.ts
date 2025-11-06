@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useFocusTrap } from '../useFocusTrap';
+import { useFocusTrap } from './useFocusTrap';
 
 export interface UseDrawerAccessibilityProps {
   isOpen: boolean;

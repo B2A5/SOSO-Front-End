@@ -23,7 +23,7 @@ export interface DrawerSnapProps {
 /**
  * Drawer.Snap Component
  *
- * 특정 스냅 포인트에서만 표시되는 콘텐츠를 선언적으로 관리합니다.
+ * 특정 스냅 포인트에서만 표시되는 콘텐츠를 관리합니다.
  *
  * @example
  * ```tsx
