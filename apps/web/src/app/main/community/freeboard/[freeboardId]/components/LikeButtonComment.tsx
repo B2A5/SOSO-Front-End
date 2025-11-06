@@ -7,17 +7,18 @@ import { useAuthGuard, useAuthRestore } from '@/hooks/useAuth';
 import { useToggleCommentLike } from '@/generated/api/endpoints/freeboard-comment-like/freeboard-comment-like';
 import { useToast } from '@/hooks/ui/useToast';
 import { getGetCommentsByCursor1QueryKey } from '@/generated/api/endpoints/freeboard-comment/freeboard-comment';
+import { formatCappedCount } from '@/utils/formatCount';
 
 interface LikeButtonCommentProps {
   postId: number;
   commentId: number;
-  isLiked: boolean;
-  likeCount: number;
+  initialLiked: boolean;
+  initialLikeCount: number;
   icon?: React.ElementType;
 }
 
 // 음수 방지(보정) 헬퍼
-const clampNonNegative = (n: number) => (n < 0 ? 0 : n);
+const clampMin0 = (n: number) => (n < 0 ? 0 : n);
 
 /**
  * 댓글 좋아요 버튼
@@ -29,8 +30,8 @@ const clampNonNegative = (n: number) => (n < 0 ? 0 : n);
 export default function LikeButtonComment({
   postId,
   commentId,
-  isLiked,
-  likeCount,
+  initialLiked,
+  initialLikeCount,
   icon: Icon = ThumbsUp,
 }: LikeButtonCommentProps) {
   const { isRestoring, isAuthenticated } = useAuthRestore();
@@ -39,16 +40,16 @@ export default function LikeButtonComment({
   const { guard } = useAuthGuard();
 
   // UI 전용 상태(부모 props와 동기화됨)
-  const [isLikedLocal, setIsLikedLocal] = useState(!!isLiked);
-  const [likeCountLocal, setLikeCountLocal] = useState(likeCount);
+  const [liked, setLiked] = useState(!!initialLiked);
+  const [likeCount, setLikeCount] = useState(initialLikeCount);
 
-  useEffect(() => setIsLikedLocal(!!isLiked), [isLiked]);
-  useEffect(() => setLikeCountLocal(likeCount), [likeCount]);
+  useEffect(() => setLiked(!!initialLiked), [initialLiked]);
+  useEffect(() => setLikeCount(initialLikeCount), [initialLikeCount]);
 
   // 이 게시글의 댓글 목록 쿼리 키 (취소/무효화에 사용)
   const commentListKey = getGetCommentsByCursor1QueryKey(postId);
 
-  const toggle = useToggleCommentLike({
+  const toggleLike = useToggleCommentLike({
     mutation: {
       mutationKey: ['toggleCommentLike', postId, commentId],
 
@@ -58,17 +59,15 @@ export default function LikeButtonComment({
 
         // (2) 롤백용 스냅샷
         const snapshot = {
-          isLiked: isLikedLocal,
-          likeCount: likeCountLocal,
+          prevLiked: liked,
+          prevLikeCount: likeCount,
         };
 
         // (3) 낙관적 토글 + 카운트 보정
-        setIsLikedLocal((prev) => {
+        setLiked((prev) => {
           const next = !prev;
           const delta = next ? 1 : -1;
-          setLikeCountLocal((count) =>
-            clampNonNegative(count + delta),
-          );
+          setLikeCount((count) => clampMin0(count + delta));
           return next;
         });
 
@@ -80,42 +79,30 @@ export default function LikeButtonComment({
         // 실패 시 스냅샷으로 롤백
         const snap = onMutateResult?.snapshot;
         if (snap) {
-          setIsLikedLocal(snap.isLiked);
-          setLikeCountLocal(snap.likeCount);
+          setLiked(snap.prevLiked);
+          setLikeCount(snap.prevLikeCount);
         }
         toast('댓글 좋아요 처리 중 오류가 발생했습니다.', 'error');
       },
 
-      onSuccess: (data, _variables, onMutateResult) => {
-        // 서버가 불리언만 주는 토글 결과에 맞춘 검증/보정
-        const snap = onMutateResult?.snapshot;
-        if (typeof data === 'boolean' && snap) {
-          const expected = !snap.isLiked; // 낙관 시나리오에서 예상했던 값
-          if (data !== expected) {
-            // 서버와 낙관값이 불일치 → 스냅샷 기준으로 보정
-            const delta = data ? 1 : -1;
-            setIsLikedLocal(data);
-            setLikeCountLocal(
-              clampNonNegative(snap.likeCount + delta),
-            );
-          }
-          // 일치하면 아무 것도 안 함(이미 낙관값이 서버와 동일)
-          toast('좋아요가 반영되었습니다.', 'success');
-        }
+      onSuccess: () => {
+        toast('좋아요가 반영되었습니다.', 'success');
       },
 
       onSettled: () => {
         // 성공/실패와 무관하게 최종적으로 서버 상태와 동기화
-        queryClient.invalidateQueries({ queryKey: commentListKey });
+        queryClient.invalidateQueries({
+          queryKey: commentListKey,
+        });
       },
     },
   });
 
   // 클릭 시: 가드 통과 후, 중복 요청 방지 & 뮤테이션 트리거
-  const handleClick = () =>
+  const handleToggleLike = () =>
     guard(() => {
-      if (toggle.isPending) return;
-      toggle.mutate({ freeboardId: postId, commentId });
+      if (toggleLike.isPending) return;
+      toggleLike.mutate({ freeboardId: postId, commentId });
     });
 
   // 인증 복원 중임을 명시(시각적 피드백)
@@ -129,7 +116,7 @@ export default function LikeButtonComment({
       >
         <Icon className="inline w-4 h-4 text-neutral-200" />
         <span className="text-neutral-500 text-input2">
-          {likeCountLocal}
+          {likeCount}
         </span>
       </button>
     );
@@ -138,22 +125,20 @@ export default function LikeButtonComment({
   return (
     <button
       type="button"
-      aria-pressed={isLikedLocal}
-      onClick={handleClick}
+      aria-pressed={liked}
+      onClick={handleToggleLike}
       className="flex items-center gap-1.5"
-      disabled={toggle.isPending}
-      aria-label={isLikedLocal ? '좋아요 취소' : '좋아요'}
+      disabled={toggleLike.isPending}
+      aria-label={liked ? '좋아요 취소' : '좋아요'}
       title={!isAuthenticated ? '로그인이 필요합니다' : undefined}
     >
       <Icon
         className={`inline w-4 h-4 text-neutral-200 transition-colors ${
-          isLikedLocal
-            ? 'fill-soso-600 text-soso-600'
-            : 'fill-transparent'
+          liked ? 'fill-soso-600 text-soso-600' : 'fill-transparent'
         }`}
       />
       <span className="text-neutral-500 text-input2">
-        {likeCountLocal}
+        {formatCappedCount(likeCount)}
       </span>
     </button>
   );

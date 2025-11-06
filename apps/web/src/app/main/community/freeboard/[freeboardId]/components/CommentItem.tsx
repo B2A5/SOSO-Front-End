@@ -89,8 +89,8 @@ export default function CommentItem({
             <LikeButtonComment
               postId={postId ?? 0}
               commentId={commentId ?? 0}
-              isLiked={isLiked ?? false}
-              likeCount={likeCount ?? 0}
+              initialLiked={isLiked ?? false}
+              initialLikeCount={likeCount ?? 0}
             />
             <span>{relativeTime(createdAt ?? '')}</span>
           </div>
