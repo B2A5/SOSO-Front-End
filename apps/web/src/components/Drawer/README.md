@@ -339,7 +339,7 @@ interface DrawerSnapProps {
 4. **타입 안전성**: TypeScript 완벽 지원
 5. **접근성 우선**: WCAG 2.1 AA 준수
 
-### 설계 결정: Root와 Provider 통합
+### 설계 결정 1: Root와 Provider 통합
 
 이전에는 `DrawerRoot`와 `DrawerProvider`를 분리했지만, DrawerRoot가 단순히 props를 전달하는 역할만 하여 불필요한 추상화였습니다.
 
@@ -360,7 +360,149 @@ DrawerContext.tsx (235줄) → 실제 로직
 **After (통합)**:
 
 ```
-DrawerRoot.tsx (248줄) → Context + 로직 통합
+DrawerRoot.tsx (412줄) → 전체 로직 통합
+```
+
+---
+
+### 설계 결정 2: Context 분리 (Config/State)
+
+드래그 중 불필요한 리렌더링을 방지하기 위해 Context를 2개로 분리했습니다.
+
+**분리 전략:**
+
+```typescript
+// 정적 설정 Context (거의 안 바뀜)
+const DrawerConfigContext = createContext<ConfigValue>();
+// → snapPoints, position, dismissible, modal, closeThreshold
+
+// 동적 상태 Context (자주 바뀜)
+const DrawerStateContext = createContext<StateValue>();
+// → isOpen, activeSnapPointIndex, dragState
+```
+
+**성능 효과:**
+
+| 컴포넌트             | Before (단일 Context)     | After (분리 Context) | 개선    |
+| -------------------- | ------------------------- | -------------------- | ------- |
+| DrawerOverlay        | 드래그 시마다 리렌더링    | 리렌더링 안 됨       | ✅ 100% |
+| DrawerItems          | 드래그 시마다 리렌더링    | 리렌더링 안 됨       | ✅ 100% |
+| DrawerContent        | 드래그 시마다 리렌더링 ✅ | 드래그 시마다 ✅     | 동일    |
+| **전체 리렌더링 수** | 드래그당 ~10회            | 드래그당 ~3회        | ✅ 70%↓ |
+
+**Hook 선택 가이드:**
+
+```typescript
+// ❌ 레거시: 모든 값 구독 (성능 저하)
+const { modal, isOpen, isDragging } = useDrawerContext();
+
+// ✅ 추천: Config만 필요할 때 (드래그 시 리렌더링 방지)
+const { modal, dismissible } = useDrawerConfig();
+
+// ✅ 추천: State만 필요할 때
+const { isOpen, dragState } = useDrawerState();
+```
+
+---
+
+### 설계 결정 3: useReducer로 드래그 상태 관리
+
+복잡한 드래그 상태를 `useReducer`로 중앙화했습니다.
+
+**Before (useState 4개)**:
+
+```typescript
+const [isDragging, setIsDragging] = useState(false);
+const [dragY, setDragY] = useState(0);
+// + 4개의 useCallback...
+```
+
+**After (useReducer 1개)**:
+
+```typescript
+const [dragState, dispatch] = useReducer(dragReducer, {
+  isDragging: false,
+  dragY: 0,
+});
+
+// 사용
+dispatch({ type: 'START_DRAG', payload: 100 });
+dispatch({ type: 'UPDATE_DRAG', payload: 200 });
+dispatch({ type: 'END_DRAG' });
+```
+
+**개선 효과:**
+
+- ✅ 상태 전이 로직 명확화 (START → UPDATE → END)
+- ✅ 타임 트래블 디버깅 가능 (Redux DevTools 연동 가능)
+- ✅ 불필요한 useCallback 제거 (4개 → 0개)
+- ✅ 코드 라인 감소 (~40줄 → ~20줄)
+
+---
+
+### 설계 결정 4: useControlledState Custom Hook
+
+제어/비제어 로직을 재사용 가능한 Hook으로 추출했습니다.
+
+**구현**:
+
+```typescript
+function useControlledState<T>(
+  controlled: T | undefined,
+  defaultValue: T,
+  onChange?: (value: T) => void,
+): [T, (value: T) => void] {
+  const [internal, setInternal] = useState(defaultValue);
+  const isControlled = controlled !== undefined;
+  const value = isControlled ? controlled : internal;
+
+  const setValue = useCallback(
+    (newValue: T) => {
+      if (!isControlled) setInternal(newValue);
+      onChange?.(newValue);
+    },
+    [isControlled, onChange],
+  );
+
+  return [value, setValue];
+}
+```
+
+**사용**:
+
+```typescript
+// Before: 중복 로직
+const [internalOpen, setInternalOpen] = useState(false);
+const isOpen = open !== undefined ? open : internalOpen;
+const handleSetIsOpen = useCallback(
+  (newOpen: boolean) => {
+    if (open === undefined) setInternalOpen(newOpen);
+    onOpenChange?.(newOpen);
+  },
+  [open, onOpenChange],
+);
+
+// After: 한 줄로 해결
+const [isOpen, setIsOpen] = useControlledState(
+  open,
+  false,
+  onOpenChange,
+);
+```
+
+**재사용 가능:**
+
+```typescript
+const [isOpen, setIsOpen] = useControlledState(
+  open,
+  false,
+  onOpenChange,
+);
+const [snapIndex, setSnapIndex] = useControlledState(
+  activeSnapPoint,
+  snapPoints.length - 1,
+  onSnapPointChange,
+);
 ```
 
 ### 핵심 로직

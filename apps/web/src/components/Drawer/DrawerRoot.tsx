@@ -6,7 +6,6 @@ import {
   useState,
   useCallback,
   useMemo,
-  useEffect,
   ReactNode,
 } from 'react';
 import { DEFAULT_SNAP_POINTS } from './constants';
@@ -17,10 +16,10 @@ import { DEFAULT_SNAP_POINTS } from './constants';
 export type DrawerPosition = 'bottom' | 'top' | 'left' | 'right';
 
 /**
- * 스냅 포인트: 숫자(비율) 또는 문자열(퍼센트)
- * 예: 0.5 또는 "50%" = 화면 높이의 50%
+ * 스냅 포인트: 숫자(비율)
+ * 0 ~ 1 사이의 값으로 화면 높이/너비 대비 비율을 나타냅니다.
  */
-export type SnapPoint = number | string;
+export type SnapPoint = number;
 
 /**
  * Drawer Context 값
@@ -45,13 +44,13 @@ export interface DrawerContextValue {
   /** 드래그 Y 위치 설정 */
   setDragY: (y: number) => void;
   /** 드래그로 닫기 허용 */
-  dismissible: boolean;
+  closeOnDrag: boolean;
   /** 닫기 임계값 */
   closeThreshold: number;
   /** Drawer 위치 */
   position: DrawerPosition;
-  /** 모달 모드 */
-  modal: boolean;
+  /** 백드롭으로 닫기 */
+  closeOnBackground: boolean;
 }
 
 const DrawerContext = createContext<DrawerContextValue | null>(null);
@@ -61,19 +60,14 @@ const DrawerContext = createContext<DrawerContextValue | null>(null);
  */
 export interface DrawerRootProps {
   children: ReactNode;
-
-  // 열림 상태
-  /** 제어 모드: 외부에서 제어하는 열림 상태 */
+  // 열림 상태 및 콜백
   open?: boolean;
-  /** 비제어 모드: 초기 열림 상태 (기본값: false) */
-  defaultOpen?: boolean;
-  /** 상태 변경 콜백 */
   onOpenChange?: (open: boolean) => void;
 
   // 스냅 포인트
   /** 스냅 포인트 배열 (화면 높이 기준 비율) */
   snapPoints?: SnapPoint[];
-  /** 제어 모드: 외부에서 제어하는 활성 스냅 포인트 인덱스 */
+  /** 외부에서 제어하는 활성 스냅 포인트 인덱스 */
   activeSnapPoint?: number;
   /** 스냅 포인트 변경 콜백 */
   onSnapPointChange?: (index: number) => void;
@@ -82,9 +76,9 @@ export interface DrawerRootProps {
   /** Drawer 위치 (기본 'bottom') */
   position?: DrawerPosition;
   /** 드래그로 닫기 허용 (기본 true) */
-  dismissible?: boolean;
-  /** 모달 모드: 배경 클릭으로 닫기 (기본 true) */
-  modal?: boolean;
+  closeOnDrag?: boolean;
+  /** 배경 클릭으로 닫기 (기본 true) */
+  closeOnBackground?: boolean;
   /** 닫기 임계값 (0~1, 기본 0.5) */
   closeThreshold?: number;
   /** 스크롤 잠금 타임아웃 (ms, 기본 500) */
@@ -96,27 +90,21 @@ export interface DrawerRootProps {
  *
  * Drawer의 최상위 컴포넌트입니다.
  * Context Provider를 제공하며, 제어/비제어 모드를 모두 지원합니다.
- *
- * @supports 제어/비제어 모드
- * - 비제어 모드: defaultOpen만 제공, 내부 상태로 관리
- * - 제어 모드: open + onOpenChange 제공, 외부에서 상태 관리
  */
 export function DrawerRoot({
   children,
   open,
-  defaultOpen = false,
   onOpenChange,
   snapPoints = DEFAULT_SNAP_POINTS,
   activeSnapPoint,
   onSnapPointChange,
   position = 'bottom',
-  dismissible = true,
-  modal = true,
+  closeOnDrag = true,
+  closeOnBackground = true,
   closeThreshold = 0.5,
 }: DrawerRootProps) {
-  // 제어 모드 여부 판별
-  const isControlled = open !== undefined;
-  const isSnapPointControlled = activeSnapPoint !== undefined;
+  // 열림/닫힘 상태
+  const [internalOpen, setInternalOpen] = useState(false);
 
   // 초기 스냅 포인트 인덱스
   const initialSnapPointIndex =
@@ -124,10 +112,7 @@ export function DrawerRoot({
       ? activeSnapPoint
       : snapPoints.length - 1;
 
-  // 열림/닫힘 상태 (비제어 모드에서만 사용)
-  const [internalOpen, setInternalOpen] = useState(defaultOpen);
-
-  // 스냅 포인트 관련 상태 (비제어 모드에서만 사용)
+  // 스냅 포인트 관련 상태
   const [internalSnapPointIndex, setInternalSnapPointIndex] =
     useState(initialSnapPointIndex);
 
@@ -135,49 +120,33 @@ export function DrawerRoot({
   const [isDragging, setIsDragging] = useState(false);
   const [dragY, setDragY] = useState(0);
 
-  // 제어 모드: 외부 상태 변경 시 내부 상태 동기화
-  useEffect(() => {
-    if (isControlled && open !== undefined) {
-      setInternalOpen(open);
-    }
-  }, [isControlled, open]);
-
-  // 제어 모드: 외부 스냅 포인트 변경 시 내부 상태 동기화
-  useEffect(() => {
-    if (isSnapPointControlled && activeSnapPoint !== undefined) {
-      setInternalSnapPointIndex(activeSnapPoint);
-    }
-  }, [isSnapPointControlled, activeSnapPoint]);
-
   // 실제 사용할 상태 값 (제어/비제어 모드에 따라)
-  const isOpen = isControlled ? open : internalOpen;
-  const activeSnapPointIndexValue = isSnapPointControlled
-    ? activeSnapPoint
-    : internalSnapPointIndex;
+  const isOpen = open !== undefined ? open : internalOpen;
+  const activeSnapPointIndexValue =
+    activeSnapPoint !== undefined
+      ? activeSnapPoint
+      : internalSnapPointIndex;
 
-  // 상태 변경 함수들을 useCallback으로 메모이제이션
   const handleSetIsOpen = useCallback(
     (newOpen: boolean) => {
       // 비제어 모드: 내부 상태 업데이트
-      if (!isControlled) {
+      if (open === undefined) {
         setInternalOpen(newOpen);
       }
-      // 제어/비제어 모두: 콜백 호출 (부모가 상태 관리)
       onOpenChange?.(newOpen);
     },
-    [isControlled, onOpenChange],
+    [open, onOpenChange],
   );
 
   const handleSetActiveSnapPointIndex = useCallback(
     (index: number) => {
       // 비제어 모드: 내부 상태 업데이트
-      if (!isSnapPointControlled) {
+      if (activeSnapPoint === undefined) {
         setInternalSnapPointIndex(index);
       }
-      // 제어/비제어 모두: 콜백 호출 (부모가 상태 관리)
       onSnapPointChange?.(index);
     },
-    [isSnapPointControlled, onSnapPointChange],
+    [activeSnapPoint, onSnapPointChange],
   );
 
   const handleSetIsDragging = useCallback((dragging: boolean) => {
@@ -188,7 +157,6 @@ export function DrawerRoot({
     setDragY(y);
   }, []);
 
-  // Context 값을 useMemo로 메모이제이션하여 불필요한 리렌더링 방지
   const contextValue = useMemo<DrawerContextValue>(
     () => ({
       isOpen,
@@ -200,10 +168,10 @@ export function DrawerRoot({
       setIsDragging: handleSetIsDragging,
       dragY,
       setDragY: handleSetDragY,
-      dismissible,
+      closeOnDrag,
+      closeOnBackground,
       closeThreshold,
       position,
-      modal,
     }),
     [
       isOpen,
@@ -215,10 +183,10 @@ export function DrawerRoot({
       handleSetIsDragging,
       dragY,
       handleSetDragY,
-      dismissible,
+      closeOnDrag,
+      closeOnBackground,
       closeThreshold,
       position,
-      modal,
     ],
   );
 
@@ -231,12 +199,6 @@ export function DrawerRoot({
 
 DrawerRoot.displayName = 'Drawer.Root';
 
-/**
- * Drawer Context Hook
- *
- * Drawer 하위 컴포넌트에서 Context 값을 가져옵니다.
- * Drawer.Root 외부에서 사용하면 에러가 발생합니다.
- */
 export function useDrawerContext() {
   const context = useContext(DrawerContext);
 
