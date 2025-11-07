@@ -13,7 +13,6 @@ interface LikeButtonPostProps {
   postId: number;
   initialLiked: boolean;
   initialLikeCount: number;
-  icon?: React.ElementType;
 }
 
 // 음수 방지(보정) 헬퍼
@@ -30,7 +29,6 @@ export default function LikeButtonPost({
   postId,
   initialLiked,
   initialLikeCount,
-  icon: Icon = Heart,
 }: LikeButtonPostProps) {
   const { isRestoring } = useAuthRestore();
   const queryClient = useQueryClient();
@@ -110,7 +108,7 @@ export default function LikeButtonPost({
         disabled
         aria-label="좋아요 로딩 중"
       >
-        <Icon className="inline w-4 h-4 text-neutral-200" />
+        <Heart className="inline w-4 h-4 text-neutral-200" />
         <span className="text-neutral-500 text-input2">
           {formatCappedCount(likeCount)}
         </span>
@@ -127,7 +125,7 @@ export default function LikeButtonPost({
       disabled={toggleLike.isPending}
       aria-label={liked ? '좋아요 취소' : '좋아요'}
     >
-      <Icon
+      <Heart
         className={`inline w-4 h-4 text-neutral-200 transition-colors ${
           liked ? 'fill-soso-600 text-soso-600' : 'fill-transparent'
         }`}

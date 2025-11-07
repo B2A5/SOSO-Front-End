@@ -14,7 +14,6 @@ interface LikeButtonCommentProps {
   commentId: number;
   initialLiked: boolean;
   initialLikeCount: number;
-  icon?: React.ElementType;
 }
 
 // 음수 방지(보정) 헬퍼
@@ -32,7 +31,6 @@ export default function LikeButtonComment({
   commentId,
   initialLiked,
   initialLikeCount,
-  icon: Icon = ThumbsUp,
 }: LikeButtonCommentProps) {
   const { isRestoring, isAuthenticated } = useAuthRestore();
   const queryClient = useQueryClient();
@@ -114,7 +112,7 @@ export default function LikeButtonComment({
         aria-label="좋아요 로딩 중"
         type="button"
       >
-        <Icon className="inline w-4 h-4 text-neutral-200" />
+        <ThumbsUp className="inline w-4 h-4 text-neutral-200" />
         <span className="text-neutral-500 text-input2">
           {likeCount}
         </span>
@@ -132,7 +130,7 @@ export default function LikeButtonComment({
       aria-label={liked ? '좋아요 취소' : '좋아요'}
       title={!isAuthenticated ? '로그인이 필요합니다' : undefined}
     >
-      <Icon
+      <ThumbsUp
         className={`inline w-4 h-4 text-neutral-200 transition-colors ${
           liked ? 'fill-soso-600 text-soso-600' : 'fill-transparent'
         }`}
