@@ -1,13 +1,9 @@
 import { useRef, useCallback } from 'react';
-import { useMotionValue, animate } from 'motion/react';
+import { useMotionValue } from 'motion/react';
 import type { PanInfo } from 'motion/react';
 import { DrawerPosition, SnapPoint } from '../DrawerRoot';
-import {
-  SPRING_CONFIG,
-  CLOSE_THRESHOLD,
-  VELOCITY_THRESHOLD,
-} from '../constants';
-import { findClosestSnapPoint, snapPointToY } from '../utils';
+import { CLOSE_THRESHOLD, VELOCITY_THRESHOLD } from '../constants';
+import { findClosestSnapPoint } from '../utils';
 
 export interface UseDragHandlersProps {
   position: DrawerPosition;
@@ -173,26 +169,37 @@ export function useDragHandlers({
           return;
         }
 
-        // 스냅 포인트로 애니메이션
-        const targetY = snapPointToY(
-          snapPoints[closestSnapIndex],
-          drawerHeight,
-        );
-        animate(y, targetY, SPRING_CONFIG);
-
-        // Context 업데이트
+        // Context 업데이트 (useSnapPointAnimation이 애니메이션 처리)
         setActiveSnapPointIndex(closestSnapIndex);
         return;
       }
 
-      // 스냅 포인트가 없는 경우: 기존 로직
-      const offsetY = info.offset.y;
-      const velocityY = info.velocity.y;
+      // 스냅 포인트가 없는 경우: position별 닫기 로직
+      let shouldClose = false;
 
-      // 닫기 조건 체크
-      const shouldClose =
-        offsetY > CLOSE_THRESHOLD || // 거리 임계값 초과
-        velocityY > VELOCITY_THRESHOLD; // 속도 임계값 초과
+      if (position === 'bottom') {
+        const offsetY = info.offset.y;
+        const velocityY = info.velocity.y;
+        shouldClose =
+          offsetY > CLOSE_THRESHOLD || velocityY > VELOCITY_THRESHOLD;
+      } else if (position === 'top') {
+        const offsetY = info.offset.y;
+        const velocityY = info.velocity.y;
+        shouldClose =
+          offsetY < -CLOSE_THRESHOLD ||
+          velocityY < -VELOCITY_THRESHOLD;
+      } else if (position === 'left') {
+        const offsetX = info.offset.x;
+        const velocityX = info.velocity.x;
+        shouldClose =
+          offsetX < -CLOSE_THRESHOLD ||
+          velocityX < -VELOCITY_THRESHOLD;
+      } else if (position === 'right') {
+        const offsetX = info.offset.x;
+        const velocityX = info.velocity.x;
+        shouldClose =
+          offsetX > CLOSE_THRESHOLD || velocityX > VELOCITY_THRESHOLD;
+      }
 
       if (shouldClose) {
         // Drawer 닫기
@@ -205,6 +212,7 @@ export function useDragHandlers({
     },
     [
       closeOnDrag,
+      position,
       snapPoints,
       activeSnapPointIndex,
       contentRef,

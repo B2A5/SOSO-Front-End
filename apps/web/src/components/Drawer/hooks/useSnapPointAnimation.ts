@@ -46,8 +46,10 @@ export function useSnapPointAnimation({
 }: UseSnapPointAnimationProps) {
   // activeSnapPointIndex 이전 값 추적 (실제 변경 감지용)
   const prevIndexRef = useRef(activeSnapPointIndex);
+  // 초기 애니메이션 완료 여부
+  const initialAnimatedRef = useRef(false);
 
-  // activeSnapPointIndex 변경 시 애니메이션
+  // activeSnapPointIndex 변경 시 또는 초기 contentHeight 설정 시 애니메이션
   useEffect(() => {
     // 스냅 포인트가 없거나 높이가 0이면 중단
     if (
@@ -58,9 +60,13 @@ export function useSnapPointAnimation({
       return;
     }
 
-    // activeSnapPointIndex가 실제로 변경되었을 때만 실행
-    // contentHeight만 변경된 경우는 애니메이션하지 않음 (UX 개선)
-    if (prevIndexRef.current === activeSnapPointIndex) {
+    // 초기 애니메이션이 아직 안됐거나, activeSnapPointIndex가 실제로 변경되었을 때만 실행
+    const indexChanged =
+      prevIndexRef.current !== activeSnapPointIndex;
+    const needsInitialAnimation =
+      !initialAnimatedRef.current && contentHeight > 0;
+
+    if (!indexChanged && !needsInitialAnimation) {
       return;
     }
 
@@ -81,8 +87,9 @@ export function useSnapPointAnimation({
       animate(x, snapValue, SPRING_CONFIG);
     }
 
-    // 이전 인덱스 업데이트
+    // 플래그 업데이트
     prevIndexRef.current = activeSnapPointIndex;
+    initialAnimatedRef.current = true;
   }, [
     activeSnapPointIndex,
     snapPoints,

@@ -9,20 +9,15 @@ import { Drawer } from '@/components/Drawer';
  * 테스트 항목:
  * 1. 비제어 모드 (Uncontrolled Mode)
  * 2. 제어 모드 (Controlled Mode)
- * 3. 스냅 포인트 (Snap Points)
- * 4. DrawerSnap 컴포넌트
- * 5. DrawerItems 옵션 (destructive, closeOnClick, disabled)
- * 6. asChild 패턴
- * 7. Position 옵션 (bottom, top, left, right)
- * 8. 기타 옵션 (dismissible, modal)
+ * 3. Position 옵션 (bottom, top, left, right)
+ * 4. 기타 옵션 (dismissible, modal)
  */
 export default function DrawerTestPage() {
   // 제어 모드 상태
   const [controlledOpen, setControlledOpen] = useState(false);
-  const [snapIndex, setSnapIndex] = useState(0);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-[200vh] bg-gray-50 p-8">
       <div className="max-w-4xl mx-auto space-y-12">
         {/* 헤더 */}
         <div className="bg-white rounded-lg shadow p-6">
@@ -69,19 +64,20 @@ export default function DrawerTestPage() {
             {/* 1.2 초기에 열린 상태 */}
             <div className="border border-gray-200 rounded-lg p-4">
               <h3 className="font-semibold text-gray-900 mb-2">
-                1.2 초기에 열린 상태로 시작
+                1.2 초기에 열린 상태로 시작 (E2E 테스트를 위해
+                닫힘으로 시작)
               </h3>
-              <Drawer open={true}>
+              <Drawer>
                 <Drawer.Trigger className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
-                  초기 열림 Drawer (이미 열림)
+                  초기 열림 Drawer 테스트
                 </Drawer.Trigger>
                 <Drawer.Overlay className="fixed inset-0 bg-black/40" />
                 <Drawer.Content className="max-w-md mx-auto">
                   <h3 className="text-lg font-semibold mb-4">
-                    초기 열림 Drawer
+                    초기 열림 테스트
                   </h3>
                   <p className="text-gray-600 mb-4">
-                    페이지 로드 시 이미 열려있습니다.
+                    open=true로 설정하면 페이지 로드 시 열립니다.
                   </p>
                   <Drawer.Items>닫기</Drawer.Items>
                 </Drawer.Content>
@@ -140,14 +136,14 @@ export default function DrawerTestPage() {
 
           <div className="space-y-4">
             {/* 현재 상태 표시 */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 relative z-[2002]">
               <p className="text-sm font-medium text-blue-900">
                 현재 상태: {controlledOpen ? '🟢 열림' : '🔴 닫힘'}
               </p>
             </div>
 
             {/* 제어 버튼들 */}
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 relative z-[2002]">
               <button
                 onClick={() => setControlledOpen(true)}
                 className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
@@ -199,224 +195,10 @@ export default function DrawerTestPage() {
           </div>
         </section>
 
-        {/* 3. 스냅 포인트 테스트 */}
+        {/* 3. Position 옵션 테스트 */}
         <section className="bg-white rounded-lg shadow p-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            3. 스냅 포인트 (Snap Points) - Phase 5 ✨
-          </h2>
-          <p className="text-gray-600 mb-4">
-            Drawer를 여러 높이로 고정할 수 있습니다. 스냅 포인트는{' '}
-            <strong>화면 높이 기준</strong>입니다.
-          </p>
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-            <p className="text-sm text-blue-900 font-medium mb-2">
-              📏 <strong>스냅 포인트 기준:</strong>
-            </p>
-            <ul className="text-sm text-blue-800 space-y-1 ml-4">
-              <li>• 0.3 (30%) = Drawer가 화면 높이의 30%만큼 보임</li>
-              <li>• 0.6 (60%) = Drawer가 화면 높이의 60%만큼 보임</li>
-              <li>
-                • 1.0 (100%) = Drawer가 화면 전체 높이만큼 보임 (완전
-                열림)
-              </li>
-            </ul>
-          </div>
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
-            <p className="text-sm text-yellow-800">
-              💡 <strong>테스트 방법:</strong> Drawer를 드래그하여
-              놓으면 자동으로 가장 가까운 스냅 포인트로 부드럽게
-              이동합니다. 빠르게 드래그하면 관성(momentum)이
-              반영됩니다.
-            </p>
-          </div>
-
-          <div className="space-y-4">
-            {/* 3.1 비제어 스냅 포인트 */}
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h3 className="font-semibold text-gray-900 mb-2">
-                3.1 비제어 스냅 포인트 (드래그 테스트)
-              </h3>
-              <p className="text-sm text-gray-600 mb-3">
-                snapPoints={`{[0.25, 0.5, 0.9]}`} - 3개의 스냅
-                포인트를 드래그로 테스트
-              </p>
-              <Drawer snapPoints={[0.25, 0.5, 0.9]}>
-                <Drawer.Trigger className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-                  스냅 포인트 Drawer 열기
-                </Drawer.Trigger>
-                <Drawer.Overlay />
-                <Drawer.Content className="max-w-md mx-auto">
-                  <h3 className="text-lg font-semibold mb-4">
-                    스냅 포인트 드래그 테스트
-                  </h3>
-                  <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-3 mb-4">
-                    <p className="text-sm text-indigo-900 font-medium">
-                      🎯 25%, 50%, 90% 높이로 자동 고정됩니다
-                    </p>
-                    <p className="text-xs text-indigo-700 mt-1">
-                      드래그 핸들을 잡고 위아래로 드래그해보세요!
-                    </p>
-                  </div>
-                  <p className="text-gray-600 mb-4">
-                    드래그하면 자동으로 가장 가까운 스냅 포인트로
-                    이동합니다. 빠르게 드래그하면 속도(velocity)가
-                    반영되어 더 먼 스냅 포인트로 이동할 수 있습니다.
-                  </p>
-                  <div className="h-96 overflow-y-auto">
-                    <p className="mb-4">스크롤 가능한 콘텐츠</p>
-                    {Array.from({ length: 20 }).map((_, i) => (
-                      <p key={i} className="py-2 border-b">
-                        항목 {i + 1}
-                      </p>
-                    ))}
-                  </div>
-                </Drawer.Content>
-              </Drawer>
-            </div>
-
-            {/* 3.2 제어 스냅 포인트 */}
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h3 className="font-semibold text-gray-900 mb-2">
-                3.2 제어 스냅 포인트 (프로그래밍 방식 + 드래그)
-              </h3>
-              <p className="text-sm text-gray-600 mb-3">
-                activeSnapPoint + onSnapPointChange - 외부 버튼과
-                드래그 모두 지원
-              </p>
-              <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 mb-4">
-                <p className="text-sm font-medium text-indigo-900 mb-2">
-                  현재 스냅 포인트: 인덱스 {snapIndex} (
-                  {[0.3, 0.6, 1][snapIndex] * 100}%)
-                </p>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setSnapIndex(0)}
-                    className="px-3 py-1 bg-indigo-600 text-white rounded text-sm hover:bg-indigo-700"
-                  >
-                    30%
-                  </button>
-                  <button
-                    onClick={() => setSnapIndex(1)}
-                    className="px-3 py-1 bg-indigo-600 text-white rounded text-sm hover:bg-indigo-700"
-                  >
-                    60%
-                  </button>
-                  <button
-                    onClick={() => setSnapIndex(2)}
-                    className="px-3 py-1 bg-indigo-600 text-white rounded text-sm hover:bg-indigo-700"
-                  >
-                    100%
-                  </button>
-                </div>
-              </div>
-
-              <Drawer
-                snapPoints={[0.3, 0.6, 1]}
-                activeSnapPoint={snapIndex}
-                onSnapPointChange={setSnapIndex}
-              >
-                <Drawer.Trigger className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-                  제어 스냅 포인트 열기
-                </Drawer.Trigger>
-                <Drawer.Overlay />
-                <Drawer.Content className="max-w-md mx-auto">
-                  <h3 className="text-lg font-semibold mb-4">
-                    제어 스냅 포인트 테스트
-                  </h3>
-                  <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-3 mb-4">
-                    <p className="text-sm text-indigo-900 font-medium">
-                      현재: {[30, 60, 100][snapIndex]}%
-                    </p>
-                  </div>
-                  <p className="text-gray-600 mb-4">
-                    🔹 외부 버튼으로 스냅 포인트를 프로그래밍 방식으로
-                    제어할 수 있습니다.
-                  </p>
-                  <p className="text-gray-600 mb-4">
-                    🔹 드래그로 스냅 포인트를 변경하면
-                    onSnapPointChange 콜백이 호출되어 외부 상태가
-                    동기화됩니다.
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    Drawer를 드래그해보고, 외부 버튼도 클릭해보세요!
-                  </p>
-                </Drawer.Content>
-              </Drawer>
-            </div>
-          </div>
-        </section>
-
-        {/* 4. DrawerSnap 컴포넌트 테스트 */}
-        <section className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            4. DrawerSnap 컴포넌트
-          </h2>
-          <p className="text-gray-600 mb-4">
-            각 스냅 포인트마다 다른 콘텐츠를 선언적으로 표시할 수
-            있습니다.
-          </p>
-
-          <Drawer snapPoints={[0.3, 0.6, 1]}>
-            <Drawer.Trigger className="px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700">
-              DrawerSnap 테스트
-            </Drawer.Trigger>
-            <Drawer.Overlay />
-            <Drawer.Content className="max-w-md mx-auto">
-              <Drawer.Snap index={0}>
-                <div className="p-4 bg-pink-50 rounded-lg">
-                  <h3 className="text-lg font-semibold mb-2">
-                    🌸 30% 높이
-                  </h3>
-                  <p className="text-gray-600">
-                    짧은 미리보기 콘텐츠입니다.
-                  </p>
-                </div>
-              </Drawer.Snap>
-
-              <Drawer.Snap index={1}>
-                <div className="p-4 bg-blue-50 rounded-lg">
-                  <h3 className="text-lg font-semibold mb-2">
-                    💙 60% 높이
-                  </h3>
-                  <p className="text-gray-600 mb-4">
-                    중간 길이 콘텐츠입니다.
-                  </p>
-                  <ul className="list-disc list-inside space-y-1 text-gray-600">
-                    <li>항목 1</li>
-                    <li>항목 2</li>
-                    <li>항목 3</li>
-                  </ul>
-                </div>
-              </Drawer.Snap>
-
-              <Drawer.Snap index={2}>
-                <div className="p-4 bg-green-50 rounded-lg h-full overflow-y-auto">
-                  <h3 className="text-lg font-semibold mb-2">
-                    💚 100% 높이
-                  </h3>
-                  <p className="text-gray-600 mb-4">
-                    전체 높이 콘텐츠입니다.
-                  </p>
-                  <div className="space-y-4">
-                    {Array.from({ length: 10 }).map((_, i) => (
-                      <div key={i} className="border-b pb-2">
-                        <h4 className="font-medium">섹션 {i + 1}</h4>
-                        <p className="text-sm text-gray-600">
-                          긴 콘텐츠 섹션입니다...
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </Drawer.Snap>
-            </Drawer.Content>
-          </Drawer>
-        </section>
-
-        {/* 5. Position 옵션 테스트 */}
-        <section className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            5. Position 옵션
+            3. Position 옵션
           </h2>
           <p className="text-gray-600 mb-4">
             Drawer를 다양한 위치에서 열 수 있습니다.
@@ -433,7 +215,10 @@ export default function DrawerTestPage() {
                 <h3 className="text-lg font-semibold mb-4">
                   Bottom Drawer
                 </h3>
-                <p className="text-gray-600">아래에서 올라옵니다.</p>
+                <p className="text-gray-600">Bottom Position</p>
+                <p className="text-gray-600 mb-4">
+                  아래에서 올라옵니다.
+                </p>
                 <Drawer.Items>확인</Drawer.Items>
               </Drawer.Content>
             </Drawer>
@@ -502,17 +287,17 @@ export default function DrawerTestPage() {
           </div>
         </section>
 
-        {/* 6. 기타 옵션 테스트 */}
+        {/* 4. 기타 옵션 테스트 */}
         <section className="bg-white rounded-lg shadow p-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            6. 기타 옵션
+            4. 기타 옵션
           </h2>
 
           <div className="space-y-4">
             {/* dismissible=false */}
             <div className="border border-gray-200 rounded-lg p-4">
               <h3 className="font-semibold text-gray-900 mb-2">
-                6.1 dismissible=false (드래그로 닫기 불가)
+                4.1 dismissible=false (드래그로 닫기 불가)
               </h3>
               <Drawer dismissible={false}>
                 <Drawer.Trigger className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">

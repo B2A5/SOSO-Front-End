@@ -134,7 +134,7 @@ export function DrawerContent({
   // 스냅 포인트가 있을 때 목표 위치 계산 (모든 position 지원)
   const targetSnapPosition = useMemo(() => {
     if (!hasSnapPoints(snapPoints) || contentHeight === 0) {
-      return { y: 0, x: 0 };
+      return null; // contentHeight가 0이면 null 반환 (애니메이션하지 않음)
     }
 
     const snapValue = snapPointToY(
@@ -170,12 +170,14 @@ export function DrawerContent({
             y:
               !isDragging &&
               hasSnapPoints(snapPoints) &&
+              targetSnapPosition &&
               (position === 'bottom' || position === 'top')
                 ? targetSnapPosition.y
                 : animationProps.animate.y,
             x:
               !isDragging &&
               hasSnapPoints(snapPoints) &&
+              targetSnapPosition &&
               (position === 'left' || position === 'right')
                 ? targetSnapPosition.x
                 : animationProps.animate.x,
