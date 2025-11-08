@@ -27,19 +27,25 @@ export default function FloatingButton({
   categories,
   className,
 }: FloatingButtonProps) {
-  const { openOverlay } = useOverlay();
+  const { open } = useOverlay();
 
   /**
-   * 메뉴 열기 함수
+   * 메뉴 열기 함수 (Promise 기반)
    */
   const handleOpenMenu = () => {
-    openOverlay(<FloatingMenu categories={categories} />, {
-      backdrop: true, // 백드롭 클릭 시 자동 닫기는 useOverlay 기본 동작에 의존
-    });
+    open(
+      ({ close }) => (
+        <FloatingMenu
+          categories={categories}
+          onClose={() => close(null, { duration: 200 })}
+        />
+      ),
+      {
+        backdrop: true,
+        closeOnBackdrop: true,
+      },
+    );
   };
-  /** 백드롭 클릭 시 메뉴 닫기
-   * @todo useOverlay 훅에서 백드롭 클릭 시 자동 닫기 기능을 구현
-   */
 
   return (
     <button

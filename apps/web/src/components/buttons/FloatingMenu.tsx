@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { twMerge } from 'tailwind-merge';
-import { useOverlay } from '@/hooks/ui/useOverlay';
 import Pressable from '../Pressable';
 import { useRouter, useParams } from 'next/navigation';
 import { X } from 'lucide-react';
@@ -26,6 +25,8 @@ export interface FloatingMenuProps {
   categories: CategoryItem[];
   /** 추가 CSS 클래스명 */
   className?: string;
+  /** 닫기 콜백 함수 (애니메이션 포함) */
+  onClose: () => void;
 }
 
 /**
@@ -40,6 +41,7 @@ export interface FloatingMenuProps {
 export default function FloatingMenu({
   categories,
   className,
+  onClose,
 }: FloatingMenuProps) {
   const menuRef = useRef<HTMLUListElement>(null);
   const [pressedButton, setPressedButton] = useState<string | null>(
@@ -47,7 +49,6 @@ export default function FloatingMenu({
   );
   const router = useRouter();
   const params = useParams();
-  const { closeOverlay } = useOverlay();
   /**
    * 컴포넌트 마운트 시 첫 번째 버튼에 포커스
    */
@@ -74,7 +75,7 @@ export default function FloatingMenu({
       switch (event.key) {
         case 'Escape':
           event.preventDefault();
-          closeOverlay();
+          onClose();
           break;
         case 'Enter':
         case ' ':
@@ -92,10 +93,10 @@ export default function FloatingMenu({
     document.addEventListener('keydown', handleKeyDown);
     return () =>
       document.removeEventListener('keydown', handleKeyDown);
-  }, [closeOverlay]);
+  }, [onClose]);
 
   const handleButtonClick = (value: string) => {
-    closeOverlay();
+    onClose();
     const currentTab = params.tab || 'freeboard';
     router.push(
       `/main/community/${currentTab}/new?category=${value}`,
@@ -166,7 +167,7 @@ export default function FloatingMenu({
         aria-label="카테고리 메뉴"
         className={twMerge(
           'grid grid-cols-2 gap-4 w-max p-4',
-          'animate-fadeIn',
+          // 'animate-fadeIn',
           className,
         )}
         onKeyDown={handleArrowKeyNavigation}
@@ -200,7 +201,7 @@ export default function FloatingMenu({
         <button
           type="button"
           aria-label="메뉴 닫기"
-          onClick={closeOverlay}
+          onClick={onClose}
           className={twMerge(
             'absolute -bottom-12 right-0',
             'w-12 h-12 rounded-full',

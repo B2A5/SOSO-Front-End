@@ -5,6 +5,7 @@
  * 소소한 아이디어 공유 플랫폼의 백엔드 API 문서입니다.
  * OpenAPI spec version: v1.0.0
  */
+import type { CommentAuthorInfoUserType } from './commentAuthorInfoUserType';
 
 /**
  * 작성자 정보
@@ -16,4 +17,6 @@ export interface CommentAuthorInfo {
   nickname: string;
   /** 작성자 프로필 이미지 URL */
   profileImageUrl?: string;
+  /** 작성자 유형 */
+  userType: CommentAuthorInfoUserType;
 }

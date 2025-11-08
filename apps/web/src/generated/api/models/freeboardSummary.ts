@@ -36,5 +36,6 @@ export interface FreeboardSummary {
   createdAt: string;
   /** 수정 시간 */
   updatedAt?: string;
-  liked?: boolean;
+  /** 현재 사용자의 좋아요 여부 (비인증 사용자인 경우 null) */
+  isLiked: boolean;
 }
