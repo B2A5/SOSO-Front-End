@@ -39,8 +39,13 @@ export interface VotePostDetailResponse {
   viewCount: number;
   /** 댓글 수 */
   commentCount: number;
+  /** 좋아요 수 */
+  likeCount: number;
   /** 생성일시 */
   createdDate: string;
   /** 수정일시 */
   lastModifiedDate: string;
+  liked?: boolean;
+  /** 현재 사용자의 좋아요 여부 (비로그인 시 false) */
+  isLiked: boolean;
 }

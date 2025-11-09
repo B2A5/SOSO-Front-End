@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Drawer } from '@/components/Drawer';
+import { useOverlay } from '@/hooks/ui/useOverlay';
 
 /**
  * Drawer 컴포넌트 테스트 페이지
@@ -11,6 +12,7 @@ import { Drawer } from '@/components/Drawer';
  * 2. 제어 모드 (Controlled Mode)
  * 3. Position 옵션 (bottom, top, left, right)
  * 4. 기타 옵션 (dismissible, modal)
+ * 5. useOverlay() 훅과 함께 사용
  */
 export default function DrawerTestPage() {
   // 제어 모드 상태
@@ -674,6 +676,29 @@ export default function DrawerTestPage() {
           </div>
         </section>
 
+        {/* 5. useOverlay 통합 테스트 */}
+        <section className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            5. useOverlay() 훅과 함께 사용
+          </h2>
+          <p className="text-gray-600 mb-4">
+            useOverlay() 훅을 사용하면 여러 Overlay를 중앙에서 관리할
+            수 있습니다.
+          </p>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+            <p className="text-sm text-blue-900 font-medium mb-2">
+              💡 <strong>특징:</strong>
+            </p>
+            <ul className="text-sm text-blue-800 space-y-1 ml-4">
+              <li>• Z-index 자동 관리</li>
+              <li>• 중앙 집중식 Overlay 제어</li>
+              <li>• Promise 기반 API로 결과값 반환 가능</li>
+            </ul>
+          </div>
+
+          <OverlayPortalExample />
+        </section>
+
         {/* 테스트 완료 */}
         <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
           <p className="text-lg font-semibold text-green-900 mb-2">
@@ -685,6 +710,115 @@ export default function DrawerTestPage() {
           </p>
         </div>
       </div>
+    </div>
+  );
+}
+
+/**
+ * OverlayPortal 사용 예시 컴포넌트
+ */
+function OverlayPortalExample() {
+  const overlay = useOverlay();
+
+  const handleOpenDrawer = () => {
+    overlay.open(({ close }) => (
+      <Drawer
+        open={true}
+        onOpenChange={(open) => !open && close(null)}
+      >
+        <Drawer.Overlay />
+        <Drawer.Content className="max-w-md mx-auto">
+          <h3 className="text-lg font-semibold mb-4">
+            useOverlay로 열린 Drawer
+          </h3>
+          <p className="text-gray-600 mb-4">
+            이 Drawer는 useOverlay() 훅과 OverlayPortal을 통해
+            렌더링됩니다.
+          </p>
+          <div className="space-y-2">
+            <Drawer.Items onClick={() => close('confirmed')}>
+              확인 (결과값 반환)
+            </Drawer.Items>
+            <Drawer.Items onClick={() => close(null)}>
+              닫기
+            </Drawer.Items>
+          </div>
+        </Drawer.Content>
+      </Drawer>
+    ));
+  };
+
+  const handleOpenWithResult = async () => {
+    const result = await overlay.open<boolean>(({ close }) => (
+      <Drawer
+        open={true}
+        onOpenChange={(open) => !open && close(false)}
+      >
+        <Drawer.Overlay />
+        <Drawer.Content className="max-w-md mx-auto">
+          <h3 className="text-lg font-semibold mb-4">
+            결과값을 반환하는 Drawer
+          </h3>
+          <p className="text-gray-600 mb-4">
+            사용자의 선택을 Promise로 받을 수 있습니다.
+          </p>
+          <div className="space-y-2">
+            <Drawer.Items
+              onClick={() => close(true)}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              예 (true 반환)
+            </Drawer.Items>
+            <Drawer.Items
+              onClick={() => close(false)}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              아니오 (false 반환)
+            </Drawer.Items>
+          </div>
+        </Drawer.Content>
+      </Drawer>
+    ));
+
+    alert(`사용자가 선택한 값: ${result}`);
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* 5.1 기본 사용 */}
+      <div className="border border-gray-200 rounded-lg p-4">
+        <h3 className="font-semibold text-gray-900 mb-2">
+          5.1 기본 사용 (Promise API)
+        </h3>
+        <p className="text-sm text-gray-600 mb-3">
+          overlay.open() 함수로 Drawer를 열고, close 콜백으로
+          닫습니다.
+        </p>
+        <button
+          onClick={handleOpenDrawer}
+          className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+        >
+          useOverlay로 Drawer 열기
+        </button>
+      </div>
+
+      {/* 5.2 결과값 반환 */}
+      <div className="border border-gray-200 rounded-lg p-4">
+        <h3 className="font-semibold text-gray-900 mb-2">
+          5.2 결과값 반환 (Promise 기반)
+        </h3>
+        <p className="text-sm text-gray-600 mb-3">
+          사용자의 선택을 Promise로 받아 처리할 수 있습니다.
+        </p>
+        <button
+          onClick={handleOpenWithResult}
+          className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+        >
+          결과값 받는 Drawer 열기
+        </button>
+      </div>
+
+      {/* OverlayPortal은 layout.tsx에 전역으로 추가되어 있습니다 */}
     </div>
   );
 }

@@ -21,39 +21,163 @@
 
 ## 🚀 빠른 시작
 
-### 기본 사용법
+Drawer는 두 가지 방식으로 사용할 수 있습니다:
+
+1. **기본 모드**: Drawer 자체 Overlay와 Portal 사용 (권장)
+2. **통합 모드**: `useOverlay()` 훅과 `OverlayPortal` 컴포넌트와 함께 사용
+
+### 모드 1: 기본 사용법 (내장 Overlay & Portal)
+
+Drawer 컴포넌트가 자체적으로 Overlay와 Portal을 관리합니다.
 
 ```tsx
 import { Drawer } from '@/components/Drawer';
 
 function App() {
   return (
-    <Drawer.Root>
+    <Drawer>
+      {/* Trigger: Drawer를 여는 버튼 */}
       <Drawer.Trigger>
         <button>Open Drawer</button>
       </Drawer.Trigger>
 
+      {/* Overlay: 반투명 배경 (자동으로 Portal에 렌더링) */}
       <Drawer.Overlay />
 
+      {/* Content: 실제 Drawer 콘텐츠 (자동으로 Portal에 렌더링) */}
       <Drawer.Content>
         <h1>Hello Drawer!</h1>
         <p>Drag me down to close</p>
       </Drawer.Content>
-    </Drawer.Root>
+    </Drawer>
   );
 }
 ```
 
+**특징:**
+
+- ✅ 추가 설정 불필요
+- ✅ Drawer만 설치하면 바로 사용 가능
+- ✅ Overlay와 Content가 자동으로 `document.body`의 Portal에 렌더링
+
+### 모드 2: useOverlay()와 함께 사용
+
+여러 Overlay를 중앙에서 관리하고 싶을 때 `useOverlay()` 훅을 사용합니다.
+
+> **⚠️ 주의:** `OverlayPortal`은 `app/layout.tsx`에 이미 전역으로 추가되어 있습니다. 별도로 추가할 필요가 없습니다!
+
+```tsx
+import { Drawer } from '@/components/Drawer';
+import { useOverlay } from '@/hooks/ui/useOverlay';
+
+function App() {
+  const overlay = useOverlay();
+
+  const handleOpenDrawer = () => {
+    overlay.open(({ close }) => (
+      <Drawer
+        open={true}
+        onOpenChange={(open) => !open && close(null)}
+      >
+        <Drawer.Overlay />
+        <Drawer.Content>
+          <h1>Hello Drawer!</h1>
+          <button onClick={() => close(null)}>Close</button>
+        </Drawer.Content>
+      </Drawer>
+    ));
+  };
+
+  return <button onClick={handleOpenDrawer}>Open Drawer</button>;
+}
+```
+
+**Promise 기반 API로 결과값 받기:**
+
+```tsx
+const overlay = useOverlay();
+
+const handleConfirm = async () => {
+  const result = await overlay.open<boolean>(({ close }) => (
+    <Drawer
+      open={true}
+      onOpenChange={(open) => !open && close(false)}
+    >
+      <Drawer.Overlay />
+      <Drawer.Content>
+        <h1>확인하시겠습니까?</h1>
+        <button onClick={() => close(true)}>예</button>
+        <button onClick={() => close(false)}>아니오</button>
+      </Drawer.Content>
+    </Drawer>
+  ));
+
+  if (result) {
+    console.log('사용자가 확인을 선택했습니다');
+  }
+};
+```
+
+**여러 Overlay를 동시에 관리:**
+
+```tsx
+function MultipleOverlays() {
+  const overlay = useOverlay();
+
+  const openDrawer = () => {
+    overlay.open(({ close }) => (
+      <Drawer
+        open={true}
+        onOpenChange={(open) => !open && close(null)}
+      >
+        <Drawer.Overlay />
+        <Drawer.Content>Drawer Content</Drawer.Content>
+      </Drawer>
+    ));
+  };
+
+  const openModal = () => {
+    overlay.open(({ close }) => (
+      <Modal
+        open={true}
+        onOpenChange={(open) => !open && close(null)}
+      >
+        <Modal.Overlay />
+        <Modal.Content>Modal Content</Modal.Content>
+      </Modal>
+    ));
+  };
+
+  return (
+    <>
+      <button onClick={openDrawer}>Open Drawer</button>
+      <button onClick={openModal}>Open Modal</button>
+    </>
+  );
+}
+```
+
+**통합 모드의 장점:**
+
+- ✅ 여러 Overlay의 Z-index 자동 관리
+- ✅ 중앙 집중식 Overlay 제어
+- ✅ Overlay 스택 관리 (여러 개 동시 열기)
+
+**통합 모드의 단점:**
+
+- ❌ 추가 의존성 필요 (`useOverlay`, `OverlayPortal`)
+- ❌ 설정이 조금 더 복잡함
+
 ### 스냅 포인트 사용
 
 ```tsx
-<Drawer.Root snapPoints={[0.3, 0.6, 1]} activeSnapPoint={1}>
+<Drawer snapPoints={[0.3, 0.6, 1]} activeSnapPoint={1}>
   <Drawer.Trigger>Open with Snap Points</Drawer.Trigger>
   <Drawer.Overlay />
   <Drawer.Content>
     {/* 3개 높이로 스냅됩니다: 30%, 60%, 100% */}
   </Drawer.Content>
-</Drawer.Root>
+</Drawer>
 ```
 
 ### 제어 모드
@@ -66,12 +190,12 @@ function ControlledDrawer() {
     <>
       <button onClick={() => setOpen(true)}>Open</button>
 
-      <Drawer.Root open={open} onOpenChange={setOpen}>
+      <Drawer open={open} onOpenChange={setOpen}>
         <Drawer.Overlay />
         <Drawer.Content>
           <button onClick={() => setOpen(false)}>Close</button>
         </Drawer.Content>
-      </Drawer.Root>
+      </Drawer>
     </>
   );
 }
@@ -887,23 +1011,79 @@ function App() {
 
 ### OverlayPortal과의 통합
 
-Drawer는 OverlayPortal/useOverlay와 **독립적**으로 동작합니다.
+Drawer는 두 가지 방식으로 사용할 수 있습니다:
 
-**이유:**
+#### 방법 1: 독립 사용 (기본, 권장)
 
-1. Drawer는 자체 Overlay 시스템 보유 (DrawerOverlay)
-2. OverlayPortal은 Zustand 전역 상태 필요 (~30KB 추가)
-3. 통합 시 불필요한 의존성 증가
+Drawer 자체의 Portal 시스템을 사용합니다.
 
-**권장 방식:**
+```tsx
+import { Drawer } from '@your-org/drawer';
+
+<Drawer>
+  <Drawer.Trigger>Open</Drawer.Trigger>
+  <Drawer.Overlay /> {/* 자동으로 Portal에 렌더링 */}
+  <Drawer.Content>Content</Drawer.Content>
+</Drawer>;
+```
+
+**장점:**
+
+- ✅ 추가 의존성 불필요 (~15KB만)
+- ✅ 설정 간단
+- ✅ 대부분의 경우 충분
+
+#### 방법 2: useOverlay와 통합 사용
+
+여러 Overlay를 중앙 관리하고 싶을 때 사용합니다.
+
+```bash
+# 추가 패키지 설치
+npm install @your-org/overlay zustand
+```
+
+```tsx
+import { Drawer } from '@your-org/drawer';
+import { useOverlay, OverlayPortal } from '@your-org/overlay';
+
+function App() {
+  const drawer = useOverlay();
+
+  return (
+    <>
+      <button onClick={drawer.open}>Open</button>
+
+      <OverlayPortal>
+        <Drawer open={drawer.isOpen} onOpenChange={drawer.close}>
+          <Drawer.Overlay />
+          <Drawer.Content>Content</Drawer.Content>
+        </Drawer>
+      </OverlayPortal>
+    </>
+  );
+}
+```
+
+**장점:**
+
+- ✅ 여러 Overlay의 Z-index 자동 관리
+- ✅ Drawer, Modal, Toast 등을 함께 사용할 때 유용
+- ✅ 중앙 집중식 상태 관리
+
+**단점:**
+
+- ❌ 추가 ~30KB (Zustand 전역 상태)
+- ❌ 설정이 조금 더 복잡
+
+**권장 배포 구조:**
 
 ```bash
 # 사용자가 선택적으로 설치
 npm install @your-org/drawer          # Drawer만 (~15KB)
-npm install @your-org/overlay zustand # Overlay만 (~30KB)
+npm install @your-org/overlay zustand # Overlay 통합이 필요할 때
 ```
 
-자세한 분석은 Issue.md의 "NPM 배포 전략" 섹션을 참고하세요.
+자세한 내용은 [빠른 시작](#-빠른-시작)의 "모드 2: useOverlay()와 함께 사용" 섹션을 참고하세요.
 
 ---
 
@@ -920,6 +1100,6 @@ npm install @your-org/overlay zustand # Overlay만 (~30KB)
 
 ---
 
-**Last Updated**: 2025-01-06
-**Version**: 3.0 (Documentation Refactored)
+**Last Updated**: 2025-01-13
+**Version**: 3.1 (Added useOverlay integration guide)
 **Maintainer**: @hwigeon
