@@ -2,8 +2,8 @@ import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/ui/useToast';
 import {
-  useCreatePost,
-  useUpdatePost,
+  useCreateFreeboardPost,
+  useUpdateFreeboardPost,
 } from '@/generated/api/endpoints/freeboard/freeboard';
 import type { FreeboardFormData } from '@/app/main/community/schema/freeboardSchema';
 
@@ -37,7 +37,7 @@ export function useFreeboardMutation(freeboardId?: number) {
   const queryClient = useQueryClient();
 
   // 생성 mutation
-  const createMutation = useCreatePost({
+  const createMutation = useCreateFreeboardPost({
     mutation: {
       onSuccess: (response) => {
         console.log('게시글 생성 응답:', response);
@@ -57,7 +57,7 @@ export function useFreeboardMutation(freeboardId?: number) {
   });
 
   // 수정 mutation
-  const updateMutation = useUpdatePost({
+  const updateMutation = useUpdateFreeboardPost({
     mutation: {
       onSuccess: (response) => {
         console.log('게시글 수정 응답:', response);
