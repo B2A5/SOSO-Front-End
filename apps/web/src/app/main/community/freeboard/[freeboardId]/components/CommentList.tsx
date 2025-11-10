@@ -3,8 +3,8 @@
 import { useMemo } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import {
-  getCommentsByCursor,
-  getGetCommentsByCursorQueryKey,
+  getFreeboardCommentsByCursor,
+  getGetFreeboardCommentsByCursorQueryKey,
 } from '@/generated/api/endpoints/freeboard-comment/freeboard-comment';
 import type { FreeboardCommentSummary } from '@/generated/api/models';
 import { InfiniteScroll } from '@/components/infiniteScrolls/InfiniteScroll';
@@ -31,9 +31,9 @@ export default function CommentList({ postId }: CommentListProps) {
     error,
     refetch,
   } = useInfiniteQuery({
-    queryKey: getGetCommentsByCursorQueryKey(postId),
+    queryKey: getGetFreeboardCommentsByCursorQueryKey(postId),
     queryFn: ({ pageParam, signal }) =>
-      getCommentsByCursor(
+      getFreeboardCommentsByCursor(
         postId,
         { cursor: pageParam, size: 10, sort: 'LATEST' },
         signal,

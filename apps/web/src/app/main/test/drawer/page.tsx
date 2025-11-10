@@ -296,14 +296,14 @@ export default function DrawerTestPage() {
           </h2>
 
           <div className="space-y-4">
-            {/* dismissible=false */}
+            {/* closeOnDrag=false */}
             <div className="border border-gray-200 rounded-lg p-4">
               <h3 className="font-semibold text-gray-900 mb-2">
-                4.1 dismissible=false (드래그로 닫기 불가)
+                4.1 closeOnDrag=false (드래그로 닫기 불가)
               </h3>
-              <Drawer dismissible={false}>
+              <Drawer closeOnDrag={false}>
                 <Drawer.Trigger className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
-                  dismissible=false
+                  closeOnDrag=false
                 </Drawer.Trigger>
                 <Drawer.Overlay />
                 <Drawer.Content className="max-w-md mx-auto">
@@ -319,14 +319,14 @@ export default function DrawerTestPage() {
               </Drawer>
             </div>
 
-            {/* modal=false */}
+            {/* closeOnBackground=false */}
             <div className="border border-gray-200 rounded-lg p-4">
               <h3 className="font-semibold text-gray-900 mb-2">
-                6.2 modal=false (배경 클릭으로 닫기 불가)
+                4.2 closeOnBackground=false (배경 클릭으로 닫기 불가)
               </h3>
-              <Drawer modal={false}>
+              <Drawer closeOnBackground={false}>
                 <Drawer.Trigger className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700">
-                  modal=false
+                  closeOnBackground=false
                 </Drawer.Trigger>
                 <Drawer.Overlay />
                 <Drawer.Content className="max-w-md mx-auto">
@@ -472,28 +472,29 @@ export default function DrawerTestPage() {
               </Drawer>
             </div>
 
-            {/* dismissible=false에서 ESC 비활성화 */}
+            {/* closeOnDrag=false에서 ESC 비활성화 */}
             <div className="border border-gray-200 rounded-lg p-4">
               <h3 className="font-semibold text-gray-900 mb-2">
-                7.3 dismissible=false (ESC 비활성화)
+                7.3 closeOnDrag=false (드래그 비활성화)
               </h3>
               <p className="text-sm text-gray-600 mb-3">
-                dismissible=false일 때는 ESC 키로 닫을 수 없습니다.
+                closeOnDrag=false일 때는 드래그로 닫을 수 없습니다.
+                ESC 키와 배경 클릭은 가능합니다.
               </p>
-              <Drawer dismissible={false}>
+              <Drawer closeOnDrag={false}>
                 <Drawer.Trigger className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
-                  ESC 비활성화 테스트
+                  드래그 비활성화 테스트
                 </Drawer.Trigger>
                 <Drawer.Overlay />
                 <Drawer.Content className="max-w-md mx-auto">
                   <h3 className="text-lg font-semibold mb-4">
-                    ESC 키가 작동하지 않습니다
+                    드래그로 닫을 수 없습니다
                   </h3>
                   <p className="text-gray-600 mb-4">
-                    dismissible=false이므로 ESC 키로 닫을 수 없습니다.
-                    아래 버튼이나 배경을 클릭하세요.
+                    closeOnDrag=false이므로 드래그로 닫을 수 없습니다.
+                    ESC 키, 배경 클릭, 또는 버튼으로 닫을 수 있습니다.
                   </p>
-                  <Drawer.Items>닫기 버튼으로만 닫기</Drawer.Items>
+                  <Drawer.Items>닫기 버튼</Drawer.Items>
                 </Drawer.Content>
               </Drawer>
             </div>

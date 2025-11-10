@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Heart } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/ui/useToast';
-import { useToggleLike } from '@/generated/api/endpoints/freeboard-like/freeboard-like';
+import { useToggleFreeboardLike } from '@/generated/api/endpoints/freeboard-like/freeboard-like';
 import { formatCappedCount } from '../../../../../../utils/formatCount';
 
 interface LikeButtonPostProps {
@@ -36,25 +36,26 @@ export default function LikeButtonPost({
   useEffect(() => setCount(likeCount), [likeCount]);
 
   // 좋아요 토글 mutation
-  const { mutateAsync: toggleLike, isPending } = useToggleLike({
-    mutation: {
-      onSuccess: () => {
-        // 서버 반영 후 데이터 최신화
-        queryClient.invalidateQueries({
-          queryKey: [`/community/freeboard/${postId}`],
-        });
-        queryClient.invalidateQueries({
-          queryKey: [`/community/freeboard/${postId}/like`],
-        });
+  const { mutateAsync: toggleLike, isPending } =
+    useToggleFreeboardLike({
+      mutation: {
+        onSuccess: () => {
+          // 서버 반영 후 데이터 최신화
+          queryClient.invalidateQueries({
+            queryKey: [`/community/freeboard/${postId}`],
+          });
+          queryClient.invalidateQueries({
+            queryKey: [`/community/freeboard/${postId}/like`],
+          });
+        },
+        onError: () => {
+          // 에러 발생 시 상태 롤백 및 사용자 안내
+          setLiked(isLiked);
+          setCount(likeCount);
+          toast('좋아요 처리 중 오류가 발생했습니다.', 'error');
+        },
       },
-      onError: () => {
-        // 에러 발생 시 상태 롤백 및 사용자 안내
-        setLiked(isLiked);
-        setCount(likeCount);
-        toast('좋아요 처리 중 오류가 발생했습니다.', 'error');
-      },
-    },
-  });
+    });
 
   // 클릭 핸들러 (낙관적 업데이트)
   const handleClick = async () => {

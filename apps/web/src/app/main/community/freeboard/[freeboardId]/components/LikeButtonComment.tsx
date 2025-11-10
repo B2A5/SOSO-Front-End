@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { ThumbsUp } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/ui/useToast';
-import { useToggleCommentLike } from '@/generated/api/endpoints/freeboard-comment-like/freeboard-comment-like';
+import { useToggleFreeboardCommentLike } from '@/generated/api/endpoints/freeboard-comment-like/freeboard-comment-like';
 
 interface LikeButtonCommentProps {
   postId: number;
@@ -38,7 +38,7 @@ export default function LikeButtonComment({
 
   // 댓글 좋아요 토글 mutation
   const { mutateAsync: toggleCommentLike, isPending } =
-    useToggleCommentLike({
+    useToggleFreeboardCommentLike({
       mutation: {
         onSuccess: () => {
           // 서버 반영 후 댓글 목록 최신화

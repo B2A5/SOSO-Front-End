@@ -5,7 +5,7 @@ import ImageSlider from '@/components/ImageSlider';
 import { UserProfile } from './UserProfile';
 import { UserTypeBadge } from './UserTypeBadge';
 import { relativeTime } from '@/utils/relativeTime';
-import { getGetPostQueryOptions } from '@/generated/api/endpoints/freeboard/freeboard';
+import { getGetFreeboardPostQueryOptions } from '@/generated/api/endpoints/freeboard/freeboard';
 import type { FreeboardDetailResponse } from '@/generated/api/models';
 import LikeButtonPost from './LikeButtonPost';
 import { CategoryChip } from '@/components/chips/CategoryChip';
@@ -24,7 +24,7 @@ export default function FreeboardDetail({
 }) {
   // 1) orval이 만든 옵션 팩토리에서 queryKey/queryFn 받기
   const { queryKey, queryFn } =
-    getGetPostQueryOptions<FreeboardDetailResponse>(postId);
+    getGetFreeboardPostQueryOptions<FreeboardDetailResponse>(postId);
 
   // 2) Suspense 전용 훅 사용 (로딩은 상위 <Suspense fallback>이 담당)
   const { data: post } = useSuspenseQuery({
