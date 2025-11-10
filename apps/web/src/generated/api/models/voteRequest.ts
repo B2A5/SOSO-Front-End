@@ -10,6 +10,9 @@
  * 투표 참여 요청
  */
 export interface VoteRequest {
-  /** 선택한 투표 옵션 ID */
-  voteOptionId: number;
+  /**
+   * 선택한 투표 옵션 ID 목록 (단일 선택: 1개, 중복 선택: 최대 n-1개)
+   * @minItems 1
+   */
+  voteOptionIds: number[];
 }

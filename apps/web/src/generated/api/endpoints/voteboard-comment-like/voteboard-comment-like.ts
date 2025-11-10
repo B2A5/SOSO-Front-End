@@ -33,23 +33,23 @@ import { customInstance } from '../../../../lib/api-client';
  * @summary 댓글 좋아요 상태 확인
  */
 export const getVoteboardCommentLikeStatus = (
-  votePostId: number,
+  votesboardId: number,
   commentId: number,
   signal?: AbortSignal,
 ) => {
-  return customInstance<unknown>({
-    url: `/community/votesboard/${votePostId}/comments/${commentId}/like`,
+  return customInstance<boolean>({
+    url: `/community/votesboard/${votesboardId}/comments/${commentId}/like`,
     method: 'GET',
     signal,
   });
 };
 
 export const getGetVoteboardCommentLikeStatusQueryKey = (
-  votePostId?: number,
+  votesboardId?: number,
   commentId?: number,
 ) => {
   return [
-    `/community/votesboard/${votePostId}/comments/${commentId}/like`,
+    `/community/votesboard/${votesboardId}/comments/${commentId}/like`,
   ] as const;
 };
 
@@ -57,7 +57,7 @@ export const getGetVoteboardCommentLikeStatusQueryOptions = <
   TData = Awaited<ReturnType<typeof getVoteboardCommentLikeStatus>>,
   TError = ErrorResponse | ErrorResponse,
 >(
-  votePostId: number,
+  votesboardId: number,
   commentId: number,
   options?: {
     query?: Partial<
@@ -73,17 +73,17 @@ export const getGetVoteboardCommentLikeStatusQueryOptions = <
 
   const queryKey =
     queryOptions?.queryKey ??
-    getGetVoteboardCommentLikeStatusQueryKey(votePostId, commentId);
+    getGetVoteboardCommentLikeStatusQueryKey(votesboardId, commentId);
 
   const queryFn: QueryFunction<
     Awaited<ReturnType<typeof getVoteboardCommentLikeStatus>>
   > = ({ signal }) =>
-    getVoteboardCommentLikeStatus(votePostId, commentId, signal);
+    getVoteboardCommentLikeStatus(votesboardId, commentId, signal);
 
   return {
     queryKey,
     queryFn,
-    enabled: !!(votePostId && commentId),
+    enabled: !!(votesboardId && commentId),
     ...queryOptions,
   } as UseQueryOptions<
     Awaited<ReturnType<typeof getVoteboardCommentLikeStatus>>,
@@ -103,7 +103,7 @@ export function useGetVoteboardCommentLikeStatus<
   TData = Awaited<ReturnType<typeof getVoteboardCommentLikeStatus>>,
   TError = ErrorResponse | ErrorResponse,
 >(
-  votePostId: number,
+  votesboardId: number,
   commentId: number,
   options: {
     query: Partial<
@@ -130,7 +130,7 @@ export function useGetVoteboardCommentLikeStatus<
   TData = Awaited<ReturnType<typeof getVoteboardCommentLikeStatus>>,
   TError = ErrorResponse | ErrorResponse,
 >(
-  votePostId: number,
+  votesboardId: number,
   commentId: number,
   options?: {
     query?: Partial<
@@ -157,7 +157,7 @@ export function useGetVoteboardCommentLikeStatus<
   TData = Awaited<ReturnType<typeof getVoteboardCommentLikeStatus>>,
   TError = ErrorResponse | ErrorResponse,
 >(
-  votePostId: number,
+  votesboardId: number,
   commentId: number,
   options?: {
     query?: Partial<
@@ -180,7 +180,7 @@ export function useGetVoteboardCommentLikeStatus<
   TData = Awaited<ReturnType<typeof getVoteboardCommentLikeStatus>>,
   TError = ErrorResponse | ErrorResponse,
 >(
-  votePostId: number,
+  votesboardId: number,
   commentId: number,
   options?: {
     query?: Partial<
@@ -196,7 +196,7 @@ export function useGetVoteboardCommentLikeStatus<
   queryKey: DataTag<QueryKey, TData, TError>;
 } {
   const queryOptions = getGetVoteboardCommentLikeStatusQueryOptions(
-    votePostId,
+    votesboardId,
     commentId,
     options,
   );
@@ -223,12 +223,12 @@ export function useGetVoteboardCommentLikeStatus<
  * @summary 댓글 좋아요 토글
  */
 export const toggleVoteboardCommentLike = (
-  votePostId: number,
+  votesboardId: number,
   commentId: number,
   signal?: AbortSignal,
 ) => {
-  return customInstance<unknown>({
-    url: `/community/votesboard/${votePostId}/comments/${commentId}/like`,
+  return customInstance<boolean>({
+    url: `/community/votesboard/${votesboardId}/comments/${commentId}/like`,
     method: 'POST',
     signal,
   });
@@ -241,13 +241,13 @@ export const getToggleVoteboardCommentLikeMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof toggleVoteboardCommentLike>>,
     TError,
-    { votePostId: number; commentId: number },
+    { votesboardId: number; commentId: number },
     TContext
   >;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof toggleVoteboardCommentLike>>,
   TError,
-  { votePostId: number; commentId: number },
+  { votesboardId: number; commentId: number },
   TContext
 > => {
   const mutationKey = ['toggleVoteboardCommentLike'];
@@ -261,11 +261,11 @@ export const getToggleVoteboardCommentLikeMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof toggleVoteboardCommentLike>>,
-    { votePostId: number; commentId: number }
+    { votesboardId: number; commentId: number }
   > = (props) => {
-    const { votePostId, commentId } = props ?? {};
+    const { votesboardId, commentId } = props ?? {};
 
-    return toggleVoteboardCommentLike(votePostId, commentId);
+    return toggleVoteboardCommentLike(votesboardId, commentId);
   };
 
   return { mutationFn, ...mutationOptions };
@@ -290,7 +290,7 @@ export const useToggleVoteboardCommentLike = <
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof toggleVoteboardCommentLike>>,
       TError,
-      { votePostId: number; commentId: number },
+      { votesboardId: number; commentId: number },
       TContext
     >;
   },
@@ -298,7 +298,7 @@ export const useToggleVoteboardCommentLike = <
 ): UseMutationResult<
   Awaited<ReturnType<typeof toggleVoteboardCommentLike>>,
   TError,
-  { votePostId: number; commentId: number },
+  { votesboardId: number; commentId: number },
   TContext
 > => {
   const mutationOptions =

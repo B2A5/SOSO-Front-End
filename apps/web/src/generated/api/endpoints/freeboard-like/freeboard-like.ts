@@ -36,7 +36,7 @@ export const getFreeboardLikeStatus = (
   freeboardId: number,
   signal?: AbortSignal,
 ) => {
-  return customInstance<unknown>({
+  return customInstance<boolean>({
     url: `/community/freeboard/${freeboardId}/like`,
     method: 'GET',
     signal,
@@ -215,7 +215,7 @@ export const toggleFreeboardLike = (
   freeboardId: number,
   signal?: AbortSignal,
 ) => {
-  return customInstance<unknown>({
+  return customInstance<boolean>({
     url: `/community/freeboard/${freeboardId}/like`,
     method: 'POST',
     signal,

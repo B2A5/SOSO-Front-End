@@ -33,27 +33,27 @@ import { customInstance } from '../../../../lib/api-client';
  * @summary 투표 게시글 좋아요 상태 확인
  */
 export const getVotePostLikeStatus = (
-  votePostId: number,
+  votesboardId: number,
   signal?: AbortSignal,
 ) => {
-  return customInstance<unknown>({
-    url: `/community/votesboard/${votePostId}/like`,
+  return customInstance<boolean>({
+    url: `/community/votesboard/${votesboardId}/like`,
     method: 'GET',
     signal,
   });
 };
 
 export const getGetVotePostLikeStatusQueryKey = (
-  votePostId?: number,
+  votesboardId?: number,
 ) => {
-  return [`/community/votesboard/${votePostId}/like`] as const;
+  return [`/community/votesboard/${votesboardId}/like`] as const;
 };
 
 export const getGetVotePostLikeStatusQueryOptions = <
   TData = Awaited<ReturnType<typeof getVotePostLikeStatus>>,
   TError = ErrorResponse | ErrorResponse,
 >(
-  votePostId: number,
+  votesboardId: number,
   options?: {
     query?: Partial<
       UseQueryOptions<
@@ -68,16 +68,16 @@ export const getGetVotePostLikeStatusQueryOptions = <
 
   const queryKey =
     queryOptions?.queryKey ??
-    getGetVotePostLikeStatusQueryKey(votePostId);
+    getGetVotePostLikeStatusQueryKey(votesboardId);
 
   const queryFn: QueryFunction<
     Awaited<ReturnType<typeof getVotePostLikeStatus>>
-  > = ({ signal }) => getVotePostLikeStatus(votePostId, signal);
+  > = ({ signal }) => getVotePostLikeStatus(votesboardId, signal);
 
   return {
     queryKey,
     queryFn,
-    enabled: !!votePostId,
+    enabled: !!votesboardId,
     ...queryOptions,
   } as UseQueryOptions<
     Awaited<ReturnType<typeof getVotePostLikeStatus>>,
@@ -97,7 +97,7 @@ export function useGetVotePostLikeStatus<
   TData = Awaited<ReturnType<typeof getVotePostLikeStatus>>,
   TError = ErrorResponse | ErrorResponse,
 >(
-  votePostId: number,
+  votesboardId: number,
   options: {
     query: Partial<
       UseQueryOptions<
@@ -123,7 +123,7 @@ export function useGetVotePostLikeStatus<
   TData = Awaited<ReturnType<typeof getVotePostLikeStatus>>,
   TError = ErrorResponse | ErrorResponse,
 >(
-  votePostId: number,
+  votesboardId: number,
   options?: {
     query?: Partial<
       UseQueryOptions<
@@ -149,7 +149,7 @@ export function useGetVotePostLikeStatus<
   TData = Awaited<ReturnType<typeof getVotePostLikeStatus>>,
   TError = ErrorResponse | ErrorResponse,
 >(
-  votePostId: number,
+  votesboardId: number,
   options?: {
     query?: Partial<
       UseQueryOptions<
@@ -171,7 +171,7 @@ export function useGetVotePostLikeStatus<
   TData = Awaited<ReturnType<typeof getVotePostLikeStatus>>,
   TError = ErrorResponse | ErrorResponse,
 >(
-  votePostId: number,
+  votesboardId: number,
   options?: {
     query?: Partial<
       UseQueryOptions<
@@ -186,7 +186,7 @@ export function useGetVotePostLikeStatus<
   queryKey: DataTag<QueryKey, TData, TError>;
 } {
   const queryOptions = getGetVotePostLikeStatusQueryOptions(
-    votePostId,
+    votesboardId,
     options,
   );
 
@@ -212,11 +212,11 @@ export function useGetVotePostLikeStatus<
  * @summary 투표 게시글 좋아요 토글
  */
 export const toggleVotePostLike = (
-  votePostId: number,
+  votesboardId: number,
   signal?: AbortSignal,
 ) => {
-  return customInstance<unknown>({
-    url: `/community/votesboard/${votePostId}/like`,
+  return customInstance<boolean>({
+    url: `/community/votesboard/${votesboardId}/like`,
     method: 'POST',
     signal,
   });
@@ -229,13 +229,13 @@ export const getToggleVotePostLikeMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof toggleVotePostLike>>,
     TError,
-    { votePostId: number },
+    { votesboardId: number },
     TContext
   >;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof toggleVotePostLike>>,
   TError,
-  { votePostId: number },
+  { votesboardId: number },
   TContext
 > => {
   const mutationKey = ['toggleVotePostLike'];
@@ -249,11 +249,11 @@ export const getToggleVotePostLikeMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof toggleVotePostLike>>,
-    { votePostId: number }
+    { votesboardId: number }
   > = (props) => {
-    const { votePostId } = props ?? {};
+    const { votesboardId } = props ?? {};
 
-    return toggleVotePostLike(votePostId);
+    return toggleVotePostLike(votesboardId);
   };
 
   return { mutationFn, ...mutationOptions };
@@ -278,7 +278,7 @@ export const useToggleVotePostLike = <
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof toggleVotePostLike>>,
       TError,
-      { votePostId: number },
+      { votesboardId: number },
       TContext
     >;
   },
@@ -286,7 +286,7 @@ export const useToggleVotePostLike = <
 ): UseMutationResult<
   Awaited<ReturnType<typeof toggleVotePostLike>>,
   TError,
-  { votePostId: number },
+  { votesboardId: number },
   TContext
 > => {
   const mutationOptions =

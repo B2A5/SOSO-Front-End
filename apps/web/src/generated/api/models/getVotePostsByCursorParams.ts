@@ -19,5 +19,5 @@ export type GetVotePostsByCursorParams = {
   /**
    * 커서 (이전 페이지의 마지막 게시글 ID)
    */
-  cursor?: number;
+  cursor?: string;
 };

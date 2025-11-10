@@ -378,6 +378,14 @@ export const useDeleteVotePost = <
 - 진행 중인 투표에만 가능
 - 기존에 투표한 기록이 있어야 함
 
+**단일 선택 투표 (allowMultipleChoice = false):**
+- 정확히 1개의 옵션만 선택 가능
+- 예: 옵션 1 → 옵션 2로 변경
+
+**중복 선택 투표 (allowMultipleChoice = true):**
+- 최소 1개, 최대 n-1개 선택 가능
+- 예: [1, 2] → [2, 3, 4]로 변경
+
 **권한:** 로그인 사용자만 가능
 
  * @summary 투표 변경 (재투표)
@@ -473,6 +481,15 @@ export const useChangeVote = <
 - 한 투표당 1번만 참여 가능 (중복 투표 불가)
 - 진행 중인 투표에만 참여 가능
 - 선택한 옵션은 해당 투표의 옵션이어야 함
+
+**단일 선택 투표 (allowMultipleChoice = false):**
+- 정확히 1개의 옵션만 선택 가능
+- 예: voteOptionIds: [1]
+
+**중복 선택 투표 (allowMultipleChoice = true):**
+- 최소 1개, 최대 n-1개 선택 가능 (n = 전체 옵션 수)
+- 예: 옵션이 5개일 때, 1~4개까지 선택 가능
+- 예: voteOptionIds: [1, 2, 3]
 
 **권한:** 로그인 사용자만 가능
 
