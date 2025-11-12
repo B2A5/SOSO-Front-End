@@ -8,6 +8,7 @@ import { getGetPostQueryKey } from '@/generated/api/endpoints/freeboard/freeboar
 import { formatCappedCount } from '@/utils/formatCount';
 import { useToast } from '@/hooks/ui/useToast';
 import { useToggleLike2 } from '@/generated/api/endpoints/freeboard-like/freeboard-like';
+import { FreeboardDetailResponse } from '@/generated/api/models';
 
 interface LikeButtonPostProps {
   postId: number;
@@ -58,6 +59,10 @@ export default function LikeButtonPost({
         const snapshot = {
           prevLiked: liked,
           prevLikeCount: likeCount,
+          prevPost:
+            queryClient.getQueryData<FreeboardDetailResponse>(
+              postDetailKey,
+            ),
         };
 
         // (3) 낙관적 토글 + 카운트 보정(음수 방지)
@@ -67,6 +72,23 @@ export default function LikeButtonPost({
           setLikeCount((count) => clampMin0(count + delta));
           return next;
         });
+
+        // 쿼리 캐시 동기화
+        queryClient.setQueryData<FreeboardDetailResponse>(
+          postDetailKey,
+          (old) => {
+            if (!old) return old;
+            const nextLiked = !(old.isLiked ?? false);
+            const nextCount = clampMin0(
+              old.likeCount + (nextLiked ? 1 : -1),
+            );
+            return {
+              ...old,
+              isLiked: nextLiked,
+              likeCount: nextCount,
+            };
+          },
+        );
 
         // (4) 스냅샷을 onError/onSettled에 전달
         return { snapshot };
@@ -78,6 +100,9 @@ export default function LikeButtonPost({
         if (snap) {
           setLiked(snap.prevLiked);
           setLikeCount(snap.prevLikeCount);
+          if (snap.prevPost) {
+            queryClient.setQueryData(postDetailKey, snap.prevPost);
+          }
         }
         toast('좋아요 처리 중 오류가 발생했습니다.', 'error');
       },

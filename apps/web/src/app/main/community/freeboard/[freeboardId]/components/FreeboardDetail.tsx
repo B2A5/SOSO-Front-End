@@ -1,4 +1,3 @@
-// apps/web/src/app/main/community/freeboard/[freeboardId]/components/FreeboardDetail.tsx
 'use client';
 
 import { Eye } from 'lucide-react';
@@ -11,13 +10,22 @@ import LikeButtonPost from './LikeButtonPost';
 import { CategoryChip } from '@/components/chips/CategoryChip';
 import { Category } from '../../../constants/categories';
 import { formatCappedCount } from '@/utils/formatCount';
+import { useGetPost } from '@/generated/api/endpoints/freeboard/freeboard';
 
 export default function FreeboardDetail({
-  post,
+  initialPost,
 }: {
-  post: FreeboardDetailResponse;
+  initialPost: FreeboardDetailResponse;
 }) {
-  const { author } = post;
+  const { data: post } = useGetPost(initialPost.postId, {
+    query: {
+      initialData: initialPost,
+      staleTime: 0,
+      refetchOnMount: 'always',
+      refetchOnWindowFocus: true,
+    },
+  });
+  const author = post.author;
 
   return (
     <div className="p-5 border-b border-neutral-0">
