@@ -5,7 +5,7 @@ import { Button } from '@/components/buttons/Button';
 import KakaoImage from '@/assets/images/KakaoImage';
 import { useKakaoAuth } from '@/hooks/useKakaoAuth';
 import kakaoSubsetFont from '@/assets/fonts/KakaoSubsetFont';
-import { twMerge } from 'tailwind-merge';
+import { cn } from '@/utils/cn';
 
 export default function KakaoLoginButton({
   className,
@@ -21,13 +21,13 @@ export default function KakaoLoginButton({
       isLoading={isPending}
       loadingText="로그인 중…"
       size="lg"
-      startIcon={<KakaoImage className="mr-2" />}
-      className={twMerge(
+      className={cn(
         kakaoSubsetFont.className,
-        '!bg-kakao-100 !text-kakao-200',
+        '!bg-kakao-100 !text-kakao-200 gap-2',
         className,
       )}
     >
+      <KakaoImage className="w-6 h-6" />
       카카오로 로그인
     </Button>
   );
