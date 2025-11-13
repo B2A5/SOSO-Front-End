@@ -16,6 +16,7 @@ import {
   getGetFreeboardPostQueryKey,
   getGetFreeboardPostQueryOptions,
 } from '@/generated/api/endpoints/freeboard/freeboard';
+import { Header } from '@/components/header/Header';
 
 export default async function Page({
   params,
@@ -52,7 +53,16 @@ export default async function Page({
 
   return (
     <HydrationBoundary state={dehydratedState}>
-      <main className="space-y-6">
+      <main className="space-y-6 pt-12">
+        <Header className="fixed top-0 left-0 right-0 z-50 bg-white">
+          <Header.Left>
+            <Header.BackButton />
+          </Header.Left>
+          <Header.Center>자유게시판</Header.Center>
+          <Header.Right>
+            <Header.MenuButton />
+          </Header.Right>
+        </Header>
         <FreeboardDetail initialPost={post} />
 
         <section className="px-5 pb-6">
