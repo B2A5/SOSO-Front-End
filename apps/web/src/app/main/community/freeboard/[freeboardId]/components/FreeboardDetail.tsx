@@ -10,22 +10,18 @@ import LikeButtonPost from './LikeButtonPost';
 import { CategoryChip } from '@/components/chips/CategoryChip';
 import { Category } from '../../../constants/categories';
 import { formatCappedCount } from '@/utils/formatCount';
-import { useGetFreeboardPost } from '@/generated/api/endpoints/freeboard/freeboard';
 
+/**
+ * 자유 게시판 게시글 상세 컴포넌트
+ *
+ * @param post 게시글 상세 데이터
+ */
 export default function FreeboardDetail({
-  initialPost,
+  post,
 }: {
-  initialPost: FreeboardDetailResponse;
+  post: FreeboardDetailResponse;
 }) {
-  const { data: post } = useGetFreeboardPost(initialPost.postId, {
-    query: {
-      initialData: initialPost,
-      staleTime: 0,
-      refetchOnMount: 'always',
-      refetchOnWindowFocus: true,
-    },
-  });
-  const author = post.author;
+  const { author } = post;
 
   return (
     <div className="p-5 border-b border-neutral-0">

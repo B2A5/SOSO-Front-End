@@ -5,19 +5,21 @@ import {
   HydrationBoundary,
 } from '@tanstack/react-query';
 import type { FreeboardDetailResponse } from '@/generated/api/models';
-
-import FreeboardDetail from './components/FreeboardDetail';
-import CommentList from './components/CommentList';
-import CommentInput from './components/CommentInput';
-import FreeboardDetailSkeleton from './components/FreeboardDetailSkeleton';
-
-import { isAxiosError } from 'axios';
 import {
   getGetFreeboardPostQueryKey,
   getGetFreeboardPostQueryOptions,
 } from '@/generated/api/endpoints/freeboard/freeboard';
-import { Header } from '@/components/header/Header';
+import ClientScreen from './ClientScreen';
+import FreeboardDetailSkeleton from './components/FreeboardDetailSkeleton';
+import { isAxiosError } from 'axios';
 
+/**
+ * 자유 게시판 게시글 상세 페이지 (서버 컴포넌트)
+ *
+ * @description
+ * - 서버에서 게시글 데이터를 프리패치하여 클라이언트에 전달
+ * - 클라이언트는 구독 및 인터랙션 처리 담당
+ */
 export default async function Page({
   params,
 }: {
@@ -42,7 +44,7 @@ export default async function Page({
     return <FreeboardDetailSkeleton />;
   }
 
-  // 캐시에서 동일 키로 데이터 꺼내서 prop으로 전달
+  // 캐시에서 꺼내 초기 props로 전달
   const post = queryClient.getQueryData(
     getGetFreeboardPostQueryKey(postId),
   ) as FreeboardDetailResponse | undefined;
@@ -53,31 +55,8 @@ export default async function Page({
 
   return (
     <HydrationBoundary state={dehydratedState}>
-      <main className="space-y-6 pt-12">
-        <Header className="fixed top-0 left-0 right-0 z-50 bg-white">
-          <Header.Left>
-            <Header.BackButton />
-          </Header.Left>
-          <Header.Center>자유게시판</Header.Center>
-          <Header.Right>
-            <Header.MenuButton />
-          </Header.Right>
-        </Header>
-        <FreeboardDetail initialPost={post} />
-
-        <section className="px-5 pb-6">
-          <CommentList postId={postId} />
-          <div className="fixed bottom-16 left-0 right-0 z-50 px-5 py-3">
-            <CommentInput postId={postId} />
-          </div>
-        </section>
-
-        {/* safe-area 보정 */}
-        <div className="fixed inset-x-0 bottom-16 z-50 bg-transparent">
-          <div className="backdrop-blur-[2px] bg-white/90 w-full h-full absolute top-0 z-[-1]" />
-          <div className="h-[env(safe-area-inset-bottom)]" />
-        </div>
-      </main>
+      {/* 클라이언트 트리: 구독/인터랙션/핸들러는 여기서 */}
+      <ClientScreen postId={postId} initialPost={post} />
     </HydrationBoundary>
   );
 }
