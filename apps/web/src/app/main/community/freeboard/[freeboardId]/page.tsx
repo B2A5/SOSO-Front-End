@@ -9,9 +9,9 @@ import {
   getGetFreeboardPostQueryKey,
   getGetFreeboardPostQueryOptions,
 } from '@/generated/api/endpoints/freeboard/freeboard';
-import ClientScreen from './ClientScreen';
 import FreeboardDetailSkeleton from './components/FreeboardDetailSkeleton';
 import { isAxiosError } from 'axios';
+import ClientPage from './ClientPage';
 
 /**
  * 자유 게시판 게시글 상세 페이지 (서버 컴포넌트)
@@ -56,7 +56,7 @@ export default async function Page({
   return (
     <HydrationBoundary state={dehydratedState}>
       {/* 클라이언트 트리: 구독/인터랙션/핸들러는 여기서 */}
-      <ClientScreen postId={postId} initialPost={post} />
+      <ClientPage postId={postId} initialPost={post} />
     </HydrationBoundary>
   );
 }

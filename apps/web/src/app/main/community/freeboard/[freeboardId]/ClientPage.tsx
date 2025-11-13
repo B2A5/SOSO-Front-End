@@ -1,27 +1,25 @@
-'use client';
+﻿'use client';
 
-import { useGetFreeboardPost } from '@/generated/api/endpoints/freeboard/freeboard';
 import type { FreeboardDetailResponse } from '@/generated/api/models';
 import { Header } from '@/components/header/Header';
 import FreeboardDetail from './components/FreeboardDetail';
 import CommentList from './components/CommentList';
 import CommentInput from './components/CommentInput';
 import FreeboardDetailSkeleton from './components/FreeboardDetailSkeleton';
+import { useGetFreeboardPost } from '@/generated/api/endpoints/freeboard/freeboard';
 
 /**
  * 자유 게시판 게시글 상세 클라이언트 화면
  * @param postId 게시글 ID
  * @param initialPost 서버에서 프리패치된 초기 게시글 데이터
  */
-export default function ClientScreen({
+export default function ClientPage({
   postId,
   initialPost,
 }: {
   postId: number;
   initialPost: FreeboardDetailResponse;
 }) {
-  // 게시글 상세 데이터 구독 생성
-  // 서버 프리패치 재사용
   const {
     data: post,
     isPending,
@@ -36,7 +34,7 @@ export default function ClientScreen({
   });
 
   // TODO: 로딩/에러 처리 구체화 필요
-  // postId가 유효하지 않은 경우 처리 필요 (예: notFound 호출)
+  // postId가 유효하지 않은 경우 처리 필요
   if (!postId) return <FreeboardDetailSkeleton />;
   if (isPending) return <FreeboardDetailSkeleton />;
   if (error || !post) return <div>에러가 발생했습니다.</div>;
