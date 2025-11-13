@@ -23,7 +23,7 @@ import type {
 
 import type {
   ErrorResponse,
-  GetVotePostListParams,
+  GetVotePostsByCursorParams,
   VotePostCreateRequest,
   VotePostDetailResponse,
   VotePostIdResponse,
@@ -378,6 +378,14 @@ export const useDeleteVotePost = <
 - 진행 중인 투표에만 가능
 - 기존에 투표한 기록이 있어야 함
 
+**단일 선택 투표 (allowMultipleChoice = false):**
+- 정확히 1개의 옵션만 선택 가능
+- 예: 옵션 1 → 옵션 2로 변경
+
+**중복 선택 투표 (allowMultipleChoice = true):**
+- 최소 1개, 최대 n-1개 선택 가능
+- 예: [1, 2] → [2, 3, 4]로 변경
+
 **권한:** 로그인 사용자만 가능
 
  * @summary 투표 변경 (재투표)
@@ -474,11 +482,20 @@ export const useChangeVote = <
 - 진행 중인 투표에만 참여 가능
 - 선택한 옵션은 해당 투표의 옵션이어야 함
 
+**단일 선택 투표 (allowMultipleChoice = false):**
+- 정확히 1개의 옵션만 선택 가능
+- 예: voteOptionIds: [1]
+
+**중복 선택 투표 (allowMultipleChoice = true):**
+- 최소 1개, 최대 n-1개 선택 가능 (n = 전체 옵션 수)
+- 예: 옵션이 5개일 때, 1~4개까지 선택 가능
+- 예: voteOptionIds: [1, 2, 3]
+
 **권한:** 로그인 사용자만 가능
 
  * @summary 투표 참여
  */
-export const vote = (
+export const castVote = (
   votesboardId: number,
   voteRequest: VoteRequest,
   signal?: AbortSignal,
@@ -492,23 +509,23 @@ export const vote = (
   });
 };
 
-export const getVoteMutationOptions = <
+export const getCastVoteMutationOptions = <
   TError = ErrorResponse | ErrorResponse | ErrorResponse,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof vote>>,
+    Awaited<ReturnType<typeof castVote>>,
     TError,
     { votesboardId: number; data: VoteRequest },
     TContext
   >;
 }): UseMutationOptions<
-  Awaited<ReturnType<typeof vote>>,
+  Awaited<ReturnType<typeof castVote>>,
   TError,
   { votesboardId: number; data: VoteRequest },
   TContext
 > => {
-  const mutationKey = ['vote'];
+  const mutationKey = ['castVote'];
   const { mutation: mutationOptions } = options
     ? options.mutation &&
       'mutationKey' in options.mutation &&
@@ -518,22 +535,22 @@ export const getVoteMutationOptions = <
     : { mutation: { mutationKey } };
 
   const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof vote>>,
+    Awaited<ReturnType<typeof castVote>>,
     { votesboardId: number; data: VoteRequest }
   > = (props) => {
     const { votesboardId, data } = props ?? {};
 
-    return vote(votesboardId, data);
+    return castVote(votesboardId, data);
   };
 
   return { mutationFn, ...mutationOptions };
 };
 
-export type VoteMutationResult = NonNullable<
-  Awaited<ReturnType<typeof vote>>
+export type CastVoteMutationResult = NonNullable<
+  Awaited<ReturnType<typeof castVote>>
 >;
-export type VoteMutationBody = VoteRequest;
-export type VoteMutationError =
+export type CastVoteMutationBody = VoteRequest;
+export type CastVoteMutationError =
   | ErrorResponse
   | ErrorResponse
   | ErrorResponse;
@@ -541,13 +558,13 @@ export type VoteMutationError =
 /**
  * @summary 투표 참여
  */
-export const useVote = <
+export const useCastVote = <
   TError = ErrorResponse | ErrorResponse | ErrorResponse,
   TContext = unknown,
 >(
   options?: {
     mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof vote>>,
+      Awaited<ReturnType<typeof castVote>>,
       TError,
       { votesboardId: number; data: VoteRequest },
       TContext
@@ -555,12 +572,12 @@ export const useVote = <
   },
   queryClient?: QueryClient,
 ): UseMutationResult<
-  Awaited<ReturnType<typeof vote>>,
+  Awaited<ReturnType<typeof castVote>>,
   TError,
   { votesboardId: number; data: VoteRequest },
   TContext
 > => {
-  const mutationOptions = getVoteMutationOptions(options);
+  const mutationOptions = getCastVoteMutationOptions(options);
 
   return useMutation(mutationOptions, queryClient);
 };
@@ -648,8 +665,8 @@ export const useCancelVote = <
  * 커서 기반 페이지네이션으로 투표 게시글 목록을 조회합니다.
  * @summary 투표 게시글 목록 조회 (커서 기반)
  */
-export const getVotePostList = (
-  params?: GetVotePostListParams,
+export const getVotePostsByCursor = (
+  params?: GetVotePostsByCursorParams,
   signal?: AbortSignal,
 ) => {
   return customInstance<VotePostListResponse>({
@@ -660,8 +677,8 @@ export const getVotePostList = (
   });
 };
 
-export const getGetVotePostListQueryKey = (
-  params?: GetVotePostListParams,
+export const getGetVotePostsByCursorQueryKey = (
+  params?: GetVotePostsByCursorParams,
 ) => {
   return [
     `/community/votesboard`,
@@ -669,15 +686,15 @@ export const getGetVotePostListQueryKey = (
   ] as const;
 };
 
-export const getGetVotePostListQueryOptions = <
-  TData = Awaited<ReturnType<typeof getVotePostList>>,
+export const getGetVotePostsByCursorQueryOptions = <
+  TData = Awaited<ReturnType<typeof getVotePostsByCursor>>,
   TError = unknown,
 >(
-  params?: GetVotePostListParams,
+  params?: GetVotePostsByCursorParams,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getVotePostList>>,
+        Awaited<ReturnType<typeof getVotePostsByCursor>>,
         TError,
         TData
       >
@@ -687,42 +704,42 @@ export const getGetVotePostListQueryOptions = <
   const { query: queryOptions } = options ?? {};
 
   const queryKey =
-    queryOptions?.queryKey ?? getGetVotePostListQueryKey(params);
+    queryOptions?.queryKey ?? getGetVotePostsByCursorQueryKey(params);
 
   const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof getVotePostList>>
-  > = ({ signal }) => getVotePostList(params, signal);
+    Awaited<ReturnType<typeof getVotePostsByCursor>>
+  > = ({ signal }) => getVotePostsByCursor(params, signal);
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof getVotePostList>>,
+    Awaited<ReturnType<typeof getVotePostsByCursor>>,
     TError,
     TData
   > & { queryKey: DataTag<QueryKey, TData, TError> };
 };
 
-export type GetVotePostListQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getVotePostList>>
+export type GetVotePostsByCursorQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getVotePostsByCursor>>
 >;
-export type GetVotePostListQueryError = unknown;
+export type GetVotePostsByCursorQueryError = unknown;
 
-export function useGetVotePostList<
-  TData = Awaited<ReturnType<typeof getVotePostList>>,
+export function useGetVotePostsByCursor<
+  TData = Awaited<ReturnType<typeof getVotePostsByCursor>>,
   TError = unknown,
 >(
-  params: undefined | GetVotePostListParams,
+  params: undefined | GetVotePostsByCursorParams,
   options: {
     query: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getVotePostList>>,
+        Awaited<ReturnType<typeof getVotePostsByCursor>>,
         TError,
         TData
       >
     > &
       Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getVotePostList>>,
+          Awaited<ReturnType<typeof getVotePostsByCursor>>,
           TError,
-          Awaited<ReturnType<typeof getVotePostList>>
+          Awaited<ReturnType<typeof getVotePostsByCursor>>
         >,
         'initialData'
       >;
@@ -731,24 +748,24 @@ export function useGetVotePostList<
 ): DefinedUseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 };
-export function useGetVotePostList<
-  TData = Awaited<ReturnType<typeof getVotePostList>>,
+export function useGetVotePostsByCursor<
+  TData = Awaited<ReturnType<typeof getVotePostsByCursor>>,
   TError = unknown,
 >(
-  params?: GetVotePostListParams,
+  params?: GetVotePostsByCursorParams,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getVotePostList>>,
+        Awaited<ReturnType<typeof getVotePostsByCursor>>,
         TError,
         TData
       >
     > &
       Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getVotePostList>>,
+          Awaited<ReturnType<typeof getVotePostsByCursor>>,
           TError,
-          Awaited<ReturnType<typeof getVotePostList>>
+          Awaited<ReturnType<typeof getVotePostsByCursor>>
         >,
         'initialData'
       >;
@@ -757,15 +774,15 @@ export function useGetVotePostList<
 ): UseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 };
-export function useGetVotePostList<
-  TData = Awaited<ReturnType<typeof getVotePostList>>,
+export function useGetVotePostsByCursor<
+  TData = Awaited<ReturnType<typeof getVotePostsByCursor>>,
   TError = unknown,
 >(
-  params?: GetVotePostListParams,
+  params?: GetVotePostsByCursorParams,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getVotePostList>>,
+        Awaited<ReturnType<typeof getVotePostsByCursor>>,
         TError,
         TData
       >
@@ -779,15 +796,15 @@ export function useGetVotePostList<
  * @summary 투표 게시글 목록 조회 (커서 기반)
  */
 
-export function useGetVotePostList<
-  TData = Awaited<ReturnType<typeof getVotePostList>>,
+export function useGetVotePostsByCursor<
+  TData = Awaited<ReturnType<typeof getVotePostsByCursor>>,
   TError = unknown,
 >(
-  params?: GetVotePostListParams,
+  params?: GetVotePostsByCursorParams,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getVotePostList>>,
+        Awaited<ReturnType<typeof getVotePostsByCursor>>,
         TError,
         TData
       >
@@ -797,7 +814,7 @@ export function useGetVotePostList<
 ): UseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 } {
-  const queryOptions = getGetVotePostListQueryOptions(
+  const queryOptions = getGetVotePostsByCursorQueryOptions(
     params,
     options,
   );

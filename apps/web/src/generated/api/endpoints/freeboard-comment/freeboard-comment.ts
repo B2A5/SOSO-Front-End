@@ -22,14 +22,14 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
-  DeleteComment1204,
+  DeleteFreeboardComment204,
   ErrorResponse,
   FreeboardCommentCreateRequest,
   FreeboardCommentCreateResponse,
   FreeboardCommentCursorResponse,
   FreeboardCommentUpdateRequest,
-  GetCommentsByCursor1Params,
-  HardDeleteComment204,
+  GetFreeboardCommentsByCursorParams,
+  HardDeleteFreeboardComment204,
 } from '../../models';
 
 import { customInstance } from '../../../../lib/api-client';
@@ -61,9 +61,9 @@ import { customInstance } from '../../../../lib/api-client';
 
  * @summary 댓글 목록 조회 (커서 기반)
  */
-export const getCommentsByCursor1 = (
+export const getFreeboardCommentsByCursor = (
   freeboardId: number,
-  params?: GetCommentsByCursor1Params,
+  params?: GetFreeboardCommentsByCursorParams,
   signal?: AbortSignal,
 ) => {
   return customInstance<FreeboardCommentCursorResponse>({
@@ -74,9 +74,9 @@ export const getCommentsByCursor1 = (
   });
 };
 
-export const getGetCommentsByCursor1QueryKey = (
+export const getGetFreeboardCommentsByCursorQueryKey = (
   freeboardId?: number,
-  params?: GetCommentsByCursor1Params,
+  params?: GetFreeboardCommentsByCursorParams,
 ) => {
   return [
     `/community/freeboard/${freeboardId}/comments`,
@@ -84,16 +84,16 @@ export const getGetCommentsByCursor1QueryKey = (
   ] as const;
 };
 
-export const getGetCommentsByCursor1QueryOptions = <
-  TData = Awaited<ReturnType<typeof getCommentsByCursor1>>,
+export const getGetFreeboardCommentsByCursorQueryOptions = <
+  TData = Awaited<ReturnType<typeof getFreeboardCommentsByCursor>>,
   TError = ErrorResponse | ErrorResponse,
 >(
   freeboardId: number,
-  params?: GetCommentsByCursor1Params,
+  params?: GetFreeboardCommentsByCursorParams,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getCommentsByCursor1>>,
+        Awaited<ReturnType<typeof getFreeboardCommentsByCursor>>,
         TError,
         TData
       >
@@ -104,12 +104,12 @@ export const getGetCommentsByCursor1QueryOptions = <
 
   const queryKey =
     queryOptions?.queryKey ??
-    getGetCommentsByCursor1QueryKey(freeboardId, params);
+    getGetFreeboardCommentsByCursorQueryKey(freeboardId, params);
 
   const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof getCommentsByCursor1>>
+    Awaited<ReturnType<typeof getFreeboardCommentsByCursor>>
   > = ({ signal }) =>
-    getCommentsByCursor1(freeboardId, params, signal);
+    getFreeboardCommentsByCursor(freeboardId, params, signal);
 
   return {
     queryKey,
@@ -117,38 +117,38 @@ export const getGetCommentsByCursor1QueryOptions = <
     enabled: !!freeboardId,
     ...queryOptions,
   } as UseQueryOptions<
-    Awaited<ReturnType<typeof getCommentsByCursor1>>,
+    Awaited<ReturnType<typeof getFreeboardCommentsByCursor>>,
     TError,
     TData
   > & { queryKey: DataTag<QueryKey, TData, TError> };
 };
 
-export type GetCommentsByCursor1QueryResult = NonNullable<
-  Awaited<ReturnType<typeof getCommentsByCursor1>>
+export type GetFreeboardCommentsByCursorQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getFreeboardCommentsByCursor>>
 >;
-export type GetCommentsByCursor1QueryError =
+export type GetFreeboardCommentsByCursorQueryError =
   | ErrorResponse
   | ErrorResponse;
 
-export function useGetCommentsByCursor1<
-  TData = Awaited<ReturnType<typeof getCommentsByCursor1>>,
+export function useGetFreeboardCommentsByCursor<
+  TData = Awaited<ReturnType<typeof getFreeboardCommentsByCursor>>,
   TError = ErrorResponse | ErrorResponse,
 >(
   freeboardId: number,
-  params: undefined | GetCommentsByCursor1Params,
+  params: undefined | GetFreeboardCommentsByCursorParams,
   options: {
     query: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getCommentsByCursor1>>,
+        Awaited<ReturnType<typeof getFreeboardCommentsByCursor>>,
         TError,
         TData
       >
     > &
       Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getCommentsByCursor1>>,
+          Awaited<ReturnType<typeof getFreeboardCommentsByCursor>>,
           TError,
-          Awaited<ReturnType<typeof getCommentsByCursor1>>
+          Awaited<ReturnType<typeof getFreeboardCommentsByCursor>>
         >,
         'initialData'
       >;
@@ -157,25 +157,25 @@ export function useGetCommentsByCursor1<
 ): DefinedUseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 };
-export function useGetCommentsByCursor1<
-  TData = Awaited<ReturnType<typeof getCommentsByCursor1>>,
+export function useGetFreeboardCommentsByCursor<
+  TData = Awaited<ReturnType<typeof getFreeboardCommentsByCursor>>,
   TError = ErrorResponse | ErrorResponse,
 >(
   freeboardId: number,
-  params?: GetCommentsByCursor1Params,
+  params?: GetFreeboardCommentsByCursorParams,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getCommentsByCursor1>>,
+        Awaited<ReturnType<typeof getFreeboardCommentsByCursor>>,
         TError,
         TData
       >
     > &
       Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getCommentsByCursor1>>,
+          Awaited<ReturnType<typeof getFreeboardCommentsByCursor>>,
           TError,
-          Awaited<ReturnType<typeof getCommentsByCursor1>>
+          Awaited<ReturnType<typeof getFreeboardCommentsByCursor>>
         >,
         'initialData'
       >;
@@ -184,16 +184,16 @@ export function useGetCommentsByCursor1<
 ): UseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 };
-export function useGetCommentsByCursor1<
-  TData = Awaited<ReturnType<typeof getCommentsByCursor1>>,
+export function useGetFreeboardCommentsByCursor<
+  TData = Awaited<ReturnType<typeof getFreeboardCommentsByCursor>>,
   TError = ErrorResponse | ErrorResponse,
 >(
   freeboardId: number,
-  params?: GetCommentsByCursor1Params,
+  params?: GetFreeboardCommentsByCursorParams,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getCommentsByCursor1>>,
+        Awaited<ReturnType<typeof getFreeboardCommentsByCursor>>,
         TError,
         TData
       >
@@ -207,16 +207,16 @@ export function useGetCommentsByCursor1<
  * @summary 댓글 목록 조회 (커서 기반)
  */
 
-export function useGetCommentsByCursor1<
-  TData = Awaited<ReturnType<typeof getCommentsByCursor1>>,
+export function useGetFreeboardCommentsByCursor<
+  TData = Awaited<ReturnType<typeof getFreeboardCommentsByCursor>>,
   TError = ErrorResponse | ErrorResponse,
 >(
   freeboardId: number,
-  params?: GetCommentsByCursor1Params,
+  params?: GetFreeboardCommentsByCursorParams,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getCommentsByCursor1>>,
+        Awaited<ReturnType<typeof getFreeboardCommentsByCursor>>,
         TError,
         TData
       >
@@ -226,7 +226,7 @@ export function useGetCommentsByCursor1<
 ): UseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 } {
-  const queryOptions = getGetCommentsByCursor1QueryOptions(
+  const queryOptions = getGetFreeboardCommentsByCursorQueryOptions(
     freeboardId,
     params,
     options,
@@ -252,7 +252,7 @@ export function useGetCommentsByCursor1<
 
  * @summary 댓글 작성
  */
-export const createComment1 = (
+export const createFreeboardComment = (
   freeboardId: number,
   freeboardCommentCreateRequest: FreeboardCommentCreateRequest,
   signal?: AbortSignal,
@@ -266,23 +266,23 @@ export const createComment1 = (
   });
 };
 
-export const getCreateComment1MutationOptions = <
+export const getCreateFreeboardCommentMutationOptions = <
   TError = ErrorResponse | ErrorResponse,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof createComment1>>,
+    Awaited<ReturnType<typeof createFreeboardComment>>,
     TError,
     { freeboardId: number; data: FreeboardCommentCreateRequest },
     TContext
   >;
 }): UseMutationOptions<
-  Awaited<ReturnType<typeof createComment1>>,
+  Awaited<ReturnType<typeof createFreeboardComment>>,
   TError,
   { freeboardId: number; data: FreeboardCommentCreateRequest },
   TContext
 > => {
-  const mutationKey = ['createComment1'];
+  const mutationKey = ['createFreeboardComment'];
   const { mutation: mutationOptions } = options
     ? options.mutation &&
       'mutationKey' in options.mutation &&
@@ -292,36 +292,36 @@ export const getCreateComment1MutationOptions = <
     : { mutation: { mutationKey } };
 
   const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof createComment1>>,
+    Awaited<ReturnType<typeof createFreeboardComment>>,
     { freeboardId: number; data: FreeboardCommentCreateRequest }
   > = (props) => {
     const { freeboardId, data } = props ?? {};
 
-    return createComment1(freeboardId, data);
+    return createFreeboardComment(freeboardId, data);
   };
 
   return { mutationFn, ...mutationOptions };
 };
 
-export type CreateComment1MutationResult = NonNullable<
-  Awaited<ReturnType<typeof createComment1>>
+export type CreateFreeboardCommentMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createFreeboardComment>>
 >;
-export type CreateComment1MutationBody =
+export type CreateFreeboardCommentMutationBody =
   FreeboardCommentCreateRequest;
-export type CreateComment1MutationError =
+export type CreateFreeboardCommentMutationError =
   | ErrorResponse
   | ErrorResponse;
 
 /**
  * @summary 댓글 작성
  */
-export const useCreateComment1 = <
+export const useCreateFreeboardComment = <
   TError = ErrorResponse | ErrorResponse,
   TContext = unknown,
 >(
   options?: {
     mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof createComment1>>,
+      Awaited<ReturnType<typeof createFreeboardComment>>,
       TError,
       { freeboardId: number; data: FreeboardCommentCreateRequest },
       TContext
@@ -329,12 +329,13 @@ export const useCreateComment1 = <
   },
   queryClient?: QueryClient,
 ): UseMutationResult<
-  Awaited<ReturnType<typeof createComment1>>,
+  Awaited<ReturnType<typeof createFreeboardComment>>,
   TError,
   { freeboardId: number; data: FreeboardCommentCreateRequest },
   TContext
 > => {
-  const mutationOptions = getCreateComment1MutationOptions(options);
+  const mutationOptions =
+    getCreateFreeboardCommentMutationOptions(options);
 
   return useMutation(mutationOptions, queryClient);
 };
@@ -349,33 +350,33 @@ export const useCreateComment1 = <
 
  * @summary 댓글 삭제 (소프트 삭제)
  */
-export const deleteComment1 = (
+export const deleteFreeboardComment = (
   freeboardId: number,
   commentId: number,
 ) => {
-  return customInstance<DeleteComment1204>({
+  return customInstance<DeleteFreeboardComment204>({
     url: `/community/freeboard/${freeboardId}/comments/${commentId}`,
     method: 'DELETE',
   });
 };
 
-export const getDeleteComment1MutationOptions = <
+export const getDeleteFreeboardCommentMutationOptions = <
   TError = ErrorResponse | ErrorResponse | ErrorResponse,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof deleteComment1>>,
+    Awaited<ReturnType<typeof deleteFreeboardComment>>,
     TError,
     { freeboardId: number; commentId: number },
     TContext
   >;
 }): UseMutationOptions<
-  Awaited<ReturnType<typeof deleteComment1>>,
+  Awaited<ReturnType<typeof deleteFreeboardComment>>,
   TError,
   { freeboardId: number; commentId: number },
   TContext
 > => {
-  const mutationKey = ['deleteComment1'];
+  const mutationKey = ['deleteFreeboardComment'];
   const { mutation: mutationOptions } = options
     ? options.mutation &&
       'mutationKey' in options.mutation &&
@@ -385,22 +386,22 @@ export const getDeleteComment1MutationOptions = <
     : { mutation: { mutationKey } };
 
   const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof deleteComment1>>,
+    Awaited<ReturnType<typeof deleteFreeboardComment>>,
     { freeboardId: number; commentId: number }
   > = (props) => {
     const { freeboardId, commentId } = props ?? {};
 
-    return deleteComment1(freeboardId, commentId);
+    return deleteFreeboardComment(freeboardId, commentId);
   };
 
   return { mutationFn, ...mutationOptions };
 };
 
-export type DeleteComment1MutationResult = NonNullable<
-  Awaited<ReturnType<typeof deleteComment1>>
+export type DeleteFreeboardCommentMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteFreeboardComment>>
 >;
 
-export type DeleteComment1MutationError =
+export type DeleteFreeboardCommentMutationError =
   | ErrorResponse
   | ErrorResponse
   | ErrorResponse;
@@ -408,13 +409,13 @@ export type DeleteComment1MutationError =
 /**
  * @summary 댓글 삭제 (소프트 삭제)
  */
-export const useDeleteComment1 = <
+export const useDeleteFreeboardComment = <
   TError = ErrorResponse | ErrorResponse | ErrorResponse,
   TContext = unknown,
 >(
   options?: {
     mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof deleteComment1>>,
+      Awaited<ReturnType<typeof deleteFreeboardComment>>,
       TError,
       { freeboardId: number; commentId: number },
       TContext
@@ -422,12 +423,13 @@ export const useDeleteComment1 = <
   },
   queryClient?: QueryClient,
 ): UseMutationResult<
-  Awaited<ReturnType<typeof deleteComment1>>,
+  Awaited<ReturnType<typeof deleteFreeboardComment>>,
   TError,
   { freeboardId: number; commentId: number },
   TContext
 > => {
-  const mutationOptions = getDeleteComment1MutationOptions(options);
+  const mutationOptions =
+    getDeleteFreeboardCommentMutationOptions(options);
 
   return useMutation(mutationOptions, queryClient);
 };
@@ -441,7 +443,7 @@ export const useDeleteComment1 = <
 
  * @summary 댓글 수정
  */
-export const updateComment1 = (
+export const updateFreeboardComment = (
   freeboardId: number,
   commentId: number,
   freeboardCommentUpdateRequest: FreeboardCommentUpdateRequest,
@@ -454,7 +456,7 @@ export const updateComment1 = (
   });
 };
 
-export const getUpdateComment1MutationOptions = <
+export const getUpdateFreeboardCommentMutationOptions = <
   TError =
     | ErrorResponse
     | ErrorResponse
@@ -463,7 +465,7 @@ export const getUpdateComment1MutationOptions = <
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof updateComment1>>,
+    Awaited<ReturnType<typeof updateFreeboardComment>>,
     TError,
     {
       freeboardId: number;
@@ -473,7 +475,7 @@ export const getUpdateComment1MutationOptions = <
     TContext
   >;
 }): UseMutationOptions<
-  Awaited<ReturnType<typeof updateComment1>>,
+  Awaited<ReturnType<typeof updateFreeboardComment>>,
   TError,
   {
     freeboardId: number;
@@ -482,7 +484,7 @@ export const getUpdateComment1MutationOptions = <
   },
   TContext
 > => {
-  const mutationKey = ['updateComment1'];
+  const mutationKey = ['updateFreeboardComment'];
   const { mutation: mutationOptions } = options
     ? options.mutation &&
       'mutationKey' in options.mutation &&
@@ -492,7 +494,7 @@ export const getUpdateComment1MutationOptions = <
     : { mutation: { mutationKey } };
 
   const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof updateComment1>>,
+    Awaited<ReturnType<typeof updateFreeboardComment>>,
     {
       freeboardId: number;
       commentId: number;
@@ -501,18 +503,18 @@ export const getUpdateComment1MutationOptions = <
   > = (props) => {
     const { freeboardId, commentId, data } = props ?? {};
 
-    return updateComment1(freeboardId, commentId, data);
+    return updateFreeboardComment(freeboardId, commentId, data);
   };
 
   return { mutationFn, ...mutationOptions };
 };
 
-export type UpdateComment1MutationResult = NonNullable<
-  Awaited<ReturnType<typeof updateComment1>>
+export type UpdateFreeboardCommentMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateFreeboardComment>>
 >;
-export type UpdateComment1MutationBody =
+export type UpdateFreeboardCommentMutationBody =
   FreeboardCommentUpdateRequest;
-export type UpdateComment1MutationError =
+export type UpdateFreeboardCommentMutationError =
   | ErrorResponse
   | ErrorResponse
   | ErrorResponse
@@ -521,7 +523,7 @@ export type UpdateComment1MutationError =
 /**
  * @summary 댓글 수정
  */
-export const useUpdateComment1 = <
+export const useUpdateFreeboardComment = <
   TError =
     | ErrorResponse
     | ErrorResponse
@@ -531,7 +533,7 @@ export const useUpdateComment1 = <
 >(
   options?: {
     mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof updateComment1>>,
+      Awaited<ReturnType<typeof updateFreeboardComment>>,
       TError,
       {
         freeboardId: number;
@@ -543,7 +545,7 @@ export const useUpdateComment1 = <
   },
   queryClient?: QueryClient,
 ): UseMutationResult<
-  Awaited<ReturnType<typeof updateComment1>>,
+  Awaited<ReturnType<typeof updateFreeboardComment>>,
   TError,
   {
     freeboardId: number;
@@ -552,7 +554,8 @@ export const useUpdateComment1 = <
   },
   TContext
 > => {
-  const mutationOptions = getUpdateComment1MutationOptions(options);
+  const mutationOptions =
+    getUpdateFreeboardCommentMutationOptions(options);
 
   return useMutation(mutationOptions, queryClient);
 };
@@ -566,33 +569,33 @@ export const useUpdateComment1 = <
 
  * @summary 댓글 영구 삭제
  */
-export const hardDeleteComment = (
+export const hardDeleteFreeboardComment = (
   freeboardId: number,
   commentId: number,
 ) => {
-  return customInstance<HardDeleteComment204>({
+  return customInstance<HardDeleteFreeboardComment204>({
     url: `/community/freeboard/${freeboardId}/comments/${commentId}/force`,
     method: 'DELETE',
   });
 };
 
-export const getHardDeleteCommentMutationOptions = <
+export const getHardDeleteFreeboardCommentMutationOptions = <
   TError = ErrorResponse | ErrorResponse | ErrorResponse,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof hardDeleteComment>>,
+    Awaited<ReturnType<typeof hardDeleteFreeboardComment>>,
     TError,
     { freeboardId: number; commentId: number },
     TContext
   >;
 }): UseMutationOptions<
-  Awaited<ReturnType<typeof hardDeleteComment>>,
+  Awaited<ReturnType<typeof hardDeleteFreeboardComment>>,
   TError,
   { freeboardId: number; commentId: number },
   TContext
 > => {
-  const mutationKey = ['hardDeleteComment'];
+  const mutationKey = ['hardDeleteFreeboardComment'];
   const { mutation: mutationOptions } = options
     ? options.mutation &&
       'mutationKey' in options.mutation &&
@@ -602,22 +605,22 @@ export const getHardDeleteCommentMutationOptions = <
     : { mutation: { mutationKey } };
 
   const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof hardDeleteComment>>,
+    Awaited<ReturnType<typeof hardDeleteFreeboardComment>>,
     { freeboardId: number; commentId: number }
   > = (props) => {
     const { freeboardId, commentId } = props ?? {};
 
-    return hardDeleteComment(freeboardId, commentId);
+    return hardDeleteFreeboardComment(freeboardId, commentId);
   };
 
   return { mutationFn, ...mutationOptions };
 };
 
-export type HardDeleteCommentMutationResult = NonNullable<
-  Awaited<ReturnType<typeof hardDeleteComment>>
+export type HardDeleteFreeboardCommentMutationResult = NonNullable<
+  Awaited<ReturnType<typeof hardDeleteFreeboardComment>>
 >;
 
-export type HardDeleteCommentMutationError =
+export type HardDeleteFreeboardCommentMutationError =
   | ErrorResponse
   | ErrorResponse
   | ErrorResponse;
@@ -625,13 +628,13 @@ export type HardDeleteCommentMutationError =
 /**
  * @summary 댓글 영구 삭제
  */
-export const useHardDeleteComment = <
+export const useHardDeleteFreeboardComment = <
   TError = ErrorResponse | ErrorResponse | ErrorResponse,
   TContext = unknown,
 >(
   options?: {
     mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof hardDeleteComment>>,
+      Awaited<ReturnType<typeof hardDeleteFreeboardComment>>,
       TError,
       { freeboardId: number; commentId: number },
       TContext
@@ -639,13 +642,13 @@ export const useHardDeleteComment = <
   },
   queryClient?: QueryClient,
 ): UseMutationResult<
-  Awaited<ReturnType<typeof hardDeleteComment>>,
+  Awaited<ReturnType<typeof hardDeleteFreeboardComment>>,
   TError,
   { freeboardId: number; commentId: number },
   TContext
 > => {
   const mutationOptions =
-    getHardDeleteCommentMutationOptions(options);
+    getHardDeleteFreeboardCommentMutationOptions(options);
 
   return useMutation(mutationOptions, queryClient);
 };

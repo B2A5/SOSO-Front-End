@@ -4,11 +4,11 @@ import { useEffect, useState } from 'react';
 import { Heart } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuthGuard, useAuthRestore } from '@/hooks/useAuth';
-import { getGetPostQueryKey } from '@/generated/api/endpoints/freeboard/freeboard';
 import { formatCappedCount } from '@/utils/formatCount';
 import { useToast } from '@/hooks/ui/useToast';
-import { useToggleLike2 } from '@/generated/api/endpoints/freeboard-like/freeboard-like';
 import { FreeboardDetailResponse } from '@/generated/api/models';
+import { getGetFreeboardPostQueryKey } from '@/generated/api/endpoints/freeboard/freeboard';
+import { useToggleFreeboardLike } from '@/generated/api/endpoints/freeboard-like/freeboard-like';
 
 interface LikeButtonPostProps {
   postId: number;
@@ -45,9 +45,9 @@ export default function LikeButtonPost({
   useEffect(() => setLikeCount(initialLikeCount), [initialLikeCount]);
 
   // 이 게시글 상세 쿼리 키 (취소/무효화에 사용)
-  const postDetailKey = getGetPostQueryKey(postId);
+  const postDetailKey = getGetFreeboardPostQueryKey(postId);
 
-  const toggleLike = useToggleLike2({
+  const toggleLike = useToggleFreeboardLike({
     mutation: {
       mutationKey: ['togglePostLike', postId],
 

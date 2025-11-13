@@ -9,7 +9,7 @@ import Button from '@/components/buttons/Button';
 
 export default function HomePage() {
   const router = useRouter();
-  const { getIsAuth, isLoading } = useAuthStore();
+  const { isAuthed, isLoading } = useAuthStore();
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -17,7 +17,7 @@ export default function HomePage() {
   }, [isLoading]);
 
   const handleStart = () => {
-    router.replace(getIsAuth() ? '/main' : '/login');
+    router.replace(isAuthed() ? '/main' : '/login');
   };
 
   return (

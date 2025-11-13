@@ -30,14 +30,8 @@ export default function SignUpCompletePage() {
   ];
 
   // 회원가입 완료 후 로그인 및 리다이렉트 처리
-  const handleSuccess = ({
-    user,
-    accessToken,
-  }: SignupCompleteResponse) => {
-    login({
-      user,
-      accessToken,
-    });
+  const handleSuccess = ({ user }: SignupCompleteResponse) => {
+    login({ user });
     console.log('회원가입 및 로그인 완료:', { nickname });
     router.replace('/main');
   };

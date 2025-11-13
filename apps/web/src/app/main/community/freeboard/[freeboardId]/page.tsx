@@ -6,17 +6,16 @@ import {
 } from '@tanstack/react-query';
 import type { FreeboardDetailResponse } from '@/generated/api/models';
 
-import {
-  getGetPostQueryOptions,
-  getGetPostQueryKey,
-} from '@/generated/api/endpoints/freeboard/freeboard';
-
 import FreeboardDetail from './components/FreeboardDetail';
 import CommentList from './components/CommentList';
 import CommentInput from './components/CommentInput';
 import FreeboardDetailSkeleton from './components/FreeboardDetailSkeleton';
 
 import { isAxiosError } from 'axios';
+import {
+  getGetFreeboardPostQueryKey,
+  getGetFreeboardPostQueryOptions,
+} from '@/generated/api/endpoints/freeboard/freeboard';
 
 export default async function Page({
   params,
@@ -29,8 +28,8 @@ export default async function Page({
   const queryClient = new QueryClient();
 
   try {
-    // 서버에서 캐시 채우기 및 에러 처리 ( 에러를 던지는 fetchQuery 사용)
-    const queryOptions = getGetPostQueryOptions(postId);
+    // 서버에서 캐시 채우기 및 에러 처리 (에러를 던지는 fetchQuery 사용)
+    const queryOptions = getGetFreeboardPostQueryOptions(postId);
     await queryClient.fetchQuery(queryOptions);
   } catch (error: unknown) {
     let statusCode: number | null = null;
@@ -44,7 +43,7 @@ export default async function Page({
 
   // 캐시에서 동일 키로 데이터 꺼내서 prop으로 전달
   const post = queryClient.getQueryData(
-    getGetPostQueryKey(postId),
+    getGetFreeboardPostQueryKey(postId),
   ) as FreeboardDetailResponse | undefined;
 
   if (!post) return <FreeboardDetailSkeleton />;

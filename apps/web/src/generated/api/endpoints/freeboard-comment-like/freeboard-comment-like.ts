@@ -32,19 +32,19 @@ import { customInstance } from '../../../../lib/api-client';
 
  * @summary 자유게시판 댓글 좋아요 상태 확인
  */
-export const getCommentLikeStatus = (
+export const getFreeboardCommentLikeStatus = (
   freeboardId: number,
   commentId: number,
   signal?: AbortSignal,
 ) => {
-  return customInstance<unknown>({
+  return customInstance<boolean>({
     url: `/community/freeboard/${freeboardId}/comments/${commentId}/like`,
     method: 'GET',
     signal,
   });
 };
 
-export const getGetCommentLikeStatusQueryKey = (
+export const getGetFreeboardCommentLikeStatusQueryKey = (
   freeboardId?: number,
   commentId?: number,
 ) => {
@@ -53,8 +53,8 @@ export const getGetCommentLikeStatusQueryKey = (
   ] as const;
 };
 
-export const getGetCommentLikeStatusQueryOptions = <
-  TData = Awaited<ReturnType<typeof getCommentLikeStatus>>,
+export const getGetFreeboardCommentLikeStatusQueryOptions = <
+  TData = Awaited<ReturnType<typeof getFreeboardCommentLikeStatus>>,
   TError = ErrorResponse | ErrorResponse,
 >(
   freeboardId: number,
@@ -62,7 +62,7 @@ export const getGetCommentLikeStatusQueryOptions = <
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getCommentLikeStatus>>,
+        Awaited<ReturnType<typeof getFreeboardCommentLikeStatus>>,
         TError,
         TData
       >
@@ -73,12 +73,12 @@ export const getGetCommentLikeStatusQueryOptions = <
 
   const queryKey =
     queryOptions?.queryKey ??
-    getGetCommentLikeStatusQueryKey(freeboardId, commentId);
+    getGetFreeboardCommentLikeStatusQueryKey(freeboardId, commentId);
 
   const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof getCommentLikeStatus>>
+    Awaited<ReturnType<typeof getFreeboardCommentLikeStatus>>
   > = ({ signal }) =>
-    getCommentLikeStatus(freeboardId, commentId, signal);
+    getFreeboardCommentLikeStatus(freeboardId, commentId, signal);
 
   return {
     queryKey,
@@ -86,21 +86,21 @@ export const getGetCommentLikeStatusQueryOptions = <
     enabled: !!(freeboardId && commentId),
     ...queryOptions,
   } as UseQueryOptions<
-    Awaited<ReturnType<typeof getCommentLikeStatus>>,
+    Awaited<ReturnType<typeof getFreeboardCommentLikeStatus>>,
     TError,
     TData
   > & { queryKey: DataTag<QueryKey, TData, TError> };
 };
 
-export type GetCommentLikeStatusQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getCommentLikeStatus>>
+export type GetFreeboardCommentLikeStatusQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getFreeboardCommentLikeStatus>>
 >;
-export type GetCommentLikeStatusQueryError =
+export type GetFreeboardCommentLikeStatusQueryError =
   | ErrorResponse
   | ErrorResponse;
 
-export function useGetCommentLikeStatus<
-  TData = Awaited<ReturnType<typeof getCommentLikeStatus>>,
+export function useGetFreeboardCommentLikeStatus<
+  TData = Awaited<ReturnType<typeof getFreeboardCommentLikeStatus>>,
   TError = ErrorResponse | ErrorResponse,
 >(
   freeboardId: number,
@@ -108,16 +108,16 @@ export function useGetCommentLikeStatus<
   options: {
     query: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getCommentLikeStatus>>,
+        Awaited<ReturnType<typeof getFreeboardCommentLikeStatus>>,
         TError,
         TData
       >
     > &
       Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getCommentLikeStatus>>,
+          Awaited<ReturnType<typeof getFreeboardCommentLikeStatus>>,
           TError,
-          Awaited<ReturnType<typeof getCommentLikeStatus>>
+          Awaited<ReturnType<typeof getFreeboardCommentLikeStatus>>
         >,
         'initialData'
       >;
@@ -126,8 +126,8 @@ export function useGetCommentLikeStatus<
 ): DefinedUseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 };
-export function useGetCommentLikeStatus<
-  TData = Awaited<ReturnType<typeof getCommentLikeStatus>>,
+export function useGetFreeboardCommentLikeStatus<
+  TData = Awaited<ReturnType<typeof getFreeboardCommentLikeStatus>>,
   TError = ErrorResponse | ErrorResponse,
 >(
   freeboardId: number,
@@ -135,16 +135,16 @@ export function useGetCommentLikeStatus<
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getCommentLikeStatus>>,
+        Awaited<ReturnType<typeof getFreeboardCommentLikeStatus>>,
         TError,
         TData
       >
     > &
       Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getCommentLikeStatus>>,
+          Awaited<ReturnType<typeof getFreeboardCommentLikeStatus>>,
           TError,
-          Awaited<ReturnType<typeof getCommentLikeStatus>>
+          Awaited<ReturnType<typeof getFreeboardCommentLikeStatus>>
         >,
         'initialData'
       >;
@@ -153,8 +153,8 @@ export function useGetCommentLikeStatus<
 ): UseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 };
-export function useGetCommentLikeStatus<
-  TData = Awaited<ReturnType<typeof getCommentLikeStatus>>,
+export function useGetFreeboardCommentLikeStatus<
+  TData = Awaited<ReturnType<typeof getFreeboardCommentLikeStatus>>,
   TError = ErrorResponse | ErrorResponse,
 >(
   freeboardId: number,
@@ -162,7 +162,7 @@ export function useGetCommentLikeStatus<
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getCommentLikeStatus>>,
+        Awaited<ReturnType<typeof getFreeboardCommentLikeStatus>>,
         TError,
         TData
       >
@@ -176,8 +176,8 @@ export function useGetCommentLikeStatus<
  * @summary 자유게시판 댓글 좋아요 상태 확인
  */
 
-export function useGetCommentLikeStatus<
-  TData = Awaited<ReturnType<typeof getCommentLikeStatus>>,
+export function useGetFreeboardCommentLikeStatus<
+  TData = Awaited<ReturnType<typeof getFreeboardCommentLikeStatus>>,
   TError = ErrorResponse | ErrorResponse,
 >(
   freeboardId: number,
@@ -185,7 +185,7 @@ export function useGetCommentLikeStatus<
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getCommentLikeStatus>>,
+        Awaited<ReturnType<typeof getFreeboardCommentLikeStatus>>,
         TError,
         TData
       >
@@ -195,7 +195,7 @@ export function useGetCommentLikeStatus<
 ): UseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 } {
-  const queryOptions = getGetCommentLikeStatusQueryOptions(
+  const queryOptions = getGetFreeboardCommentLikeStatusQueryOptions(
     freeboardId,
     commentId,
     options,
@@ -222,35 +222,35 @@ export function useGetCommentLikeStatus<
 
  * @summary 자유게시판 댓글 좋아요 토글
  */
-export const toggleCommentLike = (
+export const toggleFreeboardCommentLike = (
   freeboardId: number,
   commentId: number,
   signal?: AbortSignal,
 ) => {
-  return customInstance<unknown>({
+  return customInstance<boolean>({
     url: `/community/freeboard/${freeboardId}/comments/${commentId}/like`,
     method: 'POST',
     signal,
   });
 };
 
-export const getToggleCommentLikeMutationOptions = <
+export const getToggleFreeboardCommentLikeMutationOptions = <
   TError = ErrorResponse | ErrorResponse,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof toggleCommentLike>>,
+    Awaited<ReturnType<typeof toggleFreeboardCommentLike>>,
     TError,
     { freeboardId: number; commentId: number },
     TContext
   >;
 }): UseMutationOptions<
-  Awaited<ReturnType<typeof toggleCommentLike>>,
+  Awaited<ReturnType<typeof toggleFreeboardCommentLike>>,
   TError,
   { freeboardId: number; commentId: number },
   TContext
 > => {
-  const mutationKey = ['toggleCommentLike'];
+  const mutationKey = ['toggleFreeboardCommentLike'];
   const { mutation: mutationOptions } = options
     ? options.mutation &&
       'mutationKey' in options.mutation &&
@@ -260,35 +260,35 @@ export const getToggleCommentLikeMutationOptions = <
     : { mutation: { mutationKey } };
 
   const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof toggleCommentLike>>,
+    Awaited<ReturnType<typeof toggleFreeboardCommentLike>>,
     { freeboardId: number; commentId: number }
   > = (props) => {
     const { freeboardId, commentId } = props ?? {};
 
-    return toggleCommentLike(freeboardId, commentId);
+    return toggleFreeboardCommentLike(freeboardId, commentId);
   };
 
   return { mutationFn, ...mutationOptions };
 };
 
-export type ToggleCommentLikeMutationResult = NonNullable<
-  Awaited<ReturnType<typeof toggleCommentLike>>
+export type ToggleFreeboardCommentLikeMutationResult = NonNullable<
+  Awaited<ReturnType<typeof toggleFreeboardCommentLike>>
 >;
 
-export type ToggleCommentLikeMutationError =
+export type ToggleFreeboardCommentLikeMutationError =
   | ErrorResponse
   | ErrorResponse;
 
 /**
  * @summary 자유게시판 댓글 좋아요 토글
  */
-export const useToggleCommentLike = <
+export const useToggleFreeboardCommentLike = <
   TError = ErrorResponse | ErrorResponse,
   TContext = unknown,
 >(
   options?: {
     mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof toggleCommentLike>>,
+      Awaited<ReturnType<typeof toggleFreeboardCommentLike>>,
       TError,
       { freeboardId: number; commentId: number },
       TContext
@@ -296,13 +296,13 @@ export const useToggleCommentLike = <
   },
   queryClient?: QueryClient,
 ): UseMutationResult<
-  Awaited<ReturnType<typeof toggleCommentLike>>,
+  Awaited<ReturnType<typeof toggleFreeboardCommentLike>>,
   TError,
   { freeboardId: number; commentId: number },
   TContext
 > => {
   const mutationOptions =
-    getToggleCommentLikeMutationOptions(options);
+    getToggleFreeboardCommentLikeMutationOptions(options);
 
   return useMutation(mutationOptions, queryClient);
 };

@@ -4,10 +4,10 @@ import { useEffect, useState } from 'react';
 import { ThumbsUp } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuthGuard, useAuthRestore } from '@/hooks/useAuth';
-import { useToggleCommentLike } from '@/generated/api/endpoints/freeboard-comment-like/freeboard-comment-like';
 import { useToast } from '@/hooks/ui/useToast';
-import { getGetCommentsByCursor1QueryKey } from '@/generated/api/endpoints/freeboard-comment/freeboard-comment';
 import { formatCappedCount } from '@/utils/formatCount';
+import { getGetFreeboardCommentsByCursorQueryKey } from '@/generated/api/endpoints/freeboard-comment/freeboard-comment';
+import { useToggleFreeboardCommentLike } from '@/generated/api/endpoints/freeboard-comment-like/freeboard-comment-like';
 
 interface LikeButtonCommentProps {
   postId: number;
@@ -45,9 +45,10 @@ export default function LikeButtonComment({
   useEffect(() => setLikeCount(initialLikeCount), [initialLikeCount]);
 
   // 이 게시글의 댓글 목록 쿼리 키 (취소/무효화에 사용)
-  const commentListKey = getGetCommentsByCursor1QueryKey(postId);
+  const commentListKey =
+    getGetFreeboardCommentsByCursorQueryKey(postId);
 
-  const toggleLike = useToggleCommentLike({
+  const toggleLike = useToggleFreeboardCommentLike({
     mutation: {
       mutationKey: ['toggleCommentLike', postId, commentId],
 

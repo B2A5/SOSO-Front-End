@@ -22,9 +22,9 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
-  DeleteComment204,
+  DeleteVoteboardComment204,
   ErrorResponse,
-  GetCommentsByCursorParams,
+  GetVoteboardCommentsByCursorParams,
   VoteboardCommentCreateRequest,
   VoteboardCommentCreateResponse,
   VoteboardCommentCursorResponse,
@@ -60,39 +60,39 @@ import { customInstance } from '../../../../lib/api-client';
 
  * @summary 댓글 목록 조회 (커서 기반)
  */
-export const getCommentsByCursor = (
-  votePostId: number,
-  params?: GetCommentsByCursorParams,
+export const getVoteboardCommentsByCursor = (
+  votesboardId: number,
+  params?: GetVoteboardCommentsByCursorParams,
   signal?: AbortSignal,
 ) => {
   return customInstance<VoteboardCommentCursorResponse>({
-    url: `/community/votesboard/${votePostId}/comments`,
+    url: `/community/votesboard/${votesboardId}/comments`,
     method: 'GET',
     params,
     signal,
   });
 };
 
-export const getGetCommentsByCursorQueryKey = (
-  votePostId?: number,
-  params?: GetCommentsByCursorParams,
+export const getGetVoteboardCommentsByCursorQueryKey = (
+  votesboardId?: number,
+  params?: GetVoteboardCommentsByCursorParams,
 ) => {
   return [
-    `/community/votesboard/${votePostId}/comments`,
+    `/community/votesboard/${votesboardId}/comments`,
     ...(params ? [params] : []),
   ] as const;
 };
 
-export const getGetCommentsByCursorQueryOptions = <
-  TData = Awaited<ReturnType<typeof getCommentsByCursor>>,
+export const getGetVoteboardCommentsByCursorQueryOptions = <
+  TData = Awaited<ReturnType<typeof getVoteboardCommentsByCursor>>,
   TError = ErrorResponse | ErrorResponse,
 >(
-  votePostId: number,
-  params?: GetCommentsByCursorParams,
+  votesboardId: number,
+  params?: GetVoteboardCommentsByCursorParams,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getCommentsByCursor>>,
+        Awaited<ReturnType<typeof getVoteboardCommentsByCursor>>,
         TError,
         TData
       >
@@ -103,50 +103,51 @@ export const getGetCommentsByCursorQueryOptions = <
 
   const queryKey =
     queryOptions?.queryKey ??
-    getGetCommentsByCursorQueryKey(votePostId, params);
+    getGetVoteboardCommentsByCursorQueryKey(votesboardId, params);
 
   const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof getCommentsByCursor>>
-  > = ({ signal }) => getCommentsByCursor(votePostId, params, signal);
+    Awaited<ReturnType<typeof getVoteboardCommentsByCursor>>
+  > = ({ signal }) =>
+    getVoteboardCommentsByCursor(votesboardId, params, signal);
 
   return {
     queryKey,
     queryFn,
-    enabled: !!votePostId,
+    enabled: !!votesboardId,
     ...queryOptions,
   } as UseQueryOptions<
-    Awaited<ReturnType<typeof getCommentsByCursor>>,
+    Awaited<ReturnType<typeof getVoteboardCommentsByCursor>>,
     TError,
     TData
   > & { queryKey: DataTag<QueryKey, TData, TError> };
 };
 
-export type GetCommentsByCursorQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getCommentsByCursor>>
+export type GetVoteboardCommentsByCursorQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getVoteboardCommentsByCursor>>
 >;
-export type GetCommentsByCursorQueryError =
+export type GetVoteboardCommentsByCursorQueryError =
   | ErrorResponse
   | ErrorResponse;
 
-export function useGetCommentsByCursor<
-  TData = Awaited<ReturnType<typeof getCommentsByCursor>>,
+export function useGetVoteboardCommentsByCursor<
+  TData = Awaited<ReturnType<typeof getVoteboardCommentsByCursor>>,
   TError = ErrorResponse | ErrorResponse,
 >(
-  votePostId: number,
-  params: undefined | GetCommentsByCursorParams,
+  votesboardId: number,
+  params: undefined | GetVoteboardCommentsByCursorParams,
   options: {
     query: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getCommentsByCursor>>,
+        Awaited<ReturnType<typeof getVoteboardCommentsByCursor>>,
         TError,
         TData
       >
     > &
       Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getCommentsByCursor>>,
+          Awaited<ReturnType<typeof getVoteboardCommentsByCursor>>,
           TError,
-          Awaited<ReturnType<typeof getCommentsByCursor>>
+          Awaited<ReturnType<typeof getVoteboardCommentsByCursor>>
         >,
         'initialData'
       >;
@@ -155,25 +156,25 @@ export function useGetCommentsByCursor<
 ): DefinedUseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 };
-export function useGetCommentsByCursor<
-  TData = Awaited<ReturnType<typeof getCommentsByCursor>>,
+export function useGetVoteboardCommentsByCursor<
+  TData = Awaited<ReturnType<typeof getVoteboardCommentsByCursor>>,
   TError = ErrorResponse | ErrorResponse,
 >(
-  votePostId: number,
-  params?: GetCommentsByCursorParams,
+  votesboardId: number,
+  params?: GetVoteboardCommentsByCursorParams,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getCommentsByCursor>>,
+        Awaited<ReturnType<typeof getVoteboardCommentsByCursor>>,
         TError,
         TData
       >
     > &
       Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getCommentsByCursor>>,
+          Awaited<ReturnType<typeof getVoteboardCommentsByCursor>>,
           TError,
-          Awaited<ReturnType<typeof getCommentsByCursor>>
+          Awaited<ReturnType<typeof getVoteboardCommentsByCursor>>
         >,
         'initialData'
       >;
@@ -182,16 +183,16 @@ export function useGetCommentsByCursor<
 ): UseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 };
-export function useGetCommentsByCursor<
-  TData = Awaited<ReturnType<typeof getCommentsByCursor>>,
+export function useGetVoteboardCommentsByCursor<
+  TData = Awaited<ReturnType<typeof getVoteboardCommentsByCursor>>,
   TError = ErrorResponse | ErrorResponse,
 >(
-  votePostId: number,
-  params?: GetCommentsByCursorParams,
+  votesboardId: number,
+  params?: GetVoteboardCommentsByCursorParams,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getCommentsByCursor>>,
+        Awaited<ReturnType<typeof getVoteboardCommentsByCursor>>,
         TError,
         TData
       >
@@ -205,16 +206,16 @@ export function useGetCommentsByCursor<
  * @summary 댓글 목록 조회 (커서 기반)
  */
 
-export function useGetCommentsByCursor<
-  TData = Awaited<ReturnType<typeof getCommentsByCursor>>,
+export function useGetVoteboardCommentsByCursor<
+  TData = Awaited<ReturnType<typeof getVoteboardCommentsByCursor>>,
   TError = ErrorResponse | ErrorResponse,
 >(
-  votePostId: number,
-  params?: GetCommentsByCursorParams,
+  votesboardId: number,
+  params?: GetVoteboardCommentsByCursorParams,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getCommentsByCursor>>,
+        Awaited<ReturnType<typeof getVoteboardCommentsByCursor>>,
         TError,
         TData
       >
@@ -224,8 +225,8 @@ export function useGetCommentsByCursor<
 ): UseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 } {
-  const queryOptions = getGetCommentsByCursorQueryOptions(
-    votePostId,
+  const queryOptions = getGetVoteboardCommentsByCursorQueryOptions(
+    votesboardId,
     params,
     options,
   );
@@ -250,13 +251,13 @@ export function useGetCommentsByCursor<
 
  * @summary 댓글 작성
  */
-export const createComment = (
-  votePostId: number,
+export const createVoteboardComment = (
+  votesboardId: number,
   voteboardCommentCreateRequest: VoteboardCommentCreateRequest,
   signal?: AbortSignal,
 ) => {
   return customInstance<VoteboardCommentCreateResponse>({
-    url: `/community/votesboard/${votePostId}/comments`,
+    url: `/community/votesboard/${votesboardId}/comments`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     data: voteboardCommentCreateRequest,
@@ -264,23 +265,23 @@ export const createComment = (
   });
 };
 
-export const getCreateCommentMutationOptions = <
+export const getCreateVoteboardCommentMutationOptions = <
   TError = ErrorResponse | ErrorResponse,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof createComment>>,
+    Awaited<ReturnType<typeof createVoteboardComment>>,
     TError,
-    { votePostId: number; data: VoteboardCommentCreateRequest },
+    { votesboardId: number; data: VoteboardCommentCreateRequest },
     TContext
   >;
 }): UseMutationOptions<
-  Awaited<ReturnType<typeof createComment>>,
+  Awaited<ReturnType<typeof createVoteboardComment>>,
   TError,
-  { votePostId: number; data: VoteboardCommentCreateRequest },
+  { votesboardId: number; data: VoteboardCommentCreateRequest },
   TContext
 > => {
-  const mutationKey = ['createComment'];
+  const mutationKey = ['createVoteboardComment'];
   const { mutation: mutationOptions } = options
     ? options.mutation &&
       'mutationKey' in options.mutation &&
@@ -290,48 +291,50 @@ export const getCreateCommentMutationOptions = <
     : { mutation: { mutationKey } };
 
   const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof createComment>>,
-    { votePostId: number; data: VoteboardCommentCreateRequest }
+    Awaited<ReturnType<typeof createVoteboardComment>>,
+    { votesboardId: number; data: VoteboardCommentCreateRequest }
   > = (props) => {
-    const { votePostId, data } = props ?? {};
+    const { votesboardId, data } = props ?? {};
 
-    return createComment(votePostId, data);
+    return createVoteboardComment(votesboardId, data);
   };
 
   return { mutationFn, ...mutationOptions };
 };
 
-export type CreateCommentMutationResult = NonNullable<
-  Awaited<ReturnType<typeof createComment>>
+export type CreateVoteboardCommentMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createVoteboardComment>>
 >;
-export type CreateCommentMutationBody = VoteboardCommentCreateRequest;
-export type CreateCommentMutationError =
+export type CreateVoteboardCommentMutationBody =
+  VoteboardCommentCreateRequest;
+export type CreateVoteboardCommentMutationError =
   | ErrorResponse
   | ErrorResponse;
 
 /**
  * @summary 댓글 작성
  */
-export const useCreateComment = <
+export const useCreateVoteboardComment = <
   TError = ErrorResponse | ErrorResponse,
   TContext = unknown,
 >(
   options?: {
     mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof createComment>>,
+      Awaited<ReturnType<typeof createVoteboardComment>>,
       TError,
-      { votePostId: number; data: VoteboardCommentCreateRequest },
+      { votesboardId: number; data: VoteboardCommentCreateRequest },
       TContext
     >;
   },
   queryClient?: QueryClient,
 ): UseMutationResult<
-  Awaited<ReturnType<typeof createComment>>,
+  Awaited<ReturnType<typeof createVoteboardComment>>,
   TError,
-  { votePostId: number; data: VoteboardCommentCreateRequest },
+  { votesboardId: number; data: VoteboardCommentCreateRequest },
   TContext
 > => {
-  const mutationOptions = getCreateCommentMutationOptions(options);
+  const mutationOptions =
+    getCreateVoteboardCommentMutationOptions(options);
 
   return useMutation(mutationOptions, queryClient);
 };
@@ -346,33 +349,33 @@ export const useCreateComment = <
 
  * @summary 댓글 삭제 (소프트 삭제)
  */
-export const deleteComment = (
-  votePostId: number,
+export const deleteVoteboardComment = (
+  votesboardId: number,
   commentId: number,
 ) => {
-  return customInstance<DeleteComment204>({
-    url: `/community/votesboard/${votePostId}/comments/${commentId}`,
+  return customInstance<DeleteVoteboardComment204>({
+    url: `/community/votesboard/${votesboardId}/comments/${commentId}`,
     method: 'DELETE',
   });
 };
 
-export const getDeleteCommentMutationOptions = <
+export const getDeleteVoteboardCommentMutationOptions = <
   TError = ErrorResponse | ErrorResponse | ErrorResponse,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof deleteComment>>,
+    Awaited<ReturnType<typeof deleteVoteboardComment>>,
     TError,
-    { votePostId: number; commentId: number },
+    { votesboardId: number; commentId: number },
     TContext
   >;
 }): UseMutationOptions<
-  Awaited<ReturnType<typeof deleteComment>>,
+  Awaited<ReturnType<typeof deleteVoteboardComment>>,
   TError,
-  { votePostId: number; commentId: number },
+  { votesboardId: number; commentId: number },
   TContext
 > => {
-  const mutationKey = ['deleteComment'];
+  const mutationKey = ['deleteVoteboardComment'];
   const { mutation: mutationOptions } = options
     ? options.mutation &&
       'mutationKey' in options.mutation &&
@@ -382,22 +385,22 @@ export const getDeleteCommentMutationOptions = <
     : { mutation: { mutationKey } };
 
   const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof deleteComment>>,
-    { votePostId: number; commentId: number }
+    Awaited<ReturnType<typeof deleteVoteboardComment>>,
+    { votesboardId: number; commentId: number }
   > = (props) => {
-    const { votePostId, commentId } = props ?? {};
+    const { votesboardId, commentId } = props ?? {};
 
-    return deleteComment(votePostId, commentId);
+    return deleteVoteboardComment(votesboardId, commentId);
   };
 
   return { mutationFn, ...mutationOptions };
 };
 
-export type DeleteCommentMutationResult = NonNullable<
-  Awaited<ReturnType<typeof deleteComment>>
+export type DeleteVoteboardCommentMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteVoteboardComment>>
 >;
 
-export type DeleteCommentMutationError =
+export type DeleteVoteboardCommentMutationError =
   | ErrorResponse
   | ErrorResponse
   | ErrorResponse;
@@ -405,26 +408,27 @@ export type DeleteCommentMutationError =
 /**
  * @summary 댓글 삭제 (소프트 삭제)
  */
-export const useDeleteComment = <
+export const useDeleteVoteboardComment = <
   TError = ErrorResponse | ErrorResponse | ErrorResponse,
   TContext = unknown,
 >(
   options?: {
     mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof deleteComment>>,
+      Awaited<ReturnType<typeof deleteVoteboardComment>>,
       TError,
-      { votePostId: number; commentId: number },
+      { votesboardId: number; commentId: number },
       TContext
     >;
   },
   queryClient?: QueryClient,
 ): UseMutationResult<
-  Awaited<ReturnType<typeof deleteComment>>,
+  Awaited<ReturnType<typeof deleteVoteboardComment>>,
   TError,
-  { votePostId: number; commentId: number },
+  { votesboardId: number; commentId: number },
   TContext
 > => {
-  const mutationOptions = getDeleteCommentMutationOptions(options);
+  const mutationOptions =
+    getDeleteVoteboardCommentMutationOptions(options);
 
   return useMutation(mutationOptions, queryClient);
 };
@@ -438,20 +442,20 @@ export const useDeleteComment = <
 
  * @summary 댓글 수정
  */
-export const updateComment = (
-  votePostId: number,
+export const updateVoteboardComment = (
+  votesboardId: number,
   commentId: number,
   voteboardCommentUpdateRequest: VoteboardCommentUpdateRequest,
 ) => {
   return customInstance<VoteboardCommentCreateResponse>({
-    url: `/community/votesboard/${votePostId}/comments/${commentId}`,
+    url: `/community/votesboard/${votesboardId}/comments/${commentId}`,
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     data: voteboardCommentUpdateRequest,
   });
 };
 
-export const getUpdateCommentMutationOptions = <
+export const getUpdateVoteboardCommentMutationOptions = <
   TError =
     | ErrorResponse
     | ErrorResponse
@@ -460,26 +464,26 @@ export const getUpdateCommentMutationOptions = <
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof updateComment>>,
+    Awaited<ReturnType<typeof updateVoteboardComment>>,
     TError,
     {
-      votePostId: number;
+      votesboardId: number;
       commentId: number;
       data: VoteboardCommentUpdateRequest;
     },
     TContext
   >;
 }): UseMutationOptions<
-  Awaited<ReturnType<typeof updateComment>>,
+  Awaited<ReturnType<typeof updateVoteboardComment>>,
   TError,
   {
-    votePostId: number;
+    votesboardId: number;
     commentId: number;
     data: VoteboardCommentUpdateRequest;
   },
   TContext
 > => {
-  const mutationKey = ['updateComment'];
+  const mutationKey = ['updateVoteboardComment'];
   const { mutation: mutationOptions } = options
     ? options.mutation &&
       'mutationKey' in options.mutation &&
@@ -489,26 +493,27 @@ export const getUpdateCommentMutationOptions = <
     : { mutation: { mutationKey } };
 
   const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof updateComment>>,
+    Awaited<ReturnType<typeof updateVoteboardComment>>,
     {
-      votePostId: number;
+      votesboardId: number;
       commentId: number;
       data: VoteboardCommentUpdateRequest;
     }
   > = (props) => {
-    const { votePostId, commentId, data } = props ?? {};
+    const { votesboardId, commentId, data } = props ?? {};
 
-    return updateComment(votePostId, commentId, data);
+    return updateVoteboardComment(votesboardId, commentId, data);
   };
 
   return { mutationFn, ...mutationOptions };
 };
 
-export type UpdateCommentMutationResult = NonNullable<
-  Awaited<ReturnType<typeof updateComment>>
+export type UpdateVoteboardCommentMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateVoteboardComment>>
 >;
-export type UpdateCommentMutationBody = VoteboardCommentUpdateRequest;
-export type UpdateCommentMutationError =
+export type UpdateVoteboardCommentMutationBody =
+  VoteboardCommentUpdateRequest;
+export type UpdateVoteboardCommentMutationError =
   | ErrorResponse
   | ErrorResponse
   | ErrorResponse
@@ -517,7 +522,7 @@ export type UpdateCommentMutationError =
 /**
  * @summary 댓글 수정
  */
-export const useUpdateComment = <
+export const useUpdateVoteboardComment = <
   TError =
     | ErrorResponse
     | ErrorResponse
@@ -527,10 +532,10 @@ export const useUpdateComment = <
 >(
   options?: {
     mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof updateComment>>,
+      Awaited<ReturnType<typeof updateVoteboardComment>>,
       TError,
       {
-        votePostId: number;
+        votesboardId: number;
         commentId: number;
         data: VoteboardCommentUpdateRequest;
       },
@@ -539,16 +544,17 @@ export const useUpdateComment = <
   },
   queryClient?: QueryClient,
 ): UseMutationResult<
-  Awaited<ReturnType<typeof updateComment>>,
+  Awaited<ReturnType<typeof updateVoteboardComment>>,
   TError,
   {
-    votePostId: number;
+    votesboardId: number;
     commentId: number;
     data: VoteboardCommentUpdateRequest;
   },
   TContext
 > => {
-  const mutationOptions = getUpdateCommentMutationOptions(options);
+  const mutationOptions =
+    getUpdateVoteboardCommentMutationOptions(options);
 
   return useMutation(mutationOptions, queryClient);
 };

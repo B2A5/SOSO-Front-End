@@ -9,8 +9,8 @@ import Skeleton from '@/components/loadings/Skeleton';
 import { cn } from '@/utils/cn';
 import { formatCappedCount } from '@/utils/formatCount';
 import {
-  getCommentsByCursor1,
-  getGetCommentsByCursor1QueryKey,
+  getFreeboardCommentsByCursor,
+  getGetFreeboardCommentsByCursorQueryKey,
 } from '@/generated/api/endpoints/freeboard-comment/freeboard-comment';
 
 interface CommentListProps {
@@ -31,9 +31,9 @@ export default function CommentList({
     error,
     refetch,
   } = useInfiniteQuery({
-    queryKey: getGetCommentsByCursor1QueryKey(postId),
+    queryKey: getGetFreeboardCommentsByCursorQueryKey(postId),
     queryFn: ({ pageParam, signal }) =>
-      getCommentsByCursor1(
+      getFreeboardCommentsByCursor(
         postId,
         { cursor: pageParam, size: 10, sort: 'LATEST' },
         signal,

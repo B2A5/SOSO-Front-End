@@ -10,14 +10,14 @@ import LikeButtonPost from './LikeButtonPost';
 import { CategoryChip } from '@/components/chips/CategoryChip';
 import { Category } from '../../../constants/categories';
 import { formatCappedCount } from '@/utils/formatCount';
-import { useGetPost } from '@/generated/api/endpoints/freeboard/freeboard';
+import { useGetFreeboardPost } from '@/generated/api/endpoints/freeboard/freeboard';
 
 export default function FreeboardDetail({
   initialPost,
 }: {
   initialPost: FreeboardDetailResponse;
 }) {
-  const { data: post } = useGetPost(initialPost.postId, {
+  const { data: post } = useGetFreeboardPost(initialPost.postId, {
     query: {
       initialData: initialPost,
       staleTime: 0,
