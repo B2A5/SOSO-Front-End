@@ -24,6 +24,15 @@ import { customInstance } from '../../../../lib/api-client';
 
 /**
  * Refresh Token 쿠키가 유효하면 새로운 Access Token과 Refresh Token을 발급합니다.
+
+**RTR (Refresh Token Rotation):**
+- 기존 Refresh Token 무효화
+- 새로운 Access Token, Refresh Token 발급
+
+**토큰 발급 방식:**
+- Response Body: accessToken 포함 (기존 호환성 유지)
+- Set-Cookie 헤더: accessToken, refreshToken 쿠키 설정 (SSR 지원)
+
  * @summary Access Token 재발급
  */
 export const refreshToken = (signal?: AbortSignal) => {
@@ -103,6 +112,12 @@ export const useRefreshToken = <
 };
 /**
  * Refresh Token을 무효화하고 쿠키를 삭제합니다.
+
+**동작:**
+- Redis에서 Refresh Token 삭제
+- Access Token 쿠키 삭제
+- Refresh Token 쿠키 삭제
+
  * @summary 로그아웃
  */
 export const logout = (signal?: AbortSignal) => {
@@ -178,7 +193,15 @@ export const useLogout = <TError = void, TContext = unknown>(
   return useMutation(mutationOptions, queryClient);
 };
 /**
- * 카카오 인가 코드를 통해 사용자 로그인을 처리합니다. 기존 사용자는 JWT 토큰 및 사용자 정보를 반환하고, 신규 사용자는 회원가입 세션을 생성합니다.
+ * 카카오 인가 코드를 통해 사용자 로그인을 처리합니다.
+
+**토큰 발급 방식:**
+- Response Body: accessToken 포함 (기존 호환성 유지)
+- Set-Cookie 헤더: accessToken, refreshToken 쿠키 설정 (SSR 지원)
+
+**기존 사용자:** JWT 토큰 및 사용자 정보 반환
+**신규 사용자:** 회원가입 세션 생성
+
  * @summary 카카오 로그인
  */
 export const kakaoLogin = (

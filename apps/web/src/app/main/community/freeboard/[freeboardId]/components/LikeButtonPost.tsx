@@ -3,85 +3,160 @@
 import { useEffect, useState } from 'react';
 import { Heart } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useAuthGuard, useAuthRestore } from '@/hooks/useAuth';
+import { formatCappedCount } from '@/utils/formatCount';
 import { useToast } from '@/hooks/ui/useToast';
-import { useToggleLike } from '@/generated/api/endpoints/freeboard-like/freeboard-like';
-import { formatCappedCount } from '../../../../../../utils/formatCount';
+import { FreeboardDetailResponse } from '@/generated/api/models';
+import { getGetFreeboardPostQueryKey } from '@/generated/api/endpoints/freeboard/freeboard';
+import { useToggleFreeboardLike } from '@/generated/api/endpoints/freeboard-like/freeboard-like';
 
 interface LikeButtonPostProps {
   postId: number;
-  isLiked: boolean;
-  likeCount: number;
-  icon?: React.ElementType;
+  initialLiked: boolean;
+  initialLikeCount: number;
 }
 
+// 음수 방지(보정) 헬퍼
+const clampMin0 = (n: number) => (n < 0 ? 0 : n);
+
 /**
- * 자유게시판 좋아요 버튼
- * - 낙관적 업데이트
- * - 실패 시 롤백 + Toast 안내
+ * 게시글 좋아요 버튼
+ *
+ * 전략:
+ * - 낙관적 토글(로컬 UI 먼저 반영) → 실패 시 스냅샷으로 롤백 → 성공 시 토스트
+ * - 마지막엔 관련 쿼리 invalidate로 캐시/화면 동기화
  */
 export default function LikeButtonPost({
   postId,
-  isLiked,
-  likeCount,
-  icon: Icon = Heart,
+  initialLiked,
+  initialLikeCount,
 }: LikeButtonPostProps) {
+  const { isRestoring } = useAuthRestore();
   const queryClient = useQueryClient();
   const toast = useToast();
+  const { guard } = useAuthGuard();
 
-  const [liked, setLiked] = useState(isLiked);
-  const [count, setCount] = useState(likeCount);
+  // UI 전용 상태(부모 props와 동기화됨)
+  const [liked, setLiked] = useState(initialLiked);
+  const [likeCount, setLikeCount] = useState(initialLikeCount);
 
-  // 외부 데이터 변경 시 동기화
-  useEffect(() => setLiked(isLiked), [isLiked]);
-  useEffect(() => setCount(likeCount), [likeCount]);
+  // 부모 값 변경 시 동기화
+  useEffect(() => setLiked(initialLiked), [initialLiked]);
+  useEffect(() => setLikeCount(initialLikeCount), [initialLikeCount]);
 
-  // 좋아요 토글 mutation
-  const { mutateAsync: toggleLike, isPending } = useToggleLike({
+  // 이 게시글 상세 쿼리 키 (취소/무효화에 사용)
+  const postDetailKey = getGetFreeboardPostQueryKey(postId);
+
+  const toggleLike = useToggleFreeboardLike({
     mutation: {
-      onSuccess: () => {
-        // 서버 반영 후 데이터 최신화
-        queryClient.invalidateQueries({
-          queryKey: [`/community/freeboard/${postId}`],
+      mutationKey: ['togglePostLike', postId],
+
+      onMutate: async () => {
+        // (1) 진행 중/예정인 refetch 취소 → 낙관 업데이트가 덮어쓰여지지 않도록
+        await queryClient.cancelQueries({ queryKey: postDetailKey });
+
+        // (2) 롤백용 스냅샷 저장
+        const snapshot = {
+          prevLiked: liked,
+          prevLikeCount: likeCount,
+          prevPost:
+            queryClient.getQueryData<FreeboardDetailResponse>(
+              postDetailKey,
+            ),
+        };
+
+        // (3) 낙관적 토글 + 카운트 보정(음수 방지)
+        setLiked((prev) => {
+          const next = !prev;
+          const delta = next ? 1 : -1;
+          setLikeCount((count) => clampMin0(count + delta));
+          return next;
         });
-        queryClient.invalidateQueries({
-          queryKey: [`/community/freeboard/${postId}/like`],
-        });
+
+        // 쿼리 캐시 동기화
+        queryClient.setQueryData<FreeboardDetailResponse>(
+          postDetailKey,
+          (old) => {
+            if (!old) return old;
+            const nextLiked = !(old.isLiked ?? false);
+            const nextCount = clampMin0(
+              old.likeCount + (nextLiked ? 1 : -1),
+            );
+            return {
+              ...old,
+              isLiked: nextLiked,
+              likeCount: nextCount,
+            };
+          },
+        );
+
+        // (4) 스냅샷을 onError/onSettled에 전달
+        return { snapshot };
       },
-      onError: () => {
-        // 에러 발생 시 상태 롤백 및 사용자 안내
-        setLiked(isLiked);
-        setCount(likeCount);
+
+      onError: (_error, _variables, onMutateResult) => {
+        // 실패 시 스냅샷으로 UI 롤백
+        const snap = onMutateResult?.snapshot;
+        if (snap) {
+          setLiked(snap.prevLiked);
+          setLikeCount(snap.prevLikeCount);
+          if (snap.prevPost) {
+            queryClient.setQueryData(postDetailKey, snap.prevPost);
+          }
+        }
         toast('좋아요 처리 중 오류가 발생했습니다.', 'error');
+      },
+
+      onSuccess: () => {
+        toast('좋아요가 반영되었습니다.', 'success');
+      },
+
+      onSettled: () => {
+        // 성공/실패와 무관하게 최종적으로 서버 상태와 동기화
+        queryClient.invalidateQueries({ queryKey: postDetailKey });
       },
     },
   });
 
-  // 클릭 핸들러 (낙관적 업데이트)
-  const handleClick = async () => {
-    if (isPending) return;
+  // 클릭 시: 가드 통과 후, 중복 요청 방지 & 뮤테이션 트리거
+  const handleToggleLike = () =>
+    guard(() => {
+      if (toggleLike.isPending) return;
+      toggleLike.mutate({ freeboardId: postId });
+    });
 
-    setLiked((prev) => !prev);
-    setCount((prev) => (liked ? prev - 1 : prev + 1));
-
-    try {
-      await toggleLike({ freeboardId: postId });
-    } catch {}
-  };
+  // 인증 복원 중임을 명시(시각적 피드백)
+  if (isRestoring) {
+    return (
+      <button
+        className="flex items-center gap-1.5 opacity-60 cursor-wait"
+        disabled
+        aria-label="좋아요 로딩 중"
+      >
+        <Heart className="inline w-4 h-4 text-neutral-200" />
+        <span className="text-neutral-500 text-input2">
+          {formatCappedCount(likeCount)}
+        </span>
+      </button>
+    );
+  }
 
   return (
     <button
-      onClick={handleClick}
+      type="button"
+      aria-pressed={liked}
+      onClick={handleToggleLike}
       className="flex items-center gap-1.5"
-      disabled={isPending}
+      disabled={toggleLike.isPending}
       aria-label={liked ? '좋아요 취소' : '좋아요'}
     >
-      <Icon
+      <Heart
         className={`inline w-4 h-4 text-neutral-200 transition-colors ${
           liked ? 'fill-soso-600 text-soso-600' : 'fill-transparent'
         }`}
       />
       <span className="text-neutral-500 text-input2">
-        {formatCappedCount(count)}
+        {formatCappedCount(likeCount)}
       </span>
     </button>
   );

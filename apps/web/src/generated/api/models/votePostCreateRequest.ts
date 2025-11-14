@@ -37,6 +37,8 @@ export interface VotePostCreateRequest {
   voteOptions: VoteOptionRequest[];
   /** 투표 마감 시간 */
   endTime: string;
-  /** 재투표 허용 여부 */
+  /** 재투표 허용 여부 (투표 후 변경 가능 여부) */
   allowRevote: boolean;
+  /** 중복 선택 허용 여부 (true: 여러 옵션 동시 선택 가능, 최대 n-1개 / false: 하나의 옵션만 선택 가능) */
+  allowMultipleChoice: boolean;
 }

@@ -1,13 +1,14 @@
 'use client';
 
 import {
-  createComment,
-  getGetCommentsByCursorQueryKey,
+  createFreeboardComment,
+  getGetFreeboardCommentsByCursorQueryKey,
 } from '@/generated/api/endpoints/freeboard-comment/freeboard-comment';
 import { useToast } from '@/hooks/ui/useToast';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
+import { useAuthGuard } from '@/hooks/useAuth';
 
 interface CommentInputProps {
   /** 댓글이 달릴 게시글 ID */
@@ -31,15 +32,16 @@ export default function CommentInput({
   const targetRef = useRef<HTMLTextAreaElement>(null);
   const queryClient = useQueryClient();
   const toast = useToast();
+  const { guard } = useAuthGuard();
 
   const { mutate, isPending } = useMutation({
     mutationFn: (content: string) =>
-      createComment(postId, { content }),
+      createFreeboardComment(postId, { content }),
     onSuccess: () => {
       toast('댓글이 등록되었습니다', 'success');
       setValue('');
       queryClient.invalidateQueries({
-        queryKey: getGetCommentsByCursorQueryKey(postId),
+        queryKey: getGetFreeboardCommentsByCursorQueryKey(postId),
       });
     },
     onError: () => {
@@ -65,10 +67,11 @@ export default function CommentInput({
     setValue(next.length > limit ? next.slice(0, limit) : next);
   };
 
-  const handleSubmit = () => {
-    if (!value.trim() || isPending) return;
-    mutate(value.trim());
-  };
+  const handleSubmit = () =>
+    guard(() => {
+      if (!value.trim() || isPending) return;
+      mutate(value.trim());
+    });
 
   const handleKeyDown = (
     e: React.KeyboardEvent<HTMLTextAreaElement>,
