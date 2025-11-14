@@ -6,12 +6,14 @@ import CommentList from './components/CommentList';
 import CommentInput from './components/CommentInput';
 import FreeboardDetailSkeleton from './components/FreeboardDetailSkeleton';
 import { useGetFreeboardPost } from '@/generated/api/endpoints/freeboard/freeboard';
+import { useAuthRestore } from '@/hooks/useAuth';
 
 /**
  * 자유 게시판 게시글 상세 클라이언트 화면
  * @param postId 게시글 ID
  */
 export default function ClientPage({ postId }: { postId: number }) {
+  const { isAuthenticated } = useAuthRestore();
   const {
     data: post,
     isPending,
@@ -20,7 +22,7 @@ export default function ClientPage({ postId }: { postId: number }) {
     query: {
       staleTime: 0, // 언제나 신선하지 않은 것으로 간주
       gcTime: 5_000, // 화면 이탈 시 빠르게 캐시 정리
-      refetchOnMount: false, // 좋아요 invalidate로만 강제 리패치
+      refetchOnMount: isAuthenticated ? 'always' : false, // 로그인 사용자만 항상 최신화
       refetchOnWindowFocus: true, // 뒤로가기/포커스 전환 시 최신화
       refetchOnReconnect: true,
     },
