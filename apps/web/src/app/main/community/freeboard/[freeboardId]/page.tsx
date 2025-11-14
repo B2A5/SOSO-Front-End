@@ -1,67 +1,46 @@
-'use client';
-
-import { Suspense } from 'react';
-import { useParams } from 'next/navigation';
-import CommentList from './components/CommentList';
-import CommentInput from './components/CommentInput';
-import { ErrorBoundary } from 'react-error-boundary';
-import ErrorFallback from '@/components/ErrorFallback';
+import { notFound } from 'next/navigation';
+import {
+  QueryClient,
+  dehydrate,
+  HydrationBoundary,
+} from '@tanstack/react-query';
+import { getGetFreeboardPostQueryOptions } from '@/generated/api/endpoints/freeboard/freeboard';
 import FreeboardDetailSkeleton from './components/FreeboardDetailSkeleton';
-import dynamic from 'next/dynamic';
+import { isAxiosError } from 'axios';
+import ClientPage from './ClientPage';
 
-const FreeboardDetail = dynamic(
-  () => import('./components/FreeboardDetail'),
-  {
-    ssr: false,
-    suspense: false,
-    loading: () => <FreeboardDetailSkeleton />,
-  },
-);
+/**
+ * 자유 게시판 게시글 상세 페이지 (서버 컴포넌트)
+ *
+ * @description
+ * - 서버에서 게시글 데이터를 프리패치
+ * - 클라이언트는 구독 및 인터랙션 처리 담당
+ */
+export default async function Page({
+  params,
+}: {
+  params: { freeboardId: string };
+}) {
+  const postId = Number(params.freeboardId);
+  if (!Number.isFinite(postId)) return <FreeboardDetailSkeleton />;
 
-/** 자유게시판 게시글 상세 페이지 */
-export default function PostPage() {
-  const { freeboardId } = useParams<{ freeboardId?: string }>();
+  const queryClient = new QueryClient();
 
-  const postId =
-    freeboardId && !isNaN(Number(freeboardId))
-      ? Number(freeboardId)
-      : null;
-
-  if (!postId) {
+  try {
+    // 서버에서 캐시 채우기 및 에러 처리 (에러를 던지는 fetchQuery 사용)
+    const queryOptions = getGetFreeboardPostQueryOptions(postId);
+    await queryClient.fetchQuery(queryOptions);
+  } catch (error: unknown) {
+    if (isAxiosError(error) && error.response?.status === 404)
+      notFound();
     return <FreeboardDetailSkeleton />;
   }
 
+  const dehydratedState = dehydrate(queryClient);
+
   return (
-    <main className="space-y-6">
-      <ErrorBoundary
-        fallbackRender={({ resetErrorBoundary }) => (
-          <ErrorFallback
-            message="게시글을 불러올 수 없습니다."
-            onRetry={resetErrorBoundary}
-          />
-        )}
-      >
-        <Suspense fallback={<FreeboardDetailSkeleton />}>
-          <FreeboardDetail postId={postId} />
-        </Suspense>
-      </ErrorBoundary>
-
-      <div className="px-5 pb-6">
-        {/* 댓글 영역 */}
-        <div>
-          <CommentList postId={postId} />
-        </div>
-
-        {/* 고정 입력창 */}
-        <div className="fixed bottom-16 left-0 right-0 z-50 px-5 py-3">
-          <CommentInput postId={postId} />
-        </div>
-      </div>
-
-      <div className="fixed inset-x-0 bottom-16 z-50 bg-transparent">
-        <div className="backdrop-blur-[2px] bg-white/90 w-full h-full absolute top-0 z-[-1]" />
-        <div className="h-[env(safe-area-inset-bottom)]" />
-      </div>
-    </main>
+    <HydrationBoundary state={dehydratedState}>
+      <ClientPage postId={postId} />
+    </HydrationBoundary>
   );
 }

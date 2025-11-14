@@ -7,12 +7,9 @@
  */
 
 /**
- * 투표 참여 요청
+ * 투표 게시판 댓글 작성/수정 응답
  */
-export interface VoteRequest {
-  /**
-   * 선택한 투표 옵션 ID 목록 (단일 선택: 1개, 중복 선택: 최대 n-1개)
-   * @minItems 1
-   */
-  voteOptionIds: number[];
+export interface VoteboardCommentCreateResponse {
+  /** 생성/수정된 댓글 ID */
+  commentId: number;
 }

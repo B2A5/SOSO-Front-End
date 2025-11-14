@@ -151,6 +151,7 @@ export function VirtualList<T>({
         <div
           key={row.key}
           ref={virtualizer.measureElement}
+          data-index={row.index} // ✅ 경고 해결: 측정 요소에 data-index 추가
           style={{
             position: 'absolute',
             top: 0,

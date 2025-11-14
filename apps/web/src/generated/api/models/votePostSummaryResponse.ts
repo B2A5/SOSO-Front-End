@@ -7,6 +7,7 @@
  */
 import type { UserSummaryResponse } from './userSummaryResponse';
 import type { VotePostSummaryResponseVoteStatus } from './votePostSummaryResponseVoteStatus';
+import type { VoteOptionResponse } from './voteOptionResponse';
 
 /**
  * 투표 게시글 요약 정보 (목록 조회)
@@ -28,10 +29,19 @@ export interface VotePostSummaryResponse {
   voteStatus: VotePostSummaryResponseVoteStatus;
   /** 투표 마감 시간 */
   endTime: string;
-  /** 재투표 허용 여부 */
+  /** 재투표 허용 여부 (투표 후 변경 가능 여부) */
   allowRevote: boolean;
+  /** 중복 선택 허용 여부 (여러 옵션 동시 선택 가능 여부) */
+  allowMultipleChoice: boolean;
+  /** 투표 옵션 목록 (미리보기, 최대 3개) */
+  voteOptions: VoteOptionResponse[];
+  /** 좋아요 수 */
+  likeCount: number;
   /** 생성일시 */
   createdDate: string;
   /** 수정일시 */
   lastModifiedDate: string;
+  liked?: boolean;
+  /** 현재 사용자의 좋아요 여부 (비로그인 시 false) */
+  isLiked: boolean;
 }

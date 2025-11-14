@@ -25,22 +25,29 @@ export interface VotePostDetailResponse {
   imageUrls?: string[];
   /** 투표 옵션 목록 */
   voteOptions: VoteOptionResponse[];
-  /** 현재 사용자가 선택한 옵션 ID (미투표 시 null) */
-  selectedOptionId?: number;
+  /** 현재 사용자가 선택한 옵션 ID 목록 (미투표 시 빈 리스트) */
+  selectedOptionIds?: number[];
   /** 총 투표 참여자 수 */
   totalVotes: number;
   /** 투표 상태 (IN_PROGRESS: 진행중, COMPLETED: 완료) */
   voteStatus: VotePostDetailResponseVoteStatus;
   /** 투표 마감 시간 */
   endTime: string;
-  /** 재투표 허용 여부 */
+  /** 재투표 허용 여부 (투표 후 변경 가능 여부) */
   allowRevote: boolean;
+  /** 중복 선택 허용 여부 (여러 옵션 동시 선택 가능 여부) */
+  allowMultipleChoice: boolean;
   /** 조회수 */
   viewCount: number;
   /** 댓글 수 */
   commentCount: number;
+  /** 좋아요 수 */
+  likeCount: number;
   /** 생성일시 */
   createdDate: string;
   /** 수정일시 */
   lastModifiedDate: string;
+  liked?: boolean;
+  /** 현재 사용자의 좋아요 여부 (비로그인 시 false) */
+  isLiked: boolean;
 }

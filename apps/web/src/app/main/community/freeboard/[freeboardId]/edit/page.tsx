@@ -4,7 +4,7 @@ import { useParams } from 'next/navigation';
 import { FreeboardForm } from '../../components/FreeboardForm';
 import { FreeboardFormSkeleton } from '../../components/FreeboardForm.Skeleton';
 import { Header } from '@/components/header/Header';
-import { useGetPost } from '@/generated/api/endpoints/freeboard/freeboard';
+import { useGetFreeboardPost } from '@/generated/api/endpoints/freeboard/freeboard';
 
 /**
  * 자유게시판 게시글 수정 페이지
@@ -25,7 +25,7 @@ export default function FreeboardEditPage() {
   const postId = Number(params.freeboardId);
 
   // 게시글 데이터 조회
-  const { data, isLoading } = useGetPost(postId);
+  const { data, isLoading } = useGetFreeboardPost(postId);
 
   return (
     <div className="flex flex-col w-full h-full">

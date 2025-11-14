@@ -14,7 +14,7 @@ export interface VotePostListResponse {
   /** 투표 게시글 목록 */
   posts: VotePostSummaryResponse[];
   /** 다음 커서 (다음 페이지 조회용, 없으면 null) */
-  nextCursor?: number;
+  nextCursor?: string;
   /** 다음 페이지 존재 여부 */
   hasNext: boolean;
   /** 현재 페이지 게시글 수 */

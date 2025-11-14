@@ -22,15 +22,15 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
-  DeletePost204,
+  DeleteFreeboardPost204,
   ErrorResponse,
   FreeboardCreateRequest,
   FreeboardCreateResponse,
   FreeboardCursorResponse,
   FreeboardDetailResponse,
   FreeboardUpdateRequest,
-  GetPostsByCursorParams,
-  HardDeletePost204,
+  GetFreeboardPostsByCursorParams,
+  HardDeleteFreeboardPost204,
 } from '../../models';
 
 import { customInstance } from '../../../../lib/api-client';
@@ -50,8 +50,8 @@ import { customInstance } from '../../../../lib/api-client';
 
  * @summary 자유게시판 글 목록 조회 (커서 기반)
  */
-export const getPostsByCursor = (
-  params?: GetPostsByCursorParams,
+export const getFreeboardPostsByCursor = (
+  params?: GetFreeboardPostsByCursorParams,
   signal?: AbortSignal,
 ) => {
   return customInstance<FreeboardCursorResponse>({
@@ -62,8 +62,8 @@ export const getPostsByCursor = (
   });
 };
 
-export const getGetPostsByCursorQueryKey = (
-  params?: GetPostsByCursorParams,
+export const getGetFreeboardPostsByCursorQueryKey = (
+  params?: GetFreeboardPostsByCursorParams,
 ) => {
   return [
     `/community/freeboard`,
@@ -71,15 +71,15 @@ export const getGetPostsByCursorQueryKey = (
   ] as const;
 };
 
-export const getGetPostsByCursorQueryOptions = <
-  TData = Awaited<ReturnType<typeof getPostsByCursor>>,
+export const getGetFreeboardPostsByCursorQueryOptions = <
+  TData = Awaited<ReturnType<typeof getFreeboardPostsByCursor>>,
   TError = ErrorResponse,
 >(
-  params?: GetPostsByCursorParams,
+  params?: GetFreeboardPostsByCursorParams,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getPostsByCursor>>,
+        Awaited<ReturnType<typeof getFreeboardPostsByCursor>>,
         TError,
         TData
       >
@@ -89,42 +89,43 @@ export const getGetPostsByCursorQueryOptions = <
   const { query: queryOptions } = options ?? {};
 
   const queryKey =
-    queryOptions?.queryKey ?? getGetPostsByCursorQueryKey(params);
+    queryOptions?.queryKey ??
+    getGetFreeboardPostsByCursorQueryKey(params);
 
   const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof getPostsByCursor>>
-  > = ({ signal }) => getPostsByCursor(params, signal);
+    Awaited<ReturnType<typeof getFreeboardPostsByCursor>>
+  > = ({ signal }) => getFreeboardPostsByCursor(params, signal);
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof getPostsByCursor>>,
+    Awaited<ReturnType<typeof getFreeboardPostsByCursor>>,
     TError,
     TData
   > & { queryKey: DataTag<QueryKey, TData, TError> };
 };
 
-export type GetPostsByCursorQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getPostsByCursor>>
+export type GetFreeboardPostsByCursorQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getFreeboardPostsByCursor>>
 >;
-export type GetPostsByCursorQueryError = ErrorResponse;
+export type GetFreeboardPostsByCursorQueryError = ErrorResponse;
 
-export function useGetPostsByCursor<
-  TData = Awaited<ReturnType<typeof getPostsByCursor>>,
+export function useGetFreeboardPostsByCursor<
+  TData = Awaited<ReturnType<typeof getFreeboardPostsByCursor>>,
   TError = ErrorResponse,
 >(
-  params: undefined | GetPostsByCursorParams,
+  params: undefined | GetFreeboardPostsByCursorParams,
   options: {
     query: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getPostsByCursor>>,
+        Awaited<ReturnType<typeof getFreeboardPostsByCursor>>,
         TError,
         TData
       >
     > &
       Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getPostsByCursor>>,
+          Awaited<ReturnType<typeof getFreeboardPostsByCursor>>,
           TError,
-          Awaited<ReturnType<typeof getPostsByCursor>>
+          Awaited<ReturnType<typeof getFreeboardPostsByCursor>>
         >,
         'initialData'
       >;
@@ -133,24 +134,24 @@ export function useGetPostsByCursor<
 ): DefinedUseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 };
-export function useGetPostsByCursor<
-  TData = Awaited<ReturnType<typeof getPostsByCursor>>,
+export function useGetFreeboardPostsByCursor<
+  TData = Awaited<ReturnType<typeof getFreeboardPostsByCursor>>,
   TError = ErrorResponse,
 >(
-  params?: GetPostsByCursorParams,
+  params?: GetFreeboardPostsByCursorParams,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getPostsByCursor>>,
+        Awaited<ReturnType<typeof getFreeboardPostsByCursor>>,
         TError,
         TData
       >
     > &
       Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getPostsByCursor>>,
+          Awaited<ReturnType<typeof getFreeboardPostsByCursor>>,
           TError,
-          Awaited<ReturnType<typeof getPostsByCursor>>
+          Awaited<ReturnType<typeof getFreeboardPostsByCursor>>
         >,
         'initialData'
       >;
@@ -159,15 +160,15 @@ export function useGetPostsByCursor<
 ): UseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 };
-export function useGetPostsByCursor<
-  TData = Awaited<ReturnType<typeof getPostsByCursor>>,
+export function useGetFreeboardPostsByCursor<
+  TData = Awaited<ReturnType<typeof getFreeboardPostsByCursor>>,
   TError = ErrorResponse,
 >(
-  params?: GetPostsByCursorParams,
+  params?: GetFreeboardPostsByCursorParams,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getPostsByCursor>>,
+        Awaited<ReturnType<typeof getFreeboardPostsByCursor>>,
         TError,
         TData
       >
@@ -181,15 +182,15 @@ export function useGetPostsByCursor<
  * @summary 자유게시판 글 목록 조회 (커서 기반)
  */
 
-export function useGetPostsByCursor<
-  TData = Awaited<ReturnType<typeof getPostsByCursor>>,
+export function useGetFreeboardPostsByCursor<
+  TData = Awaited<ReturnType<typeof getFreeboardPostsByCursor>>,
   TError = ErrorResponse,
 >(
-  params?: GetPostsByCursorParams,
+  params?: GetFreeboardPostsByCursorParams,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getPostsByCursor>>,
+        Awaited<ReturnType<typeof getFreeboardPostsByCursor>>,
         TError,
         TData
       >
@@ -199,7 +200,7 @@ export function useGetPostsByCursor<
 ): UseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 } {
-  const queryOptions = getGetPostsByCursorQueryOptions(
+  const queryOptions = getGetFreeboardPostsByCursorQueryOptions(
     params,
     options,
   );
@@ -227,7 +228,7 @@ export function useGetPostsByCursor<
 
  * @summary 자유게시판 글 작성
  */
-export const createPost = (
+export const createFreeboardPost = (
   freeboardCreateRequest: FreeboardCreateRequest,
   signal?: AbortSignal,
 ) => {
@@ -250,23 +251,23 @@ export const createPost = (
   });
 };
 
-export const getCreatePostMutationOptions = <
+export const getCreateFreeboardPostMutationOptions = <
   TError = ErrorResponse | ErrorResponse | ErrorResponse,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof createPost>>,
+    Awaited<ReturnType<typeof createFreeboardPost>>,
     TError,
     { data: FreeboardCreateRequest },
     TContext
   >;
 }): UseMutationOptions<
-  Awaited<ReturnType<typeof createPost>>,
+  Awaited<ReturnType<typeof createFreeboardPost>>,
   TError,
   { data: FreeboardCreateRequest },
   TContext
 > => {
-  const mutationKey = ['createPost'];
+  const mutationKey = ['createFreeboardPost'];
   const { mutation: mutationOptions } = options
     ? options.mutation &&
       'mutationKey' in options.mutation &&
@@ -276,22 +277,22 @@ export const getCreatePostMutationOptions = <
     : { mutation: { mutationKey } };
 
   const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof createPost>>,
+    Awaited<ReturnType<typeof createFreeboardPost>>,
     { data: FreeboardCreateRequest }
   > = (props) => {
     const { data } = props ?? {};
 
-    return createPost(data);
+    return createFreeboardPost(data);
   };
 
   return { mutationFn, ...mutationOptions };
 };
 
-export type CreatePostMutationResult = NonNullable<
-  Awaited<ReturnType<typeof createPost>>
+export type CreateFreeboardPostMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createFreeboardPost>>
 >;
-export type CreatePostMutationBody = FreeboardCreateRequest;
-export type CreatePostMutationError =
+export type CreateFreeboardPostMutationBody = FreeboardCreateRequest;
+export type CreateFreeboardPostMutationError =
   | ErrorResponse
   | ErrorResponse
   | ErrorResponse;
@@ -299,13 +300,13 @@ export type CreatePostMutationError =
 /**
  * @summary 자유게시판 글 작성
  */
-export const useCreatePost = <
+export const useCreateFreeboardPost = <
   TError = ErrorResponse | ErrorResponse | ErrorResponse,
   TContext = unknown,
 >(
   options?: {
     mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof createPost>>,
+      Awaited<ReturnType<typeof createFreeboardPost>>,
       TError,
       { data: FreeboardCreateRequest },
       TContext
@@ -313,12 +314,13 @@ export const useCreatePost = <
   },
   queryClient?: QueryClient,
 ): UseMutationResult<
-  Awaited<ReturnType<typeof createPost>>,
+  Awaited<ReturnType<typeof createFreeboardPost>>,
   TError,
   { data: FreeboardCreateRequest },
   TContext
 > => {
-  const mutationOptions = getCreatePostMutationOptions(options);
+  const mutationOptions =
+    getCreateFreeboardPostMutationOptions(options);
 
   return useMutation(mutationOptions, queryClient);
 };
@@ -344,7 +346,7 @@ export const useCreatePost = <
 
  * @summary 자유게시판 글 상세 조회
  */
-export const getPost = (
+export const getFreeboardPost = (
   freeboardId: number,
   signal?: AbortSignal,
 ) => {
@@ -355,19 +357,19 @@ export const getPost = (
   });
 };
 
-export const getGetPostQueryKey = (freeboardId?: number) => {
+export const getGetFreeboardPostQueryKey = (freeboardId?: number) => {
   return [`/community/freeboard/${freeboardId}`] as const;
 };
 
-export const getGetPostQueryOptions = <
-  TData = Awaited<ReturnType<typeof getPost>>,
+export const getGetFreeboardPostQueryOptions = <
+  TData = Awaited<ReturnType<typeof getFreeboardPost>>,
   TError = unknown,
 >(
   freeboardId: number,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getPost>>,
+        Awaited<ReturnType<typeof getFreeboardPost>>,
         TError,
         TData
       >
@@ -377,11 +379,12 @@ export const getGetPostQueryOptions = <
   const { query: queryOptions } = options ?? {};
 
   const queryKey =
-    queryOptions?.queryKey ?? getGetPostQueryKey(freeboardId);
+    queryOptions?.queryKey ??
+    getGetFreeboardPostQueryKey(freeboardId);
 
   const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof getPost>>
-  > = ({ signal }) => getPost(freeboardId, signal);
+    Awaited<ReturnType<typeof getFreeboardPost>>
+  > = ({ signal }) => getFreeboardPost(freeboardId, signal);
 
   return {
     queryKey,
@@ -389,35 +392,35 @@ export const getGetPostQueryOptions = <
     enabled: !!freeboardId,
     ...queryOptions,
   } as UseQueryOptions<
-    Awaited<ReturnType<typeof getPost>>,
+    Awaited<ReturnType<typeof getFreeboardPost>>,
     TError,
     TData
   > & { queryKey: DataTag<QueryKey, TData, TError> };
 };
 
-export type GetPostQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getPost>>
+export type GetFreeboardPostQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getFreeboardPost>>
 >;
-export type GetPostQueryError = unknown;
+export type GetFreeboardPostQueryError = unknown;
 
-export function useGetPost<
-  TData = Awaited<ReturnType<typeof getPost>>,
+export function useGetFreeboardPost<
+  TData = Awaited<ReturnType<typeof getFreeboardPost>>,
   TError = unknown,
 >(
   freeboardId: number,
   options: {
     query: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getPost>>,
+        Awaited<ReturnType<typeof getFreeboardPost>>,
         TError,
         TData
       >
     > &
       Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getPost>>,
+          Awaited<ReturnType<typeof getFreeboardPost>>,
           TError,
-          Awaited<ReturnType<typeof getPost>>
+          Awaited<ReturnType<typeof getFreeboardPost>>
         >,
         'initialData'
       >;
@@ -426,24 +429,24 @@ export function useGetPost<
 ): DefinedUseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 };
-export function useGetPost<
-  TData = Awaited<ReturnType<typeof getPost>>,
+export function useGetFreeboardPost<
+  TData = Awaited<ReturnType<typeof getFreeboardPost>>,
   TError = unknown,
 >(
   freeboardId: number,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getPost>>,
+        Awaited<ReturnType<typeof getFreeboardPost>>,
         TError,
         TData
       >
     > &
       Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getPost>>,
+          Awaited<ReturnType<typeof getFreeboardPost>>,
           TError,
-          Awaited<ReturnType<typeof getPost>>
+          Awaited<ReturnType<typeof getFreeboardPost>>
         >,
         'initialData'
       >;
@@ -452,15 +455,15 @@ export function useGetPost<
 ): UseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 };
-export function useGetPost<
-  TData = Awaited<ReturnType<typeof getPost>>,
+export function useGetFreeboardPost<
+  TData = Awaited<ReturnType<typeof getFreeboardPost>>,
   TError = unknown,
 >(
   freeboardId: number,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getPost>>,
+        Awaited<ReturnType<typeof getFreeboardPost>>,
         TError,
         TData
       >
@@ -474,15 +477,15 @@ export function useGetPost<
  * @summary 자유게시판 글 상세 조회
  */
 
-export function useGetPost<
-  TData = Awaited<ReturnType<typeof getPost>>,
+export function useGetFreeboardPost<
+  TData = Awaited<ReturnType<typeof getFreeboardPost>>,
   TError = unknown,
 >(
   freeboardId: number,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getPost>>,
+        Awaited<ReturnType<typeof getFreeboardPost>>,
         TError,
         TData
       >
@@ -492,7 +495,10 @@ export function useGetPost<
 ): UseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 } {
-  const queryOptions = getGetPostQueryOptions(freeboardId, options);
+  const queryOptions = getGetFreeboardPostQueryOptions(
+    freeboardId,
+    options,
+  );
 
   const query = useQuery(queryOptions, queryClient) as UseQueryResult<
     TData,
@@ -516,30 +522,30 @@ export function useGetPost<
 
  * @summary 자유게시판 글 삭제 (소프트 삭제)
  */
-export const deletePost = (freeboardId: number) => {
-  return customInstance<DeletePost204>({
+export const deleteFreeboardPost = (freeboardId: number) => {
+  return customInstance<DeleteFreeboardPost204>({
     url: `/community/freeboard/${freeboardId}`,
     method: 'DELETE',
   });
 };
 
-export const getDeletePostMutationOptions = <
+export const getDeleteFreeboardPostMutationOptions = <
   TError = ErrorResponse | ErrorResponse | ErrorResponse,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof deletePost>>,
+    Awaited<ReturnType<typeof deleteFreeboardPost>>,
     TError,
     { freeboardId: number },
     TContext
   >;
 }): UseMutationOptions<
-  Awaited<ReturnType<typeof deletePost>>,
+  Awaited<ReturnType<typeof deleteFreeboardPost>>,
   TError,
   { freeboardId: number },
   TContext
 > => {
-  const mutationKey = ['deletePost'];
+  const mutationKey = ['deleteFreeboardPost'];
   const { mutation: mutationOptions } = options
     ? options.mutation &&
       'mutationKey' in options.mutation &&
@@ -549,22 +555,22 @@ export const getDeletePostMutationOptions = <
     : { mutation: { mutationKey } };
 
   const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof deletePost>>,
+    Awaited<ReturnType<typeof deleteFreeboardPost>>,
     { freeboardId: number }
   > = (props) => {
     const { freeboardId } = props ?? {};
 
-    return deletePost(freeboardId);
+    return deleteFreeboardPost(freeboardId);
   };
 
   return { mutationFn, ...mutationOptions };
 };
 
-export type DeletePostMutationResult = NonNullable<
-  Awaited<ReturnType<typeof deletePost>>
+export type DeleteFreeboardPostMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteFreeboardPost>>
 >;
 
-export type DeletePostMutationError =
+export type DeleteFreeboardPostMutationError =
   | ErrorResponse
   | ErrorResponse
   | ErrorResponse;
@@ -572,13 +578,13 @@ export type DeletePostMutationError =
 /**
  * @summary 자유게시판 글 삭제 (소프트 삭제)
  */
-export const useDeletePost = <
+export const useDeleteFreeboardPost = <
   TError = ErrorResponse | ErrorResponse | ErrorResponse,
   TContext = unknown,
 >(
   options?: {
     mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof deletePost>>,
+      Awaited<ReturnType<typeof deleteFreeboardPost>>,
       TError,
       { freeboardId: number },
       TContext
@@ -586,12 +592,13 @@ export const useDeletePost = <
   },
   queryClient?: QueryClient,
 ): UseMutationResult<
-  Awaited<ReturnType<typeof deletePost>>,
+  Awaited<ReturnType<typeof deleteFreeboardPost>>,
   TError,
   { freeboardId: number },
   TContext
 > => {
-  const mutationOptions = getDeletePostMutationOptions(options);
+  const mutationOptions =
+    getDeleteFreeboardPostMutationOptions(options);
 
   return useMutation(mutationOptions, queryClient);
 };
@@ -608,7 +615,7 @@ export const useDeletePost = <
 
  * @summary 자유게시판 글 수정
  */
-export const updatePost = (
+export const updateFreeboardPost = (
   freeboardId: number,
   freeboardUpdateRequest: FreeboardUpdateRequest,
 ) => {
@@ -641,7 +648,7 @@ export const updatePost = (
   });
 };
 
-export const getUpdatePostMutationOptions = <
+export const getUpdateFreeboardPostMutationOptions = <
   TError =
     | ErrorResponse
     | ErrorResponse
@@ -651,18 +658,18 @@ export const getUpdatePostMutationOptions = <
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof updatePost>>,
+    Awaited<ReturnType<typeof updateFreeboardPost>>,
     TError,
     { freeboardId: number; data: FreeboardUpdateRequest },
     TContext
   >;
 }): UseMutationOptions<
-  Awaited<ReturnType<typeof updatePost>>,
+  Awaited<ReturnType<typeof updateFreeboardPost>>,
   TError,
   { freeboardId: number; data: FreeboardUpdateRequest },
   TContext
 > => {
-  const mutationKey = ['updatePost'];
+  const mutationKey = ['updateFreeboardPost'];
   const { mutation: mutationOptions } = options
     ? options.mutation &&
       'mutationKey' in options.mutation &&
@@ -672,22 +679,24 @@ export const getUpdatePostMutationOptions = <
     : { mutation: { mutationKey } };
 
   const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof updatePost>>,
+    Awaited<ReturnType<typeof updateFreeboardPost>>,
     { freeboardId: number; data: FreeboardUpdateRequest }
   > = (props) => {
     const { freeboardId, data } = props ?? {};
 
-    return updatePost(freeboardId, data);
+    return updateFreeboardPost(freeboardId, data);
   };
 
   return { mutationFn, ...mutationOptions };
 };
 
-export type UpdatePostMutationResult = NonNullable<
-  Awaited<ReturnType<typeof updatePost>>
+export type UpdateFreeboardPostMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateFreeboardPost>>
 >;
-export type UpdatePostMutationBody = FreeboardUpdateRequest;
-export type UpdatePostMutationError =
+export type UpdateFreeboardPostMutationBody = FreeboardUpdateRequest;
+export type UpdateFreeboardPostMutationError =
+  | ErrorResponse
+  | ErrorResponse
   | ErrorResponse
   | ErrorResponse
   | ErrorResponse
@@ -697,7 +706,7 @@ export type UpdatePostMutationError =
 /**
  * @summary 자유게시판 글 수정
  */
-export const useUpdatePost = <
+export const useUpdateFreeboardPost = <
   TError =
     | ErrorResponse
     | ErrorResponse
@@ -708,7 +717,7 @@ export const useUpdatePost = <
 >(
   options?: {
     mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof updatePost>>,
+      Awaited<ReturnType<typeof updateFreeboardPost>>,
       TError,
       { freeboardId: number; data: FreeboardUpdateRequest },
       TContext
@@ -716,12 +725,13 @@ export const useUpdatePost = <
   },
   queryClient?: QueryClient,
 ): UseMutationResult<
-  Awaited<ReturnType<typeof updatePost>>,
+  Awaited<ReturnType<typeof updateFreeboardPost>>,
   TError,
   { freeboardId: number; data: FreeboardUpdateRequest },
   TContext
 > => {
-  const mutationOptions = getUpdatePostMutationOptions(options);
+  const mutationOptions =
+    getUpdateFreeboardPostMutationOptions(options);
 
   return useMutation(mutationOptions, queryClient);
 };
@@ -735,30 +745,30 @@ export const useUpdatePost = <
 
  * @summary 자유게시판 글 영구 삭제
  */
-export const hardDeletePost = (freeboardId: number) => {
-  return customInstance<HardDeletePost204>({
+export const hardDeleteFreeboardPost = (freeboardId: number) => {
+  return customInstance<HardDeleteFreeboardPost204>({
     url: `/community/freeboard/${freeboardId}/force`,
     method: 'DELETE',
   });
 };
 
-export const getHardDeletePostMutationOptions = <
+export const getHardDeleteFreeboardPostMutationOptions = <
   TError = ErrorResponse | ErrorResponse | ErrorResponse,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof hardDeletePost>>,
+    Awaited<ReturnType<typeof hardDeleteFreeboardPost>>,
     TError,
     { freeboardId: number },
     TContext
   >;
 }): UseMutationOptions<
-  Awaited<ReturnType<typeof hardDeletePost>>,
+  Awaited<ReturnType<typeof hardDeleteFreeboardPost>>,
   TError,
   { freeboardId: number },
   TContext
 > => {
-  const mutationKey = ['hardDeletePost'];
+  const mutationKey = ['hardDeleteFreeboardPost'];
   const { mutation: mutationOptions } = options
     ? options.mutation &&
       'mutationKey' in options.mutation &&
@@ -768,22 +778,22 @@ export const getHardDeletePostMutationOptions = <
     : { mutation: { mutationKey } };
 
   const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof hardDeletePost>>,
+    Awaited<ReturnType<typeof hardDeleteFreeboardPost>>,
     { freeboardId: number }
   > = (props) => {
     const { freeboardId } = props ?? {};
 
-    return hardDeletePost(freeboardId);
+    return hardDeleteFreeboardPost(freeboardId);
   };
 
   return { mutationFn, ...mutationOptions };
 };
 
-export type HardDeletePostMutationResult = NonNullable<
-  Awaited<ReturnType<typeof hardDeletePost>>
+export type HardDeleteFreeboardPostMutationResult = NonNullable<
+  Awaited<ReturnType<typeof hardDeleteFreeboardPost>>
 >;
 
-export type HardDeletePostMutationError =
+export type HardDeleteFreeboardPostMutationError =
   | ErrorResponse
   | ErrorResponse
   | ErrorResponse;
@@ -791,13 +801,13 @@ export type HardDeletePostMutationError =
 /**
  * @summary 자유게시판 글 영구 삭제
  */
-export const useHardDeletePost = <
+export const useHardDeleteFreeboardPost = <
   TError = ErrorResponse | ErrorResponse | ErrorResponse,
   TContext = unknown,
 >(
   options?: {
     mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof hardDeletePost>>,
+      Awaited<ReturnType<typeof hardDeleteFreeboardPost>>,
       TError,
       { freeboardId: number },
       TContext
@@ -805,12 +815,13 @@ export const useHardDeletePost = <
   },
   queryClient?: QueryClient,
 ): UseMutationResult<
-  Awaited<ReturnType<typeof hardDeletePost>>,
+  Awaited<ReturnType<typeof hardDeleteFreeboardPost>>,
   TError,
   { freeboardId: number },
   TContext
 > => {
-  const mutationOptions = getHardDeletePostMutationOptions(options);
+  const mutationOptions =
+    getHardDeleteFreeboardPostMutationOptions(options);
 
   return useMutation(mutationOptions, queryClient);
 };

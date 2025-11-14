@@ -7,12 +7,13 @@
  */
 
 /**
- * 투표 참여 요청
+ * 투표 게시판 댓글 수정 요청
  */
-export interface VoteRequest {
+export interface VoteboardCommentUpdateRequest {
   /**
-   * 선택한 투표 옵션 ID 목록 (단일 선택: 1개, 중복 선택: 최대 n-1개)
-   * @minItems 1
+   * 댓글 내용
+   * @minLength 0
+   * @maxLength 1000
    */
-  voteOptionIds: number[];
+  content: string;
 }
