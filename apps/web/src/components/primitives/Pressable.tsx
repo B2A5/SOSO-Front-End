@@ -8,7 +8,7 @@
  */
 
 import React from 'react';
-import { motion, type HTMLMotionProps } from 'framer-motion';
+import { motion, type HTMLMotionProps } from 'motion/react';
 import { twMerge } from 'tailwind-merge';
 import { PRESS_ANIMATION } from '@/styles/tokens/animation';
 

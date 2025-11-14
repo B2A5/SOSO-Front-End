@@ -19,7 +19,6 @@ export default function KakaoLoginButton({
     <Button
       onClick={startKakaoLogin}
       isLoading={isPending}
-      loadingText="로그인 중…"
       size="lg"
       className={cn(
         kakaoSubsetFont.className,

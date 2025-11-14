@@ -5,7 +5,7 @@
  * Popover를 여는 트리거 버튼
  */
 
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { twMerge } from 'tailwind-merge';
 import { type ReactNode } from 'react';
 import { usePopoverContext } from './PopoverRoot';

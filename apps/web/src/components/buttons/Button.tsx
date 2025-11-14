@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { useTap } from '@/hooks/ui/useTap';
 import { cn } from '@/utils/cn';
 import { Pressable } from '../primitives/Pressable';
@@ -15,7 +15,6 @@ import { Pressable } from '../primitives/Pressable';
  * @param {Variant} [props.variant='filled'] - 버튼의 변형 스타일
  * @param {Size} [props.size='md'] - 버튼의 크기
  * @param {boolean} [props.isLoading=false] - 로딩 상태 여부
- * @param {string} [props.loadingText='Loading…'] - 로딩 중 표시할 텍스트
  * @param {string} [props.className] - 추가적인 클래스 이름
  * @param {boolean} [props.disabled=false] - 버튼 비활성화 여부
  * @param {React.ButtonHTMLAttributes<HTMLButtonElement>} rest - 기타 HTML 속성
@@ -140,7 +139,6 @@ export const Button = React.forwardRef<
                   animate={{
                     opacity: [0.3, 1, 0.3],
                     scale: [0.8, 1.2, 0.8],
-                    y: [0, -8, 0],
                   }}
                   transition={{
                     duration: 0.6,

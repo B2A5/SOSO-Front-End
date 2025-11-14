@@ -8,7 +8,7 @@
  */
 
 import { useMemo } from 'react';
-import type { Variants } from 'framer-motion';
+import type { Variants } from 'motion/react';
 import { STATE_TRANSITION } from '@/styles/tokens/animation';
 
 // ============================================

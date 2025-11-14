@@ -181,7 +181,6 @@ export function FreeboardForm({
         form="freeboard-form"
         disabled={!isValid || isPending}
         isLoading={isPending}
-        loadingText="게시글 작성 중..."
         className="absolute bottom-0 w-full"
       >
         저장하기
