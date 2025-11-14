@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/ui/useToast';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
+import { useAuthGuard } from '@/hooks/useAuth';
 
 interface CommentInputProps {
   /** 댓글이 달릴 게시글 ID */
@@ -31,6 +32,7 @@ export default function CommentInput({
   const targetRef = useRef<HTMLTextAreaElement>(null);
   const queryClient = useQueryClient();
   const toast = useToast();
+  const { guard } = useAuthGuard();
 
   const { mutate, isPending } = useMutation({
     mutationFn: (content: string) =>
@@ -65,10 +67,11 @@ export default function CommentInput({
     setValue(next.length > limit ? next.slice(0, limit) : next);
   };
 
-  const handleSubmit = () => {
-    if (!value.trim() || isPending) return;
-    mutate(value.trim());
-  };
+  const handleSubmit = () =>
+    guard(() => {
+      if (!value.trim() || isPending) return;
+      mutate(value.trim());
+    });
 
   const handleKeyDown = (
     e: React.KeyboardEvent<HTMLTextAreaElement>,

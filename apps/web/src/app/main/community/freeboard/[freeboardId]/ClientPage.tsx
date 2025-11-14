@@ -52,7 +52,10 @@ export default function ClientPage({ postId }: { postId: number }) {
       <FreeboardDetail post={post} />
 
       <section className="px-5 pb-6">
-        <CommentList postId={postId} />
+        <CommentList
+          postId={postId}
+          initialCount={post.commentCount}
+        />
         <div className="fixed bottom-16 left-0 right-0 z-50 px-5 py-3">
           <CommentInput postId={postId} />
         </div>
