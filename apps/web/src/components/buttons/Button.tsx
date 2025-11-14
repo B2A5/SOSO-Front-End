@@ -2,8 +2,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useTap } from '@/hooks/ui/useTap';
-import { useProgressiveLoading } from '@/hooks/ui/useProgressiveLoading';
-import { Spinner } from '@/components/loadings/Spinner';
 import { cn } from '@/utils/cn';
 import { Pressable } from '../primitives/Pressable';
 
@@ -37,8 +35,6 @@ export interface ButtonProps
   size?: Size;
   /** 로딩 상태 */
   isLoading?: boolean;
-  /** 로딩 문구  */
-  loadingText?: string;
 }
 
 /* ---------- 2. 스타일 토큰 ---------- */
@@ -72,13 +68,6 @@ const sizeMap: Record<Size, string> = {
   lg: 'h-12 px-6 text-lg gap-2.5',
 };
 
-/** 아이콘 크기별 클래스 */
-const iconClassMap: Record<Size, string> = {
-  sm: 'w-3.5 h-3.5',
-  md: 'w-4 h-4',
-  lg: 'w-5 h-5',
-};
-
 /* ---------- 3. 컴포넌트 ---------- */
 
 export const Button = React.forwardRef<
@@ -90,7 +79,6 @@ export const Button = React.forwardRef<
       variant = 'filled',
       size = 'md',
       isLoading = false,
-      loadingText = 'Loading…',
       className,
       disabled,
       children,
@@ -100,9 +88,6 @@ export const Button = React.forwardRef<
   ) => {
     /* tap 애니메이션 */
     const [pressed, bind] = useTap();
-
-    /* Progressive loading 상태 관리 */
-    const { loadingStage } = useProgressiveLoading(isLoading);
 
     const isDisabled = disabled;
 
@@ -143,58 +128,29 @@ export const Button = React.forwardRef<
           {...(!isLoading && !isDisabled ? bind : {})} // 로딩 및 disabled시 tap 이벤트 비활성화
           {...rest}
         >
-          {/* 로딩 상태가 아닐 때: 일반 콘텐츠 */}
-          {loadingStage === 'idle' && children}
-
-          {/* 100-500ms 구간: 텍스트 그라데이션 로딩 효과 */}
-          {loadingStage === 'subtle' && (
-            <motion.div
-              className="relative flex items-center justify-center gap-2"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.15 }}
-            >
-              <motion.span
-                className="truncate"
-                style={{
-                  backgroundImage:
-                    'linear-gradient(90deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.5) 25%, rgba(255,255,255,1) 50%, rgba(255,255,255,0.5) 75%, rgba(255,255,255,0.3) 100%)',
-                  backgroundSize: '200% 100%',
-                  backgroundClip: 'text',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  color: 'transparent',
-                }}
-                animate={{
-                  backgroundPosition: ['0% 50%', '100% 50%'],
-                }}
-                transition={{
-                  duration: 1.2,
-                  repeat: Infinity,
-                  ease: 'linear',
-                }}
-              >
-                {children}
-              </motion.span>
-            </motion.div>
-          )}
-
-          {/* 500ms 초과: Spinner + 로딩 텍스트 */}
-          {loadingStage === 'explicit' && (
-            <motion.div
-              className="flex items-center justify-center"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.2 }}
-            >
-              <Spinner
-                className={cn('shrink-0', iconClassMap[size])}
-                color="text-current"
-              />
-              {loadingText && (
-                <span className="ml-2 truncate">{loadingText}</span>
-              )}
-            </motion.div>
+          {!isLoading ? (
+            <span className="truncate">{children}</span>
+          ) : (
+            <div className="flex items-center justify-center gap-1.5">
+              {[0, 0.15, 0.3].map((delay) => (
+                <motion.div
+                  key={delay}
+                  className="w-2 h-2 rounded-full bg-current"
+                  initial={{ opacity: 0.3, scale: 0.8 }}
+                  animate={{
+                    opacity: [0.3, 1, 0.3],
+                    scale: [0.8, 1.2, 0.8],
+                    y: [0, -8, 0],
+                  }}
+                  transition={{
+                    duration: 0.6,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                    delay,
+                  }}
+                />
+              ))}
+            </div>
           )}
         </button>
       </Pressable>
