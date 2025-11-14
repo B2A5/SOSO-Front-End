@@ -1,6 +1,5 @@
 ﻿'use client';
 
-import type { FreeboardDetailResponse } from '@/generated/api/models';
 import { Header } from '@/components/header/Header';
 import FreeboardDetail from './components/FreeboardDetail';
 import CommentList from './components/CommentList';
@@ -11,25 +10,19 @@ import { useGetFreeboardPost } from '@/generated/api/endpoints/freeboard/freeboa
 /**
  * 자유 게시판 게시글 상세 클라이언트 화면
  * @param postId 게시글 ID
- * @param initialPost 서버에서 프리패치된 초기 게시글 데이터
  */
-export default function ClientPage({
-  postId,
-  initialPost,
-}: {
-  postId: number;
-  initialPost: FreeboardDetailResponse;
-}) {
+export default function ClientPage({ postId }: { postId: number }) {
   const {
     data: post,
     isPending,
     error,
   } = useGetFreeboardPost(postId, {
     query: {
-      initialData: initialPost, // 서버에서 보낸 데이터 그대로 사용
-      staleTime: 0, // 즉시 최신성 판단
-      refetchOnMount: 'always', // 진입 시 최신 서버값으로 동기화
-      refetchOnWindowFocus: true, // 포커스 시 재요청
+      staleTime: 0, // 언제나 신선하지 않은 것으로 간주
+      gcTime: 5_000, // 화면 이탈 시 빠르게 캐시 정리
+      refetchOnMount: false, // 좋아요 invalidate로만 강제 리패치
+      refetchOnWindowFocus: true, // 뒤로가기/포커스 전환 시 최신화
+      refetchOnReconnect: true,
     },
   });
 
