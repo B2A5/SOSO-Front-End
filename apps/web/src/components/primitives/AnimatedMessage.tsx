@@ -8,7 +8,7 @@
  */
 
 import React from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'motion/react';
 import { twMerge } from 'tailwind-merge';
 import { MESSAGE_ANIMATION } from '@/styles/tokens/animation';
 

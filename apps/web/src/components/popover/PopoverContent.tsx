@@ -5,11 +5,7 @@
  * Popover 컨텐츠 (Framer Motion + 포지셔닝 + 키보드 네비게이션)
  */
 
-import {
-  AnimatePresence,
-  motion,
-  type Variants,
-} from 'framer-motion';
+import { AnimatePresence, motion, type Variants } from 'motion/react';
 import {
   useEffect,
   useCallback,

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { motion, type HTMLMotionProps } from 'framer-motion';
+import { motion, type HTMLMotionProps } from 'motion/react';
 import { twMerge } from 'tailwind-merge';
 import { useInputState } from '@/hooks/ui/useInputState';
 import { useFieldAnimation } from '@/hooks/ui/useFieldAnimation';
