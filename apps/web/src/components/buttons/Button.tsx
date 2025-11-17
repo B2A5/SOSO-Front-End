@@ -99,7 +99,7 @@ export const Button = React.forwardRef<
       // 기본 variant 스타일
       variantMap[variant],
       // 포커스 스타일
-      FOCUS_STYLE[isDisabled ? 'enabled' : 'disabled'],
+      FOCUS_STYLE[isDisabled ? 'disabled' : 'enabled'],
       // disabled 스타일
       isDisabled && disabledMap[variant],
       // 로딩 상태: 포인터 이벤트 막기
