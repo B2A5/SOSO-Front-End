@@ -86,6 +86,8 @@ export * from './userResponseGender';
 export * from './userResponseUserType';
 export * from './userSummaryResponse';
 export * from './userSummaryResponseUserType';
+export * from './userSummaryResponse';
+export * from './userSummaryResponseUserType';
 export * from './userTypeRequest';
 export * from './userTypeRequestUserType';
 export * from './voteOptionRequest';

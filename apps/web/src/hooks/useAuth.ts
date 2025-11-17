@@ -4,6 +4,7 @@
 import { useEffect, useRef } from 'react';
 import { useAuthStore } from '@/stores/authStore';
 import { useRefreshToken } from '@/generated/api/endpoints/auth/auth';
+import { useToast } from './ui/useToast';
 
 /**
  * 앱 마운트 시 인증 상태를 자동 복원하는 훅
@@ -63,4 +64,37 @@ export function useAuthRestore() {
     /** 인증 완료 여부 */
     isAuthenticated: getIsAuth(),
   };
+}
+
+type Options = {
+  onUnauthed?: () => void; // 기본 동작을 덮어쓰고 싶을 때만 전달
+};
+
+export function useAuthGuard(options: Options = {}) {
+  const authed = useAuthStore((s) => !!s.accessToken);
+  const toast = useToast();
+  // 추후 모달로 수정 예정
+
+  // 비로그인 기본 처리: 토스트 표시
+  const onUnauthed =
+    options.onUnauthed ??
+    (() => toast('로그인이 필요합니다.', 'error'));
+
+  const guard = (fn: () => void | Promise<void>) => {
+    if (!authed) {
+      onUnauthed();
+      return;
+    }
+    return fn();
+  };
+
+  const ensureAuthed = () => {
+    if (!authed) {
+      onUnauthed();
+      return false;
+    }
+    return true;
+  };
+
+  return { authed, guard, ensureAuthed };
 }

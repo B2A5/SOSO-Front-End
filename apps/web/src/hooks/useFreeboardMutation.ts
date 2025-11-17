@@ -1,11 +1,11 @@
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/ui/useToast';
+import type { FreeboardFormData } from '@/app/main/community/schema/freeboardSchema';
 import {
   useCreateFreeboardPost,
   useUpdateFreeboardPost,
 } from '@/generated/api/endpoints/freeboard/freeboard';
-import type { FreeboardFormData } from '@/app/main/community/schema/freeboardSchema';
 
 /**
  * 자유게시판 게시글 생성/수정 통합 Mutation Hook

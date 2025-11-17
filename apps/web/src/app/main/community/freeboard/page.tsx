@@ -9,11 +9,12 @@ import { SORT_OPTIONS } from '../constants/sortOptions';
 import FloatingButton from '@/components/buttons/FloatingButton';
 import { FreeBoardCard } from '../components/FreeboardCard';
 import CommunityPostList from '../components/CommunityPostList';
+
+import { FreeboardSummary } from '@/generated/api/models';
 import {
-  getGetFreeboardPostsByCursorQueryKey,
   getFreeboardPostsByCursor,
+  getGetFreeboardPostsByCursorQueryKey,
 } from '@/generated/api/endpoints/freeboard/freeboard';
-import type { FreeboardSummary } from '@/generated/api/models';
 
 /**
  * 자유 게시판 메인 페이지
@@ -45,7 +46,6 @@ export default function FreeboardPage() {
     }),
     queryFn: ({ pageParam, signal }) =>
       getFreeboardPostsByCursor(
-        //generated api 함수 사용
         {
           category: category ?? undefined,
           sort: sortOption,

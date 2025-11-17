@@ -3,83 +3,142 @@
 import { useEffect, useState } from 'react';
 import { ThumbsUp } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useAuthGuard, useAuthRestore } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/ui/useToast';
+import { formatCappedCount } from '@/utils/formatCount';
+import { getGetFreeboardCommentsByCursorQueryKey } from '@/generated/api/endpoints/freeboard-comment/freeboard-comment';
 import { useToggleFreeboardCommentLike } from '@/generated/api/endpoints/freeboard-comment-like/freeboard-comment-like';
 
 interface LikeButtonCommentProps {
   postId: number;
   commentId: number;
-  isLiked: boolean;
-  likeCount: number;
-  icon?: React.ElementType;
+  initialLiked: boolean;
+  initialLikeCount: number;
 }
+
+// 음수 방지(보정) 헬퍼
+const clampMin0 = (n: number) => (n < 0 ? 0 : n);
 
 /**
  * 댓글 좋아요 버튼
- * - 낙관적 업데이트
- * - 실패 시 롤백 + Toast 안내
+ *
+ * 전략:
+ * - 낙관적 토글(로컬 UI 먼저 반영) → 실패 시 스냅샷으로 롤백 → 성공 시 서버 절대값으로 보정
+ * - 마지막엔 관련 쿼리 invalidate로 캐시/화면 동기화
  */
 export default function LikeButtonComment({
   postId,
   commentId,
-  isLiked,
-  likeCount,
-  icon: Icon = ThumbsUp,
+  initialLiked,
+  initialLikeCount,
 }: LikeButtonCommentProps) {
+  const { isRestoring, isAuthenticated } = useAuthRestore();
   const queryClient = useQueryClient();
   const toast = useToast();
+  const { guard } = useAuthGuard();
 
-  const [liked, setLiked] = useState(isLiked);
-  const [count, setCount] = useState(likeCount);
+  // UI 전용 상태(부모 props와 동기화됨)
+  const [liked, setLiked] = useState(!!initialLiked);
+  const [likeCount, setLikeCount] = useState(initialLikeCount);
 
-  // 외부 데이터 변경 시 동기화
-  useEffect(() => setLiked(isLiked), [isLiked]);
-  useEffect(() => setCount(likeCount), [likeCount]);
+  useEffect(() => setLiked(!!initialLiked), [initialLiked]);
+  useEffect(() => setLikeCount(initialLikeCount), [initialLikeCount]);
 
-  // 댓글 좋아요 토글 mutation
-  const { mutateAsync: toggleCommentLike, isPending } =
-    useToggleFreeboardCommentLike({
-      mutation: {
-        onSuccess: () => {
-          // 서버 반영 후 댓글 목록 최신화
-          queryClient.invalidateQueries({
-            queryKey: [`/community/freeboard/${postId}/comments`],
-          });
-        },
-        onError: () => {
-          // 에러 발생 시 상태 롤백 및 사용자 안내
-          setLiked(isLiked);
-          setCount(likeCount);
-          toast('댓글 좋아요 처리 중 오류가 발생했습니다.', 'error');
-        },
+  // 이 게시글의 댓글 목록 쿼리 키 (취소/무효화에 사용)
+  const commentListKey =
+    getGetFreeboardCommentsByCursorQueryKey(postId);
+
+  const toggleLike = useToggleFreeboardCommentLike({
+    mutation: {
+      mutationKey: ['toggleCommentLike', postId, commentId],
+
+      onMutate: async () => {
+        // (1) 진행 중/예정인 refetch 취소 → 낙관 업데이트 보존
+        await queryClient.cancelQueries({ queryKey: commentListKey });
+
+        // (2) 롤백용 스냅샷
+        const snapshot = {
+          prevLiked: liked,
+          prevLikeCount: likeCount,
+        };
+
+        // (3) 낙관적 토글 + 카운트 보정
+        setLiked((prev) => {
+          const next = !prev;
+          const delta = next ? 1 : -1;
+          setLikeCount((count) => clampMin0(count + delta));
+          return next;
+        });
+
+        // (4) 스냅샷 전달
+        return { snapshot };
       },
+
+      onError: (_error, _variables, onMutateResult) => {
+        // 실패 시 스냅샷으로 롤백
+        const snap = onMutateResult?.snapshot;
+        if (snap) {
+          setLiked(snap.prevLiked);
+          setLikeCount(snap.prevLikeCount);
+        }
+        toast('댓글 좋아요 처리 중 오류가 발생했습니다.', 'error');
+      },
+
+      onSuccess: () => {
+        toast('좋아요가 반영되었습니다.', 'success');
+      },
+
+      onSettled: () => {
+        // 성공/실패와 무관하게 최종적으로 서버 상태와 동기화
+        queryClient.invalidateQueries({
+          queryKey: commentListKey,
+        });
+      },
+    },
+  });
+
+  // 클릭 시: 가드 통과 후, 중복 요청 방지 & 뮤테이션 트리거
+  const handleToggleLike = () =>
+    guard(() => {
+      if (toggleLike.isPending) return;
+      toggleLike.mutate({ freeboardId: postId, commentId });
     });
 
-  // 클릭 핸들러 (낙관적 업데이트)
-  const handleClick = async () => {
-    if (isPending) return;
-
-    setLiked((prev) => !prev);
-    setCount((prev) => (liked ? prev - 1 : prev + 1));
-
-    try {
-      await toggleCommentLike({ freeboardId: postId, commentId });
-    } catch {}
-  };
+  // 인증 복원 중임을 명시(시각적 피드백)
+  if (isRestoring) {
+    return (
+      <button
+        className="flex items-center gap-1.5 opacity-60 cursor-wait"
+        disabled
+        aria-label="좋아요 로딩 중"
+        type="button"
+      >
+        <ThumbsUp className="inline w-4 h-4 text-neutral-200" />
+        <span className="text-neutral-500 text-input2">
+          {likeCount}
+        </span>
+      </button>
+    );
+  }
 
   return (
     <button
-      onClick={handleClick}
+      type="button"
+      aria-pressed={liked}
+      onClick={handleToggleLike}
       className="flex items-center gap-1.5"
-      disabled={isPending}
+      disabled={toggleLike.isPending}
       aria-label={liked ? '좋아요 취소' : '좋아요'}
+      title={!isAuthenticated ? '로그인이 필요합니다' : undefined}
     >
-      <Icon
+      <ThumbsUp
         className={`inline w-4 h-4 text-neutral-200 transition-colors ${
           liked ? 'fill-soso-600 text-soso-600' : 'fill-transparent'
         }`}
       />
-      <span className="text-neutral-500 text-input2">{count}</span>
+      <span className="text-neutral-500 text-input2">
+        {formatCappedCount(likeCount)}
+      </span>
     </button>
   );
 }

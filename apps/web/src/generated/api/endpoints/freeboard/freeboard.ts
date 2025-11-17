@@ -699,6 +699,8 @@ export type UpdateFreeboardPostMutationError =
   | ErrorResponse
   | ErrorResponse
   | ErrorResponse
+  | ErrorResponse
+  | ErrorResponse
   | ErrorResponse;
 
 /**
