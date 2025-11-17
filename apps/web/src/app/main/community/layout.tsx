@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import { Header } from '@/components/header/Header';
 import { BoardSwitcherTab } from './components/BoardSwitcherTab';
 import type { CommunityTabValue } from '@/types/tab.types';
+import Drawer from '@/components/Drawer';
 
 /**
  * 커뮤니티 공통 레이아웃
@@ -44,7 +45,17 @@ export default function CommunityLayout({
             />
           </Header.Left>
           <Header.Right>
-            <Header.SearchButton onClick={handleSearchClick} />
+            <Drawer>
+              <Drawer.Trigger asChild>
+                <Header.SearchButton onClick={handleSearchClick} />
+              </Drawer.Trigger>
+              <Drawer.Overlay />
+              <Drawer.Content>
+                <Drawer.Items>항목 1</Drawer.Items>
+                <Drawer.Items>항목 2</Drawer.Items>
+                <Drawer.Items destructive>위험한 항목</Drawer.Items>
+              </Drawer.Content>
+            </Drawer>
           </Header.Right>
         </Header>
       ) : null}

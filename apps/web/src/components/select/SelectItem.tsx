@@ -1,6 +1,6 @@
 'use client';
 
-import { motion, type Variants } from 'framer-motion';
+import { motion, type Variants } from 'motion/react';
 import { twMerge } from 'tailwind-merge';
 import { type ReactNode } from 'react';
 import { usePopoverContext } from '../popover/PopoverRoot';
