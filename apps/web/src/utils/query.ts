@@ -1,5 +1,5 @@
 // apps/web/src/utils/query.ts
-import { ApiError } from '@/api/error';
+import { ApiError } from '@/lib/api-client';
 
 /**
  * React Query의 retry 옵션으로 사용할 함수
