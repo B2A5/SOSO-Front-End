@@ -9,7 +9,17 @@ export default defineConfig({
     setupFiles: ['./src/test/setup.ts'],
     globals: true,
     css: true,
-    reporter: ['verbose', 'json', 'html'],
+    // E2E 테스트 파일 제외 (Playwright 전용)
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/.next/**',
+      '**/coverage/**',
+      '**/e2e/**',
+      '**/__tests__/e2e/**',
+      'tests/e2e/**',
+    ],
+    reporters: ['verbose', 'json', 'html'],
     outputFile: {
       json: './coverage/test-results.json',
       html: './coverage/test-report.html',
