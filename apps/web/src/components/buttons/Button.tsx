@@ -60,9 +60,10 @@ const sizeMap: Record<Size, string> = {
 
 /** 포커스 스타일 */
 const FOCUS_STYLE = {
-  enabled: 'disabled:pointer-events-none disabled:cursor-not-allowed',
-  disabled:
+  enabled:
     'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+  disabled:
+    'disabled:pointer-events-none disabled:cursor-not-allowed',
 };
 
 /* ---------- 3. 컴포넌트 ---------- */
