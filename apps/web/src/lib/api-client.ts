@@ -103,9 +103,6 @@ AXIOS_INSTANCE.interceptors.response.use(
       }
     }
 
-    // ============================================
-    // 기타 에러: 그대로 전달
-    // ============================================
     return Promise.reject(error);
   },
 );
