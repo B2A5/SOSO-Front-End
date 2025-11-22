@@ -2,7 +2,10 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 //로그인 필요 라우트
-const PROTECTED_ROUTES = ['/main'];
+const PROTECTED_ROUTES = [
+  '/main/community/freeboard/new',
+  '/main/community/votesboard/new',
+];
 
 //로그인 시 접근 불가 라우트
 const PUBLIC_ROUTES = ['/login', '/signup'];
@@ -33,7 +36,7 @@ export function middleware(request: NextRequest) {
         pathname,
       );
 
-      const mainUrl = new URL('/main', request.url);
+      const mainUrl = new URL('/main/profile', request.url);
       return NextResponse.redirect(mainUrl);
     }
   }
