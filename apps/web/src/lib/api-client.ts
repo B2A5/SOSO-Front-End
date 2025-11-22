@@ -1,5 +1,9 @@
-import Axios, { AxiosRequestConfig } from 'axios';
-import { useAuthStore } from '@/stores/authStore';
+import Axios, {
+  AxiosRequestConfig,
+  InternalAxiosRequestConfig,
+} from 'axios';
+import { refreshToken } from '@/generated/api/endpoints/auth/auth';
+import { useToast } from '@/hooks/ui/useToast';
 
 export const AXIOS_INSTANCE = Axios.create({
   baseURL:
@@ -8,45 +12,100 @@ export const AXIOS_INSTANCE = Axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true, // Refresh Token 쿠키 전송
+  withCredentials: true, // HttpOnly 쿠키 자동 전송
 });
 
-// 요청 시 Access Token 자동 헤더 설정
-AXIOS_INSTANCE.interceptors.request.use(
-  (config) => {
-    // authStore에서 Access Token 읽기 (SSR 안전)
-    if (typeof window !== 'undefined') {
-      const token = useAuthStore.getState().accessToken;
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  },
-);
+// ============================================
+// Response Interceptor (401 자동 갱신)
+// ============================================
 
-// 에러 핸들링 인터셉터
+/**
+ * 토큰 갱신 상태 관리
+ */
+let isRefreshing = false;
+let failedQueue: Array<{
+  resolve: (value?: unknown) => void;
+  reject: (reason?: unknown) => void;
+}> = [];
+
+/**
+ * 대기 중인 요청들을 처리
+ * @param error - 에러가 있으면 모든 요청 실패 처리, 없으면 성공 처리
+ */
+const processQueue = (error: unknown = null) => {
+  failedQueue.forEach((promise) => {
+    if (error) {
+      promise.reject(error);
+    } else {
+      promise.resolve();
+    }
+  });
+
+  failedQueue = [];
+};
+
 AXIOS_INSTANCE.interceptors.response.use(
   (response) => response,
-  (error) => {
-    // 개발 모드에서 에러 로깅
-    if (process.env.NEXT_PUBLIC_DEV_MODE === 'true') {
-      const status = error.response?.status;
-      const data = error.response?.data;
-      const url = error.config?.url;
 
+  async (error) => {
+    const originalRequest =
+      error.config as InternalAxiosRequestConfig & {
+        _retry?: boolean;
+      };
+
+    if (process.env.NODE_ENV === 'development' && error.response) {
+      const { status, data } = error.response;
+      const url = originalRequest?.url;
       console.error(`[API Error ${status}] ${url}`, data);
     }
+    const toast = useToast();
 
-    // 401 Unauthorized 처리
-    if (error.response?.status === 401) {
-      if (typeof window !== 'undefined') {
-        console.log('[API] 401 Unauthorized - 토큰 만료');
+    // ============================================
+    // 401 Unauthorized: 토큰 만료
+    // ============================================
+    if (
+      error.response?.status === 401 &&
+      originalRequest &&
+      !originalRequest._retry
+    ) {
+      //이미 갱신 중이면 큐에 추가
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then(() => {
+            return AXIOS_INSTANCE(originalRequest);
+          })
+          .catch((err) => {
+            return Promise.reject(err);
+          });
+      }
+
+      originalRequest._retry = true; // 무한 루프 방지
+      isRefreshing = true;
+
+      try {
+        await refreshToken();
+        // 대기 중인 모든 요청 성공 처리
+        processQueue();
+        isRefreshing = false;
+        // 원래 요청 재시도 (새 쿠키로 자동 전송됨)
+        console.log('[Auth] 원래 요청 재시도:', originalRequest.url);
+        return AXIOS_INSTANCE(originalRequest);
+      } catch (refreshError) {
+        // Refresh Token도 만료되었거나 에러 발생
+        console.error('[Auth] ❌ 토큰 갱신 실패:', refreshError);
+        // 대기 중인 모든 요청 실패 처리
+        processQueue(refreshError);
+        isRefreshing = false;
+        toast('인증이 만료되었습니다. 다시 로그인해주세요.', 'error');
+        return Promise.reject(refreshError);
       }
     }
+
+    // ============================================
+    // 기타 에러: 그대로 전달
+    // ============================================
     return Promise.reject(error);
   },
 );
