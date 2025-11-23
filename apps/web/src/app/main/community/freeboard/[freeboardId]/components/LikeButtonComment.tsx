@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/ui/useToast';
 import { formatCappedCount } from '@/utils/formatCount';
 import { getGetFreeboardCommentsByCursorQueryKey } from '@/generated/api/endpoints/freeboard-comment/freeboard-comment';
 import { useToggleFreeboardCommentLike } from '@/generated/api/endpoints/freeboard-comment-like/freeboard-comment-like';
+import { clampCount } from '@/utils/clampCount';
 
 interface LikeButtonCommentProps {
   postId: number;
@@ -15,9 +16,6 @@ interface LikeButtonCommentProps {
   initialLiked: boolean;
   initialLikeCount: number;
 }
-
-// 음수 방지(보정) 헬퍼
-const clampMin0 = (n: number) => (n < 0 ? 0 : n);
 
 /**
  * 댓글 좋아요 버튼
@@ -66,7 +64,7 @@ export default function LikeButtonComment({
         setLiked((prev) => {
           const next = !prev;
           const delta = next ? 1 : -1;
-          setLikeCount((count) => clampMin0(count + delta));
+          setLikeCount((count) => clampCount(count + delta));
           return next;
         });
 

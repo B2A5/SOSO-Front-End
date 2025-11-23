@@ -9,15 +9,13 @@ import { useToast } from '@/hooks/ui/useToast';
 import { FreeboardDetailResponse } from '@/generated/api/models';
 import { getGetFreeboardPostQueryKey } from '@/generated/api/endpoints/freeboard/freeboard';
 import { useToggleFreeboardLike } from '@/generated/api/endpoints/freeboard-like/freeboard-like';
+import { clampCount } from '@/utils/clampCount';
 
 interface LikeButtonPostProps {
   postId: number;
   initialLiked: boolean;
   initialLikeCount: number;
 }
-
-// 음수 방지(보정) 헬퍼
-const clampMin0 = (n: number) => (n < 0 ? 0 : n);
 
 /**
  * 게시글 좋아요 버튼
@@ -69,7 +67,7 @@ export default function LikeButtonPost({
         setLiked((prev) => {
           const next = !prev;
           const delta = next ? 1 : -1;
-          setLikeCount((count) => clampMin0(count + delta));
+          setLikeCount((count) => clampCount(count + delta));
           return next;
         });
 
@@ -79,7 +77,7 @@ export default function LikeButtonPost({
           (old) => {
             if (!old) return old;
             const nextLiked = !(old.isLiked ?? false);
-            const nextCount = clampMin0(
+            const nextCount = clampCount(
               old.likeCount + (nextLiked ? 1 : -1),
             );
             return {
