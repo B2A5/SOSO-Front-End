@@ -7,7 +7,7 @@ import {
 } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { retryFn, retryDelayFn } from '@/utils/query';
-import { ApiError } from '@/lib/api-client';
+import { ApiError } from '@/lib/api-error';
 
 interface QueryProviderProps {
   children: ReactNode;

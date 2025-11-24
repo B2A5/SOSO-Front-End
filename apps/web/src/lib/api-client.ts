@@ -3,7 +3,7 @@ import Axios, {
   InternalAxiosRequestConfig,
 } from 'axios';
 import { refreshToken } from '@/generated/api/endpoints/auth/auth';
-import { useToast } from '@/hooks/ui/useToast';
+import { ApiError } from './api-error';
 
 export const AXIOS_INSTANCE = Axios.create({
   baseURL:
@@ -58,15 +58,12 @@ AXIOS_INSTANCE.interceptors.response.use(
       const url = originalRequest?.url;
       console.error(`[API Error ${status}] ${url}`, data);
     }
-    const toast = useToast();
 
-    // ============================================
-    // 401 Unauthorized: 토큰 만료
-    // ============================================
+    // 401 Unauthorized 에러 처리
     if (
-      error.response?.status === 401 &&
-      originalRequest &&
-      !originalRequest._retry
+      ApiError.wrap(error).isAuthError() && // 401 에러
+      originalRequest && // 원래 요청이 존재
+      !originalRequest._retry // 무한 루프 방지
     ) {
       //이미 갱신 중이면 큐에 추가
       if (isRefreshing) {
@@ -86,19 +83,14 @@ AXIOS_INSTANCE.interceptors.response.use(
 
       try {
         await refreshToken();
-        // 대기 중인 모든 요청 성공 처리
         processQueue();
         isRefreshing = false;
-        // 원래 요청 재시도 (새 쿠키로 자동 전송됨)
-        console.log('[Auth] 원래 요청 재시도:', originalRequest.url);
         return AXIOS_INSTANCE(originalRequest);
       } catch (refreshError) {
-        // Refresh Token도 만료되었거나 에러 발생
         console.error('[Auth] ❌ 토큰 갱신 실패:', refreshError);
         // 대기 중인 모든 요청 실패 처리
         processQueue(refreshError);
         isRefreshing = false;
-        toast('인증이 만료되었습니다. 다시 로그인해주세요.', 'error');
         return Promise.reject(refreshError);
       }
     }
