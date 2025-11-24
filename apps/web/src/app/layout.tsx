@@ -1,11 +1,10 @@
-// apps/web/app/layout.tsx
-import type { Metadata } from 'next';
 import './globals.css';
+import type { Metadata } from 'next';
 import { QueryProvider } from '@/providers/queryProvider';
-import { AuthProvider } from '@/providers/AuthProvider';
 import pretendardFont from '@/assets/fonts/PretandardFont';
 import { ToastContainer } from '@/components/toast/ToastContainer';
 import { OverlayPortal } from '@/components/overlayPortal';
+import { AuthHydrationProvider } from '@/providers/AuthHydrationProvider';
 
 export const metadata: Metadata = {
   title: 'SoSo – Local Biz Helper',
@@ -55,14 +54,14 @@ export default function RootLayout({
         className="flex flex-col h-screen bg-gradient-to-br from-white to-white dark:from-neutral-1000 dark:to-neutral-900"
       >
         <QueryProvider>
-          <AuthProvider>
-            {/*  */}
+          <AuthHydrationProvider>
+            {/* AuthProvider는 AuthHydration 내부에 포함됨 */}
             <main className="w-full h-full max-w-screen-md md:mx-auto flex-1 overflow-auto">
               {children}
               <ToastContainer />
             </main>
             <OverlayPortal />
-          </AuthProvider>
+          </AuthHydrationProvider>
         </QueryProvider>
       </body>
     </html>
