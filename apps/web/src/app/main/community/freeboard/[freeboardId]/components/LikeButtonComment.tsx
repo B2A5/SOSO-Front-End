@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { ThumbsUp } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useAuthGuard, useAuthRestore } from '@/hooks/useAuth';
+import { useAuthGuard } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/ui/useToast';
 import { formatCappedCount } from '@/utils/formatCount';
 import { getGetFreeboardCommentsByCursorQueryKey } from '@/generated/api/endpoints/freeboard-comment/freeboard-comment';
@@ -30,7 +30,6 @@ export default function LikeButtonComment({
   initialLiked,
   initialLikeCount,
 }: LikeButtonCommentProps) {
-  const { isRestoring, isAuthenticated } = useAuthRestore();
   const queryClient = useQueryClient();
   const toast = useToast();
   const { guard } = useAuthGuard();
@@ -102,23 +101,6 @@ export default function LikeButtonComment({
       toggleLike.mutate({ freeboardId: postId, commentId });
     });
 
-  // 인증 복원 중임을 명시(시각적 피드백)
-  if (isRestoring) {
-    return (
-      <button
-        className="flex items-center gap-1.5 opacity-60 cursor-wait"
-        disabled
-        aria-label="좋아요 로딩 중"
-        type="button"
-      >
-        <ThumbsUp className="inline w-4 h-4 text-neutral-200" />
-        <span className="text-neutral-500 text-input2">
-          {likeCount}
-        </span>
-      </button>
-    );
-  }
-
   return (
     <button
       type="button"
@@ -127,7 +109,6 @@ export default function LikeButtonComment({
       className="flex items-center gap-1.5"
       disabled={toggleLike.isPending}
       aria-label={liked ? '좋아요 취소' : '좋아요'}
-      title={!isAuthenticated ? '로그인이 필요합니다' : undefined}
     >
       <ThumbsUp
         className={`inline w-4 h-4 text-neutral-200 transition-colors ${
