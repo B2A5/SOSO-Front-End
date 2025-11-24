@@ -15,10 +15,6 @@ export const AXIOS_INSTANCE = Axios.create({
   withCredentials: true, // HttpOnly 쿠키 자동 전송
 });
 
-// ============================================
-// Response Interceptor (401 자동 갱신)
-// ============================================
-
 /**
  * 토큰 갱신 상태 관리
  */
