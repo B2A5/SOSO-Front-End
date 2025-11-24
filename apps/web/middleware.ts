@@ -1,33 +1,117 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-//로그인 필요 라우트
+// 로그인 필요 라우트
 const PROTECTED_ROUTES = [
   '/main/community/freeboard/new',
   '/main/community/votesboard/new',
 ];
 
-//로그인 시 접근 불가 라우트
+// 로그인 시 접근 불가 라우트
 const PUBLIC_ROUTES = ['/login', '/signup'];
 
-export function middleware(request: NextRequest) {
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+/**
+ * 로그인 페이지로 리다이렉트 (returnUrl 포함)
+ */
+function redirectToLogin(request: NextRequest, pathname: string) {
+  const loginUrl = new URL('/login', request.url);
+  loginUrl.searchParams.set('returnUrl', pathname);
+  return NextResponse.redirect(loginUrl);
+}
+
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // 쿠키에서 액세스 토큰 확인
-  const hasAuth = request.cookies.has('accessToken');
+  if (!API_BASE_URL) {
+    console.error(
+      '[Middleware] NEXT_PUBLIC_API_BASE_URL is not defined',
+    );
+    return NextResponse.next();
+  }
+
+  // 쿠키에서 액세스 토큰과 리프레시 토큰 확인
+  const accessToken = request.cookies.get('accessToken')?.value;
+  const refreshToken = request.cookies.get('refreshToken')?.value;
+  let hasAuth = !!accessToken;
+
+  // 액세스 토큰이 없고 리프레시 토큰만 있는 경우 토큰 갱신 시도
+  if (!accessToken && refreshToken) {
+    try {
+      const refreshResponse = await fetch(
+        `${API_BASE_URL}/auth/refresh`,
+        {
+          method: 'POST',
+          headers: {
+            Cookie: `refreshToken=${refreshToken}`,
+          },
+        },
+      );
+
+      if (refreshResponse.ok) {
+        console.log('[Middleware] 토큰 갱신 성공');
+        const newResponse = NextResponse.next();
+
+        // Set-Cookie 헤더를 클라이언트로 전달
+        const setCookieHeaders = refreshResponse.headers.getSetCookie
+          ? refreshResponse.headers.getSetCookie()
+          : [];
+
+        if (setCookieHeaders.length > 0) {
+          setCookieHeaders.forEach((cookie) => {
+            newResponse.headers.append('Set-Cookie', cookie);
+
+            // Request 쿠키도 업데이트 (downstream에서 accessToken 사용 가능)
+            const [cookiePart] = cookie.split(';');
+            const [name, value] = cookiePart.split('=');
+            if (name?.trim() === 'accessToken' && value) {
+              request.cookies.set('accessToken', value);
+              hasAuth = true;
+            }
+          });
+        }
+
+        return newResponse;
+      } else {
+        console.log('[Middleware] 토큰 갱신 실패 - 로그아웃 처리');
+        // refreshToken도 만료된 경우 쿠키 삭제
+        const response = NextResponse.next();
+        response.cookies.delete('refreshToken');
+        response.cookies.delete('accessToken');
+
+        // 보호된 라우트 접근 시도면 로그인으로 리다이렉트
+        if (
+          PROTECTED_ROUTES.some((route) => pathname.startsWith(route))
+        ) {
+          return redirectToLogin(request, pathname);
+        }
+
+        return response;
+      }
+    } catch (error) {
+      console.error('[Middleware] 토큰 갱신 중 에러:', error);
+
+      // 보호된 라우트 접근 시도면 로그인으로 리다이렉트
+      if (
+        PROTECTED_ROUTES.some((route) => pathname.startsWith(route))
+      ) {
+        return redirectToLogin(request, pathname);
+      }
+
+      // 에러 발생 시에도 계속 진행
+      return NextResponse.next();
+    }
+  }
 
   // 보호된 라우트 접근 시 인증 필요
   if (PROTECTED_ROUTES.some((route) => pathname.startsWith(route))) {
     if (!hasAuth) {
       console.log('[Middleware] 인증 필요:', pathname);
-
-      // 현재 URL을 returnUrl로 저장
-      const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('returnUrl', pathname);
-
-      return NextResponse.redirect(loginUrl);
+      return redirectToLogin(request, pathname);
     }
   }
+
   // 공개 라우트 접근 시 이미 인증된 경우 메인으로 리다이렉트
   if (PUBLIC_ROUTES.some((route) => pathname.startsWith(route))) {
     if (hasAuth) {
@@ -35,7 +119,6 @@ export function middleware(request: NextRequest) {
         '[Middleware] 이미 로그인됨, 메인으로 이동:',
         pathname,
       );
-
       const mainUrl = new URL('/main/profile', request.url);
       return NextResponse.redirect(mainUrl);
     }
