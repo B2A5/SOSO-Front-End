@@ -24,6 +24,9 @@ function redirectToLogin(request: NextRequest, pathname: string) {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // 미들웨어 실행 확인
+  console.log(`[Middleware] 🔍 실행됨 - 경로: ${pathname}`);
+
   if (!API_BASE_URL) {
     console.error(
       '[Middleware] NEXT_PUBLIC_API_BASE_URL is not defined',
@@ -31,10 +34,22 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // 모든 쿠키 확인
+  const allCookies = request.cookies.getAll();
+  console.log(
+    `[Middleware] 📦 전체 쿠키 개수: ${allCookies.length}`,
+    allCookies.map((c) => c.name),
+  );
+
   // 쿠키에서 액세스 토큰과 리프레시 토큰 확인
   const accessToken = request.cookies.get('accessToken')?.value;
   const refreshToken = request.cookies.get('refreshToken')?.value;
   let hasAuth = !!accessToken;
+
+  // 디버깅: 쿠키 상태 로그
+  console.log(
+    `[Middleware] ${pathname} - accessToken: ${accessToken ? '있음' : '없음'}, refreshToken: ${refreshToken ? '있음' : '없음'}`,
+  );
 
   // 액세스 토큰이 없고 리프레시 토큰만 있는 경우 토큰 갱신 시도
   if (!accessToken && refreshToken) {
@@ -51,7 +66,6 @@ export async function middleware(request: NextRequest) {
 
       if (refreshResponse.ok) {
         console.log('[Middleware] 토큰 갱신 성공');
-        const newResponse = NextResponse.next();
 
         // Set-Cookie 헤더를 클라이언트로 전달
         const setCookieHeaders = refreshResponse.headers.getSetCookie
@@ -60,9 +74,7 @@ export async function middleware(request: NextRequest) {
 
         if (setCookieHeaders.length > 0) {
           setCookieHeaders.forEach((cookie) => {
-            newResponse.headers.append('Set-Cookie', cookie);
-
-            // Request 쿠키도 업데이트 (downstream에서 accessToken 사용 가능)
+            // Request 쿠키 업데이트 (downstream에서 accessToken 사용 가능)
             const [cookiePart] = cookie.split(';');
             const [name, value] = cookiePart.split('=');
             if (name?.trim() === 'accessToken' && value) {
@@ -72,6 +84,27 @@ export async function middleware(request: NextRequest) {
           });
         }
 
+        // 토큰 갱신 성공 후 루트 경로면 리다이렉트
+        if (pathname === '/') {
+          const targetUrl = hasAuth ? '/main' : '/login';
+          console.log(
+            `[Middleware] 토큰 갱신 후 루트 접근 → ${targetUrl}로 리다이렉트`,
+          );
+          const redirectResponse = NextResponse.redirect(
+            new URL(targetUrl, request.url),
+          );
+          // Set-Cookie 헤더 유지
+          setCookieHeaders.forEach((cookie) => {
+            redirectResponse.headers.append('Set-Cookie', cookie);
+          });
+          return redirectResponse;
+        }
+
+        // 다른 경로는 계속 진행
+        const newResponse = NextResponse.next();
+        setCookieHeaders.forEach((cookie) => {
+          newResponse.headers.append('Set-Cookie', cookie);
+        });
         return newResponse;
       } else {
         console.log('[Middleware] 토큰 갱신 실패 - 로그아웃 처리');
@@ -102,6 +135,13 @@ export async function middleware(request: NextRequest) {
       // 에러 발생 시에도 계속 진행
       return NextResponse.next();
     }
+  }
+
+  // 루트 경로(/) 자동 리다이렉트 (토큰 갱신 후 처리)
+  if (pathname === '/') {
+    const targetUrl = hasAuth ? '/main' : '/login';
+    console.log(`[Middleware] 루트 접근 → ${targetUrl}로 리다이렉트`);
+    return NextResponse.redirect(new URL(targetUrl, request.url));
   }
 
   // 보호된 라우트 접근 시 인증 필요
