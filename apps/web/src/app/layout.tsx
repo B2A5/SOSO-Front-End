@@ -1,5 +1,5 @@
 import './globals.css';
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { QueryProvider } from '@/providers/queryProvider';
 import pretendardFont from '@/assets/fonts/PretandardFont';
 import { ToastContainer } from '@/components/toast/ToastContainer';
@@ -9,14 +9,6 @@ import { AuthHydrationProvider } from '@/providers/AuthHydrationProvider';
 export const metadata: Metadata = {
   title: 'SoSo – Local Biz Helper',
   description: '지역 주민과 함께 만드는 창업 플랫폼',
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-  },
-  themeColor: '#4CAF50', //tailwindcss green-500
-  //manifest: '/manifest.json',
   keywords: ['창업', '지역', '소상공인', '아이디어', '투표'],
   authors: [{ name: 'SOSO Team' }],
   appleWebApp: {
@@ -34,7 +26,14 @@ export const metadata: Metadata = {
     locale: 'ko_KR',
   },
 };
-// 전역 폰트 설정
+
+export const viewport: Viewport = {
+  themeColor: '#4CAF50',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
 
 export default function RootLayout({
   children,
