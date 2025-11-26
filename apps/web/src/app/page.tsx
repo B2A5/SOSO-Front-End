@@ -3,21 +3,33 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/stores/authStore';
+import { useAuth } from '@/hooks/useAuth';
 import LogoImage from '@/assets/images/LogoImage';
 import Button from '@/components/buttons/Button';
 
 export default function HomePage() {
   const router = useRouter();
-  const { getIsAuth, isLoading } = useAuthStore();
+  const { isAuth, isLoading } = useAuth();
   const [ready, setReady] = useState(false);
+
+  // 클라이언트 쿠키 확인
+  if (typeof window !== 'undefined') {
+    console.log('[HomePage] 🍪 document.cookie:', document.cookie);
+  }
+
+  console.log(
+    'HomePage 렌더링 - isAuth:',
+    isAuth,
+    'isLoading:',
+    isLoading,
+  );
 
   useEffect(() => {
     if (!isLoading) setReady(true);
   }, [isLoading]);
 
   const handleStart = () => {
-    router.replace(getIsAuth() ? '/main' : '/login');
+    router.replace(isAuth ? '/main' : '/login');
   };
 
   return (

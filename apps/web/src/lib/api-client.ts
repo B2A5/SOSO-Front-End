@@ -5,6 +5,9 @@ import Axios, {
 import { refreshToken } from '@/generated/api/endpoints/auth/auth';
 import { ApiError } from './api-error';
 
+// 쿠키가 필요한 경로 (프록시 사용)
+const COOKIE_REQUIRED_PATHS = ['/auth/', '/users/me'];
+
 export const AXIOS_INSTANCE = Axios.create({
   baseURL:
     process.env.NEXT_PUBLIC_API_BASE_URL ||
@@ -13,6 +16,42 @@ export const AXIOS_INSTANCE = Axios.create({
     'Content-Type': 'application/json',
   },
   withCredentials: true, // HttpOnly 쿠키 자동 전송
+});
+
+/**
+ *
+ * HTTPS 환경(프록시 활성화)에서만 작동
+ * HTTP 환경(CSR only)에서는 모든 요청을 백엔드로 직접 전송
+ */
+AXIOS_INSTANCE.interceptors.request.use((config) => {
+  const proxyEnabled =
+    process.env.NEXT_PUBLIC_ENABLE_PROXY !== 'false';
+
+  // 프록시 비활성화 시 직접 백엔드 호출
+  if (!proxyEnabled) {
+    console.log(
+      `[API Client] 📡 직접 호출 (프록시 비활성화): ${config.url}`,
+    );
+    return config;
+  }
+
+  const url = config.url || '';
+
+  // 쿠키가 필요한 경로인지 확인
+  const needsCookie = COOKIE_REQUIRED_PATHS.some((path) =>
+    url.includes(path),
+  );
+
+  if (needsCookie) {
+    // 프록시 경로로 변경 (localhost → 백엔드)
+    config.baseURL = '';
+    config.url = `/api${url}`;
+    console.log(`[API Client] 🔄 프록시 사용: ${url} → /api${url}`);
+  } else {
+    console.log(`[API Client] 📡 직접 호출: ${url}`);
+  }
+
+  return config;
 });
 
 /**

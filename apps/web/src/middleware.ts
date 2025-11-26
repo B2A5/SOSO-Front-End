@@ -24,8 +24,16 @@ function redirectToLogin(request: NextRequest, pathname: string) {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // 미들웨어 실행 확인
-  console.log(`[Middleware] 🔍 실행됨 - 경로: ${pathname}`);
+  // 프록시 비활성화 시(HTTP CSR 전용 모드) 미들웨어 인증 스킵
+  const proxyEnabled =
+    process.env.NEXT_PUBLIC_ENABLE_PROXY !== 'false';
+
+  if (!proxyEnabled) {
+    console.log(
+      '[Middleware] 🚫 프록시 비활성화 - 미들웨어 인증 스킵 (CSR 전용 모드)',
+    );
+    return NextResponse.next();
+  }
 
   if (!API_BASE_URL) {
     console.error(
@@ -54,12 +62,13 @@ export async function middleware(request: NextRequest) {
   // 액세스 토큰이 없고 리프레시 토큰만 있는 경우 토큰 갱신 시도
   if (!accessToken && refreshToken) {
     try {
+      // 프록시를 통해 토큰 갱신 (쿠키 자동 포함)
       const refreshResponse = await fetch(
-        `${API_BASE_URL}/auth/refresh`,
+        'http://localhost:3000/api/auth/refresh',
         {
           method: 'POST',
           headers: {
-            Cookie: `refreshToken=${refreshToken}`,
+            'Content-Type': 'application/json',
           },
         },
       );

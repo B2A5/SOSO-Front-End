@@ -11,7 +11,7 @@ import { getServerCurrentUser } from '@/lib/server-api-client';
  * 인증 정보 Hydration 컴포넌트 (Server Component)
  *
  * - 서버 사이드에서 accessToken 확인
- * - 토큰이 있으면 유저 정보를 미리 fetch (SSR Prefetch)
+ * - 토큰이 있으면 유저 정보를 SSR Prefetch
  * - HydrationBoundary로 클라이언트에 데이터 전달
  */
 export async function AuthHydrationProvider({
@@ -20,6 +20,7 @@ export async function AuthHydrationProvider({
   children: React.ReactNode;
 }) {
   const cookieStore = cookies();
+
   const accessToken = cookieStore.get('accessToken');
   const queryClient = new QueryClient();
 

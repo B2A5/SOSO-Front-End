@@ -1,35 +1,50 @@
 /**
  * 서버 컴포넌트 전용 API 클라이언트
- * 쿠키를 수동으로 전달하여 인증된 요청을 보냅니다.
+ * Next.js rewrites 프록시를 통해 백엔드와 통신합니다.
+ *
+ * NOTE: 서버 컴포넌트에서는 localhost의 프록시(/api/users/me)를 사용합니다.
+ *       쿠키가 자동으로 포함되므로 수동 전달 불필요.
  */
 
 import { cookies } from 'next/headers';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-
-if (!API_BASE_URL) {
-  throw new Error('NEXT_PUBLIC_API_BASE_URL is not defined');
-}
-
 /**
  * 서버에서 현재 로그인한 사용자 정보 조회
  *
- * @returns 사용자 정보 또는 null (에러 시)
+ * @returns 사용자 정보 또는 null (에러 시 또는 프록시 비활성화 시)
  */
 export async function getServerCurrentUser() {
-  const cookieStore = cookies();
-  const accessToken = cookieStore.get('accessToken')?.value;
+  // 프록시 비활성화 시(HTTP CSR 전용 모드) SSR 인증 불가
+  const proxyEnabled =
+    process.env.NEXT_PUBLIC_ENABLE_PROXY !== 'false';
 
-  if (!accessToken) {
-    console.log('[ServerAPI] accessToken 없음');
+  if (!proxyEnabled) {
+    console.log(
+      '[ServerAPI] 🚫 프록시 비활성화 - SSR 인증 스킵 (CSR 전용 모드)',
+    );
     return null;
   }
 
-  const response = await fetch(`${API_BASE_URL}/users/me`, {
+  const cookieStore = cookies();
+  const accessToken = cookieStore.get('accessToken')?.value;
+
+  console.log(
+    '[ServerAPI] accessToken:',
+    accessToken ? '있음' : '없음',
+  );
+
+  if (!accessToken) {
+    return null;
+  }
+
+  // Next.js 내부 프록시 사용 (/api/users/me )
+  // localhost 내부 통신이므로 쿠키가 자동으로 포함됨
+  const proxyUrl = 'http://localhost:3000/api/users/me';
+
+  const response = await fetch(proxyUrl, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
-      Cookie: `accessToken=${accessToken}`,
     },
     cache: 'no-store',
   });
@@ -47,5 +62,6 @@ export async function getServerCurrentUser() {
   }
 
   const data = await response.json();
+  console.log('[ServerAPI] 사용자 정보 조회 성공');
   return data;
 }

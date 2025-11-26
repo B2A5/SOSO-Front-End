@@ -48,6 +48,8 @@ export function useAuth(): UseAuthReturn {
     throwOnError: false, // 앱 크래시 방지
   });
 
+  console.log('[useAuth] isAuth:', !!query.data, 'user:', query.data);
+
   /**
    * 유저 정보를 캐시에 저장 (로그인/회원가입 시 사용)
    */

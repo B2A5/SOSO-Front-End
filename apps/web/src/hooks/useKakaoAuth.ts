@@ -4,8 +4,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useCallback } from 'react';
 import { useKakaoLogin } from '@/generated/api/endpoints/auth/auth';
 import type { KakaoLoginResponse } from '@/generated/api/models';
-import { useAuthStore } from '@/stores/authStore';
 import { useToast } from '@/hooks/ui/useToast';
+import { useAuth } from '@/hooks/useAuth';
 import * as kakaoAuthService from '@/app/(auth)/kakao/service';
 
 /**
@@ -18,7 +18,7 @@ export function useKakaoAuth() {
   const router = useRouter();
   const params = useSearchParams();
   const toast = useToast();
-  const { login, setLoading } = useAuthStore();
+  const { login } = useAuth();
 
   const REDIRECT_URI = process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI!;
   const CLIENT_ID = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY!;
@@ -39,7 +39,6 @@ export function useKakaoAuth() {
    */
   function handleLoginSuccess(data: KakaoLoginResponse) {
     kakaoAuthService.cleanup();
-    setLoading(false);
 
     console.log('카카오 로그인 성공:', data);
 
@@ -49,10 +48,7 @@ export function useKakaoAuth() {
     }
     // 기존 유저 → 메인 페이지
     else if (data.accessToken && data.user) {
-      login({
-        user: data.user,
-        accessToken: data.accessToken,
-      });
+      login(data.user);
       router.push('/main');
     }
     // 로그인 정보 오류
@@ -67,7 +63,6 @@ export function useKakaoAuth() {
    */
   function handleLoginError(error: unknown) {
     kakaoAuthService.cleanup();
-    setLoading(false);
 
     console.error('카카오 로그인 실패:', error);
     toast('카카오 로그인에 실패했습니다.', 'error');
@@ -84,8 +79,6 @@ export function useKakaoAuth() {
   const handleKakaoCallback = useCallback(
     (code: string, state: string | null) => {
       try {
-        setLoading(true);
-
         // 검증 & 요청 데이터 준비
         const loginRequest = kakaoAuthService.validateCallback({
           code,
@@ -93,11 +86,9 @@ export function useKakaoAuth() {
           redirectUri: REDIRECT_URI,
         });
 
-        // API 호출
+        // API 호출 (isPending이 자동으로 true가 됨)
         kakaoLogin({ data: loginRequest });
       } catch (error) {
-        setLoading(false);
-
         if (error instanceof kakaoAuthService.KakaoAuthError) {
           toast(error.message, 'error');
           console.error(
@@ -113,7 +104,7 @@ export function useKakaoAuth() {
         kakaoAuthService.cleanup();
       }
     },
-    [kakaoLogin, setLoading, toast, REDIRECT_URI],
+    [kakaoLogin, toast, REDIRECT_URI],
   );
 
   /**
@@ -121,7 +112,6 @@ export function useKakaoAuth() {
    */
   const startKakaoLogin = useCallback(async () => {
     try {
-      setLoading(true);
       console.log('카카오 로그인을 시작합니다...');
 
       // 인증 URL 생성
@@ -130,11 +120,9 @@ export function useKakaoAuth() {
         redirectUri: REDIRECT_URI,
       });
 
-      // 카카오 로그인 페이지로 이동
+      // 카카오 로그인 페이지로 이동 (페이지 떠남 - loading 불필요)
       window.location.href = authUrl;
     } catch (error) {
-      setLoading(false);
-
       if (error instanceof kakaoAuthService.KakaoAuthError) {
         toast(error.message, 'error');
         console.error('카카오 로그인 시작 실패:', error.code);
@@ -143,7 +131,7 @@ export function useKakaoAuth() {
         console.error('알 수 없는 오류:', error);
       }
     }
-  }, [setLoading, toast, CLIENT_ID, REDIRECT_URI]);
+  }, [toast, CLIENT_ID, REDIRECT_URI]);
 
   /**
    * URL 파라미터 감지 및 콜백 처리
