@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { CategoryEnum } from '../../constants/categories';
 
 /**
  * 투표 게시글 작성/수정 폼 Validation 스키마
@@ -10,9 +11,22 @@ import { z } from 'zod';
  *
  * @remarks
  * - voteOptions는 VoteOptionRequest의 content 필드 구조를 따릅니다.
- * - 이미지 업로드는 아직 지원하지 않습니다. (TODO: 이미지 스펙 확정 후 필드 추가)
+ * - 이미지 필드는 Freeboard와 동일하게 File(Blob) 배열로 관리합니다.
  */
+
 export const voteboardSchema = z.object({
+  /**
+   * 게시글 카테고리
+   *
+   * @validation
+   * - 필수 선택
+   * - 허용된 카테고리만 선택 가능
+   *
+   * @remarks
+   * VotePostCreateRequestCategory의 값들만 허용합니다.
+   */
+  category: z.enum(Object.values(CategoryEnum)),
+
   /**
    * 투표 제목
    *
@@ -82,10 +96,18 @@ export const voteboardSchema = z.object({
     .min(2, '옵션은 최소 2개 이상이어야 합니다.')
     .max(5, '옵션은 최대 5개까지 추가할 수 있습니다.'),
 
-  // TODO:
-  // - 이미지 업로드 기능 및 API 스펙 확정 후,
-  //   imageUrls: z.array(z.string()) 또는 images: z.array(z.instanceof(File))
-  //   형태의 필드 추가 예정
+  /**
+   * 첨부 이미지 파일들
+   *
+   * @remarks
+   * - Freeboard와 동일하게 File 배열로 관리합니다.
+   * - 생성: VotePostCreateRequest.images (Blob[])
+   * - 수정: VotePostUpdateRequest.images (Blob[])
+   */
+  images: z
+    .array(z.instanceof(File))
+    .max(4, '이미지는 최대 4장까지 업로드할 수 있습니다.')
+    .optional(),
 });
 
 export type VoteFormData = z.infer<typeof voteboardSchema>;

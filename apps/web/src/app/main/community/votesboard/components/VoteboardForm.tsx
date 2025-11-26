@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import Input from '@/components/inputs/Input';
 import TextArea from '@/components/inputs/TextArea';
 import { Button } from '@/components/buttons/Button';
-import { useVoteMutation } from '@/hooks/useVoteMutation';
+import { useVoteboardMutation } from '@/hooks/useVoteboardMutation';
 import {
   type VoteFormData,
   voteboardSchema,
@@ -14,33 +14,32 @@ import {
 import type { VotePostDetailResponse } from '@/generated/api/models';
 import { Plus } from 'lucide-react';
 import { VoteboardOptionField } from './VoteoptionField';
-
-export interface VoteboardFormProps {
-  /** 수정할 투표 게시글 ID (없으면 생성 모드) */
-  voteId?: number;
-  /** 수정 모드일 때 상세 응답 데이터 */
-  initialData?: VotePostDetailResponse;
-}
+import { CATEGORIES, Category } from '../../constants/categories';
 
 /**
  * VoteboardForm 컴포넌트
- * 투표 게시글 작성 및 수정 폼
+ * 자유게시판 게시글 작성 및 수정 폼
  *
- * @param voteId - 수정할 투표 게시글 ID (없으면 생성 모드)
+ * @param voteboardId - 수정할 게시글 ID (없으면 생성 모드)
  * @param initialData - 초기 폼 데이터 (수정 모드에서 사용)
+ * @param initialCategory - 초기 선택된 카테고리 (생성 모드에서 사용)
  *
- * @remarks
- * - 현재는 이미지 업로드 UI를 제공하지 않습니다.
- * - TODO: 백엔드 이미지 스펙 확정 후, FreeboardForm과 동일한 패턴으로 ImageUploader 연동
  */
+export interface VoteboardFormProps {
+  voteboardId?: number;
+  initialData?: VotePostDetailResponse;
+  initialCategory?: Category;
+}
+
 export function VoteboardForm({
-  voteId,
+  voteboardId,
   initialData,
+  initialCategory,
 }: VoteboardFormProps) {
-  const isEdit = !!voteId;
+  const isEdit = !!voteboardId;
 
   // 생성/수정 mutation 훅
-  const { submitPost, isPending } = useVoteMutation(voteId);
+  const { submitPost, isPending } = useVoteboardMutation(voteboardId);
 
   /**
    * 기본 값 메모이제이션
@@ -52,18 +51,19 @@ export function VoteboardForm({
     () => ({
       title: initialData?.title ?? '',
       content: initialData?.content ?? '',
+      category:
+        initialData?.category ??
+        initialCategory ??
+        CATEGORIES[0].value,
       endTime: initialData?.endTime ?? '',
-      allowRevote: initialData?.allowRevote ?? false,
       allowMultipleChoice: initialData?.allowMultipleChoice ?? false,
-      voteOptions: initialData?.voteOptions?.map((opt) => ({
-        content: opt.content,
-      })) ?? [
+      allowRevote: initialData?.allowRevote ?? false,
+      voteOptions: initialData?.voteOptions ?? [
         { content: '' },
-        { content: '' }, // 기본 2개
+        { content: '' },
       ],
-      // TODO: 이미지 스펙 확정 시 imageUrls 또는 images 기본값 추가
     }),
-    [initialData],
+    [initialData, initialCategory],
   );
 
   const {
@@ -180,8 +180,6 @@ export function VoteboardForm({
                   errors.voteOptions?.[index]?.content?.message
                 }
                 // 삭제 허용 여부
-                // 현재는 "옵션이 3개 이상일 때만 삭제 가능" 로직 유지
-                // 기본 2개를 항상 남기고 싶다면: fields.length > 2 && index >= 2 로 변경
                 canRemove={fields.length > 2}
                 onRemove={() => remove(index)}
               />

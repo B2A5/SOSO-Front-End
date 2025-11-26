@@ -33,7 +33,7 @@ import {
  * - 현재는 이미지 업로드를 지원하지 않습니다. (TODO: 이미지 필드 추가 시 Body에 연결 필요)
  * - 에러 발생 시: 에러 토스트 표시
  */
-export function useVoteMutation(voteId?: number) {
+export function useVoteboardMutation(voteId?: number) {
   const router = useRouter();
   const toast = useToast();
   const queryClient = useQueryClient();
@@ -111,6 +111,7 @@ export function useVoteMutation(voteId?: number) {
       createMutation.mutate({
         data: {
           title: data.title,
+          category: data.category,
           content: data.content,
           voteOptions: data.voteOptions,
           endTime: data.endTime,
