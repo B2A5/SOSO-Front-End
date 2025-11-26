@@ -1,13 +1,13 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/ui/useToast';
 import type { VoteboardFormData } from '@/app/main/community/votesboard/schema/voteboardSchema';
-import {
-  useCreateVotePost,
-  useUpdateVotePost,
-} from '@/generated/api/endpoints/voteboard/voteboard';
+import { useUpdateVotePost } from '@/generated/api/endpoints/voteboard/voteboard';
+import { buildEndTimeFromDuration } from '@/utils/voteTime';
+import { createVotePost } from '@/app/main/community/votesboard/new/api/votePostCreate';
+import { VotePostCreateRequest } from '@/generated/api/models';
 
 /**
  * 투표 게시글 생성/수정 통합 Mutation Hook
@@ -38,22 +38,23 @@ export function useVoteboardMutation(voteboardId?: number) {
   const queryClient = useQueryClient();
 
   // 생성 mutation
-  const createMutation = useCreateVotePost({
-    mutation: {
-      onSuccess: (response) => {
-        console.log('게시글 생성 응답:', response);
-        queryClient.invalidateQueries({
-          queryKey: ['/community/votesboard'],
-        });
-        toast('투표가 성공적으로 생성되었습니다.', 'success');
-        router.push('/main/community/votesboard');
-      },
-      onError: () => {
-        toast(
-          '투표 생성 중 오류가 발생했습니다. 다시 시도해주세요.',
-          'error',
-        );
-      },
+  const createMutation = useMutation({
+    mutationFn: (payLoad: VotePostCreateRequest) => {
+      return createVotePost(payLoad);
+    },
+    onSuccess: (response) => {
+      console.log('게시글 생성 응답:', response);
+      queryClient.invalidateQueries({
+        queryKey: ['/community/votesboard'],
+      });
+      toast('투표가 성공적으로 생성되었습니다.', 'success');
+      router.push('/main/community/votesboard');
+    },
+    onError: () => {
+      toast(
+        '투표 생성 중 오류가 발생했습니다. 다시 시도해주세요.',
+        'error',
+      );
     },
   });
 
@@ -95,6 +96,8 @@ export function useVoteboardMutation(voteboardId?: number) {
     data: VoteboardFormData,
     deleteImageIds?: number[],
   ) => {
+    const endTime = buildEndTimeFromDuration(data.duration);
+
     if (voteboardId) {
       // 수정 모드: VotePostUpdateRequest
       updateMutation.mutate({
@@ -103,27 +106,27 @@ export function useVoteboardMutation(voteboardId?: number) {
           category: data.category,
           title: data.title,
           content: data.content,
-          endTime: data.endTime,
           allowRevote: data.allowRevote,
           allowMultipleChoice: data.allowMultipleChoice,
           images: data.images,
           deleteImageIds: deleteImageIds,
+          endTime,
         },
       });
     } else {
       // 생성 모드: VotePostCreateRequest
-      createMutation.mutate({
-        data: {
-          title: data.title,
-          category: data.category,
-          content: data.content,
-          voteOptions: data.voteOptions,
-          endTime: data.endTime,
-          allowRevote: data.allowRevote,
-          allowMultipleChoice: data.allowMultipleChoice,
-          images: data.images,
-        },
-      });
+      const payload: VotePostCreateRequest = {
+        category: data.category,
+        title: data.title,
+        content: data.content,
+        voteOptions: data.voteOptions,
+        endTime,
+        allowRevote: data.allowRevote,
+        allowMultipleChoice: data.allowMultipleChoice,
+        images: data.images,
+      };
+
+      createMutation.mutate(payload);
     }
   };
 

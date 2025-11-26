@@ -2,18 +2,24 @@ import { z } from 'zod';
 import { CategoryEnum } from '../../constants/categories';
 
 /**
+ * 마감 기간 값들
+ *
+ * @description
+ * - '1d'  : 1일 뒤 마감
+ * - '3d'  : 3일 뒤 마감
+ * - '7d'  : 7일 뒤 마감
+ */
+export const VOTE_DURATION_VALUES = ['1d', '3d', '7d'] as const;
+export type VoteDuration = (typeof VOTE_DURATION_VALUES)[number];
+
+/**
  * 투표 게시글 작성/수정 폼 Validation 스키마
  *
  * @description
  * 백엔드 API 스펙(VotePostCreateRequest / VotePostUpdateRequest)에
  * 맞춰 정의한 Zod 스키마입니다.
  * react-hook-form의 zodResolver와 함께 사용됩니다.
- *
- * @remarks
- * - voteOptions는 VoteOptionRequest의 content 필드 구조를 따릅니다.
- * - 이미지 필드는 Freeboard와 동일하게 File(Blob) 배열로 관리합니다.
  */
-
 export const voteboardSchema = z.object({
   /**
    * 게시글 카테고리
@@ -56,12 +62,16 @@ export const voteboardSchema = z.object({
     .refine((v) => v.trim().length > 0, '공백만 입력할 수 없습니다.'),
 
   /**
-   * 투표 마감 시간
+   * 마감 기간 선택
    *
    * @remarks
-   * - ISO datetime 문자열
+   * - UI에서는 셀렉터로 1일 / 3일 / 7일 중 하나를 선택합니다.
+   * - 실제 endTime(yyyy-MM-ddTHH:mm:ss)은 submit 시점에
+   *   현재 시간을 기준으로 계산해서 서버로 전송합니다.
    */
-  endTime: z.string().min(1, '마감 시간을 선택해주세요.'),
+  duration: z.enum(VOTE_DURATION_VALUES, {
+    message: '마감 기간을 선택해주세요.',
+  }),
 
   /**
    * 재투표 허용 여부

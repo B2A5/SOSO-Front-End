@@ -48,12 +48,12 @@ export function VoteboardForm({
         initialData?.category ??
         initialCategory ??
         CATEGORIES[0].value,
-      endTime: initialData?.endTime ?? '',
+      duration: '3d',
       allowMultipleChoice: initialData?.allowMultipleChoice ?? false,
       allowRevote: initialData?.allowRevote ?? false,
       voteOptions: initialData?.voteOptions ?? [
-        { content: '' },
-        { content: '' },
+        { content: '찬성' },
+        { content: '반대' },
       ],
     }),
     [initialData, initialCategory],
@@ -134,7 +134,7 @@ export function VoteboardForm({
                 onValueChange={field.onChange}
               >
                 <Select.Trigger
-                  placeholder="원하는 카테고리를 선택하세요"
+                  placeholder="카테고리를 선택하세요"
                   className="w-full border border-gray-300 dark:border-neutral-700 rounded-lg"
                 />
                 <Select.Portal>
@@ -179,27 +179,44 @@ export function VoteboardForm({
           {...register('content')}
         />
 
-        {/* 마감 시간 
-        TODO: 사용자에게 일정 기간을 선택 받고 프론트에서 시간으로 바꿔 서버로 보내기*/}
+        {/* 마감 시간 선택 */}
         <div>
           <label
-            htmlFor="endTime"
+            htmlFor="duration"
             className="block text-sm font-medium text-neutral-1000 dark:text-neutral-200 mb-2"
           >
-            마감 시간
+            마감 기간
             <span className="ml-1 text-red-500" aria-label="필수">
               *
             </span>
           </label>
-          <input
-            id="endTime"
-            type="datetime-local"
-            className="w-full border border-gray-300 dark:border-neutral-700 rounded-lg px-3 py-2 text-sm"
-            {...register('endTime')}
+
+          <Controller
+            name="duration"
+            control={control}
+            render={({ field }) => (
+              <Select
+                value={field.value}
+                onValueChange={field.onChange}
+              >
+                <Select.Trigger
+                  placeholder="마감 기간을 선택하세요"
+                  className="w-full border border-gray-300 dark:border-neutral-700 rounded-lg"
+                />
+                <Select.Portal>
+                  <Select.Content>
+                    <Select.Item value="1d">1일 후 마감</Select.Item>
+                    <Select.Item value="3d">3일 후 마감</Select.Item>
+                    <Select.Item value="7d">7일 후 마감</Select.Item>
+                  </Select.Content>
+                </Select.Portal>
+              </Select>
+            )}
           />
-          {errors.endTime && (
+
+          {errors.duration && (
             <p className="mt-1 text-xs text-red-500">
-              {errors.endTime.message}
+              {errors.duration.message}
             </p>
           )}
         </div>
