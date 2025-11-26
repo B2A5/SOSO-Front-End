@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Input from '@/components/inputs/Input';
 import TextArea from '@/components/inputs/TextArea';
@@ -16,6 +16,7 @@ import { Plus } from 'lucide-react';
 import { VoteboardOptionField } from './VoteoptionField';
 import { CATEGORIES, Category } from '../../constants/categories';
 import { ImageUploader } from '@/components/ImageUploader';
+import { Select } from '@/components/select/Select';
 
 /**
  * VoteboardForm 컴포넌트
@@ -114,6 +115,44 @@ export function VoteboardForm({
         className="flex flex-col gap-4 w-full flex-1 overflow-auto p-1 transition-transform duration-300 ease-in-out pb-16"
         onSubmit={handleSubmit(onSubmit)}
       >
+        <div>
+          <label
+            htmlFor="category"
+            className="block text-sm font-medium text-neutral-1000 dark:text-neutral-200 mb-2"
+          >
+            카테고리
+            <span className="ml-1 text-red-500" aria-label="필수">
+              *
+            </span>
+          </label>
+          <Controller
+            name="category"
+            control={control}
+            render={({ field }) => (
+              <Select
+                value={field.value}
+                onValueChange={field.onChange}
+              >
+                <Select.Trigger
+                  placeholder="원하는 카테고리를 선택하세요"
+                  className="w-full border border-gray-300 dark:border-neutral-700 rounded-lg"
+                />
+                <Select.Portal>
+                  <Select.Content>
+                    {CATEGORIES.map((category) => (
+                      <Select.Item
+                        key={category.value}
+                        value={category.value}
+                      >
+                        {category.label}
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select.Portal>
+              </Select>
+            )}
+          />
+        </div>
         {/* 제목 */}
         <Input
           id="title"

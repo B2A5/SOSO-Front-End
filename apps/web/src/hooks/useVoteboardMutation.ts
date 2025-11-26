@@ -43,10 +43,10 @@ export function useVoteboardMutation(voteboardId?: number) {
       onSuccess: (response) => {
         console.log('게시글 생성 응답:', response);
         queryClient.invalidateQueries({
-          queryKey: ['/community/voteboard'],
+          queryKey: ['/community/votesboard'],
         });
         toast('투표가 성공적으로 생성되었습니다.', 'success');
-        router.push('/main/community/voteboard');
+        router.push('/main/community/votesboard');
       },
       onError: () => {
         toast(
@@ -63,13 +63,13 @@ export function useVoteboardMutation(voteboardId?: number) {
       onSuccess: (response) => {
         console.log('게시글 수정 응답:', response);
         queryClient.invalidateQueries({
-          queryKey: [`/community/voteboard/${voteboardId}`],
+          queryKey: [`/community/votesboard/${voteboardId}`],
         });
         queryClient.invalidateQueries({
-          queryKey: ['/community/voteboard'],
+          queryKey: ['/community/votesboard'],
         });
         toast('투표가 성공적으로 수정되었습니다.', 'success');
-        router.push(`/main/community/voteboard/${voteboardId}`);
+        router.push(`/main/community/votesboard/${voteboardId}`);
       },
       onError: () => {
         toast(
