@@ -146,13 +146,6 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 루트 경로(/) 자동 리다이렉트 (토큰 갱신 후 처리)
-  if (pathname === '/') {
-    const targetUrl = hasAuth ? '/main' : '/login';
-    console.log(`[Middleware] 루트 접근 → ${targetUrl}로 리다이렉트`);
-    return NextResponse.redirect(new URL(targetUrl, request.url));
-  }
-
   // 보호된 라우트 접근 시 인증 필요
   if (PROTECTED_ROUTES.some((route) => pathname.startsWith(route))) {
     if (!hasAuth) {
