@@ -31,9 +31,17 @@ export default async function Page({
     const queryOptions = getGetFreeboardPostQueryOptions(postId);
     await queryClient.fetchQuery(queryOptions);
   } catch (error: unknown) {
-    if (isAxiosError(error) && error.response?.status === 404)
-      notFound();
-    return <FreeboardDetailSkeleton />;
+    if (isAxiosError(error)) {
+      const status = error.response?.status;
+
+      if (status === 404) {
+        notFound();
+      }
+
+      //TODO: 401 에러 처리 협의 필요 (공통 OR 개별)
+    }
+
+    throw error;
   }
 
   const dehydratedState = dehydrate(queryClient);
