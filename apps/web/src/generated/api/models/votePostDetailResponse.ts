@@ -6,6 +6,8 @@
  * OpenAPI spec version: v1.0.0
  */
 import type { UserSummaryResponse } from './userSummaryResponse';
+import type { VotePostDetailResponseCategory } from './votePostDetailResponseCategory';
+import type { ImageInfo } from './imageInfo';
 import type { VoteOptionResponse } from './voteOptionResponse';
 import type { VotePostDetailResponseVoteStatus } from './votePostDetailResponseVoteStatus';
 
@@ -15,14 +17,16 @@ import type { VotePostDetailResponseVoteStatus } from './votePostDetailResponseV
 export interface VotePostDetailResponse {
   /** 게시글 ID */
   id: number;
+  /** 작성자 정보 */
+  author: UserSummaryResponse;
+  /** 카테고리 */
+  category: VotePostDetailResponseCategory;
   /** 게시글 제목 */
   title: string;
   /** 게시글 내용 */
   content: string;
-  /** 작성자 정보 */
-  author: UserSummaryResponse;
-  /** 이미지 URL 목록 */
-  imageUrls?: string[];
+  /** 첨부된 이미지 정보 목록 */
+  images: ImageInfo[];
   /** 투표 옵션 목록 */
   voteOptions: VoteOptionResponse[];
   /** 현재 사용자가 선택한 옵션 ID 목록 (미투표 시 빈 리스트) */
