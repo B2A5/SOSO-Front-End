@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Input from '@/components/inputs/Input';
@@ -8,13 +8,14 @@ import TextArea from '@/components/inputs/TextArea';
 import { Button } from '@/components/buttons/Button';
 import { useVoteboardMutation } from '@/hooks/useVoteboardMutation';
 import {
-  type VoteFormData,
+  type VoteboardFormData,
   voteboardSchema,
 } from '../schema/voteboardSchema';
 import type { VotePostDetailResponse } from '@/generated/api/models';
 import { Plus } from 'lucide-react';
 import { VoteboardOptionField } from './VoteoptionField';
 import { CATEGORIES, Category } from '../../constants/categories';
+import { ImageUploader } from '@/components/ImageUploader';
 
 /**
  * VoteboardForm 컴포넌트
@@ -36,18 +37,9 @@ export function VoteboardForm({
   initialData,
   initialCategory,
 }: VoteboardFormProps) {
-  const isEdit = !!voteboardId;
+  const [deleteImageIds, setDeleteImageIds] = useState<number[]>([]);
 
-  // 생성/수정 mutation 훅
-  const { submitPost, isPending } = useVoteboardMutation(voteboardId);
-
-  /**
-   * 기본 값 메모이제이션
-   *
-   * @remarks
-   * - 현재는 imageUrls를 사용하지 않고, 텍스트/옵션/설정 필드만 초기화합니다.
-   */
-  const defaultVals = useMemo<VoteFormData>(
+  const defaultVals = useMemo<VoteboardFormData>(
     () => ({
       title: initialData?.title ?? '',
       content: initialData?.content ?? '',
@@ -69,14 +61,28 @@ export function VoteboardForm({
   const {
     register,
     control,
+    setValue,
     handleSubmit,
     formState: { errors, touchedFields, isValid },
-  } = useForm<VoteFormData>({
+  } = useForm<VoteboardFormData>({
     resolver: zodResolver(voteboardSchema),
     mode: 'onTouched',
     reValidateMode: 'onChange',
     defaultValues: defaultVals,
   });
+
+  // 새 이미지 선택 핸들러
+  const handleImageSelect = (files: File[]) => {
+    setValue('images', files, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  };
+
+  // 기존 이미지 삭제 핸들러(수정용)
+  const handleDeleteExisting = (deletedIds: number[]) => {
+    setDeleteImageIds(deletedIds);
+  };
 
   // 동적 옵션 필드
   const { fields, append, remove } = useFieldArray({
@@ -84,17 +90,27 @@ export function VoteboardForm({
     name: 'voteOptions',
   });
 
+  // 생성/수정 mutation 훅
+  const { submitPost, isPending } = useVoteboardMutation(voteboardId);
+
   // 폼 제출 핸들러
-  const onSubmit = (data: VoteFormData) => {
-    console.log('투표 폼 제출 데이터:', data);
-    submitPost(data);
+  const onSubmit = (data: VoteboardFormData) => {
+    console.log(
+      '폼 제출 데이터:',
+      data,
+      '삭제 이미지 IDs:',
+      deleteImageIds,
+    );
+    submitPost(data, deleteImageIds);
   };
 
   return (
     <div className="relative flex flex-col h-full w-full ">
       <form
         id="vote-form"
-        aria-label={isEdit ? '투표 게시글 수정' : '투표 게시글 작성'}
+        aria-label={
+          voteboardId ? '투표 게시글 수정' : '투표 게시글 작성'
+        }
         className="flex flex-col gap-4 w-full flex-1 overflow-auto p-1 transition-transform duration-300 ease-in-out pb-16"
         onSubmit={handleSubmit(onSubmit)}
       >
@@ -212,11 +228,17 @@ export function VoteboardForm({
           </label>
         </div>
 
-        {/* TODO: 이미지 업로드
-         * - 백엔드에서 투표 이미지 스펙이 확정되면,
-         *   FreeboardForm의 ImageUploader 사용 예시를 참고해
-         *   투표 폼에도 이미지 첨부 UI를 추가할 예정입니다.
-         */}
+        {/* 이미지 업로드 */}
+        <div className="flex flex-col">
+          <label className="block text-sm font-medium text-neutral-1000 dark:text-neutral-200">
+            사진 첨부 (선택)
+          </label>
+          <ImageUploader
+            initialImages={initialData?.images}
+            onFileSelect={handleImageSelect}
+            onDeleteExisting={handleDeleteExisting}
+          />
+        </div>
       </form>
 
       <Button

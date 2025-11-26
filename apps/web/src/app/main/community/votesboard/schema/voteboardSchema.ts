@@ -97,17 +97,24 @@ export const voteboardSchema = z.object({
     .max(5, '옵션은 최대 5개까지 추가할 수 있습니다.'),
 
   /**
-   * 첨부 이미지 파일들
+   * 첨부 이미지 파일 배열
+   *
+   * @validation
+   * - 선택 사항 (optional)
+   * - 최대 4장 제한 (API 스펙 기준)
    *
    * @remarks
-   * - Freeboard와 동일하게 File 배열로 관리합니다.
-   * - 생성: VotePostCreateRequest.images (Blob[])
-   * - 수정: VotePostUpdateRequest.images (Blob[])
+   * - Freeboard와 동일하게 Blob(File) 배열을 사용합니다.
+   * - 파일 타입 및 크기 검증은 ImageUploader 컴포넌트에서 처리합니다.
    */
   images: z
-    .array(z.instanceof(File))
+    .array(
+      z.instanceof(Blob, {
+        message: '유효한 파일이 아닙니다.',
+      }),
+    )
     .max(4, '이미지는 최대 4장까지 업로드할 수 있습니다.')
     .optional(),
 });
 
-export type VoteFormData = z.infer<typeof voteboardSchema>;
+export type VoteboardFormData = z.infer<typeof voteboardSchema>;

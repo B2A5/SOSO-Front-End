@@ -2,14 +2,14 @@
 
 import { X } from 'lucide-react';
 import Input from '@/components/inputs/Input';
-import type { VoteFormData } from '../schema/voteboardSchema';
+import type { VoteboardFormData } from '../schema/voteboardSchema';
 import type { UseFormRegister } from 'react-hook-form';
 
 interface VoteboardOptionFieldProps {
   /** 옵션 인덱스 (0부터 시작) */
   index: number;
   /** react-hook-form register (VoteFormData 기반) */
-  register: UseFormRegister<VoteFormData>;
+  register: UseFormRegister<VoteboardFormData>;
   /** 해당 옵션의 에러 메시지 (content 기준) */
   errorMessage?: string;
   /** 삭제 버튼 노출 여부 */
