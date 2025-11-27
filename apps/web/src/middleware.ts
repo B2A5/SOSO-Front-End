@@ -13,6 +13,14 @@ const PUBLIC_ROUTES = ['/login', '/signup'];
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 /**
+ * Set-Cookie 헤더를 현재 환경에 맞게 수정
+ * - Domain 속성 제거 (현재 도메인으로 자동 설정)
+ */
+function modifySetCookie(cookie: string): string {
+  return cookie.replace(/Domain=[^;]+;?\s*/gi, '');
+}
+
+/**
  * 로그인 페이지로 리다이렉트 (returnUrl 포함)
  */
 function redirectToLogin(request: NextRequest, pathname: string) {
@@ -55,9 +63,9 @@ export async function middleware(request: NextRequest) {
   // 액세스 토큰이 없고 리프레시 토큰만 있는 경우 토큰 갱신 시도
   if (!accessToken && refreshToken) {
     try {
-      // 프록시를 통해 토큰 갱신
+      // 백엔드 직접 호출하여 토큰 갱신
       const refreshResponse = await fetch(
-        `${API_BASE_URL}/api/auth/refresh`,
+        `${API_BASE_URL}/auth/refresh`,
         {
           method: 'POST',
           headers: {
@@ -68,7 +76,10 @@ export async function middleware(request: NextRequest) {
       );
 
       if (refreshResponse.ok) {
-        console.log('[Middleware] 토큰 갱신 성공');
+        console.log(
+          '[Middleware] 토큰 갱신 성공 - 상태:',
+          refreshResponse.status,
+        );
 
         // Set-Cookie 헤더를 클라이언트로 전달
         const setCookieHeaders = refreshResponse.headers.getSetCookie
@@ -87,26 +98,10 @@ export async function middleware(request: NextRequest) {
           });
         }
 
-        // 토큰 갱신 성공 후 루트 경로면 리다이렉트
-        if (pathname === '/') {
-          const targetUrl = hasAuth ? '/main' : '/login';
-          console.log(
-            `[Middleware] 토큰 갱신 후 루트 접근 → ${targetUrl}로 리다이렉트`,
-          );
-          const redirectResponse = NextResponse.redirect(
-            new URL(targetUrl, request.url),
-          );
-          // Set-Cookie 헤더 유지
-          setCookieHeaders.forEach((cookie) => {
-            redirectResponse.headers.append('Set-Cookie', cookie);
-          });
-          return redirectResponse;
-        }
-
-        // 다른 경로는 계속 진행
         const newResponse = NextResponse.next();
         setCookieHeaders.forEach((cookie) => {
-          newResponse.headers.append('Set-Cookie', cookie);
+          const modifiedCookie = modifySetCookie(cookie);
+          newResponse.headers.append('Set-Cookie', modifiedCookie);
         });
         return newResponse;
       } else {
@@ -176,6 +171,6 @@ export const config = {
      * - _next/image (이미지 최적화)
      * - favicon.ico (파비콘)
      */
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|.well-known).*)',
   ],
 };
