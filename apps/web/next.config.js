@@ -11,6 +11,38 @@ const nextConfig = {
   typescript: { ignoreBuildErrors: false },
   eslint: { ignoreDuringBuilds: false },
   output: 'standalone',
+  // 인증 관련 엔드포인트만 프록시 (쿠키 공유를 위해)
+  async rewrites() {
+    // HTTPS 환경에서만 프록시 활성화
+    // HTTP 개발 환경(CSR only)에서는 프록시 비활성화
+    const proxyEnabled =
+      process.env.NEXT_PUBLIC_ENABLE_PROXY !== 'false';
+
+    if (!proxyEnabled) {
+      console.log(
+        '[Next.js] 🚫 프록시 비활성화 - HTTP CSR 전용 모드',
+      );
+      return [];
+    }
+
+    const apiBaseUrl =
+      process.env.NEXT_PUBLIC_API_BASE_URL ||
+      'https://soso.dreampaste.com';
+
+    console.log('[Next.js] ✅ 프록시 활성화 - HTTPS 전체 기능 모드');
+    return [
+      // 인증 엔드포인트 (로그인, 토큰 갱신)
+      {
+        source: '/api/auth/:path*',
+        destination: `${apiBaseUrl}/auth/:path*`,
+      },
+      // 현재 유저 정보 (SSR prefetch)
+      {
+        source: '/api/users/me',
+        destination: `${apiBaseUrl}/users/me`,
+      },
+    ];
+  },
   //추후 제거 필요
   images: {
     domains: [

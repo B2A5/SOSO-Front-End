@@ -1,23 +1,14 @@
-// apps/web/app/layout.tsx
-import type { Metadata } from 'next';
 import './globals.css';
+import type { Metadata, Viewport } from 'next';
 import { QueryProvider } from '@/providers/queryProvider';
-import { AuthProvider } from '@/providers/AuthProvider';
 import pretendardFont from '@/assets/fonts/PretandardFont';
 import { ToastContainer } from '@/components/toast/ToastContainer';
 import { OverlayPortal } from '@/components/overlayPortal';
+import { AuthHydrationProvider } from '@/providers/AuthHydrationProvider';
 
 export const metadata: Metadata = {
   title: 'SoSo – Local Biz Helper',
   description: '지역 주민과 함께 만드는 창업 플랫폼',
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-  },
-  themeColor: '#4CAF50', //tailwindcss green-500
-  //manifest: '/manifest.json',
   keywords: ['창업', '지역', '소상공인', '아이디어', '투표'],
   authors: [{ name: 'SOSO Team' }],
   appleWebApp: {
@@ -35,7 +26,14 @@ export const metadata: Metadata = {
     locale: 'ko_KR',
   },
 };
-// 전역 폰트 설정
+
+export const viewport: Viewport = {
+  themeColor: '#4CAF50',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
 
 export default function RootLayout({
   children,
@@ -55,14 +53,14 @@ export default function RootLayout({
         className="flex flex-col h-screen bg-gradient-to-br from-white to-white dark:from-neutral-1000 dark:to-neutral-900"
       >
         <QueryProvider>
-          <AuthProvider>
-            {/*  */}
+          <AuthHydrationProvider>
+            {/* AuthProvider는 AuthHydration 내부에 포함됨 */}
             <main className="w-full h-full max-w-screen-md md:mx-auto flex-1 overflow-auto">
               {children}
               <ToastContainer />
             </main>
             <OverlayPortal />
-          </AuthProvider>
+          </AuthHydrationProvider>
         </QueryProvider>
       </body>
     </html>

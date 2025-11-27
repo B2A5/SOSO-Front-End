@@ -5,7 +5,7 @@ module.exports = {
   parserOptions: {
     project: './tsconfig.json',
   },
-  ignorePatterns: ['stylelint.config.js', 'postcss.config.mjs', '**/__tests__/e2e/**'],
+  ignorePatterns: ['stylelint.config.js', 'postcss.config.mjs', '**/__tests__/e2e/**', 'server.mjs'],
   extends: [
     'next',
     'next/core-web-vitals',
