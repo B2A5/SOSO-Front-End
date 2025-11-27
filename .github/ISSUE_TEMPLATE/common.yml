@@ -50,6 +50,7 @@ body:
         - '회원가입 및 로그인'
         - '커뮤니티'
         - '홈'
+        - '투표 글 작성 페이지'
         - '직접 입력'
     validations:
       required: true
