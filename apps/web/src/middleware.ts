@@ -42,13 +42,6 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // 모든 쿠키 확인
-  const allCookies = request.cookies.getAll();
-  console.log(
-    `[Middleware] 📦 전체 쿠키 개수: ${allCookies.length}`,
-    allCookies.map((c) => c.name),
-  );
-
   // 쿠키에서 액세스 토큰과 리프레시 토큰 확인
   const accessToken = request.cookies.get('accessToken')?.value;
   const refreshToken = request.cookies.get('refreshToken')?.value;
@@ -62,13 +55,14 @@ export async function middleware(request: NextRequest) {
   // 액세스 토큰이 없고 리프레시 토큰만 있는 경우 토큰 갱신 시도
   if (!accessToken && refreshToken) {
     try {
-      // 프록시를 통해 토큰 갱신 (쿠키 자동 포함)
+      // 프록시를 통해 토큰 갱신
       const refreshResponse = await fetch(
-        'http://localhost:3000/api/auth/refresh',
+        `${API_BASE_URL}/api/auth/refresh`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            Cookie: `refreshToken=${refreshToken}`,
           },
         },
       );
