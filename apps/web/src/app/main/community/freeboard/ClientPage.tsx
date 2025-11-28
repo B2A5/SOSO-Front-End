@@ -80,6 +80,7 @@ export default function FreeboardClientPage() {
         sortOptions={SORT_OPTIONS}
         currentValue={sortOption}
         onFilterChange={setSortOption}
+        className="px-5"
       />
       <CommunityPostList<FreeboardSummary>
         items={allFreeboardPosts}
