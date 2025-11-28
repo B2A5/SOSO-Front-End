@@ -24,13 +24,9 @@ interface VoteboardOptionFieldProps {
  * 투표 옵션 단일 필드 컴포넌트
  *
  * @description
- * - index에 따라 플레이스홀더를 다르게 표시합니다.
- *   - 0번: "찬성"
- *   - 1번: "반대"
- *   - 그 외: "투표 옵션을 입력하세요"
- *
- * @remarks
- * - 실제 값은 사용자가 입력한 content이며, placeholder는 힌트용입니다.
+ * 투표 옵션 하나를 입력받는 필드 컴포넌트입니다.
+ * react-hook-form의 register를 통해 폼과 연동됩니다.
+ * 삭제 버튼을 통해 옵션을 제거할 수 있습니다.
  */
 export function VoteboardOptionField({
   index,
@@ -40,17 +36,11 @@ export function VoteboardOptionField({
   canRemove,
   onRemove,
 }: VoteboardOptionFieldProps) {
-  const getPlaceholder = (i: number) => {
-    if (i === 0) return '찬성';
-    if (i === 1) return '반대';
-    return '투표 옵션을 입력하세요';
-  };
-
   return (
     <div className="flex items-center gap-2">
       <Input
         id={`option-${index}`}
-        placeholder={getPlaceholder(index)}
+        placeholder="투표 옵션을 입력하세요"
         isError={!!errorMessage}
         errorMessage={errorMessage}
         disabled={!editable}
