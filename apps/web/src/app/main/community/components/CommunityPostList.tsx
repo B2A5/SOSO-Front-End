@@ -104,7 +104,7 @@ export default function CommunityPostList<T extends BoardSummary>({
 
       {/* 게시글 목록 */}
       <InfiniteScroll.Contents<T>
-        className={cn('flex flex-col gap-4', className)}
+        className={cn('flex flex-col', className)}
         virtualScroll={{
           enabled: true,
           estimateSize: 156, // 카드 평균 높이
