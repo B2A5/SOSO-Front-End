@@ -5,7 +5,7 @@ import { Category } from '../constants/categories';
 import { relativeTime } from '@/utils/relativeTime';
 import { Heart, MessageSquareMore } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-
+import { formatCount } from '@/utils/formatCount';
 import type { FreeboardSummary } from '@/generated/api/models';
 
 export interface FreeBoardCardProps {
@@ -65,7 +65,7 @@ export function FreeBoardCard({
             aria-label={`좋아요 ${likeCount ?? 0}개`}
           >
             <Heart className="w-4 h-4 text-neutral-500" />
-            <span className="text-xs">{likeCount ?? 0}</span>
+            <span className="text-xs">{formatCount(likeCount)}</span>
           </div>
           {/* 댓글 */}
           <div
@@ -73,7 +73,9 @@ export function FreeBoardCard({
             aria-label={`댓글 ${commentCount ?? 0}개`}
           >
             <MessageSquareMore className="w-4 h-4 text-neutral-500" />
-            <span className="text-xs">{commentCount ?? 0}</span>
+            <span className="text-xs">
+              {formatCount(commentCount)}
+            </span>
           </div>
         </div>
       </div>
