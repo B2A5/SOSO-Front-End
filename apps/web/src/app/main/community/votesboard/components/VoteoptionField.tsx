@@ -12,6 +12,8 @@ interface VoteboardOptionFieldProps {
   register: UseFormRegister<VoteboardFormData>;
   /** 해당 옵션의 에러 메시지 (content 기준) */
   errorMessage?: string;
+  /** 편집 가능 여부 */
+  editable: boolean;
   /** 삭제 버튼 노출 여부 */
   canRemove: boolean;
   /** 옵션 삭제 핸들러 */
@@ -34,6 +36,7 @@ export function VoteboardOptionField({
   index,
   register,
   errorMessage,
+  editable,
   canRemove,
   onRemove,
 }: VoteboardOptionFieldProps) {
@@ -50,6 +53,7 @@ export function VoteboardOptionField({
         placeholder={getPlaceholder(index)}
         isError={!!errorMessage}
         errorMessage={errorMessage}
+        disabled={!editable}
         {...register(`voteOptions.${index}.content` as const)}
       />
       {canRemove && (

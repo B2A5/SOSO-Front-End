@@ -29,6 +29,7 @@ import { Select } from '@/components/select/Select';
  */
 export interface VoteboardFormProps {
   voteboardId?: number;
+  /** 수정 모드일 때 초기 데이터 */
   initialData?: VotePostDetailResponse;
   initialCategory?: Category;
 }
@@ -38,6 +39,8 @@ export function VoteboardForm({
   initialData,
   initialCategory,
 }: VoteboardFormProps) {
+  const isEdit = !!voteboardId;
+
   const [deleteImageIds, setDeleteImageIds] = useState<number[]>([]);
 
   const defaultVals = useMemo<VoteboardFormData>(
@@ -109,9 +112,7 @@ export function VoteboardForm({
     <div className="relative flex flex-col h-full w-full ">
       <form
         id="vote-form"
-        aria-label={
-          voteboardId ? '투표 게시글 수정' : '투표 게시글 작성'
-        }
+        aria-label={isEdit ? '투표 게시글 수정' : '투표 게시글 작성'}
         className="flex flex-col gap-4 w-full flex-1 overflow-auto p-1 transition-transform duration-300 ease-in-out pb-16"
         onSubmit={handleSubmit(onSubmit)}
       >
@@ -230,16 +231,18 @@ export function VoteboardForm({
                 *
               </span>
             </label>
-            <button
-              type="button"
-              className="text-xs text-soso-500"
-              onClick={() => {
-                if (fields.length >= 5) return;
-                append({ content: '' });
-              }}
-            >
-              <Plus className="inline-block w-3 h-3 mr-1" />
-            </button>
+            {!isEdit && (
+              <button
+                type="button"
+                className="text-xs text-soso-500"
+                onClick={() => {
+                  if (fields.length >= 5) return;
+                  append({ content: '' });
+                }}
+              >
+                <Plus className="inline-block w-3 h-3 mr-1" />
+              </button>
+            )}
           </div>
 
           <div className="flex flex-col gap-2">
@@ -251,8 +254,8 @@ export function VoteboardForm({
                 errorMessage={
                   errors.voteOptions?.[index]?.content?.message
                 }
-                // 삭제 허용 여부
-                canRemove={fields.length > 2}
+                editable={!isEdit}
+                canRemove={!isEdit && fields.length > 2}
                 onRemove={() => remove(index)}
               />
             ))}
