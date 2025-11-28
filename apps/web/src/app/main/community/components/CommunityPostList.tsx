@@ -107,7 +107,7 @@ export default function CommunityPostList<T extends BoardSummary>({
         className={cn('flex flex-col', className)}
         virtualScroll={{
           enabled: true,
-          estimateSize: 156, // 카드 평균 높이
+          estimateSize: 139, // 카드 평균 높이
           overscan: 3,
         }}
         scrollStore={{
@@ -118,7 +118,7 @@ export default function CommunityPostList<T extends BoardSummary>({
         // 안정적인 key 생성을 위한 함수 필수 전달
         getItemKey={getItemKey}
         renderItem={renderItem}
-        gap={16} // 4 * 4px = 16px
+        gap={16}
         threshold={0.8}
       >
         {/* 무한스크롤 트리거 */}
