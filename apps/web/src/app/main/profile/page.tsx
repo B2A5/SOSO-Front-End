@@ -1,13 +1,12 @@
 'use client';
+
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/buttons/Button';
-import { useAuthStore } from '@/stores/authStore';
+import { useAuth } from '@/hooks/useAuth';
 export default function ProfilePage() {
   const router = useRouter();
-  const logout = useAuthStore((state) => state.logout);
+  const { logout } = useAuth();
   const handleLogout = () => {
-    // 로그아웃 로직을 여기에 추가하세요.
-    console.log('로그아웃 버튼 클릭');
     logout();
     router.push('/');
   };
