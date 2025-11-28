@@ -35,7 +35,28 @@ import type {
 import { customInstance } from '../../../../lib/api-client';
 
 /**
- * 투표 게시글의 상세 정보를 조회합니다. 비로그인 사용자도 조회 가능합니다.
+ * 투표 게시글의 상세 정보를 조회합니다.
+
+**특징:**
+- 조회 시 조회수 자동 증가
+- 인증/비인증 사용자 모두 조회 가능
+- 인증 여부에 따라 isLiked, canEdit, canDelete 값 변경
+- 투표 참여 여부에 따라 selectedOptionIds 값 변경
+
+**인증 사용자:**
+- isAuthorized: true
+- isLiked: boolean (좋아요 상태)
+- canEdit: boolean (수정 권한 - 작성자인 경우 true)
+- canDelete: boolean (삭제 권한 - 작성자인 경우 true)
+- selectedOptionIds: 투표한 옵션 ID 목록 (투표 전이면 빈 배열)
+
+**비인증 사용자:**
+- isAuthorized: false
+- isLiked: null
+- canEdit: null
+- canDelete: null
+- selectedOptionIds: 빈 배열
+
  * @summary 투표 게시글 상세 조회
  */
 export const getVotePost = (
@@ -203,17 +224,62 @@ export function useGetVotePost<
 
 /**
  * 투표 게시글을 수정합니다. 투표 옵션은 수정할 수 없습니다.
+
+**수정 가능 항목:**
+- 카테고리
+- 제목, 내용
+- 이미지 (추가/삭제)
+- 투표 설정 (투표 시작 전에만 가능)
+
+**Multipart 업로드**
+
  * @summary 투표 게시글 수정
  */
 export const updateVotePost = (
   votesboardId: number,
   votePostUpdateRequest: VotePostUpdateRequest,
 ) => {
+  const formData = new FormData();
+  if (votePostUpdateRequest.category !== undefined) {
+    formData.append(`category`, votePostUpdateRequest.category);
+  }
+  if (votePostUpdateRequest.title !== undefined) {
+    formData.append(`title`, votePostUpdateRequest.title);
+  }
+  if (votePostUpdateRequest.content !== undefined) {
+    formData.append(`content`, votePostUpdateRequest.content);
+  }
+  if (votePostUpdateRequest.images !== undefined) {
+    votePostUpdateRequest.images.forEach((value) =>
+      formData.append(`images`, value),
+    );
+  }
+  if (votePostUpdateRequest.deleteImageIds !== undefined) {
+    votePostUpdateRequest.deleteImageIds.forEach((value) =>
+      formData.append(`deleteImageIds`, value.toString()),
+    );
+  }
+  if (votePostUpdateRequest.endTime !== undefined) {
+    formData.append(`endTime`, votePostUpdateRequest.endTime);
+  }
+  if (votePostUpdateRequest.allowRevote !== undefined) {
+    formData.append(
+      `allowRevote`,
+      votePostUpdateRequest.allowRevote.toString(),
+    );
+  }
+  if (votePostUpdateRequest.allowMultipleChoice !== undefined) {
+    formData.append(
+      `allowMultipleChoice`,
+      votePostUpdateRequest.allowMultipleChoice.toString(),
+    );
+  }
+
   return customInstance<void>({
     url: `/community/votesboard/${votesboardId}`,
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    data: votePostUpdateRequest,
+    headers: { 'Content-Type': 'multipart/form-data' },
+    data: formData,
   });
 };
 
@@ -832,14 +898,17 @@ export function useGetVotePostsByCursor<
 /**
  * 새로운 투표 게시글을 작성합니다.
 
-**제약사항:**
-- 투표 옵션: 최소 2개, 최대 5개
-- 제목: 최대 100자
-- 내용: 최대 5000자
-- 이미지: 최대 5개
-- 마감 시간: 현재 시간보다 미래여야 함
+**특징:**
+- 2-5개의 투표 옵션 필수
+- 이미지 업로드 지원 (최대 4장)
+- 투표 마감 시간 설정 필수
+- 재투표 허용 여부 설정
+- 중복 선택 허용 여부 설정
+- Multipart 방식으로 이미지와 텍스트 데이터를 함께 전송
+- 카테고리 필수 선택
 
-**권한:** 로그인 사용자만 가능
+**지원 파일 형식:** jpg, jpeg, png, gif, webp
+**최대 파일 크기:** 5MB per image
 
  * @summary 투표 게시글 작성
  */
@@ -847,17 +916,39 @@ export const createVotePost = (
   votePostCreateRequest: VotePostCreateRequest,
   signal?: AbortSignal,
 ) => {
+  const formData = new FormData();
+  formData.append(`category`, votePostCreateRequest.category);
+  formData.append(`title`, votePostCreateRequest.title);
+  formData.append(`content`, votePostCreateRequest.content);
+  votePostCreateRequest.voteOptions.forEach((value) =>
+    formData.append(`voteOptions`, JSON.stringify(value)),
+  );
+  formData.append(`endTime`, votePostCreateRequest.endTime);
+  formData.append(
+    `allowRevote`,
+    votePostCreateRequest.allowRevote.toString(),
+  );
+  formData.append(
+    `allowMultipleChoice`,
+    votePostCreateRequest.allowMultipleChoice.toString(),
+  );
+  if (votePostCreateRequest.images !== undefined) {
+    votePostCreateRequest.images.forEach((value) =>
+      formData.append(`images`, value),
+    );
+  }
+
   return customInstance<VotePostIdResponse>({
     url: `/community/votesboard`,
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    data: votePostCreateRequest,
+    headers: { 'Content-Type': 'multipart/form-data' },
+    data: formData,
     signal,
   });
 };
 
 export const getCreateVotePostMutationOptions = <
-  TError = ErrorResponse | ErrorResponse,
+  TError = ErrorResponse | ErrorResponse | ErrorResponse,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -899,13 +990,14 @@ export type CreateVotePostMutationResult = NonNullable<
 export type CreateVotePostMutationBody = VotePostCreateRequest;
 export type CreateVotePostMutationError =
   | ErrorResponse
+  | ErrorResponse
   | ErrorResponse;
 
 /**
  * @summary 투표 게시글 작성
  */
 export const useCreateVotePost = <
-  TError = ErrorResponse | ErrorResponse,
+  TError = ErrorResponse | ErrorResponse | ErrorResponse,
   TContext = unknown,
 >(
   options?: {

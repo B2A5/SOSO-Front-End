@@ -6,6 +6,7 @@
  * OpenAPI spec version: v1.0.0
  */
 import type { UserSummaryResponse } from './userSummaryResponse';
+import type { VotePostSummaryResponseCategory } from './votePostSummaryResponseCategory';
 import type { VotePostSummaryResponseVoteStatus } from './votePostSummaryResponseVoteStatus';
 import type { VoteOptionResponse } from './voteOptionResponse';
 
@@ -15,10 +16,16 @@ import type { VoteOptionResponse } from './voteOptionResponse';
 export interface VotePostSummaryResponse {
   /** 게시글 ID */
   id: number;
-  /** 게시글 제목 */
-  title: string;
   /** 작성자 정보 */
   author: UserSummaryResponse;
+  /** 카테고리 */
+  category: VotePostSummaryResponseCategory;
+  /** 게시글 제목 */
+  title: string;
+  /** 첫 번째 이미지 URL (썸네일용) */
+  thumbnailUrl?: string;
+  /** 이미지 개수 */
+  imageCount: number;
   /** 조회수 */
   viewCount: number;
   /** 댓글 수 */
