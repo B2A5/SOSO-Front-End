@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev",
+    "dev": "NEXT_PUBLIC_ENABLE_PROXY=false next dev",
+    "dev:https": "NEXT_PUBLIC_ENABLE_PROXY=true node server.mjs",
     "build": "next build",
     "build:analyze": "ANALYZE=true next build",
     "start": "next start",

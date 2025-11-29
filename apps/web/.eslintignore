@@ -1,0 +1,12 @@
+# HTTPS 개발 서버 (JavaScript 파일)
+server.mjs
+
+# Next.js 빌드 출력
+.next/
+out/
+
+# 의존성
+node_modules/
+
+# 생성된 파일
+src/generated/
