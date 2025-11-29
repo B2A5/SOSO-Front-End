@@ -62,3 +62,4 @@ module.exports = {
 
 - [ESLint Documentation](https://eslint.org/docs/latest/)
 - [Airbnb JavaScript Style Guide](https://github.com/airbnb/javascript)
+- [터보레포 ESLint 설정](https://turborepo.com/docs/guides/tools/eslint)
