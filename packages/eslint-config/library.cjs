@@ -36,5 +36,9 @@ module.exports = {
         devDependencies: true,
       },
     ],
+    // 라이브러리에서는 props spreading 허용 (유연한 API를 위해)
+    'react/jsx-props-no-spreading': 'off',
+    // TypeScript 사용 시 defaultProps 불필요 (optional props 사용)
+    'react/require-default-props': 'off',
   },
 };
