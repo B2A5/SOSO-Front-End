@@ -47,6 +47,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@lhci/cli": "^0.15.1",
+    "eslint": "^8.56.0",
     "@next/bundle-analyzer": "^15.5.3",
     "@playwright/test": "^1.56.1",
     "@stylistic/stylelint-config": "^2.0.0",
@@ -57,7 +58,7 @@
     "@testing-library/react": "^14.3.1",
     "@testing-library/user-event": "^14.5.2",
     "@types/js-cookie": "^3.0.6",
-    "@types/node": "^20",
+    "@types/node": "^24",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "@vitejs/plugin-react": "^4.3.3",
