@@ -6,15 +6,22 @@
   "packageManager": "pnpm@9.15.9",
   "scripts": {
     "dev": " turbo run dev --parallel",
+    "dev:storybook": "pnpm --filter @soso/storybook dev",
+    "dev:docs": "pnpm --filter @soso/docs dev",
     "build": " turbo run build",
+    "build:packages": "turbo run build --filter='./packages/*'",
     "lint": " turbo run lint",
     "lint:fix": " turbo run lint -- --fix",
     "typecheck": " turbo run typecheck",
     "test": " turbo run test",
     "test:ci": " turbo run test:coverage",
+    "test:packages": "turbo run test --filter='./packages/*'",
     "commitlint": "commitlint --from HEAD~1 --to HEAD --verbose",
     "hooks:help": "sh .husky/help.sh",
     "validate": "pnpm lint && pnpm typecheck && pnpm test",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "pnpm build:packages && changeset publish",
     "prepare": "husky install"
   },
   "keywords": [],
@@ -39,6 +46,7 @@
     ]
   },
   "devDependencies": {
+    "@changesets/cli": "^2.29.8",
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
     "@typescript-eslint/eslint-plugin": "^8.35.1",
@@ -54,6 +62,5 @@
     "lint-staged": "^16.1.2",
     "prettier": "^3.6.2",
     "turbo": "^2.5.4"
-  },
-  "dependencies": {}
+  }
 }

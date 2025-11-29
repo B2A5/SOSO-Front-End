@@ -1,33 +1,25 @@
-# ESLint ignore patterns
+# Node modules
+node_modules/
 
 # Build outputs
 dist/
-build/
 .next/
+.turbo/
+build/
 out/
+storybook-static/
 
-# Dependencies
-node_modules/
-pnpm-lock.yaml
-
-# Config files that don't need linting
-*.config.js
-*.config.cjs
-*.config.mjs
-
-# Specific config files
-commitlint.config.cjs
-next.config.js
-tailwind.config.js
-postcss.config.js
+# Config files (JSON)
+**/*.json
+!package.json
 
 # Test coverage
 coverage/
 
-# Cache directories
-.turbo/
-.cache/
+# Temporary files
+*.log
+.DS_Store
 
-# Environment files
-.env*
-!.env.example
+# ESLint config packages (JavaScript config files)
+packages/eslint-config/*.cjs
+packages/tsconfig/*.json

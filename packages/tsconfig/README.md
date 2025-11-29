@@ -77,4 +77,4 @@ React 라이브러리용 설정
 ## 📚 참고
 
 - [TSConfig Reference](https://www.typescriptlang.org/tsconfig)
-- [TypeScript 모노레포 베스트 프랙티스](https://turborepo.org/docs/handbook/linting/typescript)
+- [TypeScript 모노레포 베스트 프랙티스](hhttps://turborepo.com/docs/guides/tools/typescript)
