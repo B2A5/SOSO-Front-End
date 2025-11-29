@@ -18,22 +18,30 @@ import { CATEGORIES, Category } from '../../constants/categories';
 import { ImageUploader } from '@/components/ImageUploader';
 import { Select } from '@/components/select/Select';
 
+export interface VoteboardFormProps {
+  /** 수정할 투표 게시글 ID (없으면 생성 모드) */
+  voteboardId?: number;
+  /** 초기 폼 데이터 (수정 모드에서 사용) */
+  initialData?: VotePostDetailResponse;
+  /** 초기 선택된 카테고리 (생성 모드에서 사용) */
+  initialCategory?: Category;
+}
+
 /**
  * VoteboardForm 컴포넌트
  * 자유게시판 게시글 작성 및 수정 폼
  *
- * @param voteboardId - 수정할 게시글 ID (없으면 생성 모드)
- * @param initialData - 초기 폼 데이터 (수정 모드에서 사용)
- * @param initialCategory - 초기 선택된 카테고리 (생성 모드에서 사용)
+ * @description
+ * 투표 게시글을 작성하거나 수정할 수 있는 폼 컴포넌트입니다.
+ * react-hook-form과 zod를 사용하여 폼 상태 관리 및 유효성 검사를 수행합니다.
+ * voteboardId가 주어지면 수정 모드로 동작하며, 그렇지 않으면 생성 모드로 동작합니다.
+ *
+ * @remarks
+ * - 이미지 업로드 기능 포함
+ * - 동적 투표 옵션 필드 추가/삭제 지원
+ * - 생성 및 수정 모드 모두 지원
  *
  */
-export interface VoteboardFormProps {
-  voteboardId?: number;
-  /** 수정 모드일 때 초기 데이터 */
-  initialData?: VotePostDetailResponse;
-  initialCategory?: Category;
-}
-
 export function VoteboardForm({
   voteboardId,
   initialData,
