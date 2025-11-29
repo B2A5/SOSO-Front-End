@@ -37,8 +37,6 @@ export default async function Page({
       if (status === 404) {
         notFound();
       }
-
-      //TODO: 401 에러 처리 협의 필요 (공통 OR 개별)
     }
 
     throw error;
