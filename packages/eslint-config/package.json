@@ -1,0 +1,11 @@
+{
+  "name": "@soso/eslint-config",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Shared ESLint configurations for SOSO monorepo",
+  "main": "./index.cjs",
+  "files": [
+    "index.cjs",
+    "library.cjs"
+  ]
+}
