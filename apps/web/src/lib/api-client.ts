@@ -1,53 +1,12 @@
-import Axios, { AxiosError, AxiosRequestConfig } from 'axios';
-import { useAuthStore } from '@/stores/authStore';
+import Axios, {
+  AxiosRequestConfig,
+  InternalAxiosRequestConfig,
+} from 'axios';
+import { refreshToken } from '@/generated/api/endpoints/auth/auth';
+import { ApiError } from './api-error';
 
-export class ApiError extends Error {
-  status?: number;
-  data?: unknown;
-  url?: string;
-
-  constructor(
-    message: string,
-    status?: number,
-    data?: unknown,
-    url?: string,
-  ) {
-    super(message);
-    this.name = 'ApiError';
-    this.status = status;
-    this.data = data;
-    this.url = url;
-    Object.setPrototypeOf(this, ApiError.prototype);
-  }
-
-  static fromAxios(error: AxiosError) {
-    return new ApiError(
-      error.message || '요청 처리 중 오류가 발생했습니다.',
-      error.response?.status,
-      error.response?.data,
-      error.config?.url,
-    );
-  }
-
-  static wrap(error: unknown): ApiError {
-    if (error instanceof ApiError) return error;
-    if (Axios.isAxiosError(error)) return ApiError.fromAxios(error);
-    if (error instanceof Error) return new ApiError(error.message);
-    return new ApiError('알 수 없는 오류가 발생했습니다.');
-  }
-
-  isAuthError() {
-    return this.status === 401;
-  }
-
-  isServerError() {
-    return (this.status ?? 0) >= 500;
-  }
-
-  isNetworkError() {
-    return this.status === undefined;
-  }
-}
+// 쿠키가 필요한 경로 (프록시 사용)
+const COOKIE_REQUIRED_PATHS = ['/auth/', '/users/me'];
 
 export const AXIOS_INSTANCE = Axios.create({
   baseURL:
@@ -56,46 +15,121 @@ export const AXIOS_INSTANCE = Axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true, // Refresh Token 쿠키 전송
+  withCredentials: true, // HttpOnly 쿠키 자동 전송
 });
 
-// 요청 시 Access Token 자동 헤더 설정
-AXIOS_INSTANCE.interceptors.request.use(
-  (config) => {
-    // authStore에서 Access Token 읽기 (SSR 안전)
-    if (typeof window !== 'undefined') {
-      const token = useAuthStore.getState().accessToken;
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  },
-);
+/**
+ *
+ * HTTPS 환경(프록시 활성화)에서만 작동
+ * HTTP 환경(CSR only)에서는 모든 요청을 백엔드로 직접 전송
+ */
+AXIOS_INSTANCE.interceptors.request.use((config) => {
+  const proxyEnabled =
+    process.env.NEXT_PUBLIC_ENABLE_PROXY !== 'false';
 
-// 에러 핸들링 인터셉터
+  // 프록시 비활성화 시 직접 백엔드 호출
+  if (!proxyEnabled) {
+    console.log(
+      `[API Client] 📡 직접 호출 (프록시 비활성화): ${config.url}`,
+    );
+    return config;
+  }
+
+  const url = config.url || '';
+
+  // 쿠키가 필요한 경로인지 확인
+  const needsCookie = COOKIE_REQUIRED_PATHS.some((path) =>
+    url.includes(path),
+  );
+
+  if (needsCookie) {
+    // 프록시 경로로 변경 (localhost → 백엔드)
+    config.baseURL = '';
+    config.url = `/api${url}`;
+    console.log(`[API Client] 🔄 프록시 사용: ${url} → /api${url}`);
+  } else {
+    console.log(`[API Client] 📡 직접 호출: ${url}`);
+  }
+
+  return config;
+});
+
+/**
+ * 토큰 갱신 상태 관리
+ */
+let isRefreshing = false;
+let failedQueue: Array<{
+  resolve: (value?: unknown) => void;
+  reject: (reason?: unknown) => void;
+}> = [];
+
+/**
+ * 대기 중인 요청들을 처리
+ * @param error - 에러가 있으면 모든 요청 실패 처리, 없으면 성공 처리
+ */
+const processQueue = (error: unknown = null) => {
+  failedQueue.forEach((promise) => {
+    if (error) {
+      promise.reject(error);
+    } else {
+      promise.resolve();
+    }
+  });
+
+  failedQueue = [];
+};
+
 AXIOS_INSTANCE.interceptors.response.use(
   (response) => response,
-  (error) => {
-    // 개발 모드에서 에러 로깅
-    if (process.env.NEXT_PUBLIC_DEV_MODE === 'true') {
-      const status = error.response?.status;
-      const data = error.response?.data;
-      const url = error.config?.url;
 
+  async (error) => {
+    const originalRequest =
+      error.config as InternalAxiosRequestConfig & {
+        _retry?: boolean;
+      };
+
+    if (process.env.NODE_ENV === 'development' && error.response) {
+      const { status, data } = error.response;
+      const url = originalRequest?.url;
       console.error(`[API Error ${status}] ${url}`, data);
     }
 
-    // Handle 401 unauthorized errors
-    if (error.response?.status === 401) {
-      // Access Token 만료 - 자동으로 refresh 시도는 axios.ts에서 처리
-      if (typeof window !== 'undefined') {
-        console.log('[API] 401 Unauthorized - 토큰 만료');
+    // 401 Unauthorized 에러 처리
+    if (
+      ApiError.wrap(error).isAuthError() && // 401 에러
+      originalRequest && // 원래 요청이 존재
+      !originalRequest._retry // 무한 루프 방지
+    ) {
+      //이미 갱신 중이면 큐에 추가
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then(() => {
+            return AXIOS_INSTANCE(originalRequest);
+          })
+          .catch((err) => {
+            return Promise.reject(err);
+          });
+      }
+
+      originalRequest._retry = true; // 무한 루프 방지
+      isRefreshing = true;
+
+      try {
+        await refreshToken();
+        processQueue();
+        isRefreshing = false;
+        return AXIOS_INSTANCE(originalRequest);
+      } catch (refreshError) {
+        console.error('[Auth] ❌ 토큰 갱신 실패:', refreshError);
+        // 대기 중인 모든 요청 실패 처리
+        processQueue(refreshError);
+        isRefreshing = false;
+        return Promise.reject(refreshError);
       }
     }
+
     return Promise.reject(error);
   },
 );
