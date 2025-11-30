@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from 'react';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { motion, AnimatePresence } from 'motion/react';
 import Input from '@/components/inputs/Input';
 import TextArea from '@/components/inputs/TextArea';
 import { Button } from '@/components/buttons/Button';
@@ -101,6 +102,9 @@ export function VoteboardForm({
     control,
     name: 'voteOptions',
   });
+
+  // 옵션 추가 가능 여부 (생성 모드 + 최대 5개)
+  const canAddMore = !isEdit && fields.length < 5;
 
   // 생성/수정 mutation 훅
   const { submitPost, isPending } = useVoteboardMutation(voteboardId);
@@ -239,35 +243,57 @@ export function VoteboardForm({
                 *
               </span>
             </label>
-            {!isEdit && (
-              <button
-                type="button"
-                className="text-xs text-soso-500"
-                onClick={() => {
-                  if (fields.length >= 5) return;
-                  append({ content: '' });
-                }}
-              >
-                <Plus className="inline-block w-3 h-3 mr-1" />
-              </button>
-            )}
+
+            <AnimatePresence initial={false}>
+              {canAddMore && (
+                <motion.button
+                  key="add-option"
+                  type="button"
+                  className="text-xs text-soso-500"
+                  onClick={() => {
+                    if (fields.length >= 5) return;
+                    append({ content: '' });
+                  }}
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  transition={{ duration: 0.15 }}
+                  whileTap={{ scale: 1.3 }}
+                  whileHover={{ scale: 1.05 }}
+                >
+                  <Plus className="inline-block w-3 h-3 mr-1" />
+                </motion.button>
+              )}
+            </AnimatePresence>
           </div>
 
+          {/* 옵션 필드 */}
           <div className="flex flex-col gap-2">
-            {fields.map((field, index) => (
-              <VoteboardOptionField
-                key={field.id}
-                index={index}
-                register={register}
-                errorMessage={
-                  errors.voteOptions?.[index]?.content?.message
-                }
-                editable={!isEdit}
-                canRemove={!isEdit && fields.length > 2}
-                onRemove={() => remove(index)}
-              />
-            ))}
+            <AnimatePresence initial={false}>
+              {fields.map((field, index) => (
+                <motion.div
+                  key={field.id}
+                  layout
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.18 }}
+                >
+                  <VoteboardOptionField
+                    index={index}
+                    register={register}
+                    errorMessage={
+                      errors.voteOptions?.[index]?.content?.message
+                    }
+                    editable={!isEdit}
+                    canRemove={!isEdit && fields.length > 2}
+                    onRemove={() => remove(index)}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
+
           {typeof errors.voteOptions?.message === 'string' && (
             <p className="text-xs text-red-500">
               {errors.voteOptions?.message}
