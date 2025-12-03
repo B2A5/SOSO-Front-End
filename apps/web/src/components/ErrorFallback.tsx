@@ -13,7 +13,7 @@ export default function ErrorFallback({
   onRetry,
 }: ErrorFallbackProps) {
   return (
-    <div className="p-6 text-center space-y-4">
+    <div className="p-12 text-center space-y-4">
       <p className="text-red-500 font-medium">
         {message ?? '문제가 발생했습니다.'}
       </p>
