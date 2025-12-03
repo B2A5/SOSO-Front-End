@@ -5,11 +5,14 @@
  * 소소한 아이디어 공유 플랫폼의 백엔드 API 문서입니다.
  * OpenAPI spec version: v1.0.0
  */
+import type { VotePostUpdateRequestCategory } from './votePostUpdateRequestCategory';
 
 /**
  * 투표 게시글 수정 요청 (투표 옵션 수정 불가)
  */
 export interface VotePostUpdateRequest {
+  /** 수정할 카테고리 */
+  category?: VotePostUpdateRequestCategory;
   /**
    * 게시글 제목
    * @minLength 0
@@ -23,11 +26,13 @@ export interface VotePostUpdateRequest {
    */
   content?: string;
   /**
-   * 이미지 URL 목록 (최대 5개)
+   * 새로운 이미지 파일들 (기존 이미지 대체, 최대 4장)
    * @minItems 0
-   * @maxItems 5
+   * @maxItems 4
    */
-  imageUrls?: string[];
+  images?: Blob[];
+  /** 삭제할 기존 이미지 ID 목록 */
+  deleteImageIds?: number[];
   /** 투표 마감 시간 */
   endTime?: string;
   /** 재투표 허용 여부 (투표 후 변경 가능 여부) */
