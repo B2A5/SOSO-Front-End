@@ -95,7 +95,7 @@ export const Button = React.forwardRef<
     const isDisabled = disabled;
 
     const classes = cn(
-      'relative inline-flex items-center justify-center rounded-lg font-medium select-none overflow-hidden',
+      'relative flex items-center justify-center rounded-lg font-medium select-none overflow-hidden',
       'transition-transform duration-150 ease-out',
       // 기본 variant 스타일
       variantMap[variant],
@@ -111,7 +111,7 @@ export const Button = React.forwardRef<
     );
 
     return (
-      <Pressable>
+      <Pressable className={cn('flex', className)}>
         <button
           ref={ref}
           type="button"
