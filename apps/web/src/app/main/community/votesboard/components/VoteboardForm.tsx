@@ -77,6 +77,8 @@ export function VoteboardForm({
     control,
     setValue,
     handleSubmit,
+    watch,
+    getValues,
     formState: { errors, touchedFields, isValid },
   } = useForm<VoteboardFormData>({
     resolver: zodResolver(voteboardSchema),
@@ -104,8 +106,14 @@ export function VoteboardForm({
     name: 'voteOptions',
   });
 
+  const watchedOptions = watch('voteOptions');
+  const optionCount = watchedOptions?.length ?? fields.length;
+
+  const MAX_OPTIONS = 5;
+  const MIN_OPTIONS = 2;
+
   // 옵션 추가 가능 여부 (생성 모드 + 최대 5개)
-  const canAddMore = !isEdit && fields.length < 5;
+  const canAddMore = !isEdit && optionCount < MAX_OPTIONS;
 
   // 생성/수정 mutation 훅
   const { submitPost, isPending } = useVoteboardMutation(voteboardId);
@@ -251,8 +259,10 @@ export function VoteboardForm({
                   key="add-option"
                   type="button"
                   className="text-xs text-soso-500"
+                  aria-label="투표 옵션 추가"
                   onClick={() => {
-                    if (fields.length >= 5) return;
+                    const current = getValues('voteOptions') ?? [];
+                    if (current.length >= MAX_OPTIONS) return;
                     append({ content: '' });
                   }}
                   initial={{ opacity: 0, y: -4 }}
@@ -287,8 +297,12 @@ export function VoteboardForm({
                       errors.voteOptions?.[index]?.content?.message
                     }
                     editable={!isEdit}
-                    canRemove={!isEdit && fields.length > 2}
-                    onRemove={() => remove(index)}
+                    canRemove={!isEdit && optionCount > MIN_OPTIONS}
+                    onRemove={() => {
+                      const current = getValues('voteOptions') ?? [];
+                      if (current.length <= MIN_OPTIONS) return;
+                      remove(index);
+                    }}
                   />
                 </motion.div>
               ))}
