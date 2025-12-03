@@ -171,6 +171,6 @@ export const config = {
      * - _next/image (이미지 최적화)
      * - favicon.ico (파비콘)
      */
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|\\.well-known).*)',
   ],
 };
