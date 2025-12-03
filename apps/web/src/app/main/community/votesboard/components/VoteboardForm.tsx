@@ -18,6 +18,7 @@ import { VoteboardOptionField } from './VoteoptionField';
 import { CATEGORIES, Category } from '../../constants/categories';
 import { ImageUploader } from '@/components/ImageUploader';
 import { Select } from '@/components/select/Select';
+import { RoundCheckbox } from '@/components/inputs/RoundCheckbox';
 
 export interface VoteboardFormProps {
   /** 수정할 투표 게시글 ID (없으면 생성 모드) */
@@ -121,11 +122,11 @@ export function VoteboardForm({
   };
 
   return (
-    <div className="relative flex flex-col h-full w-full ">
+    <div className="relative flex flex-col h-full w-full overflow-y-auto">
       <form
         id="vote-form"
         aria-label={isEdit ? '투표 게시글 수정' : '투표 게시글 작성'}
-        className="flex flex-col gap-4 w-full flex-1 overflow-auto p-1 transition-transform duration-300 ease-in-out pb-16"
+        className="flex flex-col gap-4 w-full p-1 transition-transform duration-300 ease-in-out"
         onSubmit={handleSubmit(onSubmit)}
       >
         <div>
@@ -303,22 +304,14 @@ export function VoteboardForm({
 
         {/* 설정 (복수 선택 / 재투표) */}
         <div className="flex flex-col gap-2 text-sm">
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              className="w-4 h-4"
-              {...register('allowMultipleChoice')}
-            />
-            <span>복수 선택 허용</span>
-          </label>
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              className="w-4 h-4"
-              {...register('allowRevote')}
-            />
-            <span>재투표 허용</span>
-          </label>
+          <RoundCheckbox
+            label="복수 선택 허용"
+            {...register('allowMultipleChoice')}
+          />
+          <RoundCheckbox
+            label="재투표 허용"
+            {...register('allowRevote')}
+          />
         </div>
 
         {/* 이미지 업로드 */}
@@ -332,17 +325,19 @@ export function VoteboardForm({
             onDeleteExisting={handleDeleteExisting}
           />
         </div>
-      </form>
 
-      <Button
-        type="submit"
-        form="vote-form"
-        disabled={!isValid || isPending}
-        isLoading={isPending}
-        className="absolute bottom-0 w-full"
-      >
-        저장하기
-      </Button>
+        {/* 버튼 */}
+        <div className="sticky bottom-0 left-0 right-0 bg-white/90 dark:bg-neutral-900/90 pt-2">
+          <Button
+            type="submit"
+            disabled={!isValid || isPending}
+            isLoading={isPending}
+            className="w-full"
+          >
+            저장하기
+          </Button>
+        </div>
+      </form>
     </div>
   );
 }
