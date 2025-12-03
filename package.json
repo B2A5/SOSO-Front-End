@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "packageManager": "pnpm@9.15.9",
+  "packageManager": "pnpm@10.24.0",
   "scripts": {
     "dev": " turbo run dev --parallel",
     "dev:storybook": "pnpm --filter @soso/storybook dev",
@@ -30,7 +30,7 @@
   "private": true,
   "engines": {
     "node": "^24",
-    "pnpm": "^9"
+    "pnpm": ">=9.0.0"
   },
   "workspaces": [
     "apps/*",
