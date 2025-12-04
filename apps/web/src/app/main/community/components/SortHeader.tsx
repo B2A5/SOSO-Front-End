@@ -30,7 +30,7 @@ export function SortHeader({
       )}
       aria-label="정렬 옵션"
     >
-      <p className="text-body2 dark:text-white">
+      <p className="text-body2 text-neutral-800 dark:text-white">
         총 {totalCount}개 게시글
       </p>
 
@@ -39,7 +39,10 @@ export function SortHeader({
         onValueChange={(value) => onFilterChange(value as SortValue)}
         size="sm"
       >
-        <Select.Trigger placeholder="정렬 선택" />
+        <Select.Trigger
+          className="border-none text-neutral-800 dark:text-white justify-end text-sm"
+          placeholder="정렬 선택"
+        />
         <Select.Portal>
           <Select.Content>
             {sortOptions.map((option) => (

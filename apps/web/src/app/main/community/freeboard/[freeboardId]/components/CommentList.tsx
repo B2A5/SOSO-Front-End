@@ -58,12 +58,12 @@ export default function CommentList({
     );
   }, [data]);
 
-  const latestTotal =
+  const firstPageTotal =
     data?.pages && data.pages.length > 0
-      ? data.pages[data.pages.length - 1]?.total
+      ? data.pages[0]?.total
       : undefined;
 
-  const headerCount = latestTotal ?? initialCount ?? comments.length;
+  const headerCount = firstPageTotal ?? initialCount ?? 0;
 
   return (
     <section aria-label="댓글 섹션" className="flex-1">

@@ -22,6 +22,10 @@ export interface VotePostSummaryResponse {
   category: VotePostSummaryResponseCategory;
   /** 게시글 제목 */
   title: string;
+  /** 첫 번째 이미지 URL (썸네일용) */
+  thumbnailUrl?: string;
+  /** 이미지 개수 */
+  imageCount: number;
   /** 조회수 */
   viewCount: number;
   /** 댓글 수 */
