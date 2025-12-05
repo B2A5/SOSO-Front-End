@@ -1,7 +1,7 @@
 // apps/web/src/app/main/community/votesboard/[votesboardId]/edit/page.tsx
 'use client';
 
-import { useParams } from 'next/navigation';
+import { useParams, notFound } from 'next/navigation';
 import { Header } from '@/components/header/Header';
 import { useGetVotePost } from '@/generated/api/endpoints/voteboard/voteboard';
 import { VoteboardFormSkeleton } from '../../components/VoteBoardForm.Skeleton';
@@ -25,7 +25,11 @@ export default function VoteboardEditPage() {
   const voteId = Number(params.votesboardId);
 
   // 투표 게시글 상세 데이터 조회
-  const { data, isLoading } = useGetVotePost(voteId);
+  const { data, isLoading, error } = useGetVotePost(voteId);
+
+  if (!isLoading && (!data || error)) {
+    notFound();
+  }
 
   return (
     <div className="flex flex-col w-full h-full">
@@ -37,7 +41,7 @@ export default function VoteboardEditPage() {
       </Header>
 
       <main className="flex-1 w-full overflow-hidden p-layout">
-        {isLoading || !data ? (
+        {isLoading ? (
           <VoteboardFormSkeleton />
         ) : (
           <VoteboardForm voteboardId={voteId} initialData={data} />
