@@ -35,14 +35,21 @@ export async function AuthHydrationProvider({
       await queryClient.prefetchQuery({
         queryKey: getGetCurrentUserQueryKey(),
         queryFn: () => getServerCurrentUser(),
-        staleTime: 13 * 60 * 1000, // 13분
+        staleTime: (query) => {
+          if (
+            query.state.status === 'error' ||
+            query.state.data === null
+          ) {
+            return 0;
+          }
+          return 13 * 60 * 1000; // 13분
+        },
       });
     } else {
       // 토큰이 없으면 비로그인 상태로 초기화
       queryClient.setQueryData(getGetCurrentUserQueryKey(), null);
     }
   }
-  // HTTP 모드에서는 아무것도 하지 않음 (CSR이 알아서 처리)
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>

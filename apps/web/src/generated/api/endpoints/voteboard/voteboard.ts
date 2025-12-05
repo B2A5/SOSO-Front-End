@@ -35,7 +35,28 @@ import type {
 import { customInstance } from '../../../../lib/api-client';
 
 /**
- * 투표 게시글의 상세 정보를 조회합니다. 비로그인 사용자도 조회 가능합니다.
+ * 투표 게시글의 상세 정보를 조회합니다.
+
+**특징:**
+- 조회 시 조회수 자동 증가
+- 인증/비인증 사용자 모두 조회 가능
+- 인증 여부에 따라 isLiked, canEdit, canDelete 값 변경
+- 투표 참여 여부에 따라 selectedOptionIds 값 변경
+
+**인증 사용자:**
+- isAuthorized: true
+- isLiked: boolean (좋아요 상태)
+- canEdit: boolean (수정 권한 - 작성자인 경우 true)
+- canDelete: boolean (삭제 권한 - 작성자인 경우 true)
+- selectedOptionIds: 투표한 옵션 ID 목록 (투표 전이면 빈 배열)
+
+**비인증 사용자:**
+- isAuthorized: false
+- isLiked: null
+- canEdit: null
+- canDelete: null
+- selectedOptionIds: 빈 배열
+
  * @summary 투표 게시글 상세 조회
  */
 export const getVotePost = (

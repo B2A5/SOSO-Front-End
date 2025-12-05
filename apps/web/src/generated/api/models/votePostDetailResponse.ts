@@ -47,11 +47,15 @@ export interface VotePostDetailResponse {
   commentCount: number;
   /** 좋아요 수 */
   likeCount: number;
+  /** 현재 사용자가 게시글 수정 권한이 있는지 여부 (비인증 사용자인 경우 null, 작성자인 경우 true) */
+  canEdit: boolean;
+  /** 현재 사용자가 게시글 삭제 권한이 있는지 여부 (비인증 사용자인 경우 null, 작성자인 경우 true) */
+  canDelete: boolean;
   /** 생성일시 */
   createdDate: string;
   /** 수정일시 */
   lastModifiedDate: string;
-  liked?: boolean;
-  /** 현재 사용자의 좋아요 여부 (비로그인 시 false) */
+  authorized?: boolean;
+  /** 현재 사용자의 좋아요 여부 (비인증 사용자인 경우 null) */
   isLiked: boolean;
 }
