@@ -1,6 +1,6 @@
-import { VoteDuration } from '@/app/main/community/votesboard/schema/voteboardSchema';
+export type VoteDuration = '1d' | '3d' | '7d' | '14d';
 /**
- * duration 값(1d, 3d, 7d)을 숫자로 변환
+ * duration 값(1d, 3d, 7d, 14d)을 숫자로 변환
  */
 const getDaysFromDuration = (duration: VoteDuration): number => {
   switch (duration) {
@@ -10,6 +10,8 @@ const getDaysFromDuration = (duration: VoteDuration): number => {
       return 3;
     case '7d':
       return 7;
+    case '14d':
+      return 14;
     default:
       return 3;
   }
