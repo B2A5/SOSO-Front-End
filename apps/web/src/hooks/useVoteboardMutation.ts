@@ -4,7 +4,11 @@ import { useRouter } from 'next/navigation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/ui/useToast';
 import type { VoteboardFormData } from '@/app/main/community/votesboard/schema/voteboardSchema';
-import { useUpdateVotePost } from '@/generated/api/endpoints/voteboard/voteboard';
+import {
+  getGetVotePostQueryKey,
+  getGetVotePostsByCursorQueryKey,
+  useUpdateVotePost,
+} from '@/generated/api/endpoints/voteboard/voteboard';
 import { buildEndTimeFromDuration } from '@/utils/voteTime';
 import { createVotePost } from '@/app/main/community/votesboard/new/api/votePostCreate';
 import { VotePostCreateRequest } from '@/generated/api/models';
@@ -64,10 +68,10 @@ export function useVoteboardMutation(voteboardId?: number) {
       onSuccess: (response) => {
         console.log('게시글 수정 응답:', response);
         queryClient.invalidateQueries({
-          queryKey: [`/community/votesboard/${voteboardId}`],
+          queryKey: getGetVotePostQueryKey(voteboardId!),
         });
         queryClient.invalidateQueries({
-          queryKey: ['/community/votesboard'],
+          queryKey: getGetVotePostsByCursorQueryKey(),
         });
         toast('투표가 성공적으로 수정되었습니다.', 'success');
         router.push(`/main/community/votesboard/${voteboardId}`);

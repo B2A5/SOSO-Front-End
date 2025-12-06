@@ -229,7 +229,8 @@ export function VoteboardForm({
                   <Select.Content>
                     <Select.Item value="1d">1일 후 마감</Select.Item>
                     <Select.Item value="3d">3일 후 마감</Select.Item>
-                    <Select.Item value="7d">7일 후 마감</Select.Item>
+                    <Select.Item value="7d">1주 후 마감</Select.Item>
+                    <Select.Item value="14d">2주 후 마감</Select.Item>
                   </Select.Content>
                 </Select.Portal>
               </Select>
