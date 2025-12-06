@@ -5,12 +5,15 @@
  * 소소한 아이디어 공유 플랫폼의 백엔드 API 문서입니다.
  * OpenAPI spec version: v1.0.0
  */
+import type { VotePostCreateRequestCategory } from './votePostCreateRequestCategory';
 import type { VoteOptionRequest } from './voteOptionRequest';
 
 /**
  * 투표 게시글 생성 요청
  */
 export interface VotePostCreateRequest {
+  /** 게시글 카테고리 */
+  category: VotePostCreateRequestCategory;
   /**
    * 게시글 제목
    * @minLength 0
@@ -24,12 +27,6 @@ export interface VotePostCreateRequest {
    */
   content: string;
   /**
-   * 이미지 URL 목록 (최대 5개)
-   * @minItems 0
-   * @maxItems 5
-   */
-  imageUrls?: string[];
-  /**
    * 투표 옵션 목록 (2-5개)
    * @minItems 2
    * @maxItems 5
@@ -41,4 +38,10 @@ export interface VotePostCreateRequest {
   allowRevote: boolean;
   /** 중복 선택 허용 여부 (true: 여러 옵션 동시 선택 가능, 최대 n-1개 / false: 하나의 옵션만 선택 가능) */
   allowMultipleChoice: boolean;
+  /**
+   * 첨부 이미지 파일들 (최대 4장)
+   * @minItems 0
+   * @maxItems 4
+   */
+  images?: Blob[];
 }
