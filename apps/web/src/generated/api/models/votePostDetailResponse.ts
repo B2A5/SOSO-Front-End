@@ -6,6 +6,8 @@
  * OpenAPI spec version: v1.0.0
  */
 import type { UserSummaryResponse } from './userSummaryResponse';
+import type { VotePostDetailResponseCategory } from './votePostDetailResponseCategory';
+import type { ImageInfo } from './imageInfo';
 import type { VoteOptionResponse } from './voteOptionResponse';
 import type { VotePostDetailResponseVoteStatus } from './votePostDetailResponseVoteStatus';
 
@@ -15,14 +17,16 @@ import type { VotePostDetailResponseVoteStatus } from './votePostDetailResponseV
 export interface VotePostDetailResponse {
   /** 게시글 ID */
   id: number;
+  /** 작성자 정보 */
+  author: UserSummaryResponse;
+  /** 카테고리 */
+  category: VotePostDetailResponseCategory;
   /** 게시글 제목 */
   title: string;
   /** 게시글 내용 */
   content: string;
-  /** 작성자 정보 */
-  author: UserSummaryResponse;
-  /** 이미지 URL 목록 */
-  imageUrls?: string[];
+  /** 첨부된 이미지 정보 목록 */
+  images: ImageInfo[];
   /** 투표 옵션 목록 */
   voteOptions: VoteOptionResponse[];
   /** 현재 사용자가 선택한 옵션 ID 목록 (미투표 시 빈 리스트) */
@@ -43,11 +47,15 @@ export interface VotePostDetailResponse {
   commentCount: number;
   /** 좋아요 수 */
   likeCount: number;
+  /** 현재 사용자가 게시글 수정 권한이 있는지 여부 (비인증 사용자인 경우 null, 작성자인 경우 true) */
+  canEdit: boolean;
+  /** 현재 사용자가 게시글 삭제 권한이 있는지 여부 (비인증 사용자인 경우 null, 작성자인 경우 true) */
+  canDelete: boolean;
   /** 생성일시 */
   createdDate: string;
   /** 수정일시 */
   lastModifiedDate: string;
-  liked?: boolean;
-  /** 현재 사용자의 좋아요 여부 (비로그인 시 false) */
+  authorized?: boolean;
+  /** 현재 사용자의 좋아요 여부 (비인증 사용자인 경우 null) */
   isLiked: boolean;
 }

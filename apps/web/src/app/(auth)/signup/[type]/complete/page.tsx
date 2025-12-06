@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/buttons/Button';
 import CompleteImg from './components/CompleteImg';
-import { useAuthStore } from '@/stores/authStore';
+import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import {
   useSaveNickname,
@@ -12,10 +12,11 @@ import {
 import { useSignupFlow } from '@/hooks/useSignupFlow';
 import { MotionSlotMachineText } from '@/components/MotionSlotMachineText';
 import { SignupCompleteResponse } from '@/generated/api/models';
+import { User } from '@/types/user.types';
 
 export default function SignUpCompletePage() {
-  const login = useAuthStore((state) => state.login);
   const router = useRouter();
+  const { login } = useAuth();
   const { userType } = useSignupFlow();
   const userTypeLabel =
     userType === 'FOUNDER' ? '예비 창업자' : '주민';
@@ -30,14 +31,8 @@ export default function SignUpCompletePage() {
   ];
 
   // 회원가입 완료 후 로그인 및 리다이렉트 처리
-  const handleSuccess = ({
-    user,
-    accessToken,
-  }: SignupCompleteResponse) => {
-    login({
-      user,
-      accessToken,
-    });
+  const handleSuccess = (user: User) => {
+    login(user);
     console.log('회원가입 및 로그인 완료:', { nickname });
     router.replace('/main');
   };
@@ -48,10 +43,7 @@ export default function SignUpCompletePage() {
       mutation: {
         onSuccess: (data: SignupCompleteResponse) => {
           if (data) {
-            handleSuccess({
-              user: data.user,
-              accessToken: data.accessToken,
-            });
+            handleSuccess(data.user);
           } else {
             console.error('닉네임 또는 토큰 정보가 없습니다.');
           }

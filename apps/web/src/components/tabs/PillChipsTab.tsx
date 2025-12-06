@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useRef, useMemo } from 'react';
 import { Pressable } from '../Pressable';
 import { twMerge } from 'tailwind-merge';
