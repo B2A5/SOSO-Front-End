@@ -4,10 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "NEXT_PUBLIC_ENABLE_PROXY=false next dev",
-    "dev:https": "NEXT_PUBLIC_ENABLE_PROXY=true node server.mjs",
+    "dev": "next dev",
+    "dev:https": "node server.mjs",
     "build": "next build",
-    "build:analyze": "ANALYZE=true next build",
+    "build:analyze": "node analyze.mjs",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
