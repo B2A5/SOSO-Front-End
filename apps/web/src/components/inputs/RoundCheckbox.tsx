@@ -11,7 +11,7 @@ export interface RoundCheckboxProps
 /**
  * 동그란 디자인의 커스텀 체크박스
  *
- * - 비활성: 흰 배경, 뉴트럴 테두리, 뉴트럴 아이콘, 뉴트럴 텍스트
+ * - 비활성: 흰 배경, 뉴트럴 테두리, 뉴트럴 텍스트
  * - 활성: SOSO 메인 배경, 흰 아이콘, 검정 텍스트
  */
 export const RoundCheckbox = React.forwardRef<
@@ -27,16 +27,11 @@ export const RoundCheckbox = React.forwardRef<
     // 기본 모양
     'flex items-center justify-center w-4 h-4 rounded-full border transition-colors',
     // 비활성 상태
-    'border-neutral-400 bg-white text-neutral-400',
+    'border-neutral-100 bg-white text-transparent',
     // 활성(체크) 상태
     'peer-checked:bg-soso-500 peer-checked:border-soso-500 peer-checked:text-white',
     // 포커스
     'peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-soso-500',
-  );
-
-  const labelTextClassName = twMerge(
-    'text-neutral-600 transition-colors',
-    'peer-checked:text-neutral-900',
   );
 
   return (
@@ -63,7 +58,7 @@ export const RoundCheckbox = React.forwardRef<
       </span>
 
       {/* 라벨 텍스트 */}
-      {label && <span className={labelTextClassName}>{label}</span>}
+      {label && <span className="text-neutral-900">{label}</span>}
     </label>
   );
 });
