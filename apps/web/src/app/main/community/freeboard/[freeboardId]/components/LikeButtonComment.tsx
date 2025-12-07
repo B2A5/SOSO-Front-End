@@ -32,7 +32,7 @@ export default function LikeButtonComment({
 }: LikeButtonCommentProps) {
   const queryClient = useQueryClient();
   const toast = useToast();
-  const { guard } = useAuthGuard();
+  const { requireAuth } = useAuthGuard();
 
   // UI 전용 상태(부모 props와 동기화됨)
   const [liked, setLiked] = useState(!!initialLiked);
@@ -95,17 +95,16 @@ export default function LikeButtonComment({
   });
 
   // 클릭 시: 가드 통과 후, 중복 요청 방지 & 뮤테이션 트리거
-  const handleToggleLike = () =>
-    guard(() => {
-      if (toggleLike.isPending) return;
-      toggleLike.mutate({ freeboardId: postId, commentId });
-    });
+  const handleToggleLike = () => {
+    if (toggleLike.isPending) return;
+    toggleLike.mutate({ freeboardId: postId, commentId });
+  };
 
   return (
     <button
       type="button"
       aria-pressed={liked}
-      onClick={handleToggleLike}
+      onClick={requireAuth(handleToggleLike)}
       className="flex items-center gap-1.5"
       disabled={toggleLike.isPending}
       aria-label={liked ? '좋아요 취소' : '좋아요'}
