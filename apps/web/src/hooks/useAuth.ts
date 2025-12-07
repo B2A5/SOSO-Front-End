@@ -5,8 +5,10 @@ import {
 } from '@/generated/api/endpoints/users/users';
 import { ApiError } from '@/lib/api-error';
 import type { UserResponse } from '@/generated/api/models';
-import { useToast } from './ui/useToast';
 import { useLogout } from './useLogout';
+import { useOverlay } from './ui/useOverlay';
+import React from 'react';
+import { LoginRedirectOverlay } from '@/components/LoginRedirectOverlay';
 
 /**
  * 현재 로그인한 사용자 정보를 조회하는 Hook
@@ -83,60 +85,61 @@ export function useAuthRestore() {
 }
 
 /**
- * 인증 가드 Hook (기존 코드 호환성 유지)
+ * 행동 단위 인증 가드 Hook (HOF 패턴)
  *
- * ## 반환값
- * - `authed`: 인증 여부 (boolean)
- * - `guard(fn)`: 인증된 경우에만 fn 실행, 아니면 토스트 표시
- * - `ensureAuthed()`: 인증 여부 체크, false면 토스트 표시
- *
- * ## 레거시 호환
- * 기존 코드에서 사용하던 guard/ensureAuthed 패턴을 유지합니다.
- * 내부적으로는 새로운 useAuth()를 사용하여 SSR 최적화를 활용합니다.
- *
+ * - 인증된 상태: 넘겨준 액션(fn)을 그대로 실행
+ * - 비인증 상태: 로그인 리다이렉트 오버레이를 띄우고, 액션은 실행하지 않음
  */
-export function useAuthGuard(
-  options: { onUnauthed?: () => void } = {},
-) {
+export function useAuthGuard() {
+  // 현재 로그인 여부
   const { isAuth } = useAuth();
-  const toast = useToast();
-
-  // 비로그인 기본 처리: 토스트 표시 (기존 동작 유지)
-  // 옵션으로 커스텀 동작 지정 가능 (예: 리다이렉트)
-  const onUnauthed =
-    options.onUnauthed ??
-    (() => toast('로그인이 필요합니다.', 'error'));
+  // 전역 오버레이 제어 훅
+  const { open } = useOverlay();
 
   /**
-   * 인증된 경우에만 함수 실행
-   * @param fn - 실행할 함수
+   * 내부 헬퍼: "지금 로그인 되어 있는지" 확인하는 함수
+   *
+   * - 로그인 X:
+   *   - LoginRedirectOverlay 오버레이를 띄움
+   *   - false 반환
+   * - 로그인 O:
+   *   - true 반환
    */
-  const guard = (fn: () => void | Promise<void>) => {
+  const ensureAuthed = async () => {
     if (!isAuth) {
-      onUnauthed();
-      return;
-    }
-    return fn();
-  };
-
-  /**
-   * 인증 여부 확인 (조기 리턴 패턴에 사용)
-   * @returns 인증 여부
-   */
-  const ensureAuthed = () => {
-    if (!isAuth) {
-      onUnauthed();
+      // 오버레이 스택에 로그인 리다이렉트 모달 추가
+      await open<boolean>(
+        // renderer: close 함수를 받아서 오버레이 컴포넌트를 렌더링
+        ({ close }) =>
+          React.createElement(LoginRedirectOverlay, { close }),
+        {
+          blockScroll: true,
+          closeOnBackdrop: true,
+        },
+      );
       return false;
     }
     return true;
   };
 
+  /**
+   * 고차함수(HOF) 패턴
+   *
+   * - 인자: fn: 실제로 실행하고 싶은 액션(함수)
+   * - 반환: 로그인 체크가 래핑된 새 함수
+   **/
+  const requireAuth =
+    // Args: 원래 함수가 받을 인자 타입들
+    <Args extends unknown[]>(
+        fn: (...args: Args) => void | Promise<void>,
+      ) =>
+      async (...args: Args) => {
+        if (!(await ensureAuthed())) return;
+        return fn(...args);
+      };
+
   return {
-    /** 인증 여부 */
     authed: isAuth,
-    /** 인증된 경우에만 fn 실행 */
-    guard,
-    /** 인증 여부 확인 후 false면 onUnauthed 실행 */
-    ensureAuthed,
+    requireAuth,
   };
 }
