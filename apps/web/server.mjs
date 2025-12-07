@@ -8,6 +8,9 @@ import { dirname, join } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+// HTTPS 모드에서는 프록시 활성화
+process.env.NEXT_PUBLIC_ENABLE_PROXY = 'true';
+
 const dev = process.env.NODE_ENV !== 'production';
 const hostname = 'localhost';
 const port = 3000;
