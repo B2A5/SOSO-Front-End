@@ -22,6 +22,8 @@ export interface VotePostSummaryResponse {
   category: VotePostSummaryResponseCategory;
   /** 게시글 제목 */
   title: string;
+  /** 내용 미리보기 (100자 제한) */
+  contentPreview: string;
   /** 첫 번째 이미지 URL (썸네일용) */
   thumbnailUrl?: string;
   /** 이미지 개수 */
@@ -32,6 +34,8 @@ export interface VotePostSummaryResponse {
   commentCount: number;
   /** 총 투표 참여자 수 */
   totalVotes: number;
+  /** 현재 사용자의 투표 참여 여부 (비인증 사용자인 경우 null, 참여하지 않은 경우 false, 참여한 경우 true) */
+  hasVoted: boolean;
   /** 투표 상태 (IN_PROGRESS: 진행중, COMPLETED: 완료) */
   voteStatus: VotePostSummaryResponseVoteStatus;
   /** 투표 마감 시간 */
