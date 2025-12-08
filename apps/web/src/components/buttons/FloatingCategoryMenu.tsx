@@ -4,9 +4,10 @@ import { useEffect, useRef, useState } from 'react';
 
 import { twMerge } from 'tailwind-merge';
 import Pressable from '../Pressable';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { X } from 'lucide-react';
 
+export type CommunityRoute = 'freeboard' | 'votesboard';
 /**
  * 카테고리 아이템 타입 정의
  */
@@ -23,6 +24,7 @@ export interface CategoryItem {
 export interface FloatingCategoryMenuProps {
   /** 카테고리 목록 */
   categories: CategoryItem[];
+  route: CommunityRoute;
   /** 추가 CSS 클래스명 */
   className?: string;
   /** 닫기 콜백 함수 (애니메이션 포함) */
@@ -41,6 +43,7 @@ export interface FloatingCategoryMenuProps {
 export default function FloatingCategoryMenu({
   categories,
   className,
+  route,
   onClose,
 }: FloatingCategoryMenuProps) {
   const menuRef = useRef<HTMLUListElement>(null);
@@ -48,7 +51,6 @@ export default function FloatingCategoryMenu({
     null,
   );
   const router = useRouter();
-  const params = useParams();
   /**
    * 컴포넌트 마운트 시 첫 번째 버튼에 포커스
    */
@@ -97,10 +99,7 @@ export default function FloatingCategoryMenu({
 
   const handleButtonClick = (value: string) => {
     onClose();
-    const currentTab = params.tab || 'freeboard';
-    router.push(
-      `/main/community/${currentTab}/new?category=${value}`,
-    );
+    router.push(`/main/community/${route}/new?category=${value}`);
   };
 
   /**

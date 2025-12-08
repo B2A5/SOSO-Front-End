@@ -1,12 +1,15 @@
 'use client';
 
 import { useState } from 'react';
+import { useOverlay } from '@/hooks/ui/useOverlay';
 import { SortHeader } from '../components/SortHeader';
 import { SORT_OPTIONS } from '../constants/sortOptions';
 import { SortValue } from '@/types/options.types';
 import { PillChipsTab } from '@/components/tabs/PillChipsTab';
+import { CATEGORIES } from '../constants/categories';
 import { VOTE_STATES, VoteState } from '../constants/votesOptions';
 import { VotePostSummaryResponse } from '@/generated/api/models';
+import FloatingCategoryMenu from '@/components/buttons/FloatingCategoryMenu';
 import CommunityPostList from '../components/CommunityPostList';
 import { VoteBoardCard } from './components/VoteBoardCard';
 import {
@@ -14,6 +17,7 @@ import {
   getGetVotePostsByCursorQueryKey,
 } from '@/generated/api/endpoints/voteboard/voteboard';
 import { useInfiniteQuery } from '@tanstack/react-query';
+import FloatingButton from '@/components/buttons/FloatingButton';
 /**
  * 투표 게시판 클라이언트 메인 페이지
  *
@@ -27,7 +31,7 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 export default function VotesboardClientPage() {
   const [sortOption, setSortOption] = useState<SortValue>('LATEST');
   const [voteState, setVoteState] = useState<VoteState>(null);
-
+  const { open } = useOverlay();
   // 무한스크롤 데이터 페칭
   const {
     data,
@@ -60,6 +64,23 @@ export default function VotesboardClientPage() {
   const allVotePosts: VotePostSummaryResponse[] =
     data?.pages.flatMap((page) => page.posts ?? []) ?? [];
   const totalCount = data?.pages[0]?.totalCount ?? 0;
+
+  const handleFloatingButtonClick = () => {
+    open(
+      ({ close }) => (
+        <FloatingCategoryMenu
+          route="votesboard"
+          categories={CATEGORIES}
+          onClose={() => close(null, { duration: 200 })}
+        />
+      ),
+      {
+        backdrop: true,
+        closeOnBackdrop: true,
+      },
+    );
+  };
+
   return (
     <main className="w-full h-full flex flex-col">
       <PillChipsTab<VoteState>
@@ -91,6 +112,7 @@ export default function VotesboardClientPage() {
       />
 
       {/* TODO: FloatingButton 추가 */}
+      <FloatingButton onClick={handleFloatingButtonClick} />
     </main>
   );
 }

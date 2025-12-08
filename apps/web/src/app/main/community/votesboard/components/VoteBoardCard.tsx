@@ -4,7 +4,7 @@ import Card from '@/components/Card';
 import { CategoryChip } from '@/components/chips/CategoryChip';
 import { Category } from '../../constants/categories';
 import { LaptopMinimalCheck, MessageSquareMore } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+//import { useRouter } from 'next/navigation';
 import { formatCount } from '@/utils/formatCount';
 import type { VotePostSummaryResponse } from '@/generated/api/models';
 import { formatVoteDeadline } from '@/utils/vote-deadline';
@@ -28,10 +28,14 @@ export function VoteBoardCard({ post }: VoteBoardCardProps) {
     hasVoted,
   } = post;
 
-  const router = useRouter();
+  // const router = useRouter();
 
   const handleOnClick = () => {
-    router.push(`/main/community/freeboard/${postId}`);
+    console.warn(
+      '추후 투표 상세 페이지로 이동할 예정입니다. => postId:',
+      postId,
+    );
+    //router.push(`/main/community/votesboard/${postId}`);
   };
 
   return (

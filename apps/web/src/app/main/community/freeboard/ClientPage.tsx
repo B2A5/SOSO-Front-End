@@ -72,6 +72,7 @@ export default function FreeboardClientPage() {
     open(
       ({ close }) => (
         <FloatingCategoryMenu
+          route="freeboard"
           categories={CATEGORIES}
           onClose={() => close(null, { duration: 200 })}
         />
