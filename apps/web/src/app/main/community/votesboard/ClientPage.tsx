@@ -64,9 +64,9 @@ export default function VotesboardClientPage() {
     <main className="w-full h-full flex flex-col">
       <PillChipsTab<VoteState>
         chips={VOTE_STATES}
+        showAll
         activeValue={voteState}
         onChange={setVoteState}
-        showAll
         ariaLabel="투표 상태 선택 필터"
       />
       {/* 필터 헤더 */}
@@ -85,7 +85,7 @@ export default function VotesboardClientPage() {
         initialLoading={isLoading}
         error={error}
         onRetry={() => refetch()}
-        storageKey="votesboard-scroll-pos"
+        storageKey="votesboard-post-list-scroll"
         getItemKey={(post, index) => post.id ?? `post-${index}`}
         renderItem={(post) => <VoteBoardCard post={post} />}
       />
