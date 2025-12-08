@@ -1,52 +1,25 @@
 'use client';
 
 import { twMerge } from 'tailwind-merge';
-import { useOverlay } from '@/hooks/ui/useOverlay';
-import FloatingMenu, { type CategoryItem } from './FloatingMenu';
 import { PenLine } from 'lucide-react';
 
 /**
  * FloatingButton 컴포넌트 Props
  */
 export interface FloatingButtonProps {
-  /** 카테고리 목록 */
-  categories: CategoryItem[];
+  /** 클릭 이벤트 핸들러 */
+  onClick?: () => void;
   /** 추가 CSS 클래스명 */
   className?: string;
 }
 
 /**
  * 플로팅 액션 버튼 컴포넌트
- *
- * @description 카테고리 메뉴를 오버레이로 표시하는 플로팅 버튼
- * - 클릭 시 useOverlay를 통해 FloatingMenu 표시
- * - 백드롭 클릭으로 메뉴 닫기 가능
- * - 접근성 속성 완전 지원
  */
 export default function FloatingButton({
-  categories,
   className,
+  onClick,
 }: FloatingButtonProps) {
-  const { open } = useOverlay();
-
-  /**
-   * 메뉴 열기 함수 (Promise 기반)
-   */
-  const handleOpenMenu = () => {
-    open(
-      ({ close }) => (
-        <FloatingMenu
-          categories={categories}
-          onClose={() => close(null, { duration: 200 })}
-        />
-      ),
-      {
-        backdrop: true,
-        closeOnBackdrop: true,
-      },
-    );
-  };
-
   return (
     <button
       type="button"
@@ -67,7 +40,7 @@ export default function FloatingButton({
         'flex items-center justify-center',
         className,
       )}
-      onClick={handleOpenMenu}
+      onClick={onClick}
     >
       <PenLine />
     </button>

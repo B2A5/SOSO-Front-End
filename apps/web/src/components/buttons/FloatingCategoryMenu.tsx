@@ -20,7 +20,7 @@ export interface CategoryItem {
 /**
  * FloatingMenu 컴포넌트 Props
  */
-export interface FloatingMenuProps {
+export interface FloatingCategoryMenuProps {
   /** 카테고리 목록 */
   categories: CategoryItem[];
   /** 추가 CSS 클래스명 */
@@ -38,11 +38,11 @@ export interface FloatingMenuProps {
  * - CSS 기반 fade-in 애니메이션
  * - 메뉴 아이템 클릭 시 자동 닫기 및 페이지 이동
  */
-export default function FloatingMenu({
+export default function FloatingCategoryMenu({
   categories,
   className,
   onClose,
-}: FloatingMenuProps) {
+}: FloatingCategoryMenuProps) {
   const menuRef = useRef<HTMLUListElement>(null);
   const [pressedButton, setPressedButton] = useState<string | null>(
     null,
