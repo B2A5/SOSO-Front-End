@@ -22,4 +22,6 @@ export interface VotePostListResponse {
   /** 총 게시글 수 */
   totalCount: number;
   authorized?: boolean;
+  /** 요청한 사용자가 인증되었는지 여부 (액세스 토큰 제공 여부) */
+  isAuthorized: boolean;
 }
