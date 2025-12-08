@@ -53,6 +53,7 @@ export * from './getPostsByCursorSort';
 export * from './getVotePostListParams';
 export * from './getVotePostListStatus';
 export * from './getVotePostsByCursorParams';
+export * from './getVotePostsByCursorSort';
 export * from './getVotePostsByCursorStatus';
 export * from './getVoteboardCommentsByCursorParams';
 export * from './getVoteboardCommentsByCursorSort';

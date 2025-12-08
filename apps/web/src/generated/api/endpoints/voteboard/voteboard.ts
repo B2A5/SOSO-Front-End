@@ -729,6 +729,17 @@ export const useCancelVote = <
 };
 /**
  * 커서 기반 페이지네이션으로 투표 게시글 목록을 조회합니다.
+
+**정렬 옵션:**
+- LATEST: 최신순 (기본값)
+- LIKE: 투표순 (투표 인원 많은 순)
+- COMMENT: 댓글순
+- VIEW: 조회순
+
+**커서 사용법:**
+첫 요청: cursor 없이 요청
+다음 페이지: 이전 응답의 nextCursor 값을 사용
+
  * @summary 투표 게시글 목록 조회 (커서 기반)
  */
 export const getVotePostsByCursor = (
@@ -754,7 +765,7 @@ export const getGetVotePostsByCursorQueryKey = (
 
 export const getGetVotePostsByCursorQueryOptions = <
   TData = Awaited<ReturnType<typeof getVotePostsByCursor>>,
-  TError = unknown,
+  TError = ErrorResponse,
 >(
   params?: GetVotePostsByCursorParams,
   options?: {
@@ -786,11 +797,11 @@ export const getGetVotePostsByCursorQueryOptions = <
 export type GetVotePostsByCursorQueryResult = NonNullable<
   Awaited<ReturnType<typeof getVotePostsByCursor>>
 >;
-export type GetVotePostsByCursorQueryError = unknown;
+export type GetVotePostsByCursorQueryError = ErrorResponse;
 
 export function useGetVotePostsByCursor<
   TData = Awaited<ReturnType<typeof getVotePostsByCursor>>,
-  TError = unknown,
+  TError = ErrorResponse,
 >(
   params: undefined | GetVotePostsByCursorParams,
   options: {
@@ -816,7 +827,7 @@ export function useGetVotePostsByCursor<
 };
 export function useGetVotePostsByCursor<
   TData = Awaited<ReturnType<typeof getVotePostsByCursor>>,
-  TError = unknown,
+  TError = ErrorResponse,
 >(
   params?: GetVotePostsByCursorParams,
   options?: {
@@ -842,7 +853,7 @@ export function useGetVotePostsByCursor<
 };
 export function useGetVotePostsByCursor<
   TData = Awaited<ReturnType<typeof getVotePostsByCursor>>,
-  TError = unknown,
+  TError = ErrorResponse,
 >(
   params?: GetVotePostsByCursorParams,
   options?: {
@@ -864,7 +875,7 @@ export function useGetVotePostsByCursor<
 
 export function useGetVotePostsByCursor<
   TData = Awaited<ReturnType<typeof getVotePostsByCursor>>,
-  TError = unknown,
+  TError = ErrorResponse,
 >(
   params?: GetVotePostsByCursorParams,
   options?: {
