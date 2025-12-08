@@ -48,7 +48,6 @@ export interface VotePostSummaryResponse {
   createdDate: string;
   /** 수정일시 */
   lastModifiedDate: string;
-  liked?: boolean;
-  /** 현재 사용자의 좋아요 여부 (비로그인 시 false) */
+  /** 현재 사용자의 좋아요 여부 (비인증 사용자인 경우 null) */
   isLiked: boolean;
 }
