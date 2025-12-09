@@ -115,12 +115,10 @@ export default function LikeButtonPost({
     },
   });
 
-  // 클릭 시: 가드 통과 후, 중복 요청 방지 & 뮤테이션 트리거
+  // 중복 요청 방지 & 뮤테이션 트리거
   const handleToggleLike = () => {
     if (toggleLike.isPending) return;
-    requireAuth(() => {
-      toggleLike.mutate({ freeboardId: postId });
-    });
+    toggleLike.mutate({ freeboardId: postId });
   };
 
   return (
