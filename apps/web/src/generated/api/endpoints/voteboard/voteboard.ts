@@ -24,12 +24,12 @@ import type {
 import type {
   ErrorResponse,
   GetVotePostsByCursorParams,
-  VotePostCreateRequest,
-  VotePostDetailResponse,
-  VotePostIdResponse,
-  VotePostListResponse,
-  VotePostUpdateRequest,
   VoteRequest,
+  VoteboardCreateRequest,
+  VoteboardCreateResponse,
+  VoteboardCursorResponse,
+  VoteboardDetailResponse,
+  VoteboardUpdateRequest,
 } from '../../models';
 
 import { customInstance } from '../../../../lib/api-client';
@@ -40,18 +40,20 @@ import { customInstance } from '../../../../lib/api-client';
 **특징:**
 - 조회 시 조회수 자동 증가
 - 인증/비인증 사용자 모두 조회 가능
-- 인증 여부에 따라 isLiked, canEdit, canDelete 값 변경
+- 인증 여부에 따라 hasVoted, isLiked, canEdit, canDelete 값 변경
 - 투표 참여 여부에 따라 selectedOptionIds 값 변경
 
 **인증 사용자:**
 - isAuthorized: true
+- hasVoted: boolean (투표 참여 여부 - 참여했으면 true, 안 했으면 false)
 - isLiked: boolean (좋아요 상태)
 - canEdit: boolean (수정 권한 - 작성자인 경우 true)
 - canDelete: boolean (삭제 권한 - 작성자인 경우 true)
-- selectedOptionIds: 투표한 옵션 ID 목록 (투표 전이면 빈 배열)
+- selectedOptionIds: 투표한 옵션 ID 목록 (투표 전이면 빈 배열, 투표 후에는 선택한 옵션 ID들)
 
 **비인증 사용자:**
 - isAuthorized: false
+- hasVoted: null
 - isLiked: null
 - canEdit: null
 - canDelete: null
@@ -63,7 +65,7 @@ export const getVotePost = (
   votesboardId: number,
   signal?: AbortSignal,
 ) => {
-  return customInstance<VotePostDetailResponse>({
+  return customInstance<VoteboardDetailResponse>({
     url: `/community/votesboard/${votesboardId}`,
     method: 'GET',
     signal,
@@ -237,41 +239,41 @@ export function useGetVotePost<
  */
 export const updateVotePost = (
   votesboardId: number,
-  votePostUpdateRequest: VotePostUpdateRequest,
+  voteboardUpdateRequest: VoteboardUpdateRequest,
 ) => {
   const formData = new FormData();
-  if (votePostUpdateRequest.category !== undefined) {
-    formData.append(`category`, votePostUpdateRequest.category);
+  if (voteboardUpdateRequest.category !== undefined) {
+    formData.append(`category`, voteboardUpdateRequest.category);
   }
-  if (votePostUpdateRequest.title !== undefined) {
-    formData.append(`title`, votePostUpdateRequest.title);
+  if (voteboardUpdateRequest.title !== undefined) {
+    formData.append(`title`, voteboardUpdateRequest.title);
   }
-  if (votePostUpdateRequest.content !== undefined) {
-    formData.append(`content`, votePostUpdateRequest.content);
+  if (voteboardUpdateRequest.content !== undefined) {
+    formData.append(`content`, voteboardUpdateRequest.content);
   }
-  if (votePostUpdateRequest.images !== undefined) {
-    votePostUpdateRequest.images.forEach((value) =>
+  if (voteboardUpdateRequest.images !== undefined) {
+    voteboardUpdateRequest.images.forEach((value) =>
       formData.append(`images`, value),
     );
   }
-  if (votePostUpdateRequest.deleteImageIds !== undefined) {
-    votePostUpdateRequest.deleteImageIds.forEach((value) =>
+  if (voteboardUpdateRequest.deleteImageIds !== undefined) {
+    voteboardUpdateRequest.deleteImageIds.forEach((value) =>
       formData.append(`deleteImageIds`, value.toString()),
     );
   }
-  if (votePostUpdateRequest.endTime !== undefined) {
-    formData.append(`endTime`, votePostUpdateRequest.endTime);
+  if (voteboardUpdateRequest.endTime !== undefined) {
+    formData.append(`endTime`, voteboardUpdateRequest.endTime);
   }
-  if (votePostUpdateRequest.allowRevote !== undefined) {
+  if (voteboardUpdateRequest.allowRevote !== undefined) {
     formData.append(
       `allowRevote`,
-      votePostUpdateRequest.allowRevote.toString(),
+      voteboardUpdateRequest.allowRevote.toString(),
     );
   }
-  if (votePostUpdateRequest.allowMultipleChoice !== undefined) {
+  if (voteboardUpdateRequest.allowMultipleChoice !== undefined) {
     formData.append(
       `allowMultipleChoice`,
-      votePostUpdateRequest.allowMultipleChoice.toString(),
+      voteboardUpdateRequest.allowMultipleChoice.toString(),
     );
   }
 
@@ -290,13 +292,13 @@ export const getUpdateVotePostMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof updateVotePost>>,
     TError,
-    { votesboardId: number; data: VotePostUpdateRequest },
+    { votesboardId: number; data: VoteboardUpdateRequest },
     TContext
   >;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof updateVotePost>>,
   TError,
-  { votesboardId: number; data: VotePostUpdateRequest },
+  { votesboardId: number; data: VoteboardUpdateRequest },
   TContext
 > => {
   const mutationKey = ['updateVotePost'];
@@ -310,7 +312,7 @@ export const getUpdateVotePostMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof updateVotePost>>,
-    { votesboardId: number; data: VotePostUpdateRequest }
+    { votesboardId: number; data: VoteboardUpdateRequest }
   > = (props) => {
     const { votesboardId, data } = props ?? {};
 
@@ -323,7 +325,7 @@ export const getUpdateVotePostMutationOptions = <
 export type UpdateVotePostMutationResult = NonNullable<
   Awaited<ReturnType<typeof updateVotePost>>
 >;
-export type UpdateVotePostMutationBody = VotePostUpdateRequest;
+export type UpdateVotePostMutationBody = VoteboardUpdateRequest;
 export type UpdateVotePostMutationError =
   | ErrorResponse
   | ErrorResponse;
@@ -339,7 +341,7 @@ export const useUpdateVotePost = <
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof updateVotePost>>,
       TError,
-      { votesboardId: number; data: VotePostUpdateRequest },
+      { votesboardId: number; data: VoteboardUpdateRequest },
       TContext
     >;
   },
@@ -347,7 +349,7 @@ export const useUpdateVotePost = <
 ): UseMutationResult<
   Awaited<ReturnType<typeof updateVotePost>>,
   TError,
-  { votesboardId: number; data: VotePostUpdateRequest },
+  { votesboardId: number; data: VoteboardUpdateRequest },
   TContext
 > => {
   const mutationOptions = getUpdateVotePostMutationOptions(options);
@@ -729,13 +731,31 @@ export const useCancelVote = <
 };
 /**
  * 커서 기반 페이지네이션으로 투표 게시글 목록을 조회합니다.
+
+**정렬 옵션:**
+- LATEST: 최신순 (기본값)
+- LIKE: 투표순 (투표 인원 많은 순)
+- COMMENT: 댓글순
+- VIEW: 조회순
+
+**커서 사용법:**
+첫 요청: cursor 없이 요청
+다음 페이지: 이전 응답의 nextCursor 값을 사용
+
+**응답 필드:**
+- contentPreview: 게시글 내용 미리보기 (100자 제한)
+- hasVoted: 현재 사용자의 투표 참여 여부 (인증 사용자만, 비인증 시 null)
+- isLiked: 현재 사용자의 좋아요 여부 (인증 사용자만, 비인증 시 null)
+- totalCount: 전체 게시글 수 (필터 적용된 결과)
+- isAuthorized: 요청 사용자의 인증 여부
+
  * @summary 투표 게시글 목록 조회 (커서 기반)
  */
 export const getVotePostsByCursor = (
   params?: GetVotePostsByCursorParams,
   signal?: AbortSignal,
 ) => {
-  return customInstance<VotePostListResponse>({
+  return customInstance<VoteboardCursorResponse>({
     url: `/community/votesboard`,
     method: 'GET',
     params,
@@ -754,7 +774,7 @@ export const getGetVotePostsByCursorQueryKey = (
 
 export const getGetVotePostsByCursorQueryOptions = <
   TData = Awaited<ReturnType<typeof getVotePostsByCursor>>,
-  TError = unknown,
+  TError = ErrorResponse,
 >(
   params?: GetVotePostsByCursorParams,
   options?: {
@@ -786,11 +806,11 @@ export const getGetVotePostsByCursorQueryOptions = <
 export type GetVotePostsByCursorQueryResult = NonNullable<
   Awaited<ReturnType<typeof getVotePostsByCursor>>
 >;
-export type GetVotePostsByCursorQueryError = unknown;
+export type GetVotePostsByCursorQueryError = ErrorResponse;
 
 export function useGetVotePostsByCursor<
   TData = Awaited<ReturnType<typeof getVotePostsByCursor>>,
-  TError = unknown,
+  TError = ErrorResponse,
 >(
   params: undefined | GetVotePostsByCursorParams,
   options: {
@@ -816,7 +836,7 @@ export function useGetVotePostsByCursor<
 };
 export function useGetVotePostsByCursor<
   TData = Awaited<ReturnType<typeof getVotePostsByCursor>>,
-  TError = unknown,
+  TError = ErrorResponse,
 >(
   params?: GetVotePostsByCursorParams,
   options?: {
@@ -842,7 +862,7 @@ export function useGetVotePostsByCursor<
 };
 export function useGetVotePostsByCursor<
   TData = Awaited<ReturnType<typeof getVotePostsByCursor>>,
-  TError = unknown,
+  TError = ErrorResponse,
 >(
   params?: GetVotePostsByCursorParams,
   options?: {
@@ -864,7 +884,7 @@ export function useGetVotePostsByCursor<
 
 export function useGetVotePostsByCursor<
   TData = Awaited<ReturnType<typeof getVotePostsByCursor>>,
-  TError = unknown,
+  TError = ErrorResponse,
 >(
   params?: GetVotePostsByCursorParams,
   options?: {
@@ -913,32 +933,32 @@ export function useGetVotePostsByCursor<
  * @summary 투표 게시글 작성
  */
 export const createVotePost = (
-  votePostCreateRequest: VotePostCreateRequest,
+  voteboardCreateRequest: VoteboardCreateRequest,
   signal?: AbortSignal,
 ) => {
   const formData = new FormData();
-  formData.append(`category`, votePostCreateRequest.category);
-  formData.append(`title`, votePostCreateRequest.title);
-  formData.append(`content`, votePostCreateRequest.content);
-  votePostCreateRequest.voteOptions.forEach((value) =>
+  formData.append(`category`, voteboardCreateRequest.category);
+  formData.append(`title`, voteboardCreateRequest.title);
+  formData.append(`content`, voteboardCreateRequest.content);
+  voteboardCreateRequest.voteOptions.forEach((value) =>
     formData.append(`voteOptions`, JSON.stringify(value)),
   );
-  formData.append(`endTime`, votePostCreateRequest.endTime);
+  formData.append(`endTime`, voteboardCreateRequest.endTime);
   formData.append(
     `allowRevote`,
-    votePostCreateRequest.allowRevote.toString(),
+    voteboardCreateRequest.allowRevote.toString(),
   );
   formData.append(
     `allowMultipleChoice`,
-    votePostCreateRequest.allowMultipleChoice.toString(),
+    voteboardCreateRequest.allowMultipleChoice.toString(),
   );
-  if (votePostCreateRequest.images !== undefined) {
-    votePostCreateRequest.images.forEach((value) =>
+  if (voteboardCreateRequest.images !== undefined) {
+    voteboardCreateRequest.images.forEach((value) =>
       formData.append(`images`, value),
     );
   }
 
-  return customInstance<VotePostIdResponse>({
+  return customInstance<VoteboardCreateResponse>({
     url: `/community/votesboard`,
     method: 'POST',
     headers: { 'Content-Type': 'multipart/form-data' },
@@ -954,13 +974,13 @@ export const getCreateVotePostMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof createVotePost>>,
     TError,
-    { data: VotePostCreateRequest },
+    { data: VoteboardCreateRequest },
     TContext
   >;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof createVotePost>>,
   TError,
-  { data: VotePostCreateRequest },
+  { data: VoteboardCreateRequest },
   TContext
 > => {
   const mutationKey = ['createVotePost'];
@@ -974,7 +994,7 @@ export const getCreateVotePostMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof createVotePost>>,
-    { data: VotePostCreateRequest }
+    { data: VoteboardCreateRequest }
   > = (props) => {
     const { data } = props ?? {};
 
@@ -987,7 +1007,7 @@ export const getCreateVotePostMutationOptions = <
 export type CreateVotePostMutationResult = NonNullable<
   Awaited<ReturnType<typeof createVotePost>>
 >;
-export type CreateVotePostMutationBody = VotePostCreateRequest;
+export type CreateVotePostMutationBody = VoteboardCreateRequest;
 export type CreateVotePostMutationError =
   | ErrorResponse
   | ErrorResponse
@@ -1004,7 +1024,7 @@ export const useCreateVotePost = <
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof createVotePost>>,
       TError,
-      { data: VotePostCreateRequest },
+      { data: VoteboardCreateRequest },
       TContext
     >;
   },
@@ -1012,7 +1032,7 @@ export const useCreateVotePost = <
 ): UseMutationResult<
   Awaited<ReturnType<typeof createVotePost>>,
   TError,
-  { data: VotePostCreateRequest },
+  { data: VoteboardCreateRequest },
   TContext
 > => {
   const mutationOptions = getCreateVotePostMutationOptions(options);
