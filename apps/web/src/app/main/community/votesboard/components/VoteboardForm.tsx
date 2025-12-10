@@ -115,6 +115,19 @@ export function VoteboardForm({
   // 옵션 추가 가능 여부 (생성 모드 + 최대 5개)
   const canAddMore = !isEdit && optionCount < MAX_OPTIONS;
 
+  // 옵션 추가/제거 핸들러
+  const handleAddOption = () => {
+    const current = getValues('voteOptions') ?? [];
+    if (current.length >= MAX_OPTIONS) return;
+    append({ content: '' });
+  };
+
+  const handleRemoveOption = (index: number) => {
+    const current = getValues('voteOptions') ?? [];
+    if (current.length <= MIN_OPTIONS) return;
+    remove(index);
+  };
+
   // 생성/수정 mutation 훅
   const { submitPost, isPending } = useVoteboardMutation(voteboardId);
 
@@ -261,11 +274,7 @@ export function VoteboardForm({
                   type="button"
                   className="text-xs text-soso-500"
                   aria-label="투표 옵션 추가"
-                  onClick={() => {
-                    const current = getValues('voteOptions') ?? [];
-                    if (current.length >= MAX_OPTIONS) return;
-                    append({ content: '' });
-                  }}
+                  onClick={handleAddOption}
                   initial={{ opacity: 0, y: -4 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -4 }}
@@ -299,11 +308,7 @@ export function VoteboardForm({
                     }
                     editable={!isEdit}
                     canRemove={!isEdit && optionCount > MIN_OPTIONS}
-                    onRemove={() => {
-                      const current = getValues('voteOptions') ?? [];
-                      if (current.length <= MIN_OPTIONS) return;
-                      remove(index);
-                    }}
+                    onRemove={() => handleRemoveOption(index)}
                   />
                 </motion.div>
               ))}
