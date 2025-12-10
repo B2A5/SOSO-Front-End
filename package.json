@@ -6,8 +6,8 @@
   "packageManager": "pnpm@9.15.9",
   "scripts": {
     "dev": " turbo run dev --parallel",
-    "dev:storybook": "pnpm --filter @soso/storybook dev",
-    "dev:docs": "pnpm --filter @soso/docs dev",
+    "dev:web": "pnpm --filter web dev:https",
+    "dev:docs": "pnpm --filter docs dev",
     "build": " turbo run build",
     "build:packages": "turbo run build --filter='./packages/*'",
     "lint": " turbo run lint",
