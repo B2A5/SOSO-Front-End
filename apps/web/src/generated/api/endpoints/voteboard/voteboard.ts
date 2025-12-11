@@ -24,12 +24,12 @@ import type {
 import type {
   ErrorResponse,
   GetVotePostsByCursorParams,
-  VotePostCreateRequest,
-  VotePostDetailResponse,
-  VotePostIdResponse,
-  VotePostListResponse,
-  VotePostUpdateRequest,
   VoteRequest,
+  VoteboardCreateRequest,
+  VoteboardCreateResponse,
+  VoteboardCursorResponse,
+  VoteboardDetailResponse,
+  VoteboardUpdateRequest,
 } from '../../models';
 
 import { customInstance } from '../../../../lib/api-client';
@@ -65,7 +65,7 @@ export const getVotePost = (
   votesboardId: number,
   signal?: AbortSignal,
 ) => {
-  return customInstance<VotePostDetailResponse>({
+  return customInstance<VoteboardDetailResponse>({
     url: `/community/votesboard/${votesboardId}`,
     method: 'GET',
     signal,
@@ -239,41 +239,41 @@ export function useGetVotePost<
  */
 export const updateVotePost = (
   votesboardId: number,
-  votePostUpdateRequest: VotePostUpdateRequest,
+  voteboardUpdateRequest: VoteboardUpdateRequest,
 ) => {
   const formData = new FormData();
-  if (votePostUpdateRequest.category !== undefined) {
-    formData.append(`category`, votePostUpdateRequest.category);
+  if (voteboardUpdateRequest.category !== undefined) {
+    formData.append(`category`, voteboardUpdateRequest.category);
   }
-  if (votePostUpdateRequest.title !== undefined) {
-    formData.append(`title`, votePostUpdateRequest.title);
+  if (voteboardUpdateRequest.title !== undefined) {
+    formData.append(`title`, voteboardUpdateRequest.title);
   }
-  if (votePostUpdateRequest.content !== undefined) {
-    formData.append(`content`, votePostUpdateRequest.content);
+  if (voteboardUpdateRequest.content !== undefined) {
+    formData.append(`content`, voteboardUpdateRequest.content);
   }
-  if (votePostUpdateRequest.images !== undefined) {
-    votePostUpdateRequest.images.forEach((value) =>
+  if (voteboardUpdateRequest.images !== undefined) {
+    voteboardUpdateRequest.images.forEach((value) =>
       formData.append(`images`, value),
     );
   }
-  if (votePostUpdateRequest.deleteImageIds !== undefined) {
-    votePostUpdateRequest.deleteImageIds.forEach((value) =>
+  if (voteboardUpdateRequest.deleteImageIds !== undefined) {
+    voteboardUpdateRequest.deleteImageIds.forEach((value) =>
       formData.append(`deleteImageIds`, value.toString()),
     );
   }
-  if (votePostUpdateRequest.endTime !== undefined) {
-    formData.append(`endTime`, votePostUpdateRequest.endTime);
+  if (voteboardUpdateRequest.endTime !== undefined) {
+    formData.append(`endTime`, voteboardUpdateRequest.endTime);
   }
-  if (votePostUpdateRequest.allowRevote !== undefined) {
+  if (voteboardUpdateRequest.allowRevote !== undefined) {
     formData.append(
       `allowRevote`,
-      votePostUpdateRequest.allowRevote.toString(),
+      voteboardUpdateRequest.allowRevote.toString(),
     );
   }
-  if (votePostUpdateRequest.allowMultipleChoice !== undefined) {
+  if (voteboardUpdateRequest.allowMultipleChoice !== undefined) {
     formData.append(
       `allowMultipleChoice`,
-      votePostUpdateRequest.allowMultipleChoice.toString(),
+      voteboardUpdateRequest.allowMultipleChoice.toString(),
     );
   }
 
@@ -292,13 +292,13 @@ export const getUpdateVotePostMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof updateVotePost>>,
     TError,
-    { votesboardId: number; data: VotePostUpdateRequest },
+    { votesboardId: number; data: VoteboardUpdateRequest },
     TContext
   >;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof updateVotePost>>,
   TError,
-  { votesboardId: number; data: VotePostUpdateRequest },
+  { votesboardId: number; data: VoteboardUpdateRequest },
   TContext
 > => {
   const mutationKey = ['updateVotePost'];
@@ -312,7 +312,7 @@ export const getUpdateVotePostMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof updateVotePost>>,
-    { votesboardId: number; data: VotePostUpdateRequest }
+    { votesboardId: number; data: VoteboardUpdateRequest }
   > = (props) => {
     const { votesboardId, data } = props ?? {};
 
@@ -325,7 +325,7 @@ export const getUpdateVotePostMutationOptions = <
 export type UpdateVotePostMutationResult = NonNullable<
   Awaited<ReturnType<typeof updateVotePost>>
 >;
-export type UpdateVotePostMutationBody = VotePostUpdateRequest;
+export type UpdateVotePostMutationBody = VoteboardUpdateRequest;
 export type UpdateVotePostMutationError =
   | ErrorResponse
   | ErrorResponse;
@@ -341,7 +341,7 @@ export const useUpdateVotePost = <
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof updateVotePost>>,
       TError,
-      { votesboardId: number; data: VotePostUpdateRequest },
+      { votesboardId: number; data: VoteboardUpdateRequest },
       TContext
     >;
   },
@@ -349,7 +349,7 @@ export const useUpdateVotePost = <
 ): UseMutationResult<
   Awaited<ReturnType<typeof updateVotePost>>,
   TError,
-  { votesboardId: number; data: VotePostUpdateRequest },
+  { votesboardId: number; data: VoteboardUpdateRequest },
   TContext
 > => {
   const mutationOptions = getUpdateVotePostMutationOptions(options);
@@ -755,7 +755,7 @@ export const getVotePostsByCursor = (
   params?: GetVotePostsByCursorParams,
   signal?: AbortSignal,
 ) => {
-  return customInstance<VotePostListResponse>({
+  return customInstance<VoteboardCursorResponse>({
     url: `/community/votesboard`,
     method: 'GET',
     params,
@@ -933,32 +933,32 @@ export function useGetVotePostsByCursor<
  * @summary 투표 게시글 작성
  */
 export const createVotePost = (
-  votePostCreateRequest: VotePostCreateRequest,
+  voteboardCreateRequest: VoteboardCreateRequest,
   signal?: AbortSignal,
 ) => {
   const formData = new FormData();
-  formData.append(`category`, votePostCreateRequest.category);
-  formData.append(`title`, votePostCreateRequest.title);
-  formData.append(`content`, votePostCreateRequest.content);
-  votePostCreateRequest.voteOptions.forEach((value) =>
+  formData.append(`category`, voteboardCreateRequest.category);
+  formData.append(`title`, voteboardCreateRequest.title);
+  formData.append(`content`, voteboardCreateRequest.content);
+  voteboardCreateRequest.voteOptions.forEach((value) =>
     formData.append(`voteOptions`, JSON.stringify(value)),
   );
-  formData.append(`endTime`, votePostCreateRequest.endTime);
+  formData.append(`endTime`, voteboardCreateRequest.endTime);
   formData.append(
     `allowRevote`,
-    votePostCreateRequest.allowRevote.toString(),
+    voteboardCreateRequest.allowRevote.toString(),
   );
   formData.append(
     `allowMultipleChoice`,
-    votePostCreateRequest.allowMultipleChoice.toString(),
+    voteboardCreateRequest.allowMultipleChoice.toString(),
   );
-  if (votePostCreateRequest.images !== undefined) {
-    votePostCreateRequest.images.forEach((value) =>
+  if (voteboardCreateRequest.images !== undefined) {
+    voteboardCreateRequest.images.forEach((value) =>
       formData.append(`images`, value),
     );
   }
 
-  return customInstance<VotePostIdResponse>({
+  return customInstance<VoteboardCreateResponse>({
     url: `/community/votesboard`,
     method: 'POST',
     headers: { 'Content-Type': 'multipart/form-data' },
@@ -974,13 +974,13 @@ export const getCreateVotePostMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof createVotePost>>,
     TError,
-    { data: VotePostCreateRequest },
+    { data: VoteboardCreateRequest },
     TContext
   >;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof createVotePost>>,
   TError,
-  { data: VotePostCreateRequest },
+  { data: VoteboardCreateRequest },
   TContext
 > => {
   const mutationKey = ['createVotePost'];
@@ -994,7 +994,7 @@ export const getCreateVotePostMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof createVotePost>>,
-    { data: VotePostCreateRequest }
+    { data: VoteboardCreateRequest }
   > = (props) => {
     const { data } = props ?? {};
 
@@ -1007,7 +1007,7 @@ export const getCreateVotePostMutationOptions = <
 export type CreateVotePostMutationResult = NonNullable<
   Awaited<ReturnType<typeof createVotePost>>
 >;
-export type CreateVotePostMutationBody = VotePostCreateRequest;
+export type CreateVotePostMutationBody = VoteboardCreateRequest;
 export type CreateVotePostMutationError =
   | ErrorResponse
   | ErrorResponse
@@ -1024,7 +1024,7 @@ export const useCreateVotePost = <
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof createVotePost>>,
       TError,
-      { data: VotePostCreateRequest },
+      { data: VoteboardCreateRequest },
       TContext
     >;
   },
@@ -1032,7 +1032,7 @@ export const useCreateVotePost = <
 ): UseMutationResult<
   Awaited<ReturnType<typeof createVotePost>>,
   TError,
-  { data: VotePostCreateRequest },
+  { data: VoteboardCreateRequest },
   TContext
 > => {
   const mutationOptions = getCreateVotePostMutationOptions(options);
