@@ -6,17 +6,17 @@ import { Category } from '../../constants/categories';
 import { LaptopMinimalCheck, MessageSquareMore } from 'lucide-react';
 //import { useRouter } from 'next/navigation';
 import { formatCount } from '@/utils/formatCount';
-import type { VotePostSummaryResponse } from '@/generated/api/models';
+import type { VoteboardSummary } from '@/generated/api/models';
 import { formatVoteDeadline } from '@/utils/vote-deadline';
 import { VoteStatusChip } from '@/components/chips/VoteStatusChip';
 import { cn } from '@/utils/cn';
 export interface VoteBoardCardProps {
-  post: VotePostSummaryResponse;
+  post: VoteboardSummary;
 }
 
 export function VoteBoardCard({ post }: VoteBoardCardProps) {
   const {
-    id: postId,
+    postId,
     title,
     contentPreview,
     category,

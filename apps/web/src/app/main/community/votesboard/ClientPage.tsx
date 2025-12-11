@@ -8,7 +8,7 @@ import { SortValue } from '@/types/options.types';
 import { PillChipsTab } from '@/components/tabs/PillChipsTab';
 import { CATEGORIES } from '../constants/categories';
 import { VOTE_STATES, VoteState } from '../constants/votesOptions';
-import { VotePostSummaryResponse } from '@/generated/api/models';
+import { VoteboardSummary } from '@/generated/api/models';
 import FloatingCategoryMenu from '@/components/buttons/FloatingCategoryMenu';
 import CommunityPostList from '../components/CommunityPostList';
 import { VoteBoardCard } from './components/VoteBoardCard';
@@ -61,7 +61,7 @@ export default function VotesboardClientPage() {
       return lastPage.hasNext ? lastPage.nextCursor : undefined;
     },
   });
-  const allVotePosts: VotePostSummaryResponse[] =
+  const allVotePosts: VoteboardSummary[] =
     data?.pages.flatMap((page) => page.posts ?? []) ?? [];
   const totalCount = data?.pages[0]?.totalCount ?? 0;
 
@@ -98,7 +98,7 @@ export default function VotesboardClientPage() {
         onFilterChange={setSortOption}
       />
 
-      <CommunityPostList<VotePostSummaryResponse>
+      <CommunityPostList<VoteboardSummary>
         items={allVotePosts}
         hasNextPage={hasNextPage || false}
         fetchNextPage={fetchNextPage}
@@ -107,7 +107,7 @@ export default function VotesboardClientPage() {
         error={error}
         onRetry={() => refetch()}
         storageKey="votesboard-post-list-scroll"
-        getItemKey={(post, index) => post.id ?? `post-${index}`}
+        getItemKey={(post, index) => post.postId ?? `post-${index}`}
         renderItem={(post) => <VoteBoardCard post={post} />}
       />
 
