@@ -6,7 +6,12 @@ import { refreshToken } from '@/generated/api/endpoints/auth/auth';
 import { ApiError } from './api-error';
 
 // 쿠키가 필요한 경로 (프록시 사용)
-const COOKIE_REQUIRED_PATHS = ['/auth/', '/users/me'];
+const COOKIE_REQUIRED_PATHS = [
+  '/auth/',
+  '/users/me',
+  '/community/freeboard/',
+  '/community/votesboard/',
+];
 
 export const AXIOS_INSTANCE = Axios.create({
   baseURL:
@@ -26,6 +31,12 @@ export const AXIOS_INSTANCE = Axios.create({
 AXIOS_INSTANCE.interceptors.request.use((config) => {
   const proxyEnabled =
     process.env.NEXT_PUBLIC_ENABLE_PROXY !== 'false';
+  const isBrowser = typeof window !== 'undefined';
+
+  // SSR에서는 절대 URL 그대로 사용 (상대 경로로 바꾸면 Invalid URL 발생)
+  if (!isBrowser) {
+    return config;
+  }
 
   // 프록시 비활성화 시 직접 백엔드 호출
   if (!proxyEnabled) {

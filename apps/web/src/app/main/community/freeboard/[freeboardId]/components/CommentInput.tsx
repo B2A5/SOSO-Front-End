@@ -32,7 +32,7 @@ export default function CommentInput({
   const targetRef = useRef<HTMLTextAreaElement>(null);
   const queryClient = useQueryClient();
   const toast = useToast();
-  const { guard } = useAuthGuard();
+  const { requireAuth } = useAuthGuard();
 
   const { mutate, isPending } = useMutation({
     mutationFn: (content: string) =>
@@ -67,11 +67,10 @@ export default function CommentInput({
     setValue(next.length > limit ? next.slice(0, limit) : next);
   };
 
-  const handleSubmit = () =>
-    guard(() => {
-      if (!value.trim() || isPending) return;
-      mutate(value.trim());
-    });
+  const handleSubmit = requireAuth(() => {
+    if (!value.trim() || isPending) return;
+    mutate(value.trim());
+  });
 
   const handleKeyDown = (
     e: React.KeyboardEvent<HTMLTextAreaElement>,
