@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev",
-    "dev:https": "node server.mjs",
+    "dev": "node server.mjs",
+    "dev:http": "next dev",
     "build": "next build",
     "build:analyze": "node analyze.mjs",
     "start": "next start",
