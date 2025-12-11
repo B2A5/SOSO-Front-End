@@ -49,6 +49,7 @@ const nextConfig = {
       'picsum.photos',
       'k.kakaocdn.net', // 카카오 로그인 이미지
     ],
+    formats: ['image/webp'],
     remotePatterns: [
       {
         protocol: 'https',
