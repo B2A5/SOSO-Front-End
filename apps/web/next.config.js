@@ -45,6 +45,8 @@ const nextConfig = {
   },
   //추후 제거 필요
   images: {
+    deviceSizes: [360, 414, 640, 768, 1024, 1280],
+    imageSizes: [20, 32, 45, 55, 80, 120, 200, 316, 375, 600],
     domains: [
       'picsum.photos',
       'k.kakaocdn.net', // 카카오 로그인 이미지
