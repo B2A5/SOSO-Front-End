@@ -6,7 +6,7 @@ import { rafThrottle } from '@/utils/rafThrottle';
 /**
  * VirtualList 컴포넌트의 props
  */
-interface VirtualListProps<T> {
+export interface VirtualListProps<T> {
   /** 렌더링할 아이템 배열 */
   items: T[];
   /** 각 아이템을 렌더링하는 함수 */
