@@ -42,16 +42,18 @@ export function VirtualListWithHooks<T>({
     gap,
   });
 
-  // 스크롤 위치 저장 훅 적용
+  // 스크롤 위치 저장 훅 적용 (container 타입)
   useScrollRestoration({
+    type: 'container',
     virtualizer,
     parentRef,
     storageKey,
     enabled: !resetScroll,
   });
 
-  // 리사이즈 대응 훅 적용
+  // 리사이즈 대응 훅 적용 (container 타입)
   useVirtualizerMeasure({
+    type: 'container',
     virtualizer,
     parentRef,
   });
