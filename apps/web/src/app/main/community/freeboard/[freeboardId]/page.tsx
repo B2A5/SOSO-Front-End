@@ -8,6 +8,7 @@ import { getGetFreeboardPostQueryOptions } from '@/generated/api/endpoints/freeb
 import FreeboardDetailSkeleton from './components/FreeboardDetailSkeleton';
 import { isAxiosError } from 'axios';
 import ClientPage from './ClientPage';
+import { getBlurDataURL } from '@/utils/getBlurDataURL';
 
 /**
  * 자유 게시판 게시글 상세 페이지 (서버 컴포넌트)
@@ -26,10 +27,24 @@ export default async function Page({
 
   const queryClient = new QueryClient();
 
+  let blurDataURL: string | undefined;
+
   try {
     // 서버에서 캐시 채우기 및 에러 처리 (에러를 던지는 fetchQuery 사용)
     const queryOptions = getGetFreeboardPostQueryOptions(postId);
     await queryClient.fetchQuery(queryOptions);
+
+    const post = queryClient.getQueryData(queryOptions.queryKey);
+
+    const imageUrl = post?.images?.[0]?.imageUrl;
+
+    if (imageUrl) {
+      blurDataURL = await getBlurDataURL(imageUrl, {
+        size: 10,
+        blur: 5,
+        quality: 30,
+      });
+    }
   } catch (error: unknown) {
     if (isAxiosError(error)) {
       const status = error.response?.status;
@@ -46,7 +61,7 @@ export default async function Page({
 
   return (
     <HydrationBoundary state={dehydratedState}>
-      <ClientPage postId={postId} />
+      <ClientPage postId={postId} blurDataURL={blurDataURL} />
     </HydrationBoundary>
   );
 }
