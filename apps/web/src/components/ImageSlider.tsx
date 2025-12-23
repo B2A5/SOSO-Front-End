@@ -73,7 +73,7 @@ export default function ImageSlider({
       {/* 스켈레톤 로딩 */}
       <div
         className={twMerge(
-          'absolute inset-0 h-[200px] md:h-[300px] rounded-lg bg-neutral-100 animate-pulse transition-opacity duration-300',
+          'absolute inset-0 h-[200px] md:h-[300px] rounded-lg bg-neutral-200 animate-pulse transition-opacity duration-300',
           loaded && 'opacity-0 pointer-events-none',
         )}
       />
@@ -98,9 +98,11 @@ export default function ImageSlider({
               alt="슬라이드 이미지"
               fill
               sizes="(max-width: 768px) 100vw, 600px"
-              className="h-[200px] object-cover"
+              className="object-cover"
+              priority={idx === 0}
               placeholder={blurDataUrls?.[idx] ? 'blur' : 'empty'}
               blurDataURL={blurDataUrls?.[idx]}
+              draggable={false}
             />
           </div>
         ))}
