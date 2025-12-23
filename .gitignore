@@ -153,3 +153,5 @@ coverage/
 .vscode/
 .vscode/settings.json
 
+#monorepo issues
+monorepo-docs/

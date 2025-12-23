@@ -1,35 +1,36 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 import { useOverlay } from '@/hooks/ui/useOverlay';
-import { PillChipsTab } from '@/components/tabs/PillChipsTab';
-import { CATEGORIES, Category } from '../constants/categories';
 import { SortHeader } from '../components/SortHeader';
-import { SortValue } from '@/types/options.types';
 import { SORT_OPTIONS } from '../constants/sortOptions';
-import FloatingButton from '@/components/buttons/FloatingButton';
-import { FreeBoardCard } from '../components/FreeboardCard';
+import { SortValue } from '@/types/options.types';
+import { PillChipsTab } from '@/components/tabs/PillChipsTab';
+import { CATEGORIES } from '../constants/categories';
+import { VOTE_STATES, VoteState } from '../constants/votesOptions';
+import { VoteboardSummary } from '@/generated/api/models';
 import FloatingCategoryMenu from '@/components/buttons/FloatingCategoryMenu';
 import CommunityPostList from '../components/CommunityPostList';
-import { FreeboardSummary } from '@/generated/api/models';
+import { VoteBoardCard } from './components/VoteBoardCard';
 import {
-  getFreeboardPostsByCursor,
-  getGetFreeboardPostsByCursorQueryKey,
-} from '@/generated/api/endpoints/freeboard/freeboard';
-
+  getVotePostsByCursor,
+  getGetVotePostsByCursorQueryKey,
+} from '@/generated/api/endpoints/voteboard/voteboard';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import FloatingButton from '@/components/buttons/FloatingButton';
 /**
- * 자유 게시판 클라이언트 메인 페이지
+ * 투표 게시판 클라이언트 메인 페이지
  *
  * @description
- * - 카테고리별 게시글 목록을 보여주는 페이지
- * - 무한스크롤 기능 포함
- * - 카테고리 및 정렬 옵션 선택 가능
+ * - [전체/진행중/완료] 상태 탭 제공
+ * - 상태별 투표 게시글 목록 표시
+ * - 정렬 옵션 제공
+ *
  */
 
-export default function FreeboardClientPage() {
-  const [category, setCategory] = useState<Category | null>(null);
+export default function VotesboardClientPage() {
   const [sortOption, setSortOption] = useState<SortValue>('LATEST');
+  const [voteState, setVoteState] = useState<VoteState>(null);
   const { open } = useOverlay();
   // 무한스크롤 데이터 페칭
   const {
@@ -41,15 +42,14 @@ export default function FreeboardClientPage() {
     error,
     refetch,
   } = useInfiniteQuery({
-    queryKey: getGetFreeboardPostsByCursorQueryKey({
-      // queryKey 생성 함수 사용
-      category: category ?? undefined, // null일 경우 undefined로 변환
+    queryKey: getGetVotePostsByCursorQueryKey({
+      status: voteState ?? undefined,
       sort: sortOption,
     }),
     queryFn: ({ pageParam, signal }) =>
-      getFreeboardPostsByCursor(
+      getVotePostsByCursor(
         {
-          category: category ?? undefined,
+          status: voteState ?? undefined,
           sort: sortOption,
           cursor: pageParam,
           size: 10,
@@ -61,18 +61,15 @@ export default function FreeboardClientPage() {
       return lastPage.hasNext ? lastPage.nextCursor : undefined;
     },
   });
-
-  // 모든 페이지의 게시글을 하나의 배열로 합치기
-  const allFreeboardPosts: FreeboardSummary[] =
+  const allVotePosts: VoteboardSummary[] =
     data?.pages.flatMap((page) => page.posts ?? []) ?? [];
-  // 총 게시글 개수
   const totalCount = data?.pages[0]?.totalCount ?? 0;
 
   const handleFloatingButtonClick = () => {
     open(
       ({ close }) => (
         <FloatingCategoryMenu
-          route="freeboard"
+          route="votesboard"
           categories={CATEGORIES}
           onClose={() => close(null, { duration: 200 })}
         />
@@ -86,34 +83,35 @@ export default function FreeboardClientPage() {
 
   return (
     <main className="w-full h-full flex flex-col">
-      <PillChipsTab<Category>
-        chips={CATEGORIES}
-        activeValue={category}
-        onChange={setCategory}
+      <PillChipsTab<VoteState>
+        chips={VOTE_STATES}
         showAll
-        ariaLabel="카테고리 선택 필터"
+        activeValue={voteState}
+        onChange={setVoteState}
+        ariaLabel="투표 상태 선택 필터"
       />
+      {/* 필터 헤더 */}
       <SortHeader
         totalCount={totalCount}
         sortOptions={SORT_OPTIONS}
         currentValue={sortOption}
         onFilterChange={setSortOption}
-        className="px-5"
       />
-      <CommunityPostList<FreeboardSummary>
-        items={allFreeboardPosts}
+
+      <CommunityPostList<VoteboardSummary>
+        items={allVotePosts}
         hasNextPage={hasNextPage || false}
         fetchNextPage={fetchNextPage}
         isFetchingNextPage={isFetchingNextPage}
         initialLoading={isLoading}
         error={error}
         onRetry={() => refetch()}
+        storageKey="votesboard-post-list-scroll"
         getItemKey={(post, index) => post.postId ?? `post-${index}`}
-        renderItem={(post) => (
-          <FreeBoardCard post={post} isChip={true} />
-        )}
-        storageKey="freeboard-post-list-scroll"
+        renderItem={(post) => <VoteBoardCard post={post} />}
       />
+
+      {/* TODO: FloatingButton 추가 */}
       <FloatingButton onClick={handleFloatingButtonClick} />
     </main>
   );
