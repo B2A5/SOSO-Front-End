@@ -5,7 +5,7 @@ import {
 } from '@/generated/api/endpoints/voteboard/voteboard';
 
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { Eye, Vote } from 'lucide-react';
+import { Eye } from 'lucide-react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Suspense } from 'react';
 import { UserProfile } from '../../../freeboard/[freeboardId]/components/UserProfile';
@@ -15,6 +15,7 @@ import ImageSlider from '@/components/ImageSlider';
 import { VoteSection } from './VoteSection';
 import { formatCappedCount } from '@/utils/formatCount';
 import { VoteStatusChip } from '@/components/chips/VoteStatusChip';
+import VotesBoardDetailSkeleton from './VotesBoardDetailSkeleton';
 
 export interface VoteBoardDetailProps {
   votesboardId: number;
@@ -43,7 +44,7 @@ export default function VoteBoardDetail({
 
   return (
     <ErrorBoundary fallback={<div>오류가 발생했습니다.</div>}>
-      <Suspense fallback={<div>로딩 중...</div>}>
+      <Suspense fallback={<VotesBoardDetailSkeleton />}>
         <div className="p-5 border-b border-neutral-0">
           {/* 프로필 */}
           <article className="flex items-center gap-1 pb-2">
