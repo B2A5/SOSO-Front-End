@@ -52,9 +52,9 @@ export function VirtualListWithHooks<T>({
   });
 
   // 리사이즈 대응 훅 적용 (container 타입)
-  useVirtualizerMeasure({
+  useVirtualizerMeasure<HTMLDivElement, Element>({
     virtualizer,
-    parentRef,
+    observeRef: parentRef,
   });
 
   return (
