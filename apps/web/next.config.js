@@ -64,7 +64,7 @@ const nextConfig = {
         protocol: 'https',
         hostname:
           'dreampaste-soso-image-storage.s3.ap-northeast-2.amazonaws.com',
-        pathname: '/freeboard/**',
+        pathname: '/**', // S3 버킷의 모든 경로 허용 (freeboard, voteboard 등)
       },
     ],
   },

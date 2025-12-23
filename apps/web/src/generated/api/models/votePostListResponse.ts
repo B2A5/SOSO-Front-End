@@ -13,10 +13,15 @@ import type { VotePostSummaryResponse } from './votePostSummaryResponse';
 export interface VotePostListResponse {
   /** 투표 게시글 목록 */
   posts: VotePostSummaryResponse[];
-  /** 다음 커서 (다음 페이지 조회용, 없으면 null) */
-  nextCursor?: string;
   /** 다음 페이지 존재 여부 */
   hasNext: boolean;
-  /** 현재 페이지 게시글 수 */
+  /** 다음 페이지를 위한 커서 값 */
+  nextCursor?: string;
+  /** 현재 페이지 크기 */
   size: number;
+  /** 총 게시글 수 */
+  totalCount: number;
+  authorized?: boolean;
+  /** 요청한 사용자가 인증되었는지 여부 (액세스 토큰 제공 여부) */
+  isAuthorized: boolean;
 }

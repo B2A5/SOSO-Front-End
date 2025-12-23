@@ -29,6 +29,8 @@ export interface VotePostDetailResponse {
   images: ImageInfo[];
   /** 투표 옵션 목록 */
   voteOptions: VoteOptionResponse[];
+  /** 현재 사용자의 투표 참여 여부 (비인증 사용자인 경우 null, 참여하지 않은 경우 false, 참여한 경우 true) */
+  hasVoted: boolean;
   /** 현재 사용자가 선택한 옵션 ID 목록 (미투표 시 빈 리스트) */
   selectedOptionIds?: number[];
   /** 총 투표 참여자 수 */
