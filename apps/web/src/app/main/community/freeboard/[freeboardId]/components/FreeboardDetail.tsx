@@ -18,10 +18,10 @@ import { formatCappedCount } from '@/utils/formatCount';
  */
 export default function FreeboardDetail({
   post,
-  blurDataURL,
+  blurDataUrls,
 }: {
   post: FreeboardDetailResponse;
-  blurDataURL?: string;
+  blurDataUrls?: (string | undefined)[] | undefined;
 }) {
   const { author } = post;
 
@@ -66,7 +66,7 @@ export default function FreeboardDetail({
         {post.images.length > 0 && (
           <ImageSlider
             images={post.images.map((img) => img.imageUrl)}
-            blurDataURL={blurDataURL}
+            blurDataUrls={blurDataUrls}
             className="w-full min-h-[200px]"
           />
         )}

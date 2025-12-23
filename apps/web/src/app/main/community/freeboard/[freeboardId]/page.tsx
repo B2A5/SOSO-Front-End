@@ -27,7 +27,7 @@ export default async function Page({
 
   const queryClient = new QueryClient();
 
-  let blurDataURL: string | undefined;
+  let blurImageUrls: (string | undefined)[] = [];
 
   try {
     // 서버에서 캐시 채우기 및 에러 처리 (에러를 던지는 fetchQuery 사용)
@@ -36,15 +36,20 @@ export default async function Page({
 
     const post = queryClient.getQueryData(queryOptions.queryKey);
 
-    const imageUrl = post?.images?.[0]?.imageUrl;
+    // 블러 데이터 URL 생성
+    const imageUrls = post?.images ?? [];
 
-    if (imageUrl) {
-      blurDataURL = await getBlurDataURL(imageUrl, {
-        size: 10,
-        blur: 5,
-        quality: 30,
-      });
-    }
+    blurImageUrls = await Promise.all(
+      imageUrls.map((img) => {
+        if (!img?.imageUrl) return undefined;
+
+        return getBlurDataURL(img.imageUrl, {
+          size: 10,
+          blur: 2,
+          quality: 40,
+        });
+      }),
+    );
   } catch (error: unknown) {
     if (isAxiosError(error)) {
       const status = error.response?.status;
@@ -61,7 +66,7 @@ export default async function Page({
 
   return (
     <HydrationBoundary state={dehydratedState}>
-      <ClientPage postId={postId} blurDataURL={blurDataURL} />
+      <ClientPage postId={postId} blurDataUrls={blurImageUrls} />
     </HydrationBoundary>
   );
 }

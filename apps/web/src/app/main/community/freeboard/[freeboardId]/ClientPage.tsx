@@ -13,14 +13,14 @@ import { ErrorBoundary } from 'react-error-boundary';
 /**
  * 자유 게시판 게시글 상세 클라이언트 화면
  * @param postId 게시글 ID
- * @param blurDataURL 게시글 이미지의 블러 URL
+ * @param blurDataUrls 게시글 이미지의 블러 URL
  */
 export default function ClientPage({
   postId,
-  blurDataURL,
+  blurDataUrls,
 }: {
   postId: number;
-  blurDataURL?: string;
+  blurDataUrls?: (string | undefined)[] | undefined;
 }) {
   const { isAuthenticated } = useAuthRestore();
   const {
@@ -95,7 +95,7 @@ export default function ClientPage({
           />
         )}
       >
-        <FreeboardDetail post={post} blurDataURL={blurDataURL} />
+        <FreeboardDetail post={post} blurDataUrls={blurDataUrls} />
       </ErrorBoundary>
 
       <section className="px-5 pb-6">

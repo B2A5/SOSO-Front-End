@@ -18,7 +18,7 @@ import { useMemo, useState } from 'react';
 interface ImageSliderProps {
   images: string[];
   className?: string;
-  blurDataURL?: string;
+  blurDataUrls?: (string | undefined)[] | undefined;
 }
 
 // url과 UUID를 함께 담는 타입 정의
@@ -30,7 +30,7 @@ interface SliderImage {
 export default function ImageSlider({
   images,
   className,
-  blurDataURL,
+  blurDataUrls,
 }: ImageSliderProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [loaded, setLoaded] = useState(false);
@@ -99,14 +99,8 @@ export default function ImageSlider({
               fill
               sizes="(max-width: 768px) 100vw, 600px"
               className="h-[200px] object-cover"
-              priority={idx === 0}
-              loading={idx === 0 ? 'eager' : 'lazy'}
-              placeholder={
-                idx === 0 && !!blurDataURL ? 'blur' : 'empty'
-              }
-              blurDataURL={
-                idx === 0 && !!blurDataURL ? blurDataURL : undefined
-              }
+              placeholder={blurDataUrls?.[idx] ? 'blur' : 'empty'}
+              blurDataURL={blurDataUrls?.[idx]}
             />
           </div>
         ))}
