@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "packageManager": "pnpm@9.15.9",
+  "packageManager": "pnpm@10.24.0",
   "scripts": {
     "dev": " turbo run dev --parallel",
     "dev:web": "pnpm --filter web dev:https",
@@ -26,13 +26,29 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "private": true,
+  "engines": {
+    "node": "^24",
+    "pnpm": "^10"
+  },
   "workspaces": [
     "apps/*",
     "packages/*",
     "tools/*"
   ],
+  "pnpm": {
+    "overrides": {
+      "@types/node": "^24"
+    },
+    "peerDependencyRules": {
+      "allowedVersions": {
+        "@typescript-eslint/eslint-plugin": "8",
+        "@typescript-eslint/parser": "8",
+        "eslint-plugin-react-hooks": "5"
+      }
+    }
+  },
   "lint-staged": {
     "*.{ts,tsx}": [
       "eslint --fix",
@@ -49,6 +65,7 @@
     "@changesets/cli": "^2.29.8",
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
+    "@types/node": "24.10.1",
     "@typescript-eslint/eslint-plugin": "^8.35.1",
     "@typescript-eslint/parser": "^8.35.1",
     "eslint": "^8.56.0",

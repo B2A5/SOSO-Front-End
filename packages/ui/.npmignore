@@ -1,0 +1,38 @@
+# Source files
+src/
+*.ts
+*.tsx
+!*.d.ts
+
+# Config files
+tsconfig.json
+tsup.config.ts
+vitest.config.ts
+.eslintrc.cjs
+
+# Test files
+**/*.test.*
+**/*.spec.*
+src/test/
+__tests__/
+tests/
+coverage/
+
+# Development
+.turbo/
+node_modules/
+.DS_Store
+*.log
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Misc
+.changeset/
