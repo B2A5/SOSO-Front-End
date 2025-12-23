@@ -10,8 +10,8 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import {
   useScrollRestoration,
   useScrollRestorationInitialOffset,
-} from '@/hooks/useScrollRestoration';
-import { useVirtualizerMeasure } from '@/hooks/useVirtualizerMeasure';
+} from '@/hooks/scroll/useScrollRestoration';
+import { useVirtualizerMeasure } from '@/hooks/scroll/useVirtualizerMeasure';
 import { VirtualListProps } from './VirtualList';
 
 export function VirtualListWithHooks<T>({
@@ -53,7 +53,6 @@ export function VirtualListWithHooks<T>({
 
   // 리사이즈 대응 훅 적용 (container 타입)
   useVirtualizerMeasure({
-    type: 'container',
     virtualizer,
     parentRef,
   });
