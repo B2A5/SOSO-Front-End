@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from 'react';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { motion, AnimatePresence } from 'motion/react';
 import Input from '@/components/inputs/Input';
 import TextArea from '@/components/inputs/TextArea';
 import { Button } from '@/components/buttons/Button';
@@ -11,18 +12,19 @@ import {
   type VoteboardFormData,
   voteboardSchema,
 } from '../schema/voteboardSchema';
-import type { VotePostDetailResponse } from '@/generated/api/models';
+import type { VoteboardDetailResponse } from '@/generated/api/models';
 import { Plus } from 'lucide-react';
 import { VoteboardOptionField } from './VoteoptionField';
 import { CATEGORIES, Category } from '../../constants/categories';
 import { ImageUploader } from '@/components/ImageUploader';
 import { Select } from '@/components/select/Select';
+import { RoundCheckbox } from '@/components/inputs/RoundCheckbox';
 
 export interface VoteboardFormProps {
   /** 수정할 투표 게시글 ID (없으면 생성 모드) */
   voteboardId?: number;
   /** 초기 폼 데이터 (수정 모드에서 사용) */
-  initialData?: VotePostDetailResponse;
+  initialData?: VoteboardDetailResponse;
   /** 초기 선택된 카테고리 (생성 모드에서 사용) */
   initialCategory?: Category;
 }
@@ -75,6 +77,8 @@ export function VoteboardForm({
     control,
     setValue,
     handleSubmit,
+    watch,
+    getValues,
     formState: { errors, touchedFields, isValid },
   } = useForm<VoteboardFormData>({
     resolver: zodResolver(voteboardSchema),
@@ -102,6 +106,28 @@ export function VoteboardForm({
     name: 'voteOptions',
   });
 
+  const watchedOptions = watch('voteOptions');
+  const optionCount = watchedOptions?.length ?? fields.length;
+
+  const MAX_OPTIONS = 5;
+  const MIN_OPTIONS = 2;
+
+  // 옵션 추가 가능 여부 (생성 모드 + 최대 5개)
+  const canAddMore = !isEdit && optionCount < MAX_OPTIONS;
+
+  // 옵션 추가/제거 핸들러
+  const handleAddOption = () => {
+    const current = getValues('voteOptions') ?? [];
+    if (current.length >= MAX_OPTIONS) return;
+    append({ content: '' });
+  };
+
+  const handleRemoveOption = (index: number) => {
+    const current = getValues('voteOptions') ?? [];
+    if (current.length <= MIN_OPTIONS) return;
+    remove(index);
+  };
+
   // 생성/수정 mutation 훅
   const { submitPost, isPending } = useVoteboardMutation(voteboardId);
 
@@ -117,11 +143,11 @@ export function VoteboardForm({
   };
 
   return (
-    <div className="relative flex flex-col h-full w-full ">
+    <div className="relative flex flex-col h-full w-full overflow-y-auto">
       <form
         id="vote-form"
         aria-label={isEdit ? '투표 게시글 수정' : '투표 게시글 작성'}
-        className="flex flex-col gap-4 w-full flex-1 overflow-auto p-1 transition-transform duration-300 ease-in-out pb-16"
+        className="flex flex-col gap-4 w-full p-1 transition-transform duration-300 ease-in-out"
         onSubmit={handleSubmit(onSubmit)}
       >
         <div>
@@ -240,35 +266,55 @@ export function VoteboardForm({
                 *
               </span>
             </label>
-            {!isEdit && (
-              <button
-                type="button"
-                className="text-xs text-soso-500"
-                onClick={() => {
-                  if (fields.length >= 5) return;
-                  append({ content: '' });
-                }}
-              >
-                <Plus className="inline-block w-3 h-3 mr-1" />
-              </button>
-            )}
+
+            <AnimatePresence initial={false}>
+              {canAddMore && (
+                <motion.button
+                  key="add-option"
+                  type="button"
+                  className="text-xs text-soso-500"
+                  aria-label="투표 옵션 추가"
+                  onClick={handleAddOption}
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  transition={{ duration: 0.15 }}
+                  whileTap={{ scale: 1.3 }}
+                  whileHover={{ scale: 1.05 }}
+                >
+                  <Plus className="inline-block w-3 h-3 mr-1" />
+                </motion.button>
+              )}
+            </AnimatePresence>
           </div>
 
+          {/* 옵션 필드 */}
           <div className="flex flex-col gap-2">
-            {fields.map((field, index) => (
-              <VoteboardOptionField
-                key={field.id}
-                index={index}
-                register={register}
-                errorMessage={
-                  errors.voteOptions?.[index]?.content?.message
-                }
-                editable={!isEdit}
-                canRemove={!isEdit && fields.length > 2}
-                onRemove={() => remove(index)}
-              />
-            ))}
+            <AnimatePresence initial={false}>
+              {fields.map((field, index) => (
+                <motion.div
+                  key={field.id}
+                  layout
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.18 }}
+                >
+                  <VoteboardOptionField
+                    index={index}
+                    register={register}
+                    errorMessage={
+                      errors.voteOptions?.[index]?.content?.message
+                    }
+                    editable={!isEdit}
+                    canRemove={!isEdit && optionCount > MIN_OPTIONS}
+                    onRemove={() => handleRemoveOption(index)}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
+
           {typeof errors.voteOptions?.message === 'string' && (
             <p className="text-xs text-red-500">
               {errors.voteOptions?.message}
@@ -278,22 +324,14 @@ export function VoteboardForm({
 
         {/* 설정 (복수 선택 / 재투표) */}
         <div className="flex flex-col gap-2 text-sm">
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              className="w-4 h-4"
-              {...register('allowMultipleChoice')}
-            />
-            <span>복수 선택 허용</span>
-          </label>
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              className="w-4 h-4"
-              {...register('allowRevote')}
-            />
-            <span>재투표 허용</span>
-          </label>
+          <RoundCheckbox
+            label="복수 선택 허용"
+            {...register('allowMultipleChoice')}
+          />
+          <RoundCheckbox
+            label="재투표 허용"
+            {...register('allowRevote')}
+          />
         </div>
 
         {/* 이미지 업로드 */}
@@ -307,17 +345,19 @@ export function VoteboardForm({
             onDeleteExisting={handleDeleteExisting}
           />
         </div>
-      </form>
 
-      <Button
-        type="submit"
-        form="vote-form"
-        disabled={!isValid || isPending}
-        isLoading={isPending}
-        className="absolute bottom-0 w-full"
-      >
-        저장하기
-      </Button>
+        {/* 버튼 */}
+        <div className="sticky bottom-0 left-0 right-0 bg-white/90 dark:bg-neutral-900/90 pt-2">
+          <Button
+            type="submit"
+            disabled={!isValid || isPending}
+            isLoading={isPending}
+            className="w-full"
+          >
+            저장하기
+          </Button>
+        </div>
+      </form>
     </div>
   );
 }
