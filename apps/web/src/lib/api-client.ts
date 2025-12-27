@@ -48,10 +48,12 @@ AXIOS_INSTANCE.interceptors.request.use((config) => {
 
   const url = config.url || '';
 
-  // 쿠키가 필요한 경로인지 확인
-  const needsCookie = COOKIE_REQUIRED_PATHS.some((path) =>
-    url.includes(path),
-  );
+  // 쿠키가 필요한 경로인지 확인 (startsWith를 사용하여 정확한 prefix 매칭)
+  const needsCookie = COOKIE_REQUIRED_PATHS.some((path) => {
+    // 끝의 / 제거하여 매칭 (예: /community/votesboard/ → /community/votesboard)
+    const normalizedPath = path.replace(/\/$/, '');
+    return url.startsWith(normalizedPath);
+  });
 
   if (needsCookie) {
     // 프록시 경로로 변경 (localhost → 백엔드)
