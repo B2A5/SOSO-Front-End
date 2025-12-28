@@ -2,8 +2,8 @@
 
 import { Eye } from 'lucide-react';
 import ImageSlider from '@/components/ImageSlider';
-import { UserProfile } from './UserProfile';
-import { UserTypeBadge } from './UserTypeBadge';
+import { UserProfile } from '@/components/users/UserProfile';
+import { UserTypeBadge } from '@/components/users/UserTypeBadge';
 import { relativeTime } from '@/utils/relativeTime';
 import type { FreeboardDetailResponse } from '@/generated/api/models';
 import LikeButtonPost from './LikeButtonPost';
