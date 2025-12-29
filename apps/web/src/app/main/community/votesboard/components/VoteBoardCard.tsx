@@ -22,11 +22,11 @@ export function VoteBoardCard({ post }: VoteBoardCardProps) {
     category,
     thumbnailUrl,
     commentCount,
-    totalVotes,
-    voteStatus,
-    endTime,
+    voteInfo,
     hasVoted,
   } = post;
+
+  const { totalVotes, voteStatus, endTime } = voteInfo;
 
   // const router = useRouter();
 
