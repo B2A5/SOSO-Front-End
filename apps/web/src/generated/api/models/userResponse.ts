@@ -42,7 +42,7 @@ export interface UserResponse {
   /** 경도 */
   longitude?: string;
   /** 계정 생성일시 */
-  createdDate: string;
+  createdAt: string;
   /** 마지막 수정일시 */
-  lastModifiedDate: string;
+  updatedAt: string;
 }

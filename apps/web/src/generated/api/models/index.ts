@@ -91,6 +91,8 @@ export * from './userSummaryResponseUserType';
 export * from './userSummaryResponseUserType';
 export * from './userTypeRequest';
 export * from './userTypeRequestUserType';
+export * from './voteInfo';
+export * from './voteInfoVoteStatus';
 export * from './voteOptionRequest';
 export * from './voteOptionResponse';
 export * from './votePostCreateRequest';
