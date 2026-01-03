@@ -9,7 +9,7 @@ import type { UserSummaryResponse } from './userSummaryResponse';
 import type { VoteboardDetailResponseCategory } from './voteboardDetailResponseCategory';
 import type { ImageInfo } from './imageInfo';
 import type { VoteOptionResponse } from './voteOptionResponse';
-import type { VoteboardDetailResponseVoteStatus } from './voteboardDetailResponseVoteStatus';
+import type { VoteInfo } from './voteInfo';
 
 /**
  * 투표 게시판 게시글 상세 정보
@@ -31,18 +31,8 @@ export interface VoteboardDetailResponse {
   voteOptions: VoteOptionResponse[];
   /** 현재 사용자의 투표 참여 여부 (비인증 사용자인 경우 null, 참여하지 않은 경우 false, 참여한 경우 true) */
   hasVoted: boolean;
-  /** 현재 사용자가 선택한 옵션 ID 목록 (미투표 시 빈 리스트) */
-  selectedOptionIds?: number[];
-  /** 총 투표 참여자 수 */
-  totalVotes: number;
-  /** 투표 상태 (IN_PROGRESS: 진행중, COMPLETED: 완료) */
-  voteStatus: VoteboardDetailResponseVoteStatus;
-  /** 투표 마감 시간 */
-  endTime: string;
-  /** 재투표 허용 여부 (투표 후 변경 가능 여부) */
-  allowRevote: boolean;
-  /** 중복 선택 허용 여부 (여러 옵션 동시 선택 가능 여부) */
-  allowMultipleChoice: boolean;
+  /** 투표 정보 */
+  voteInfo: VoteInfo;
   /** 조회수 */
   viewCount: number;
   /** 댓글 수 */
@@ -54,9 +44,9 @@ export interface VoteboardDetailResponse {
   /** 현재 사용자가 게시글 삭제 권한이 있는지 여부 (비인증 사용자인 경우 null, 작성자인 경우 true) */
   canDelete: boolean;
   /** 생성일시 */
-  createdDate: string;
+  createdAt: string;
   /** 수정일시 */
-  lastModifiedDate: string;
+  updatedAt: string;
   authorized?: boolean;
   /** 현재 사용자의 좋아요 여부 (비인증 사용자인 경우 null) */
   isLiked: boolean;
