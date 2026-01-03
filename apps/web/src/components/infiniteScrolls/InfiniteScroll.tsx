@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, Component } from 'react';
 import { cn } from '@/utils/cn';
-import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
+import { useInfiniteScroll } from '@/hooks/scroll/useInfiniteScroll';
 import { VirtualList } from '@/components/infiniteScrolls/VirtualList';
 
 interface InfiniteScrollProps<T> {

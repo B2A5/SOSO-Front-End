@@ -62,8 +62,9 @@ export function VoteboardForm({
         initialCategory ??
         CATEGORIES[0].value,
       duration: '3d',
-      allowMultipleChoice: initialData?.allowMultipleChoice ?? false,
-      allowRevote: initialData?.allowRevote ?? false,
+      allowMultipleChoice:
+        initialData?.voteInfo?.allowMultipleChoice ?? false,
+      allowRevote: initialData?.voteInfo?.allowRevote ?? false,
       voteOptions: initialData?.voteOptions ?? [
         { content: '찬성' },
         { content: '반대' },
