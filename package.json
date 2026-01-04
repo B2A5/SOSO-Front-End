@@ -23,7 +23,7 @@
     "version-packages": "changeset version",
     "release": "pnpm build:packages && changeset publish",
     "prepare": "husky install",
-    "api-update": "pnpm --filter web generate:api",
+    "api": "pnpm --filter web generate:api",
     "generate:api": "pnpm --filter web generate:api"
   },
   "keywords": [],
