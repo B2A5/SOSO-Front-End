@@ -14,7 +14,7 @@ export default function VotesBoardDetailClientPage({
   };
 
   return (
-    <main>
+    <>
       <Header>
         <Header.Left>
           <Header.BackButton />
@@ -24,11 +24,10 @@ export default function VotesBoardDetailClientPage({
           <Header.MenuButton onClick={menuButtonOnClick} />
         </Header.Right>
       </Header>
-
-      <section>
+      <main>
         <VoteBoardDetail votesboardId={votesboardId} />
-      </section>
-      <section>{/* 댓글 섹션 추후 구현 예정 */}</section>
-    </main>
+        <section>{/* 댓글 섹션 추후 구현 예정 */}</section>
+      </main>
+    </>
   );
 }

@@ -10,7 +10,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { Suspense } from 'react';
 import { UserProfile } from '@/components/users/UserProfile';
 import { UserTypeBadge } from '@/components/users/UserTypeBadge';
-import { relativeTime } from '@/utils/relativeTime';
+import { formatTimeAgo } from '@/utils/relativeTime';
 import ImageSlider from '@/components/ImageSlider';
 import { VoteSection } from './VoteSection';
 import { formatCappedCount } from '@/utils/formatCount';
@@ -24,7 +24,7 @@ export interface VoteBoardDetailProps {
 export default function VoteBoardDetail({
   votesboardId,
 }: VoteBoardDetailProps) {
-  const { data: votesBoardDetailData } = useSuspenseQuery({
+  const { data: votesBoardDetail } = useSuspenseQuery({
     queryKey: getGetVotePostQueryKey(votesboardId),
     queryFn: () => getVotePost(votesboardId),
   });
@@ -34,28 +34,30 @@ export default function VoteBoardDetail({
     category,
     title,
     content,
-    createdDate,
     images,
     viewCount,
     authorized,
-    voteStatus,
-    endTime,
-  } = votesBoardDetailData;
+    voteInfo,
+    voteOptions,
+    createdAt,
+    updatedAt,
+    likeCount,
+  } = votesBoardDetail;
 
   return (
     <ErrorBoundary fallback={<div>오류가 발생했습니다.</div>}>
       <Suspense fallback={<VotesBoardDetailSkeleton />}>
-        <div className="p-5 border-b border-neutral-0">
-          {/* 프로필 */}
-          <article className="flex items-center gap-1 pb-2">
-            <CategoryChip category={category} />
-            <VoteStatusChip
-              voteStatus={voteStatus}
-              endTime={endTime}
-            />
-          </article>
-          {/* 작성자 */}
-          <article>
+        <article className="p-5 border-b border-neutral-0">
+          <address>
+            {/* badges */}
+            <div className="flex items-center gap-1 pb-2">
+              <CategoryChip category={category} />
+              <VoteStatusChip
+                voteStatus={voteInfo.voteStatus}
+                endTime={voteInfo.endTime}
+              />
+            </div>
+            {/* 작성자 */}
             <UserProfile className="items-start pb-6">
               <UserProfile.Left>
                 <UserProfile.Avatar
@@ -74,14 +76,18 @@ export default function VoteBoardDetail({
                   <div className="text-input2 text-neutral-500">
                     <span>{author.location}</span>
                     <span className="mx-1">·</span>
-                    <span>{relativeTime(createdDate)}</span>
+                    <time
+                      dateTime={new Date(updatedAt).toISOString()}
+                    >
+                      {formatTimeAgo(createdAt, updatedAt)}
+                    </time>
                   </div>
                 </UserProfile.SubContents>
               </UserProfile.Right>
             </UserProfile>
-          </article>
+          </address>
           {/* 본문 */}
-          <article className="flex flex-col space-y-2 pb-6">
+          <section className="flex flex-col space-y-2 pb-6">
             <h1 className="text-2xl font-bold">Q. {title}</h1>
 
             {images.length > 0 && (
@@ -93,19 +99,17 @@ export default function VoteBoardDetail({
             <p className="text-textBox text-neutral-1000">
               {content}
             </p>
-          </article>
+            {/* 투표 섹션 */}
+            <VoteSection voteData={votesBoardDetail} />
+          </section>
 
-          {/* 투표 섹션 */}
-          <article>
-            <VoteSection voteData={votesBoardDetailData} />
-          </article>
-          <article className="flex items-center gap-1.5">
+          <footer className="flex items-center gap-1.5">
             <Eye className="inline w-6 h-6 text-neutral-200" />
             <span className="text-neutral-500 text-input2">
               {formatCappedCount(viewCount)}
             </span>
-          </article>
-        </div>
+          </footer>
+        </article>
       </Suspense>
     </ErrorBoundary>
   );
