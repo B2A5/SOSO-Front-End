@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
+import { useOverlay } from '@/hooks/ui/useOverlay';
 import { PillChipsTab } from '@/components/tabs/PillChipsTab';
 import { CATEGORIES, Category } from '../constants/categories';
 import { SortHeader } from '../components/SortHeader';
@@ -9,6 +10,7 @@ import { SortValue } from '@/types/options.types';
 import { SORT_OPTIONS } from '../constants/sortOptions';
 import FloatingButton from '@/components/buttons/FloatingButton';
 import { FreeBoardCard } from '../components/FreeboardCard';
+import FloatingCategoryMenu from '@/components/buttons/FloatingCategoryMenu';
 import CommunityPostList from '../components/CommunityPostList';
 import { FreeboardSummary } from '@/generated/api/models';
 import {
@@ -28,7 +30,7 @@ import {
 export default function FreeboardClientPage() {
   const [category, setCategory] = useState<Category | null>(null);
   const [sortOption, setSortOption] = useState<SortValue>('LATEST');
-
+  const { open } = useOverlay();
   // 무한스크롤 데이터 페칭
   const {
     data,
@@ -66,6 +68,22 @@ export default function FreeboardClientPage() {
   // 총 게시글 개수
   const totalCount = data?.pages[0]?.totalCount ?? 0;
 
+  const handleFloatingButtonClick = () => {
+    open(
+      ({ close }) => (
+        <FloatingCategoryMenu
+          route="freeboard"
+          categories={CATEGORIES}
+          onClose={() => close(null, { duration: 200 })}
+        />
+      ),
+      {
+        backdrop: true,
+        closeOnBackdrop: true,
+      },
+    );
+  };
+
   return (
     <main className="w-full h-full flex flex-col">
       <PillChipsTab<Category>
@@ -96,7 +114,7 @@ export default function FreeboardClientPage() {
         )}
         storageKey="freeboard-post-list-scroll"
       />
-      <FloatingButton categories={CATEGORIES} />
+      <FloatingButton onClick={handleFloatingButtonClick} />
     </main>
   );
 }

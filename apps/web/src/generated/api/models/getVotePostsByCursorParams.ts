@@ -6,6 +6,7 @@
  * OpenAPI spec version: v1.0.0
  */
 import type { GetVotePostsByCursorStatus } from './getVotePostsByCursorStatus';
+import type { GetVotePostsByCursorSort } from './getVotePostsByCursorSort';
 
 export type GetVotePostsByCursorParams = {
   /**
@@ -13,11 +14,19 @@ export type GetVotePostsByCursorParams = {
    */
   status?: GetVotePostsByCursorStatus;
   /**
-   * 페이지 크기
+   * 투표게시판 정렬 기준
+   */
+  sort?: GetVotePostsByCursorSort;
+  /**
+   * 페이지 크기 (1-50, 기본값: 20)
    */
   size?: number;
   /**
-   * 커서 (이전 페이지의 마지막 게시글 ID)
-   */
+ * 커서 기반 페이징을 위한 커서 값
+
+**첫 요청:** cursor 없이 요청
+**다음 페이지:** 이전 응답의 nextCursor 값 사용
+
+ */
   cursor?: string;
 };

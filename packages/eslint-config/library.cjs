@@ -36,5 +36,15 @@ module.exports = {
         devDependencies: true,
       },
     ],
+    // 라이브러리에서는 props spreading 허용 (유연한 API를 위해)
+    'react/jsx-props-no-spreading': 'off',
+    // TypeScript 사용 시 defaultProps 불필요 (optional props 사용)
+    'react/require-default-props': 'off',
+    // named export를 선호 (Tree-shaking에 유리)
+    'import/prefer-default-export': 'off',
+    // 화살표 함수 스타일 자유롭게
+    'arrow-body-style': 'off',
+    // useEffect cleanup 함수 등에서 유연한 return 허용
+    'consistent-return': 'off',
   },
 };

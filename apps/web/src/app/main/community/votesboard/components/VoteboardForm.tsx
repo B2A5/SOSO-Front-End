@@ -12,7 +12,7 @@ import {
   type VoteboardFormData,
   voteboardSchema,
 } from '../schema/voteboardSchema';
-import type { VotePostDetailResponse } from '@/generated/api/models';
+import type { VoteboardDetailResponse } from '@/generated/api/models';
 import { Plus } from 'lucide-react';
 import { VoteboardOptionField } from './VoteoptionField';
 import { CATEGORIES, Category } from '../../constants/categories';
@@ -24,7 +24,7 @@ export interface VoteboardFormProps {
   /** 수정할 투표 게시글 ID (없으면 생성 모드) */
   voteboardId?: number;
   /** 초기 폼 데이터 (수정 모드에서 사용) */
-  initialData?: VotePostDetailResponse;
+  initialData?: VoteboardDetailResponse;
   /** 초기 선택된 카테고리 (생성 모드에서 사용) */
   initialCategory?: Category;
 }
@@ -62,8 +62,9 @@ export function VoteboardForm({
         initialCategory ??
         CATEGORIES[0].value,
       duration: '3d',
-      allowMultipleChoice: initialData?.allowMultipleChoice ?? false,
-      allowRevote: initialData?.allowRevote ?? false,
+      allowMultipleChoice:
+        initialData?.voteInfo?.allowMultipleChoice ?? false,
+      allowRevote: initialData?.voteInfo?.allowRevote ?? false,
       voteOptions: initialData?.voteOptions ?? [
         { content: '찬성' },
         { content: '반대' },
