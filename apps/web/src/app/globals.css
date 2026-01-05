@@ -11,6 +11,10 @@
     font-family: var(--font-sans);
     scroll-behavior: smooth;
   }
+  address {
+    font-family: inherit;
+    font-style: normal;
+  }
 }
 /* z-index */
 @theme {
