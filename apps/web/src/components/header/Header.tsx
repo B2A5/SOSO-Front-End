@@ -72,7 +72,7 @@ function HeaderRoot({ children, className }: HeaderProps) {
     <header
       className={cn(
         'relative w-full flex justify-between items-center',
-        'py-[6px] px-1',
+        'py-1.5 px-1',
         'border-b border-neutral-100 dark:border-neutral-800',
         'bg-transparent',
         className,

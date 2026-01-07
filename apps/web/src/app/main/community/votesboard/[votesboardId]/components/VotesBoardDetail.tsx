@@ -12,10 +12,12 @@ import { UserProfile } from '@/components/users/UserProfile';
 import { UserTypeBadge } from '@/components/users/UserTypeBadge';
 import { formatTimeAgo } from '@/utils/relativeTime';
 import ImageSlider from '@/components/ImageSlider';
-import { VoteSection } from './VoteSection';
+import { VoteSection } from '../../components/VoteSection';
 import { formatCappedCount } from '@/utils/formatCount';
 import { VoteStatusChip } from '@/components/chips/VoteStatusChip';
 import VotesBoardDetailSkeleton from './VotesBoardDetailSkeleton';
+import LikeButtonPost from '../../../freeboard/[freeboardId]/components/LikeButtonPost';
+import VotesBoardLike from './VotesBoardLike';
 
 export interface VoteBoardDetailProps {
   votesboardId: number;
@@ -41,7 +43,9 @@ export default function VoteBoardDetail({
     voteOptions,
     createdAt,
     updatedAt,
+    hasVoted,
     likeCount,
+    isLiked,
   } = votesBoardDetail;
 
   return (
@@ -100,14 +104,26 @@ export default function VoteBoardDetail({
               {content}
             </p>
             {/* 투표 섹션 */}
-            <VoteSection voteData={votesBoardDetail} />
+            <VoteSection
+              votesboardId={votesboardId}
+              hasVoted={hasVoted}
+              voteInfo={voteInfo}
+              voteOptions={voteOptions}
+            />
           </section>
 
-          <footer className="flex items-center gap-1.5">
-            <Eye className="inline w-6 h-6 text-neutral-200" />
-            <span className="text-neutral-500 text-input2">
-              {formatCappedCount(viewCount)}
-            </span>
+          <footer className="flex items-center justify-between">
+            <VotesBoardLike
+              postId={votesboardId}
+              initialLikeCount={likeCount}
+              initialLiked={isLiked ?? false}
+            />
+            <div className="flex items-center gap-1.5">
+              <Eye className="inline w-6 h-6 text-neutral-200" />
+              <span className="text-neutral-500 text-input2">
+                {formatCappedCount(viewCount)}
+              </span>
+            </div>
           </footer>
         </article>
       </Suspense>
