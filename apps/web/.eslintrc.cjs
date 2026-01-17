@@ -6,6 +6,7 @@ module.exports = {
     'postcss.config.mjs',
     '**/__tests__/e2e/**',
     'server.mjs',
+    'src/generated/**',
   ],
   rules: {
     // 기존 규칙
