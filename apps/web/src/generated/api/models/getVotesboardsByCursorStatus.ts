@@ -6,14 +6,11 @@
  * OpenAPI spec version: v1.0.0
  */
 
-/**
- * 투표 상태 (IN_PROGRESS: 진행중, COMPLETED: 완료)
- */
-export type VoteInfoVoteStatus =
-  (typeof VoteInfoVoteStatus)[keyof typeof VoteInfoVoteStatus];
+export type GetVotesboardsByCursorStatus =
+  (typeof GetVotesboardsByCursorStatus)[keyof typeof GetVotesboardsByCursorStatus];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
-export const VoteInfoVoteStatus = {
+export const GetVotesboardsByCursorStatus = {
   IN_PROGRESS: 'IN_PROGRESS',
   COMPLETED: 'COMPLETED',
   DELETED: 'DELETED',
