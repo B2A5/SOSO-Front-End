@@ -1,4 +1,4 @@
-import { VotePostSummaryResponseVoteStatus } from '@/generated/api/models/votePostSummaryResponseVoteStatus';
+import { VoteInfoVoteStatus } from '@/generated/api/models/voteInfoVoteStatus';
 import { twMerge } from 'tailwind-merge';
 
 /**
@@ -34,17 +34,17 @@ const VOTE_STATUS_LABELS: Record<VoteChipType, string> = {
  * 투표 상태 타입 반환
  */
 export function getVoteChipType(
-  voteStatus: VotePostSummaryResponseVoteStatus,
+  voteStatus: VoteInfoVoteStatus,
   endTime: string,
 ): VoteChipType {
   if (
-    voteStatus === VotePostSummaryResponseVoteStatus.COMPLETED ||
-    voteStatus === VotePostSummaryResponseVoteStatus.DELETED
+    voteStatus === VoteInfoVoteStatus.COMPLETED ||
+    voteStatus === VoteInfoVoteStatus.DELETED
   ) {
     return 'completed';
   }
 
-  if (voteStatus === VotePostSummaryResponseVoteStatus.IN_PROGRESS) {
+  if (voteStatus === VoteInfoVoteStatus.IN_PROGRESS) {
     const now = new Date();
     const endDate = new Date(endTime);
 
@@ -83,7 +83,7 @@ export function getVoteChipColor(statusType: VoteChipType): string {
 }
 
 interface VoteStatusChipProps {
-  voteStatus: VotePostSummaryResponseVoteStatus;
+  voteStatus: VoteInfoVoteStatus;
   endTime: string;
 }
 

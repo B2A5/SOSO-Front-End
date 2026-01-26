@@ -1,8 +1,8 @@
 import { CategoryChip } from '@/components/chips/CategoryChip';
 import {
-  getVotePost,
-  getGetVotePostQueryKey,
-} from '@/generated/api/endpoints/voteboard/voteboard';
+  getVotesboard,
+  getGetVotesboardQueryKey,
+} from '@/generated/api/endpoints/votesboard/votesboard';
 
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { Eye } from 'lucide-react';
@@ -27,8 +27,8 @@ export default function VoteBoardDetail({
   votesboardId,
 }: VoteBoardDetailProps) {
   const { data: votesBoardDetail } = useSuspenseQuery({
-    queryKey: getGetVotePostQueryKey(votesboardId),
-    queryFn: () => getVotePost(votesboardId),
+    queryKey: getGetVotesboardQueryKey(votesboardId),
+    queryFn: () => getVotesboard(votesboardId),
   });
 
   const {

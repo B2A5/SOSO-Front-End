@@ -5,13 +5,13 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/ui/useToast';
 import type { VoteboardFormData } from '@/app/main/community/votesboard/schema/voteboardSchema';
 import {
-  getGetVotePostQueryKey,
-  getGetVotePostsByCursorQueryKey,
-  useUpdateVotePost,
-} from '@/generated/api/endpoints/voteboard/voteboard';
+  getGetVotesboardQueryKey,
+  getGetVotesboardsByCursorQueryKey,
+  useUpdateVotesboard,
+  createVotesboard,
+} from '@/generated/api/endpoints/votesboard/votesboard';
 import { buildEndTimeFromDuration } from '@/utils/voteTime';
-import { createVotePost } from '@/app/main/community/votesboard/new/api/votePostCreate';
-import { VotePostCreateRequest } from '@/generated/api/models';
+import { VotesboardCreateRequest } from '@/generated/api/models';
 
 /**
  * 투표 게시글 생성/수정 통합 Mutation Hook
@@ -43,8 +43,8 @@ export function useVoteboardMutation(voteboardId?: number) {
 
   // 생성 mutation
   const createMutation = useMutation({
-    mutationFn: (payLoad: VotePostCreateRequest) => {
-      return createVotePost(payLoad);
+    mutationFn: (payLoad: VotesboardCreateRequest) => {
+      return createVotesboard(payLoad);
     },
     onSuccess: (response) => {
       console.log('게시글 생성 응답:', response);
@@ -63,15 +63,15 @@ export function useVoteboardMutation(voteboardId?: number) {
   });
 
   // 수정 mutation
-  const updateMutation = useUpdateVotePost({
+  const updateMutation = useUpdateVotesboard({
     mutation: {
       onSuccess: (response) => {
         console.log('게시글 수정 응답:', response);
         queryClient.invalidateQueries({
-          queryKey: getGetVotePostQueryKey(voteboardId!),
+          queryKey: getGetVotesboardQueryKey(voteboardId!),
         });
         queryClient.invalidateQueries({
-          queryKey: getGetVotePostsByCursorQueryKey(),
+          queryKey: getGetVotesboardsByCursorQueryKey(),
         });
         toast('투표가 성공적으로 수정되었습니다.', 'success');
         router.push(`/main/community/votesboard/${voteboardId}`);
@@ -93,8 +93,8 @@ export function useVoteboardMutation(voteboardId?: number) {
    *
    * @remarks
    * voteId 유무에 따라 자동으로 생성/수정 API를 호출합니다.
-   * - 생성 시: VotePostCreateRequest 스펙에 맞춰 voteOptions 포함
-   * - 수정 시: VotePostUpdateRequest 스펙에 맞춰 voteOptions 없이 전송
+   * - 생성 시: VotesboardCreateRequest 스펙에 맞춰 voteOptions 포함
+   * - 수정 시: VotesboardUpdateRequest 스펙에 맞춰 voteOptions 없이 전송
    */
   const submitPost = (
     data: VoteboardFormData,
@@ -103,7 +103,7 @@ export function useVoteboardMutation(voteboardId?: number) {
     const endTime = buildEndTimeFromDuration(data.duration);
 
     if (voteboardId) {
-      // 수정 모드: VotePostUpdateRequest
+      // 수정 모드: VotesboardUpdateRequest
       updateMutation.mutate({
         votesboardId: voteboardId,
         data: {
@@ -118,8 +118,8 @@ export function useVoteboardMutation(voteboardId?: number) {
         },
       });
     } else {
-      // 생성 모드: VotePostCreateRequest
-      const payload: VotePostCreateRequest = {
+      // 생성 모드: VotesboardCreateRequest
+      const payload: VotesboardCreateRequest = {
         category: data.category,
         title: data.title,
         content: data.content,

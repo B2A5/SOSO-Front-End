@@ -8,8 +8,8 @@ import { formatCappedCount } from '@/utils/formatCount';
 import { useToast } from '@/hooks/ui/useToast';
 import { FreeboardDetailResponse } from '@/generated/api/models';
 import { clampCount } from '@/utils/clampCount';
-import { getGetVotePostQueryKey } from '@/generated/api/endpoints/voteboard/voteboard';
-import { useToggleVotePostLike } from '@/generated/api/endpoints/voteboard-like/voteboard-like';
+import { getGetVotesboardQueryKey } from '@/generated/api/endpoints/votesboard/votesboard';
+import { useToggleVotesboardLike } from '@/generated/api/endpoints/votesboard-like/votesboard-like';
 
 interface VotesBoardLikeProps {
   postId: number;
@@ -30,7 +30,6 @@ export default function VotesBoardLike({
   initialLikeCount,
 }: VotesBoardLikeProps) {
   const queryClient = useQueryClient();
-  const toast = useToast();
   const { requireAuth } = useAuthGuard();
 
   // UI 전용 상태(부모 props와 동기화됨)
@@ -41,9 +40,9 @@ export default function VotesBoardLike({
   useEffect(() => setLiked(initialLiked), [initialLiked]);
   useEffect(() => setLikeCount(initialLikeCount), [initialLikeCount]);
 
-  const votesBoardDetailKey = getGetVotePostQueryKey(postId);
+  const votesBoardDetailKey = getGetVotesboardQueryKey(postId);
 
-  const toggleLike = useToggleVotePostLike({
+  const toggleLike = useToggleVotesboardLike({
     mutation: {
       mutationKey: ['togglePostLike', postId],
 
@@ -100,11 +99,6 @@ export default function VotesBoardLike({
             );
           }
         }
-        toast('좋아요 처리 중 오류가 발생했습니다.', 'error');
-      },
-
-      onSuccess: () => {
-        toast('좋아요가 반영되었습니다.', 'success');
       },
 
       onSettled: () => {
