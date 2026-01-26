@@ -8,10 +8,10 @@ import {
   getGetVotesboardQueryKey,
   getGetVotesboardsByCursorQueryKey,
   useUpdateVotesboard,
-  createVotesboard,
 } from '@/generated/api/endpoints/votesboard/votesboard';
 import { buildEndTimeFromDuration } from '@/utils/voteTime';
 import { VotesboardCreateRequest } from '@/generated/api/models';
+import { createVotesboard } from '@/app/main/community/votesboard/new/api/votesboardCreate';
 
 /**
  * 투표 게시글 생성/수정 통합 Mutation Hook
@@ -28,10 +28,12 @@ import { VotesboardCreateRequest } from '@/generated/api/models';
  *
  * @remarks
  * **생성 모드:**
- * - 성공 시: 목록 쿼리 invalidate 후, /community/voteboard로 리다이렉트
+ * - 커스텀 API 사용 (인덱스 표기법으로 voteOptions 전송)
+ * - 성공 시: 목록 쿼리 invalidate 후, /community/votesboard로 리다이렉트
  *
  * **수정 모드:**
- * - 성공 시: 상세 쿼리 + 목록 쿼리 invalidate 후, /community/voteboard/[id]로 리다이렉트
+ * - orval 생성 API 사용
+ * - 성공 시: 상세 쿼리 + 목록 쿼리 invalidate 후, /community/votesboard/[id]로 리다이렉트
  *
  * **공통:**
  * - 에러 발생 시: 에러 토스트 표시

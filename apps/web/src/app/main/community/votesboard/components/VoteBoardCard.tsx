@@ -5,12 +5,12 @@ import { Category } from '../../constants/categories';
 import { LaptopMinimalCheck, MessageSquareMore } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { formatCount } from '@/utils/formatCount';
-import type { VoteboardSummary } from '@/generated/api/models';
+import type { VotesboardSummary } from '@/generated/api/models';
 import { formatVoteDeadline } from '@/utils/vote-deadline';
 import { VoteStatusChip } from '@/components/chips/VoteStatusChip';
 import { cn } from '@/utils/cn';
 export interface VoteBoardCardProps {
-  post: VoteboardSummary;
+  post: VotesboardSummary;
 }
 
 export function VoteBoardCard({ post }: VoteBoardCardProps) {
