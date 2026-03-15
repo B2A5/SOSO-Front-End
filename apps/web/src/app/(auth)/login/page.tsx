@@ -11,18 +11,18 @@ export const dynamic = 'force-dynamic';
 export default function AuthPage() {
   const router = useRouter();
   return (
-    <div className="p-layout h-full">
-      <div className="flex flex-col justify-between py-[30px] h-full">
+    <div className="p-layout h-full flex items-center justify-center">
+      <div className="flex flex-col justify-between py-[30px] max-w-100 max-h-200 w-full h-full bg-gradient-to-br from-white to-white dark:from-neutral-1000 dark:to-neutral-900 rounded-2xl px-10">
         <div className="my-8">
           <LogoImage />
         </div>
         <Suspense fallback={null}>
           <div className="flex flex-col gap-5">
             <div className="flex flex-col gap-4">
-              <KakaoLoginButton className="w-full" />
+              <KakaoLoginButton className="w-full rounded-xl" />
               <Button
                 size="lg"
-                className="w-full bg-black"
+                className="w-full bg-black rounded-xl"
                 onClick={() => router.push('/signup')}
               >
                 애플로 로그인

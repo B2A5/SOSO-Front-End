@@ -22,7 +22,7 @@ export default function KakaoLoginButton({
       size="lg"
       className={cn(
         kakaoSubsetFont.className,
-        '!bg-kakao-100 !text-kakao-200 gap-2',
+        '!bg-kakao-100 !text-kakao-200 gap-2 hover:!bg-kakao-100/50',
         className,
       )}
     >
