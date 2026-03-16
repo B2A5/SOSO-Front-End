@@ -36,6 +36,11 @@ const nextConfig = {
         source: '/api/auth/:path*',
         destination: `${apiBaseUrl}/auth/:path*`,
       },
+      // 회원가입 (세션 쿠키 공유 필요)
+      {
+        source: '/api/signup/:path*',
+        destination: `${apiBaseUrl}/signup/:path*`,
+      },
       // 현재 유저 정보 (SSR prefetch)
       {
         source: '/api/users/me',
@@ -48,8 +53,8 @@ const nextConfig = {
       },
       // 투표 게시판
       {
-        source: '/api/community/votesboard/:path*',
-        destination: `${apiBaseUrl}/community/votesboard/:path*`,
+        source: '/api/community/polls/:path*',
+        destination: `${apiBaseUrl}/community/polls/:path*`,
       },
     ];
   },

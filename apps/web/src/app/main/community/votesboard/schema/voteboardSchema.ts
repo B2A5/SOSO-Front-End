@@ -16,7 +16,7 @@ export type VoteDuration = (typeof VOTE_DURATION_VALUES)[number];
  * 투표 게시글 작성/수정 폼 Validation 스키마
  *
  * @description
- * 백엔드 API 스펙(VotePostCreateRequest / VotePostUpdateRequest)에
+ * 백엔드 API 스펙(PollCreateRequest / PollUpdateRequest)에
  * 맞춰 정의한 Zod 스키마입니다.
  * react-hook-form의 zodResolver와 함께 사용됩니다.
  */
@@ -27,9 +27,6 @@ export const voteboardSchema = z.object({
    * @validation
    * - 필수 선택
    * - 허용된 카테고리만 선택 가능
-   *
-   * @remarks
-   * VotePostCreateRequestCategory의 값들만 허용합니다.
    */
   category: z.enum(Object.values(CategoryEnum)),
 
@@ -66,7 +63,7 @@ export const voteboardSchema = z.object({
    *
    * @remarks
    * - UI에서는 셀렉터로 1일 / 3일 / 7일 중 하나를 선택합니다.
-   * - 실제 endTime(yyyy-MM-ddTHH:mm:ss)은 submit 시점에
+   * - 실제 closedAt(yyyy-MM-ddTHH:mm:ss)은 submit 시점에
    *   현재 시간을 기준으로 계산해서 서버로 전송합니다.
    */
   duration: z.enum(VOTE_DURATION_VALUES, {
@@ -76,21 +73,21 @@ export const voteboardSchema = z.object({
   /**
    * 재투표 허용 여부
    */
-  allowRevote: z.boolean(),
+  canRevote: z.boolean(),
 
   /**
    * 중복 선택 허용 여부
    */
-  allowMultipleChoice: z.boolean(),
+  canMultiSelect: z.boolean(),
 
   /**
    * 투표 옵션 목록
    *
    * @validation
    * - 최소 2개 ~ 최대 5개
-   * - content 필드(API VoteOptionRequest 스펙 기준)
+   * - content 필드(API PollOptionRequest 스펙 기준)
    */
-  voteOptions: z
+  options: z
     .array(
       z.object({
         content: z

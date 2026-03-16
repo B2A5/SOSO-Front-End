@@ -8,9 +8,10 @@ import { ApiError } from './api-error';
 // 쿠키가 필요한 경로 (프록시 사용)
 const COOKIE_REQUIRED_PATHS = [
   '/auth/',
+  '/signup/',
   '/users/me',
   '/community/freeboard/',
-  '/community/votesboard/',
+  '/community/polls/',
 ];
 
 export const AXIOS_INSTANCE = Axios.create({

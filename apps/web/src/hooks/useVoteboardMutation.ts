@@ -5,12 +5,12 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/ui/useToast';
 import type { VoteboardFormData } from '@/app/main/community/votesboard/schema/voteboardSchema';
 import {
-  getGetVotesboardQueryKey,
-  getGetVotesboardsByCursorQueryKey,
-  useUpdateVotesboard,
-} from '@/generated/api/endpoints/votesboard/votesboard';
+  getGetPollQueryKey,
+  getGetPollsByCursorQueryKey,
+  useUpdatePoll,
+} from '@/generated/api/endpoints/poll/poll';
 import { buildEndTimeFromDuration } from '@/utils/voteTime';
-import { VotesboardCreateRequest } from '@/generated/api/models';
+import { PollCreateRequest } from '@/generated/api/models';
 import { createVotesboard } from '@/app/main/community/votesboard/new/api/votesboardCreate';
 
 /**
@@ -28,7 +28,7 @@ import { createVotesboard } from '@/app/main/community/votesboard/new/api/votesb
  *
  * @remarks
  * **생성 모드:**
- * - 커스텀 API 사용 (인덱스 표기법으로 voteOptions 전송)
+ * - 커스텀 API 사용 (인덱스 표기법으로 options 전송)
  * - 성공 시: 목록 쿼리 invalidate 후, /community/votesboard로 리다이렉트
  *
  * **수정 모드:**
@@ -45,13 +45,13 @@ export function useVoteboardMutation(voteboardId?: number) {
 
   // 생성 mutation
   const createMutation = useMutation({
-    mutationFn: (payLoad: VotesboardCreateRequest) => {
+    mutationFn: (payLoad: PollCreateRequest) => {
       return createVotesboard(payLoad);
     },
     onSuccess: (response) => {
       console.log('게시글 생성 응답:', response);
       queryClient.invalidateQueries({
-        queryKey: ['/community/votesboard'],
+        queryKey: ['/community/polls'],
       });
       toast('투표가 성공적으로 생성되었습니다.', 'success');
       router.push('/main/community/votesboard');
@@ -65,15 +65,15 @@ export function useVoteboardMutation(voteboardId?: number) {
   });
 
   // 수정 mutation
-  const updateMutation = useUpdateVotesboard({
+  const updateMutation = useUpdatePoll({
     mutation: {
       onSuccess: (response) => {
         console.log('게시글 수정 응답:', response);
         queryClient.invalidateQueries({
-          queryKey: getGetVotesboardQueryKey(voteboardId!),
+          queryKey: getGetPollQueryKey(voteboardId!),
         });
         queryClient.invalidateQueries({
-          queryKey: getGetVotesboardsByCursorQueryKey(),
+          queryKey: getGetPollsByCursorQueryKey(),
         });
         toast('투표가 성공적으로 수정되었습니다.', 'success');
         router.push(`/main/community/votesboard/${voteboardId}`);
@@ -95,40 +95,40 @@ export function useVoteboardMutation(voteboardId?: number) {
    *
    * @remarks
    * voteId 유무에 따라 자동으로 생성/수정 API를 호출합니다.
-   * - 생성 시: VotesboardCreateRequest 스펙에 맞춰 voteOptions 포함
-   * - 수정 시: VotesboardUpdateRequest 스펙에 맞춰 voteOptions 없이 전송
+   * - 생성 시: PollCreateRequest 스펙에 맞춰 options 포함
+   * - 수정 시: PollUpdateRequest 스펙에 맞춰 options 없이 전송
    */
   const submitPost = (
     data: VoteboardFormData,
     deleteImageIds?: number[],
   ) => {
-    const endTime = buildEndTimeFromDuration(data.duration);
+    const closedAt = buildEndTimeFromDuration(data.duration);
 
     if (voteboardId) {
-      // 수정 모드: VotesboardUpdateRequest
+      // 수정 모드: PollUpdateRequest
       updateMutation.mutate({
-        votesboardId: voteboardId,
+        pollId: voteboardId,
         data: {
           category: data.category,
           title: data.title,
           content: data.content,
-          allowRevote: data.allowRevote,
-          allowMultipleChoice: data.allowMultipleChoice,
+          canRevote: data.canRevote,
+          canMultiSelect: data.canMultiSelect,
           images: data.images,
           deleteImageIds: deleteImageIds,
-          endTime,
+          closedAt,
         },
       });
     } else {
-      // 생성 모드: VotesboardCreateRequest
-      const payload: VotesboardCreateRequest = {
+      // 생성 모드: PollCreateRequest
+      const payload: PollCreateRequest = {
         category: data.category,
         title: data.title,
         content: data.content,
-        voteOptions: data.voteOptions,
-        endTime,
-        allowRevote: data.allowRevote,
-        allowMultipleChoice: data.allowMultipleChoice,
+        options: data.options,
+        closedAt,
+        canRevote: data.canRevote,
+        canMultiSelect: data.canMultiSelect,
         images: data.images,
       };
 

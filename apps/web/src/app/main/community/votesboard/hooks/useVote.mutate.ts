@@ -6,9 +6,9 @@ import {
   useCastVote,
   useChangeVote,
   useCancelVote,
-  getGetVotesboardQueryKey,
-} from '@/generated/api/endpoints/votesboard/votesboard';
-import type { VotesboardDetailResponse } from '@/generated/api/models';
+  getGetPollQueryKey,
+} from '@/generated/api/endpoints/poll/poll';
+import type { PollDetailResponse } from '@/generated/api/models';
 import {
   createOptimisticUpdate,
   type VoteAction,
@@ -21,7 +21,7 @@ import {
  * 낙관적 업데이트를 통해 투표 기능을 제공합니다.
  * 투표 선택 시 UI를 즉시 업데이트하고, 실패 시 롤백합니다.
  *
- * @param votesboardId - 투표 게시글 ID
+ * @param pollId - 투표 게시글 ID
  *
  * @returns
  * - cast: 첫 투표 함수 (POST)
@@ -31,9 +31,9 @@ import {
  *
  * @remarks
  * **낙관적 업데이트 전략:**
- * - CAST: totalVotes +1, 선택 옵션 +1
- * - CHANGE: totalVotes 변동 없음, 이전 선택 -1, 새 선택 +1
- * - CANCEL: totalVotes -1, 선택 옵션 -1
+ * - CAST: participantCount +1, 선택 옵션 +1
+ * - CHANGE: participantCount 변동 없음, 이전 선택 -1, 새 선택 +1
+ * - CANCEL: participantCount -1, 선택 옵션 -1
  *
  * Reducer 패턴을 사용하여 낙관적 업데이트 로직을 순수 함수로 분리했습니다.
  */
@@ -50,7 +50,7 @@ export interface UseVoteReturn {
 }
 
 interface OptimisticContext {
-  snapshot: VotesboardDetailResponse | null;
+  snapshot: PollDetailResponse | null;
 }
 
 // ============================================
@@ -72,7 +72,7 @@ const VOTE_ERROR_MESSAGES = {
  */
 function createErrorHandler(
   queryClient: ReturnType<typeof useQueryClient>,
-  voteQueryKey: ReturnType<typeof getGetVotesboardQueryKey>,
+  voteQueryKey: ReturnType<typeof getGetPollQueryKey>,
   toast: ReturnType<typeof useToast>,
   errorMessage: string,
 ) {
@@ -93,21 +93,19 @@ function createErrorHandler(
  */
 function createOptimisticMutateHandler(
   queryClient: ReturnType<typeof useQueryClient>,
-  voteQueryKey: ReturnType<typeof getGetVotesboardQueryKey>,
+  voteQueryKey: ReturnType<typeof getGetPollQueryKey>,
   action: VoteAction,
 ) {
   return async (): Promise<OptimisticContext> => {
     await queryClient.cancelQueries({ queryKey: voteQueryKey });
 
     const snapshot =
-      queryClient.getQueryData<VotesboardDetailResponse>(
-        voteQueryKey,
-      );
+      queryClient.getQueryData<PollDetailResponse>(voteQueryKey);
 
     if (!snapshot) return { snapshot: null };
 
     const optimisticState = createOptimisticUpdate(snapshot, action);
-    queryClient.setQueryData<VotesboardDetailResponse>(
+    queryClient.setQueryData<PollDetailResponse>(
       voteQueryKey,
       optimisticState,
     );
@@ -121,7 +119,7 @@ function createOptimisticMutateHandler(
  */
 function createSettledHandler(
   queryClient: ReturnType<typeof useQueryClient>,
-  voteQueryKey: ReturnType<typeof getGetVotesboardQueryKey>,
+  voteQueryKey: ReturnType<typeof getGetPollQueryKey>,
 ) {
   return () => {
     queryClient.invalidateQueries({ queryKey: voteQueryKey });
@@ -132,16 +130,16 @@ function createSettledHandler(
 // Main Hook
 // ============================================
 
-export function useVote(votesboardId: number): UseVoteReturn {
+export function useVote(pollId: number): UseVoteReturn {
   const queryClient = useQueryClient();
   const toast = useToast();
 
-  const voteQueryKey = getGetVotesboardQueryKey(votesboardId);
+  const voteQueryKey = getGetPollQueryKey(pollId);
 
   // 공통 settled 핸들러
   const onSettled = createSettledHandler(queryClient, voteQueryKey);
 
-  // CAST: 첫 투표 (POST) - totalVotes +1, 선택 옵션 +1
+  // CAST: 첫 투표 (POST) - participantCount +1, 선택 옵션 +1
   const castVoteMutation = useCastVote({
     mutation: {
       onMutate: ({ data: { voteOptionIds } }) =>
@@ -159,7 +157,7 @@ export function useVote(votesboardId: number): UseVoteReturn {
     },
   });
 
-  // CHANGE: 재투표 (PUT) - totalVotes 변동 없음, 이전 선택 -1, 새 선택 +1
+  // CHANGE: 재투표 (PUT) - participantCount 변동 없음, 이전 선택 -1, 새 선택 +1
   const changeVoteMutation = useChangeVote({
     mutation: {
       onMutate: ({ data: { voteOptionIds } }) =>
@@ -177,7 +175,7 @@ export function useVote(votesboardId: number): UseVoteReturn {
     },
   });
 
-  // CANCEL: 투표 취소 (DELETE) - totalVotes -1, 선택 옵션 -1
+  // CANCEL: 투표 취소 (DELETE) - participantCount -1, 선택 옵션 -1
   const cancelVoteMutation = useCancelVote({
     mutation: {
       onMutate: () =>
@@ -197,15 +195,15 @@ export function useVote(votesboardId: number): UseVoteReturn {
   return {
     cast: (voteOptionIds: number[]) =>
       castVoteMutation.mutate({
-        votesboardId,
+        pollId,
         data: { voteOptionIds },
       }),
     change: (voteOptionIds: number[]) =>
       changeVoteMutation.mutate({
-        votesboardId,
+        pollId,
         data: { voteOptionIds },
       }),
-    cancel: () => cancelVoteMutation.mutate({ votesboardId }),
+    cancel: () => cancelVoteMutation.mutate({ pollId }),
     isPending:
       castVoteMutation.isPending ||
       changeVoteMutation.isPending ||

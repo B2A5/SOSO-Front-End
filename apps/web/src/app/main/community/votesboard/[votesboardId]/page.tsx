@@ -6,7 +6,7 @@ import {
 } from '@tanstack/react-query';
 import { isAxiosError } from 'axios';
 import ClientPage from './ClientPage';
-import { getGetVotesboardQueryOptions } from '@/generated/api/endpoints/votesboard/votesboard';
+import { getGetPollQueryOptions } from '@/generated/api/endpoints/poll/poll';
 
 /**
  * 투표 게시판 게시글 상세 페이지 (서버 컴포넌트)
@@ -24,7 +24,7 @@ export default async function VotesBoardDetailPage({
   const queryClient = new QueryClient();
 
   try {
-    const queryOptions = getGetVotesboardQueryOptions(votesboardId);
+    const queryOptions = getGetPollQueryOptions(votesboardId);
     await queryClient.fetchQuery(queryOptions);
   } catch (error: unknown) {
     if (isAxiosError(error)) {

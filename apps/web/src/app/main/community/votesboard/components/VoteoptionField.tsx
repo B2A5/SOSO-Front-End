@@ -51,7 +51,7 @@ export function VoteboardOptionField({
           isError={!!errorMessage}
           errorMessage={errorMessage}
           disabled={!editable}
-          {...register(`voteOptions.${index}.content` as const)}
+          {...register(`options.${index}.content` as const)}
         />
       </motion.div>
 

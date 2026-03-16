@@ -8,14 +8,14 @@ import { SortValue } from '@/types/options.types';
 import { PillChipsTab } from '@/components/tabs/PillChipsTab';
 import { CATEGORIES } from '../constants/categories';
 import { VOTE_STATES, VoteState } from '../constants/votesOptions';
-import { VotesboardSummary } from '@/generated/api/models';
+import { PollSummary } from '@/generated/api/models';
 import FloatingCategoryMenu from '@/components/buttons/FloatingCategoryMenu';
 import CommunityPostList from '../components/CommunityPostList';
 import { VoteBoardCard } from './components/VoteBoardCard';
 import {
-  getVotesboardsByCursor,
-  getGetVotesboardsByCursorQueryKey,
-} from '@/generated/api/endpoints/votesboard/votesboard';
+  getPollsByCursor,
+  getGetPollsByCursorQueryKey,
+} from '@/generated/api/endpoints/poll/poll';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import FloatingButton from '@/components/buttons/FloatingButton';
 /**
@@ -42,12 +42,12 @@ export default function VotesboardClientPage() {
     error,
     refetch,
   } = useInfiniteQuery({
-    queryKey: getGetVotesboardsByCursorQueryKey({
+    queryKey: getGetPollsByCursorQueryKey({
       status: voteState ?? undefined,
       sort: sortOption,
     }),
     queryFn: ({ pageParam, signal }) =>
-      getVotesboardsByCursor(
+      getPollsByCursor(
         {
           status: voteState ?? undefined,
           sort: sortOption,
@@ -61,7 +61,7 @@ export default function VotesboardClientPage() {
       return lastPage.hasNext ? lastPage.nextCursor : undefined;
     },
   });
-  const allVotePosts: VotesboardSummary[] =
+  const allVotePosts: PollSummary[] =
     data?.pages.flatMap((page) => page.posts ?? []) ?? [];
   const totalCount = data?.pages[0]?.totalCount ?? 0;
 
@@ -98,7 +98,7 @@ export default function VotesboardClientPage() {
         onFilterChange={setSortOption}
       />
 
-      <CommunityPostList<VotesboardSummary>
+      <CommunityPostList<PollSummary>
         items={allVotePosts}
         hasNextPage={hasNextPage || false}
         fetchNextPage={fetchNextPage}

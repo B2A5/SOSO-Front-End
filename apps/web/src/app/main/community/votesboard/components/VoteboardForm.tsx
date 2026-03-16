@@ -12,7 +12,7 @@ import {
   type VoteboardFormData,
   voteboardSchema,
 } from '../schema/voteboardSchema';
-import type { VotesboardDetailResponse } from '@/generated/api/models';
+import type { PollDetailResponse } from '@/generated/api/models';
 import { Plus } from 'lucide-react';
 import { VoteboardOptionField } from './VoteoptionField';
 import { CATEGORIES, Category } from '../../constants/categories';
@@ -24,7 +24,7 @@ export interface VoteboardFormProps {
   /** 수정할 투표 게시글 ID (없으면 생성 모드) */
   voteboardId?: number;
   /** 초기 폼 데이터 (수정 모드에서 사용) */
-  initialData?: VotesboardDetailResponse;
+  initialData?: PollDetailResponse;
   /** 초기 선택된 카테고리 (생성 모드에서 사용) */
   initialCategory?: Category;
 }
@@ -62,10 +62,9 @@ export function VoteboardForm({
         initialCategory ??
         CATEGORIES[0].value,
       duration: '3d',
-      allowMultipleChoice:
-        initialData?.voteInfo?.allowMultipleChoice ?? false,
-      allowRevote: initialData?.voteInfo?.allowRevote ?? false,
-      voteOptions: initialData?.voteOptions ?? [
+      canMultiSelect: initialData?.voteInfo?.canMultiSelect ?? false,
+      canRevote: initialData?.voteInfo?.canRevote ?? false,
+      options: initialData?.options ?? [
         { content: '찬성' },
         { content: '반대' },
       ],
@@ -104,10 +103,10 @@ export function VoteboardForm({
   // 동적 옵션 필드
   const { fields, append, remove } = useFieldArray({
     control,
-    name: 'voteOptions',
+    name: 'options',
   });
 
-  const watchedOptions = watch('voteOptions');
+  const watchedOptions = watch('options');
   const optionCount = watchedOptions?.length ?? fields.length;
 
   const MAX_OPTIONS = 5;
@@ -118,13 +117,13 @@ export function VoteboardForm({
 
   // 옵션 추가/제거 핸들러
   const handleAddOption = () => {
-    const current = getValues('voteOptions') ?? [];
+    const current = getValues('options') ?? [];
     if (current.length >= MAX_OPTIONS) return;
     append({ content: '' });
   };
 
   const handleRemoveOption = (index: number) => {
-    const current = getValues('voteOptions') ?? [];
+    const current = getValues('options') ?? [];
     if (current.length <= MIN_OPTIONS) return;
     remove(index);
   };
@@ -305,7 +304,7 @@ export function VoteboardForm({
                     index={index}
                     register={register}
                     errorMessage={
-                      errors.voteOptions?.[index]?.content?.message
+                      errors.options?.[index]?.content?.message
                     }
                     editable={!isEdit}
                     canRemove={!isEdit && optionCount > MIN_OPTIONS}
@@ -316,9 +315,9 @@ export function VoteboardForm({
             </AnimatePresence>
           </div>
 
-          {typeof errors.voteOptions?.message === 'string' && (
+          {typeof errors.options?.message === 'string' && (
             <p className="text-xs text-red-500">
-              {errors.voteOptions?.message}
+              {errors.options?.message}
             </p>
           )}
         </div>
@@ -327,11 +326,11 @@ export function VoteboardForm({
         <div className="flex flex-col gap-2 text-sm">
           <RoundCheckbox
             label="복수 선택 허용"
-            {...register('allowMultipleChoice')}
+            {...register('canMultiSelect')}
           />
           <RoundCheckbox
             label="재투표 허용"
-            {...register('allowRevote')}
+            {...register('canRevote')}
           />
         </div>
 

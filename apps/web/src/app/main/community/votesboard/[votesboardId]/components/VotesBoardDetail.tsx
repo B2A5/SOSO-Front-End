@@ -1,8 +1,8 @@
 import { CategoryChip } from '@/components/chips/CategoryChip';
 import {
-  getVotesboard,
-  getGetVotesboardQueryKey,
-} from '@/generated/api/endpoints/votesboard/votesboard';
+  getPoll,
+  getGetPollQueryKey,
+} from '@/generated/api/endpoints/poll/poll';
 
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { Eye } from 'lucide-react';
@@ -16,7 +16,6 @@ import { VoteSection } from '../../components/VoteSection';
 import { formatCappedCount } from '@/utils/formatCount';
 import { VoteStatusChip } from '@/components/chips/VoteStatusChip';
 import VotesBoardDetailSkeleton from './VotesBoardDetailSkeleton';
-import LikeButtonPost from '../../../freeboard/[freeboardId]/components/LikeButtonPost';
 import VotesBoardLike from './VotesBoardLike';
 
 export interface VoteBoardDetailProps {
@@ -27,8 +26,8 @@ export default function VoteBoardDetail({
   votesboardId,
 }: VoteBoardDetailProps) {
   const { data: votesBoardDetail } = useSuspenseQuery({
-    queryKey: getGetVotesboardQueryKey(votesboardId),
-    queryFn: () => getVotesboard(votesboardId),
+    queryKey: getGetPollQueryKey(votesboardId),
+    queryFn: () => getPoll(votesboardId),
   });
 
   const {
@@ -38,9 +37,8 @@ export default function VoteBoardDetail({
     content,
     images,
     viewCount,
-    authorized,
     voteInfo,
-    voteOptions,
+    options,
     createdAt,
     updatedAt,
     hasVoted,
@@ -57,8 +55,8 @@ export default function VoteBoardDetail({
             <div className="flex items-center gap-1 pb-2">
               <CategoryChip category={category} />
               <VoteStatusChip
-                voteStatus={voteInfo.voteStatus}
-                endTime={voteInfo.endTime}
+                pollStatus={voteInfo.pollStatus}
+                closedAt={voteInfo.closedAt}
               />
             </div>
             {/* 작성자 */}
@@ -105,10 +103,10 @@ export default function VoteBoardDetail({
             </p>
             {/* 투표 섹션 */}
             <VoteSection
-              votesboardId={votesboardId}
-              hasVoted={hasVoted}
+              pollId={votesboardId}
+              hasVoted={hasVoted ?? false}
               voteInfo={voteInfo}
-              voteOptions={voteOptions}
+              options={options}
             />
           </section>
 

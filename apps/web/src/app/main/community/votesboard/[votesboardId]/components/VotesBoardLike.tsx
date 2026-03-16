@@ -6,10 +6,10 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useAuthGuard } from '@/hooks/useAuth';
 import { formatCappedCount } from '@/utils/formatCount';
 import { useToast } from '@/hooks/ui/useToast';
-import { FreeboardDetailResponse } from '@/generated/api/models';
+import { PollDetailResponse } from '@/generated/api/models';
 import { clampCount } from '@/utils/clampCount';
-import { getGetVotesboardQueryKey } from '@/generated/api/endpoints/votesboard/votesboard';
-import { useToggleVotesboardLike } from '@/generated/api/endpoints/votesboard-like/votesboard-like';
+import { getGetPollQueryKey } from '@/generated/api/endpoints/poll/poll';
+import { useTogglePollLike } from '@/generated/api/endpoints/poll-like/poll-like';
 
 interface VotesBoardLikeProps {
   postId: number;
@@ -40,23 +40,24 @@ export default function VotesBoardLike({
   useEffect(() => setLiked(initialLiked), [initialLiked]);
   useEffect(() => setLikeCount(initialLikeCount), [initialLikeCount]);
 
-  const votesBoardDetailKey = getGetVotesboardQueryKey(postId);
+  const pollDetailKey = getGetPollQueryKey(postId);
 
-  const toggleLike = useToggleVotesboardLike({
+  const toggleLike = useTogglePollLike({
     mutation: {
       mutationKey: ['togglePostLike', postId],
 
       onMutate: async () => {
         await queryClient.cancelQueries({
-          queryKey: votesBoardDetailKey,
+          queryKey: pollDetailKey,
         });
 
         const snapshot = {
           prevLiked: liked,
           prevLikeCount: likeCount,
-          prevPost: queryClient.getQueryData<FreeboardDetailResponse>(
-            votesBoardDetailKey,
-          ),
+          prevPost:
+            queryClient.getQueryData<PollDetailResponse>(
+              pollDetailKey,
+            ),
         };
 
         setLiked((prev) => {
@@ -67,8 +68,8 @@ export default function VotesBoardLike({
         });
 
         // 쿼리 캐시 동기화
-        queryClient.setQueryData<FreeboardDetailResponse>(
-          votesBoardDetailKey,
+        queryClient.setQueryData<PollDetailResponse>(
+          pollDetailKey,
           (old) => {
             if (!old) return old;
             const nextLiked = !(old.isLiked ?? false);
@@ -93,10 +94,7 @@ export default function VotesBoardLike({
           setLiked(snap.prevLiked);
           setLikeCount(snap.prevLikeCount);
           if (snap.prevPost) {
-            queryClient.setQueryData(
-              votesBoardDetailKey,
-              snap.prevPost,
-            );
+            queryClient.setQueryData(pollDetailKey, snap.prevPost);
           }
         }
       },
@@ -104,7 +102,7 @@ export default function VotesBoardLike({
       onSettled: () => {
         // 성공/실패와 무관하게 최종적으로 서버 상태와 동기화
         queryClient.invalidateQueries({
-          queryKey: votesBoardDetailKey,
+          queryKey: pollDetailKey,
         });
       },
     },
@@ -113,7 +111,7 @@ export default function VotesBoardLike({
   // 중복 요청 방지 & 뮤테이션 트리거
   const handleToggleLike = () => {
     if (toggleLike.isPending) return;
-    toggleLike.mutate({ votesboardId: postId });
+    toggleLike.mutate({ pollId: postId });
   };
 
   return (

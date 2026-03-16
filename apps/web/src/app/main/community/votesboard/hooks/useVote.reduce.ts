@@ -1,6 +1,6 @@
 import type {
-  VotesboardDetailResponse,
-  VoteOptionResponse,
+  PollDetailResponse,
+  PollOptionResponse,
 } from '@/generated/api/models';
 
 // ============================================
@@ -14,9 +14,9 @@ import type {
  * 투표 관련 액션을 표현하는 discriminated union 타입입니다.
  *
  * @remarks
- * - CAST: 첫 투표 (totalVotes +1, 선택 옵션 +1)
- * - CHANGE: 재투표 (totalVotes 변동 없음, 이전 선택 -1, 새 선택 +1)
- * - CANCEL: 투표 취소 (totalVotes -1, 선택 옵션 -1)
+ * - CAST: 첫 투표 (participantCount +1, 선택 옵션 +1)
+ * - CHANGE: 재투표 (participantCount 변동 없음, 이전 선택 -1, 새 선택 +1)
+ * - CANCEL: 투표 취소 (participantCount -1, 선택 옵션 -1)
  */
 export type VoteAction =
   | { type: 'CAST'; nextOptionIds: number[] }
@@ -30,19 +30,19 @@ export type VoteAction =
 /**
  * 투표 옵션들의 득표율을 계산하는 순수 함수
  *
- * @param voteOptions - 투표 옵션 배열
- * @param totalVotes - 총 투표 수
+ * @param options - 투표 옵션 배열
+ * @param participantCount - 총 투표 수
  * @returns 득표율이 계산된 투표 옵션 배열
  */
 export function calculatePercentages(
-  voteOptions: VoteOptionResponse[],
-  totalVotes: number,
-): VoteOptionResponse[] {
-  return voteOptions.map((option) => ({
+  options: PollOptionResponse[],
+  participantCount: number,
+): PollOptionResponse[] {
+  return options.map((option) => ({
     ...option,
     percentage:
-      totalVotes > 0
-        ? Math.round((option.voteCount / totalVotes) * 100)
+      participantCount > 0
+        ? Math.round((option.voteCount / participantCount) * 100)
         : 0,
   }));
 }
@@ -50,20 +50,20 @@ export function calculatePercentages(
 /**
  * 투표 액션에 따라 투표 옵션의 카운트를 업데이트하는 순수 함수
  *
- * @param voteOptions - 현재 투표 옵션 배열
+ * @param options - 현재 투표 옵션 배열
  * @param action - 투표 액션
  * @param prevSelectedIds - 이전에 선택된 옵션 ID 배열
  * @returns 업데이트된 투표 옵션 배열
  */
 export function updateVoteOptionCounts(
-  voteOptions: VoteOptionResponse[],
+  options: PollOptionResponse[],
   action: VoteAction,
   prevSelectedIds: number[],
-): VoteOptionResponse[] {
+): PollOptionResponse[] {
   switch (action.type) {
     case 'CAST':
       // 선택된 옵션들 +1
-      return voteOptions.map((option) => ({
+      return options.map((option) => ({
         ...option,
         voteCount: action.nextOptionIds.includes(option.id)
           ? option.voteCount + 1
@@ -72,7 +72,7 @@ export function updateVoteOptionCounts(
 
     case 'CHANGE':
       // 이전 선택 -1, 새 선택 +1
-      return voteOptions.map((option) => {
+      return options.map((option) => {
         const wasSelected = prevSelectedIds.includes(option.id);
         const isSelected = action.nextOptionIds.includes(option.id);
 
@@ -85,7 +85,7 @@ export function updateVoteOptionCounts(
 
     case 'CANCEL':
       // 이전 선택 -1
-      return voteOptions.map((option) => ({
+      return options.map((option) => ({
         ...option,
         voteCount: prevSelectedIds.includes(option.id)
           ? option.voteCount - 1
@@ -135,28 +135,28 @@ export function updateTotalVotes(
  * ```
  */
 export function createOptimisticUpdate(
-  snapshot: VotesboardDetailResponse,
+  snapshot: PollDetailResponse,
   action: VoteAction,
-): VotesboardDetailResponse {
-  const prevSelectedIds = snapshot.voteInfo.selectedOptionIds;
+): PollDetailResponse {
+  const prevSelectedIds = snapshot.voteInfo.myOptionIds;
 
   // 1. 투표 옵션 카운트 업데이트
-  const updatedVoteOptions = updateVoteOptionCounts(
-    snapshot.voteOptions,
+  const updatedOptions = updateVoteOptionCounts(
+    snapshot.options,
     action,
     prevSelectedIds,
   );
 
   // 2. 총 투표 수 업데이트
-  const updatedTotalVotes = updateTotalVotes(
-    snapshot.voteInfo.totalVotes,
+  const updatedParticipantCount = updateTotalVotes(
+    snapshot.voteInfo.participantCount,
     action,
   );
 
   // 3. 퍼센티지 재계산
   const optionsWithPercentage = calculatePercentages(
-    updatedVoteOptions,
-    updatedTotalVotes,
+    updatedOptions,
+    updatedParticipantCount,
   );
 
   // 4. 새로운 선택된 옵션 ID 결정
@@ -171,9 +171,9 @@ export function createOptimisticUpdate(
     hasVoted,
     voteInfo: {
       ...snapshot.voteInfo,
-      selectedOptionIds: nextSelectedIds,
-      totalVotes: updatedTotalVotes,
+      myOptionIds: nextSelectedIds,
+      participantCount: updatedParticipantCount,
     },
-    voteOptions: optionsWithPercentage,
+    options: optionsWithPercentage,
   };
 }
