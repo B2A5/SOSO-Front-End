@@ -9,7 +9,7 @@
 /**
  * 투표 게시판 댓글 작성 요청
  */
-export interface VotesboardCommentCreateRequest {
+export interface PollCommentCreateRequest {
   /**
    * 댓글 내용
    * @minLength 0

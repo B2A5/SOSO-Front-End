@@ -7,13 +7,13 @@
  */
 
 /**
- * 투표 게시판 댓글 수정 요청
+ * 투표 옵션 생성 요청
  */
-export interface VotesboardCommentUpdateRequest {
+export interface PollOptionRequest {
   /**
-   * 댓글 내용
+   * 투표 옵션 내용
    * @minLength 0
-   * @maxLength 1000
+   * @maxLength 100
    */
   content: string;
 }

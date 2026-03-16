@@ -9,11 +9,11 @@
 /**
  * 카테고리
  */
-export type VotesboardDetailResponseCategory =
-  (typeof VotesboardDetailResponseCategory)[keyof typeof VotesboardDetailResponseCategory];
+export type PollDetailResponseCategory =
+  (typeof PollDetailResponseCategory)[keyof typeof PollDetailResponseCategory];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
-export const VotesboardDetailResponseCategory = {
+export const PollDetailResponseCategory = {
   'daily-hobby': 'daily-hobby',
   restaurant: 'restaurant',
   'living-convenience': 'living-convenience',

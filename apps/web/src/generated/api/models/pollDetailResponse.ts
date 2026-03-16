@@ -6,21 +6,21 @@
  * OpenAPI spec version: v1.0.0
  */
 import type { UserSummaryResponse } from './userSummaryResponse';
-import type { VotesboardDetailResponseCategory } from './votesboardDetailResponseCategory';
+import type { PollDetailResponseCategory } from './pollDetailResponseCategory';
 import type { ImageInfo } from './imageInfo';
-import type { VoteOptionResponse } from './voteOptionResponse';
+import type { PollOptionResponse } from './pollOptionResponse';
 import type { VoteInfo } from './voteInfo';
 
 /**
  * 투표 게시판 게시글 상세 정보
  */
-export interface VotesboardDetailResponse {
+export interface PollDetailResponse {
   /** 게시글 ID */
   postId: number;
   /** 작성자 정보 */
   author: UserSummaryResponse;
   /** 카테고리 */
-  category: VotesboardDetailResponseCategory;
+  category: PollDetailResponseCategory;
   /** 게시글 제목 */
   title: string;
   /** 게시글 내용 */
@@ -28,7 +28,7 @@ export interface VotesboardDetailResponse {
   /** 첨부된 이미지 정보 목록 */
   images: ImageInfo[];
   /** 투표 옵션 목록 */
-  voteOptions: VoteOptionResponse[];
+  options: PollOptionResponse[];
   /** 현재 사용자의 투표 참여 여부 (비인증 사용자인 경우 null, 참여하지 않은 경우 false, 참여한 경우 true) */
   hasVoted: boolean;
   /** 투표 정보 */
@@ -40,9 +40,9 @@ export interface VotesboardDetailResponse {
   /** 좋아요 수 */
   likeCount: number;
   /** 현재 사용자가 게시글 수정 권한이 있는지 여부 (비인증 사용자인 경우 null, 작성자인 경우 true) */
-  canEdit: boolean;
+  isEditable: boolean;
   /** 현재 사용자가 게시글 삭제 권한이 있는지 여부 (비인증 사용자인 경우 null, 작성자인 경우 true) */
-  canDelete: boolean;
+  isDeletable: boolean;
   /** 생성일시 */
   createdAt: string;
   /** 수정일시 */

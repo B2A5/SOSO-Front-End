@@ -6,13 +6,12 @@
  * OpenAPI spec version: v1.0.0
  */
 
-export type GetVotesboardsByCursorSort =
-  (typeof GetVotesboardsByCursorSort)[keyof typeof GetVotesboardsByCursorSort];
+export type GetPollsByCursorStatus =
+  (typeof GetPollsByCursorStatus)[keyof typeof GetPollsByCursorStatus];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
-export const GetVotesboardsByCursorSort = {
-  LATEST: 'LATEST',
-  LIKE: 'LIKE',
-  COMMENT: 'COMMENT',
-  VIEW: 'VIEW',
+export const GetPollsByCursorStatus = {
+  IN_PROGRESS: 'IN_PROGRESS',
+  COMPLETED: 'COMPLETED',
+  DELETED: 'DELETED',
 } as const;

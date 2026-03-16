@@ -6,4 +6,4 @@
  * OpenAPI spec version: v1.0.0
  */
 
-export type DeleteVotesboardComment204 = { [key: string]: unknown };
+export type DeletePollComment204 = { [key: string]: unknown };

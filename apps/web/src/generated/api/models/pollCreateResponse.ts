@@ -9,7 +9,7 @@
 /**
  * 투표 게시판 게시글 생성 응답
  */
-export interface VotesboardCreateResponse {
+export interface PollCreateResponse {
   /** 생성된 투표 게시글 ID */
   postId: number;
 }

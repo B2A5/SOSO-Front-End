@@ -9,7 +9,7 @@
 /**
  * 투표 게시판 댓글 작성/수정 응답
  */
-export interface VotesboardCommentCreateResponse {
+export interface PollCommentCreateResponse {
   /** 생성/수정된 댓글 ID */
   commentId: number;
 }

@@ -10,11 +10,11 @@ import type { CommentAuthorInfo } from './commentAuthorInfo';
 /**
  * 댓글 요약 정보
  */
-export interface VotesboardCommentSummary {
+export interface PollCommentSummary {
   /** 댓글 ID */
   commentId: number;
   /** 투표 게시글 ID */
-  votesboardId: number;
+  pollId: number;
   /** 부모 댓글 ID (대댓글인 경우) */
   parentCommentId?: number;
   /** 작성자 정보 */

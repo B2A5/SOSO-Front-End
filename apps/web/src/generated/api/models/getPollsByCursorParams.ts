@@ -5,18 +5,18 @@
  * 소소한 아이디어 공유 플랫폼의 백엔드 API 문서입니다.
  * OpenAPI spec version: v1.0.0
  */
-import type { GetVotesboardsByCursorStatus } from './getVotesboardsByCursorStatus';
-import type { GetVotesboardsByCursorSort } from './getVotesboardsByCursorSort';
+import type { GetPollsByCursorStatus } from './getPollsByCursorStatus';
+import type { GetPollsByCursorSort } from './getPollsByCursorSort';
 
-export type GetVotesboardsByCursorParams = {
+export type GetPollsByCursorParams = {
   /**
    * 투표 상태
    */
-  status?: GetVotesboardsByCursorStatus;
+  status?: GetPollsByCursorStatus;
   /**
    * 투표게시판 정렬 기준
    */
-  sort?: GetVotesboardsByCursorSort;
+  sort?: GetPollsByCursorSort;
   /**
    * 페이지 크기 (1-50, 기본값: 20)
    */

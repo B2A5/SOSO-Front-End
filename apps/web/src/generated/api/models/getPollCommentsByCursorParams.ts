@@ -5,13 +5,13 @@
  * 소소한 아이디어 공유 플랫폼의 백엔드 API 문서입니다.
  * OpenAPI spec version: v1.0.0
  */
-import type { GetVotesboardCommentsByCursorSort } from './getVotesboardCommentsByCursorSort';
+import type { GetPollCommentsByCursorSort } from './getPollCommentsByCursorSort';
 
-export type GetVotesboardCommentsByCursorParams = {
+export type GetPollCommentsByCursorParams = {
   /**
    * 정렬 순서
    */
-  sort?: GetVotesboardCommentsByCursorSort;
+  sort?: GetPollCommentsByCursorSort;
   /**
    * 커서 값 (다음 페이지용)
    */

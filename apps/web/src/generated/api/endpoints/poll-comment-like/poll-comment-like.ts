@@ -32,37 +32,37 @@ import { customInstance } from '../../../../lib/api-client';
 
  * @summary 댓글 좋아요 상태 확인
  */
-export const getVotesboardCommentLikeStatus = (
-  votesboardId: number,
+export const getPollCommentLikeStatus = (
+  pollId: number,
   commentId: number,
   signal?: AbortSignal,
 ) => {
   return customInstance<boolean>({
-    url: `/community/votesboard/${votesboardId}/comments/${commentId}/like`,
+    url: `/community/polls/${pollId}/comments/${commentId}/like`,
     method: 'GET',
     signal,
   });
 };
 
-export const getGetVotesboardCommentLikeStatusQueryKey = (
-  votesboardId?: number,
+export const getGetPollCommentLikeStatusQueryKey = (
+  pollId?: number,
   commentId?: number,
 ) => {
   return [
-    `/community/votesboard/${votesboardId}/comments/${commentId}/like`,
+    `/community/polls/${pollId}/comments/${commentId}/like`,
   ] as const;
 };
 
-export const getGetVotesboardCommentLikeStatusQueryOptions = <
-  TData = Awaited<ReturnType<typeof getVotesboardCommentLikeStatus>>,
+export const getGetPollCommentLikeStatusQueryOptions = <
+  TData = Awaited<ReturnType<typeof getPollCommentLikeStatus>>,
   TError = ErrorResponse | ErrorResponse,
 >(
-  votesboardId: number,
+  pollId: number,
   commentId: number,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getVotesboardCommentLikeStatus>>,
+        Awaited<ReturnType<typeof getPollCommentLikeStatus>>,
         TError,
         TData
       >
@@ -73,54 +73,51 @@ export const getGetVotesboardCommentLikeStatusQueryOptions = <
 
   const queryKey =
     queryOptions?.queryKey ??
-    getGetVotesboardCommentLikeStatusQueryKey(
-      votesboardId,
-      commentId,
-    );
+    getGetPollCommentLikeStatusQueryKey(pollId, commentId);
 
   const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof getVotesboardCommentLikeStatus>>
+    Awaited<ReturnType<typeof getPollCommentLikeStatus>>
   > = ({ signal }) =>
-    getVotesboardCommentLikeStatus(votesboardId, commentId, signal);
+    getPollCommentLikeStatus(pollId, commentId, signal);
 
   return {
     queryKey,
     queryFn,
-    enabled: !!(votesboardId && commentId),
+    enabled: !!(pollId && commentId),
     ...queryOptions,
   } as UseQueryOptions<
-    Awaited<ReturnType<typeof getVotesboardCommentLikeStatus>>,
+    Awaited<ReturnType<typeof getPollCommentLikeStatus>>,
     TError,
     TData
   > & { queryKey: DataTag<QueryKey, TData, TError> };
 };
 
-export type GetVotesboardCommentLikeStatusQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getVotesboardCommentLikeStatus>>
+export type GetPollCommentLikeStatusQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getPollCommentLikeStatus>>
 >;
-export type GetVotesboardCommentLikeStatusQueryError =
+export type GetPollCommentLikeStatusQueryError =
   | ErrorResponse
   | ErrorResponse;
 
-export function useGetVotesboardCommentLikeStatus<
-  TData = Awaited<ReturnType<typeof getVotesboardCommentLikeStatus>>,
+export function useGetPollCommentLikeStatus<
+  TData = Awaited<ReturnType<typeof getPollCommentLikeStatus>>,
   TError = ErrorResponse | ErrorResponse,
 >(
-  votesboardId: number,
+  pollId: number,
   commentId: number,
   options: {
     query: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getVotesboardCommentLikeStatus>>,
+        Awaited<ReturnType<typeof getPollCommentLikeStatus>>,
         TError,
         TData
       >
     > &
       Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getVotesboardCommentLikeStatus>>,
+          Awaited<ReturnType<typeof getPollCommentLikeStatus>>,
           TError,
-          Awaited<ReturnType<typeof getVotesboardCommentLikeStatus>>
+          Awaited<ReturnType<typeof getPollCommentLikeStatus>>
         >,
         'initialData'
       >;
@@ -129,25 +126,25 @@ export function useGetVotesboardCommentLikeStatus<
 ): DefinedUseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 };
-export function useGetVotesboardCommentLikeStatus<
-  TData = Awaited<ReturnType<typeof getVotesboardCommentLikeStatus>>,
+export function useGetPollCommentLikeStatus<
+  TData = Awaited<ReturnType<typeof getPollCommentLikeStatus>>,
   TError = ErrorResponse | ErrorResponse,
 >(
-  votesboardId: number,
+  pollId: number,
   commentId: number,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getVotesboardCommentLikeStatus>>,
+        Awaited<ReturnType<typeof getPollCommentLikeStatus>>,
         TError,
         TData
       >
     > &
       Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getVotesboardCommentLikeStatus>>,
+          Awaited<ReturnType<typeof getPollCommentLikeStatus>>,
           TError,
-          Awaited<ReturnType<typeof getVotesboardCommentLikeStatus>>
+          Awaited<ReturnType<typeof getPollCommentLikeStatus>>
         >,
         'initialData'
       >;
@@ -156,16 +153,16 @@ export function useGetVotesboardCommentLikeStatus<
 ): UseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 };
-export function useGetVotesboardCommentLikeStatus<
-  TData = Awaited<ReturnType<typeof getVotesboardCommentLikeStatus>>,
+export function useGetPollCommentLikeStatus<
+  TData = Awaited<ReturnType<typeof getPollCommentLikeStatus>>,
   TError = ErrorResponse | ErrorResponse,
 >(
-  votesboardId: number,
+  pollId: number,
   commentId: number,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getVotesboardCommentLikeStatus>>,
+        Awaited<ReturnType<typeof getPollCommentLikeStatus>>,
         TError,
         TData
       >
@@ -179,16 +176,16 @@ export function useGetVotesboardCommentLikeStatus<
  * @summary 댓글 좋아요 상태 확인
  */
 
-export function useGetVotesboardCommentLikeStatus<
-  TData = Awaited<ReturnType<typeof getVotesboardCommentLikeStatus>>,
+export function useGetPollCommentLikeStatus<
+  TData = Awaited<ReturnType<typeof getPollCommentLikeStatus>>,
   TError = ErrorResponse | ErrorResponse,
 >(
-  votesboardId: number,
+  pollId: number,
   commentId: number,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getVotesboardCommentLikeStatus>>,
+        Awaited<ReturnType<typeof getPollCommentLikeStatus>>,
         TError,
         TData
       >
@@ -198,8 +195,8 @@ export function useGetVotesboardCommentLikeStatus<
 ): UseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 } {
-  const queryOptions = getGetVotesboardCommentLikeStatusQueryOptions(
-    votesboardId,
+  const queryOptions = getGetPollCommentLikeStatusQueryOptions(
+    pollId,
     commentId,
     options,
   );
@@ -225,35 +222,35 @@ export function useGetVotesboardCommentLikeStatus<
 
  * @summary 댓글 좋아요 토글
  */
-export const toggleVotesboardCommentLike = (
-  votesboardId: number,
+export const togglePollCommentLike = (
+  pollId: number,
   commentId: number,
   signal?: AbortSignal,
 ) => {
   return customInstance<boolean>({
-    url: `/community/votesboard/${votesboardId}/comments/${commentId}/like`,
+    url: `/community/polls/${pollId}/comments/${commentId}/like`,
     method: 'POST',
     signal,
   });
 };
 
-export const getToggleVotesboardCommentLikeMutationOptions = <
+export const getTogglePollCommentLikeMutationOptions = <
   TError = ErrorResponse | ErrorResponse,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof toggleVotesboardCommentLike>>,
+    Awaited<ReturnType<typeof togglePollCommentLike>>,
     TError,
-    { votesboardId: number; commentId: number },
+    { pollId: number; commentId: number },
     TContext
   >;
 }): UseMutationOptions<
-  Awaited<ReturnType<typeof toggleVotesboardCommentLike>>,
+  Awaited<ReturnType<typeof togglePollCommentLike>>,
   TError,
-  { votesboardId: number; commentId: number },
+  { pollId: number; commentId: number },
   TContext
 > => {
-  const mutationKey = ['toggleVotesboardCommentLike'];
+  const mutationKey = ['togglePollCommentLike'];
   const { mutation: mutationOptions } = options
     ? options.mutation &&
       'mutationKey' in options.mutation &&
@@ -263,49 +260,49 @@ export const getToggleVotesboardCommentLikeMutationOptions = <
     : { mutation: { mutationKey } };
 
   const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof toggleVotesboardCommentLike>>,
-    { votesboardId: number; commentId: number }
+    Awaited<ReturnType<typeof togglePollCommentLike>>,
+    { pollId: number; commentId: number }
   > = (props) => {
-    const { votesboardId, commentId } = props ?? {};
+    const { pollId, commentId } = props ?? {};
 
-    return toggleVotesboardCommentLike(votesboardId, commentId);
+    return togglePollCommentLike(pollId, commentId);
   };
 
   return { mutationFn, ...mutationOptions };
 };
 
-export type ToggleVotesboardCommentLikeMutationResult = NonNullable<
-  Awaited<ReturnType<typeof toggleVotesboardCommentLike>>
+export type TogglePollCommentLikeMutationResult = NonNullable<
+  Awaited<ReturnType<typeof togglePollCommentLike>>
 >;
 
-export type ToggleVotesboardCommentLikeMutationError =
+export type TogglePollCommentLikeMutationError =
   | ErrorResponse
   | ErrorResponse;
 
 /**
  * @summary 댓글 좋아요 토글
  */
-export const useToggleVotesboardCommentLike = <
+export const useTogglePollCommentLike = <
   TError = ErrorResponse | ErrorResponse,
   TContext = unknown,
 >(
   options?: {
     mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof toggleVotesboardCommentLike>>,
+      Awaited<ReturnType<typeof togglePollCommentLike>>,
       TError,
-      { votesboardId: number; commentId: number },
+      { pollId: number; commentId: number },
       TContext
     >;
   },
   queryClient?: QueryClient,
 ): UseMutationResult<
-  Awaited<ReturnType<typeof toggleVotesboardCommentLike>>,
+  Awaited<ReturnType<typeof togglePollCommentLike>>,
   TError,
-  { votesboardId: number; commentId: number },
+  { pollId: number; commentId: number },
   TContext
 > => {
   const mutationOptions =
-    getToggleVotesboardCommentLikeMutationOptions(options);
+    getTogglePollCommentLikeMutationOptions(options);
 
   return useMutation(mutationOptions, queryClient);
 };

@@ -5,14 +5,14 @@
  * 소소한 아이디어 공유 플랫폼의 백엔드 API 문서입니다.
  * OpenAPI spec version: v1.0.0
  */
-import type { VotesboardUpdateRequestCategory } from './votesboardUpdateRequestCategory';
+import type { PollUpdateRequestCategory } from './pollUpdateRequestCategory';
 
 /**
  * 투표 게시판 게시글 수정 요청 (투표 옵션 수정 불가)
  */
-export interface VotesboardUpdateRequest {
+export interface PollUpdateRequest {
   /** 수정할 카테고리 */
-  category?: VotesboardUpdateRequestCategory;
+  category?: PollUpdateRequestCategory;
   /**
    * 게시글 제목
    * @minLength 0
@@ -34,9 +34,9 @@ export interface VotesboardUpdateRequest {
   /** 삭제할 기존 이미지 ID 목록 */
   deleteImageIds?: number[];
   /** 투표 마감 시간 */
-  endTime?: string;
+  closedAt?: string;
   /** 재투표 허용 여부 (투표 후 변경 가능 여부) */
-  allowRevote?: boolean;
+  canRevote?: boolean;
   /** 중복 선택 허용 여부 (여러 옵션 동시 선택 가능 여부) */
-  allowMultipleChoice?: boolean;
+  canMultiSelect?: boolean;
 }

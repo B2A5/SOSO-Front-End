@@ -32,32 +32,30 @@ import { customInstance } from '../../../../lib/api-client';
 
  * @summary 투표 게시글 좋아요 상태 확인
  */
-export const getVotesboardLikeStatus = (
-  votesboardId: number,
+export const getPollLikeStatus = (
+  pollId: number,
   signal?: AbortSignal,
 ) => {
   return customInstance<boolean>({
-    url: `/community/votesboard/${votesboardId}/like`,
+    url: `/community/polls/${pollId}/like`,
     method: 'GET',
     signal,
   });
 };
 
-export const getGetVotesboardLikeStatusQueryKey = (
-  votesboardId?: number,
-) => {
-  return [`/community/votesboard/${votesboardId}/like`] as const;
+export const getGetPollLikeStatusQueryKey = (pollId?: number) => {
+  return [`/community/polls/${pollId}/like`] as const;
 };
 
-export const getGetVotesboardLikeStatusQueryOptions = <
-  TData = Awaited<ReturnType<typeof getVotesboardLikeStatus>>,
+export const getGetPollLikeStatusQueryOptions = <
+  TData = Awaited<ReturnType<typeof getPollLikeStatus>>,
   TError = ErrorResponse | ErrorResponse,
 >(
-  votesboardId: number,
+  pollId: number,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getVotesboardLikeStatus>>,
+        Awaited<ReturnType<typeof getPollLikeStatus>>,
         TError,
         TData
       >
@@ -67,50 +65,49 @@ export const getGetVotesboardLikeStatusQueryOptions = <
   const { query: queryOptions } = options ?? {};
 
   const queryKey =
-    queryOptions?.queryKey ??
-    getGetVotesboardLikeStatusQueryKey(votesboardId);
+    queryOptions?.queryKey ?? getGetPollLikeStatusQueryKey(pollId);
 
   const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof getVotesboardLikeStatus>>
-  > = ({ signal }) => getVotesboardLikeStatus(votesboardId, signal);
+    Awaited<ReturnType<typeof getPollLikeStatus>>
+  > = ({ signal }) => getPollLikeStatus(pollId, signal);
 
   return {
     queryKey,
     queryFn,
-    enabled: !!votesboardId,
+    enabled: !!pollId,
     ...queryOptions,
   } as UseQueryOptions<
-    Awaited<ReturnType<typeof getVotesboardLikeStatus>>,
+    Awaited<ReturnType<typeof getPollLikeStatus>>,
     TError,
     TData
   > & { queryKey: DataTag<QueryKey, TData, TError> };
 };
 
-export type GetVotesboardLikeStatusQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getVotesboardLikeStatus>>
+export type GetPollLikeStatusQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getPollLikeStatus>>
 >;
-export type GetVotesboardLikeStatusQueryError =
+export type GetPollLikeStatusQueryError =
   | ErrorResponse
   | ErrorResponse;
 
-export function useGetVotesboardLikeStatus<
-  TData = Awaited<ReturnType<typeof getVotesboardLikeStatus>>,
+export function useGetPollLikeStatus<
+  TData = Awaited<ReturnType<typeof getPollLikeStatus>>,
   TError = ErrorResponse | ErrorResponse,
 >(
-  votesboardId: number,
+  pollId: number,
   options: {
     query: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getVotesboardLikeStatus>>,
+        Awaited<ReturnType<typeof getPollLikeStatus>>,
         TError,
         TData
       >
     > &
       Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getVotesboardLikeStatus>>,
+          Awaited<ReturnType<typeof getPollLikeStatus>>,
           TError,
-          Awaited<ReturnType<typeof getVotesboardLikeStatus>>
+          Awaited<ReturnType<typeof getPollLikeStatus>>
         >,
         'initialData'
       >;
@@ -119,24 +116,24 @@ export function useGetVotesboardLikeStatus<
 ): DefinedUseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 };
-export function useGetVotesboardLikeStatus<
-  TData = Awaited<ReturnType<typeof getVotesboardLikeStatus>>,
+export function useGetPollLikeStatus<
+  TData = Awaited<ReturnType<typeof getPollLikeStatus>>,
   TError = ErrorResponse | ErrorResponse,
 >(
-  votesboardId: number,
+  pollId: number,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getVotesboardLikeStatus>>,
+        Awaited<ReturnType<typeof getPollLikeStatus>>,
         TError,
         TData
       >
     > &
       Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getVotesboardLikeStatus>>,
+          Awaited<ReturnType<typeof getPollLikeStatus>>,
           TError,
-          Awaited<ReturnType<typeof getVotesboardLikeStatus>>
+          Awaited<ReturnType<typeof getPollLikeStatus>>
         >,
         'initialData'
       >;
@@ -145,15 +142,15 @@ export function useGetVotesboardLikeStatus<
 ): UseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 };
-export function useGetVotesboardLikeStatus<
-  TData = Awaited<ReturnType<typeof getVotesboardLikeStatus>>,
+export function useGetPollLikeStatus<
+  TData = Awaited<ReturnType<typeof getPollLikeStatus>>,
   TError = ErrorResponse | ErrorResponse,
 >(
-  votesboardId: number,
+  pollId: number,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getVotesboardLikeStatus>>,
+        Awaited<ReturnType<typeof getPollLikeStatus>>,
         TError,
         TData
       >
@@ -167,15 +164,15 @@ export function useGetVotesboardLikeStatus<
  * @summary 투표 게시글 좋아요 상태 확인
  */
 
-export function useGetVotesboardLikeStatus<
-  TData = Awaited<ReturnType<typeof getVotesboardLikeStatus>>,
+export function useGetPollLikeStatus<
+  TData = Awaited<ReturnType<typeof getPollLikeStatus>>,
   TError = ErrorResponse | ErrorResponse,
 >(
-  votesboardId: number,
+  pollId: number,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getVotesboardLikeStatus>>,
+        Awaited<ReturnType<typeof getPollLikeStatus>>,
         TError,
         TData
       >
@@ -185,8 +182,8 @@ export function useGetVotesboardLikeStatus<
 ): UseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 } {
-  const queryOptions = getGetVotesboardLikeStatusQueryOptions(
-    votesboardId,
+  const queryOptions = getGetPollLikeStatusQueryOptions(
+    pollId,
     options,
   );
 
@@ -211,34 +208,34 @@ export function useGetVotesboardLikeStatus<
 
  * @summary 투표 게시글 좋아요 토글
  */
-export const toggleVotesboardLike = (
-  votesboardId: number,
+export const togglePollLike = (
+  pollId: number,
   signal?: AbortSignal,
 ) => {
   return customInstance<boolean>({
-    url: `/community/votesboard/${votesboardId}/like`,
+    url: `/community/polls/${pollId}/like`,
     method: 'POST',
     signal,
   });
 };
 
-export const getToggleVotesboardLikeMutationOptions = <
+export const getTogglePollLikeMutationOptions = <
   TError = ErrorResponse | ErrorResponse,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof toggleVotesboardLike>>,
+    Awaited<ReturnType<typeof togglePollLike>>,
     TError,
-    { votesboardId: number },
+    { pollId: number },
     TContext
   >;
 }): UseMutationOptions<
-  Awaited<ReturnType<typeof toggleVotesboardLike>>,
+  Awaited<ReturnType<typeof togglePollLike>>,
   TError,
-  { votesboardId: number },
+  { pollId: number },
   TContext
 > => {
-  const mutationKey = ['toggleVotesboardLike'];
+  const mutationKey = ['togglePollLike'];
   const { mutation: mutationOptions } = options
     ? options.mutation &&
       'mutationKey' in options.mutation &&
@@ -248,49 +245,48 @@ export const getToggleVotesboardLikeMutationOptions = <
     : { mutation: { mutationKey } };
 
   const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof toggleVotesboardLike>>,
-    { votesboardId: number }
+    Awaited<ReturnType<typeof togglePollLike>>,
+    { pollId: number }
   > = (props) => {
-    const { votesboardId } = props ?? {};
+    const { pollId } = props ?? {};
 
-    return toggleVotesboardLike(votesboardId);
+    return togglePollLike(pollId);
   };
 
   return { mutationFn, ...mutationOptions };
 };
 
-export type ToggleVotesboardLikeMutationResult = NonNullable<
-  Awaited<ReturnType<typeof toggleVotesboardLike>>
+export type TogglePollLikeMutationResult = NonNullable<
+  Awaited<ReturnType<typeof togglePollLike>>
 >;
 
-export type ToggleVotesboardLikeMutationError =
+export type TogglePollLikeMutationError =
   | ErrorResponse
   | ErrorResponse;
 
 /**
  * @summary 투표 게시글 좋아요 토글
  */
-export const useToggleVotesboardLike = <
+export const useTogglePollLike = <
   TError = ErrorResponse | ErrorResponse,
   TContext = unknown,
 >(
   options?: {
     mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof toggleVotesboardLike>>,
+      Awaited<ReturnType<typeof togglePollLike>>,
       TError,
-      { votesboardId: number },
+      { pollId: number },
       TContext
     >;
   },
   queryClient?: QueryClient,
 ): UseMutationResult<
-  Awaited<ReturnType<typeof toggleVotesboardLike>>,
+  Awaited<ReturnType<typeof togglePollLike>>,
   TError,
-  { votesboardId: number },
+  { pollId: number },
   TContext
 > => {
-  const mutationOptions =
-    getToggleVotesboardLikeMutationOptions(options);
+  const mutationOptions = getTogglePollLikeMutationOptions(options);
 
   return useMutation(mutationOptions, queryClient);
 };

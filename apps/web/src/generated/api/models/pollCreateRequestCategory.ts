@@ -9,11 +9,11 @@
 /**
  * 게시글 카테고리
  */
-export type VotesboardCreateRequestCategory =
-  (typeof VotesboardCreateRequestCategory)[keyof typeof VotesboardCreateRequestCategory];
+export type PollCreateRequestCategory =
+  (typeof PollCreateRequestCategory)[keyof typeof PollCreateRequestCategory];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
-export const VotesboardCreateRequestCategory = {
+export const PollCreateRequestCategory = {
   'daily-hobby': 'daily-hobby',
   restaurant: 'restaurant',
   'living-convenience': 'living-convenience',

@@ -9,11 +9,11 @@
 /**
  * 수정할 카테고리
  */
-export type VotesboardUpdateRequestCategory =
-  (typeof VotesboardUpdateRequestCategory)[keyof typeof VotesboardUpdateRequestCategory];
+export type PollUpdateRequestCategory =
+  (typeof PollUpdateRequestCategory)[keyof typeof PollUpdateRequestCategory];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
-export const VotesboardUpdateRequestCategory = {
+export const PollUpdateRequestCategory = {
   'daily-hobby': 'daily-hobby',
   restaurant: 'restaurant',
   'living-convenience': 'living-convenience',

@@ -6,11 +6,11 @@
  * OpenAPI spec version: v1.0.0
  */
 
-export type GetVotesboardCommentsByCursorSort =
-  (typeof GetVotesboardCommentsByCursorSort)[keyof typeof GetVotesboardCommentsByCursorSort];
+export type GetPollCommentsByCursorSort =
+  (typeof GetPollCommentsByCursorSort)[keyof typeof GetPollCommentsByCursorSort];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
-export const GetVotesboardCommentsByCursorSort = {
+export const GetPollCommentsByCursorSort = {
   LATEST: 'LATEST',
   OLDEST: 'OLDEST',
 } as const;

@@ -6,20 +6,20 @@
  * OpenAPI spec version: v1.0.0
  */
 import type { UserSummaryResponse } from './userSummaryResponse';
-import type { VotesboardSummaryCategory } from './votesboardSummaryCategory';
+import type { PollSummaryCategory } from './pollSummaryCategory';
 import type { VoteInfo } from './voteInfo';
-import type { VoteOptionResponse } from './voteOptionResponse';
+import type { PollOptionResponse } from './pollOptionResponse';
 
 /**
  * 투표 게시판 게시글 요약 정보
  */
-export interface VotesboardSummary {
+export interface PollSummary {
   /** 게시글 ID */
   postId: number;
   /** 작성자 정보 */
   author: UserSummaryResponse;
   /** 카테고리 */
-  category: VotesboardSummaryCategory;
+  category: PollSummaryCategory;
   /** 게시글 제목 */
   title: string;
   /** 내용 미리보기 (100자 제한) */
@@ -37,7 +37,7 @@ export interface VotesboardSummary {
   /** 투표 정보 */
   voteInfo: VoteInfo;
   /** 투표 옵션 목록 (미리보기, 최대 3개) */
-  voteOptions: VoteOptionResponse[];
+  voteOptions: PollOptionResponse[];
   /** 좋아요 수 */
   likeCount: number;
   /** 생성일시 */

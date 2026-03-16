@@ -5,22 +5,22 @@
  * 소소한 아이디어 공유 플랫폼의 백엔드 API 문서입니다.
  * OpenAPI spec version: v1.0.0
  */
-import type { VotesboardSummary } from './votesboardSummary';
+import type { PollCommentSummary } from './pollCommentSummary';
 
 /**
- * 투표 게시판 커서 기반 목록 조회 응답
+ * 투표 게시판 댓글 커서 기반 목록 조회 응답
  */
-export interface VotesboardCursorResponse {
-  /** 투표 게시글 목록 */
-  posts: VotesboardSummary[];
+export interface PollCommentCursorResponse {
+  /** 댓글 목록 */
+  comments: PollCommentSummary[];
   /** 다음 페이지 존재 여부 */
   hasNext: boolean;
   /** 다음 페이지를 위한 커서 값 */
   nextCursor?: string;
   /** 현재 페이지 크기 */
   size: number;
-  /** 총 게시글 수 */
-  totalCount: number;
+  /** 총 댓글 수 (삭제된 댓글 포함) */
+  total: number;
   authorized?: boolean;
   /** 요청한 사용자가 인증되었는지 여부 (액세스 토큰 제공 여부) */
   isAuthorized: boolean;

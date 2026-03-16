@@ -22,13 +22,13 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
-  DeleteVotesboardComment204,
+  DeletePollComment204,
   ErrorResponse,
-  GetVotesboardCommentsByCursorParams,
-  VotesboardCommentCreateRequest,
-  VotesboardCommentCreateResponse,
-  VotesboardCommentCursorResponse,
-  VotesboardCommentUpdateRequest,
+  GetPollCommentsByCursorParams,
+  PollCommentCreateRequest,
+  PollCommentCreateResponse,
+  PollCommentCursorResponse,
+  PollCommentUpdateRequest,
 } from '../../models';
 
 import { customInstance } from '../../../../lib/api-client';
@@ -46,53 +46,41 @@ import { customInstance } from '../../../../lib/api-client';
 - 총 댓글 수 제공 (total)
 - 인증/비인증 사용자 모두 조회 가능
 
-**인증 사용자:**
-- isAuthorized: true
-- isLiked: boolean (좋아요 상태)
-- canEdit: boolean (수정 권한)
-- canDelete: boolean (삭제 권한)
-
-**비인증 사용자:**
-- isAuthorized: false
-- isLiked: null
-- canEdit: null
-- canDelete: null
-
  * @summary 댓글 목록 조회 (커서 기반)
  */
-export const getVotesboardCommentsByCursor = (
-  votesboardId: number,
-  params?: GetVotesboardCommentsByCursorParams,
+export const getPollCommentsByCursor = (
+  pollId: number,
+  params?: GetPollCommentsByCursorParams,
   signal?: AbortSignal,
 ) => {
-  return customInstance<VotesboardCommentCursorResponse>({
-    url: `/community/votesboard/${votesboardId}/comments`,
+  return customInstance<PollCommentCursorResponse>({
+    url: `/community/polls/${pollId}/comments`,
     method: 'GET',
     params,
     signal,
   });
 };
 
-export const getGetVotesboardCommentsByCursorQueryKey = (
-  votesboardId?: number,
-  params?: GetVotesboardCommentsByCursorParams,
+export const getGetPollCommentsByCursorQueryKey = (
+  pollId?: number,
+  params?: GetPollCommentsByCursorParams,
 ) => {
   return [
-    `/community/votesboard/${votesboardId}/comments`,
+    `/community/polls/${pollId}/comments`,
     ...(params ? [params] : []),
   ] as const;
 };
 
-export const getGetVotesboardCommentsByCursorQueryOptions = <
-  TData = Awaited<ReturnType<typeof getVotesboardCommentsByCursor>>,
+export const getGetPollCommentsByCursorQueryOptions = <
+  TData = Awaited<ReturnType<typeof getPollCommentsByCursor>>,
   TError = ErrorResponse | ErrorResponse,
 >(
-  votesboardId: number,
-  params?: GetVotesboardCommentsByCursorParams,
+  pollId: number,
+  params?: GetPollCommentsByCursorParams,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getVotesboardCommentsByCursor>>,
+        Awaited<ReturnType<typeof getPollCommentsByCursor>>,
         TError,
         TData
       >
@@ -103,51 +91,50 @@ export const getGetVotesboardCommentsByCursorQueryOptions = <
 
   const queryKey =
     queryOptions?.queryKey ??
-    getGetVotesboardCommentsByCursorQueryKey(votesboardId, params);
+    getGetPollCommentsByCursorQueryKey(pollId, params);
 
   const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof getVotesboardCommentsByCursor>>
-  > = ({ signal }) =>
-    getVotesboardCommentsByCursor(votesboardId, params, signal);
+    Awaited<ReturnType<typeof getPollCommentsByCursor>>
+  > = ({ signal }) => getPollCommentsByCursor(pollId, params, signal);
 
   return {
     queryKey,
     queryFn,
-    enabled: !!votesboardId,
+    enabled: !!pollId,
     ...queryOptions,
   } as UseQueryOptions<
-    Awaited<ReturnType<typeof getVotesboardCommentsByCursor>>,
+    Awaited<ReturnType<typeof getPollCommentsByCursor>>,
     TError,
     TData
   > & { queryKey: DataTag<QueryKey, TData, TError> };
 };
 
-export type GetVotesboardCommentsByCursorQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getVotesboardCommentsByCursor>>
+export type GetPollCommentsByCursorQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getPollCommentsByCursor>>
 >;
-export type GetVotesboardCommentsByCursorQueryError =
+export type GetPollCommentsByCursorQueryError =
   | ErrorResponse
   | ErrorResponse;
 
-export function useGetVotesboardCommentsByCursor<
-  TData = Awaited<ReturnType<typeof getVotesboardCommentsByCursor>>,
+export function useGetPollCommentsByCursor<
+  TData = Awaited<ReturnType<typeof getPollCommentsByCursor>>,
   TError = ErrorResponse | ErrorResponse,
 >(
-  votesboardId: number,
-  params: undefined | GetVotesboardCommentsByCursorParams,
+  pollId: number,
+  params: undefined | GetPollCommentsByCursorParams,
   options: {
     query: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getVotesboardCommentsByCursor>>,
+        Awaited<ReturnType<typeof getPollCommentsByCursor>>,
         TError,
         TData
       >
     > &
       Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getVotesboardCommentsByCursor>>,
+          Awaited<ReturnType<typeof getPollCommentsByCursor>>,
           TError,
-          Awaited<ReturnType<typeof getVotesboardCommentsByCursor>>
+          Awaited<ReturnType<typeof getPollCommentsByCursor>>
         >,
         'initialData'
       >;
@@ -156,25 +143,25 @@ export function useGetVotesboardCommentsByCursor<
 ): DefinedUseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 };
-export function useGetVotesboardCommentsByCursor<
-  TData = Awaited<ReturnType<typeof getVotesboardCommentsByCursor>>,
+export function useGetPollCommentsByCursor<
+  TData = Awaited<ReturnType<typeof getPollCommentsByCursor>>,
   TError = ErrorResponse | ErrorResponse,
 >(
-  votesboardId: number,
-  params?: GetVotesboardCommentsByCursorParams,
+  pollId: number,
+  params?: GetPollCommentsByCursorParams,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getVotesboardCommentsByCursor>>,
+        Awaited<ReturnType<typeof getPollCommentsByCursor>>,
         TError,
         TData
       >
     > &
       Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getVotesboardCommentsByCursor>>,
+          Awaited<ReturnType<typeof getPollCommentsByCursor>>,
           TError,
-          Awaited<ReturnType<typeof getVotesboardCommentsByCursor>>
+          Awaited<ReturnType<typeof getPollCommentsByCursor>>
         >,
         'initialData'
       >;
@@ -183,16 +170,16 @@ export function useGetVotesboardCommentsByCursor<
 ): UseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 };
-export function useGetVotesboardCommentsByCursor<
-  TData = Awaited<ReturnType<typeof getVotesboardCommentsByCursor>>,
+export function useGetPollCommentsByCursor<
+  TData = Awaited<ReturnType<typeof getPollCommentsByCursor>>,
   TError = ErrorResponse | ErrorResponse,
 >(
-  votesboardId: number,
-  params?: GetVotesboardCommentsByCursorParams,
+  pollId: number,
+  params?: GetPollCommentsByCursorParams,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getVotesboardCommentsByCursor>>,
+        Awaited<ReturnType<typeof getPollCommentsByCursor>>,
         TError,
         TData
       >
@@ -206,16 +193,16 @@ export function useGetVotesboardCommentsByCursor<
  * @summary 댓글 목록 조회 (커서 기반)
  */
 
-export function useGetVotesboardCommentsByCursor<
-  TData = Awaited<ReturnType<typeof getVotesboardCommentsByCursor>>,
+export function useGetPollCommentsByCursor<
+  TData = Awaited<ReturnType<typeof getPollCommentsByCursor>>,
   TError = ErrorResponse | ErrorResponse,
 >(
-  votesboardId: number,
-  params?: GetVotesboardCommentsByCursorParams,
+  pollId: number,
+  params?: GetPollCommentsByCursorParams,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof getVotesboardCommentsByCursor>>,
+        Awaited<ReturnType<typeof getPollCommentsByCursor>>,
         TError,
         TData
       >
@@ -225,8 +212,8 @@ export function useGetVotesboardCommentsByCursor<
 ): UseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 } {
-  const queryOptions = getGetVotesboardCommentsByCursorQueryOptions(
-    votesboardId,
+  const queryOptions = getGetPollCommentsByCursorQueryOptions(
+    pollId,
     params,
     options,
   );
@@ -251,37 +238,37 @@ export function useGetVotesboardCommentsByCursor<
 
  * @summary 댓글 작성
  */
-export const createVotesboardComment = (
-  votesboardId: number,
-  votesboardCommentCreateRequest: VotesboardCommentCreateRequest,
+export const createPollComment = (
+  pollId: number,
+  pollCommentCreateRequest: PollCommentCreateRequest,
   signal?: AbortSignal,
 ) => {
-  return customInstance<VotesboardCommentCreateResponse>({
-    url: `/community/votesboard/${votesboardId}/comments`,
+  return customInstance<PollCommentCreateResponse>({
+    url: `/community/polls/${pollId}/comments`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    data: votesboardCommentCreateRequest,
+    data: pollCommentCreateRequest,
     signal,
   });
 };
 
-export const getCreateVotesboardCommentMutationOptions = <
+export const getCreatePollCommentMutationOptions = <
   TError = ErrorResponse | ErrorResponse,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof createVotesboardComment>>,
+    Awaited<ReturnType<typeof createPollComment>>,
     TError,
-    { votesboardId: number; data: VotesboardCommentCreateRequest },
+    { pollId: number; data: PollCommentCreateRequest },
     TContext
   >;
 }): UseMutationOptions<
-  Awaited<ReturnType<typeof createVotesboardComment>>,
+  Awaited<ReturnType<typeof createPollComment>>,
   TError,
-  { votesboardId: number; data: VotesboardCommentCreateRequest },
+  { pollId: number; data: PollCommentCreateRequest },
   TContext
 > => {
-  const mutationKey = ['createVotesboardComment'];
+  const mutationKey = ['createPollComment'];
   const { mutation: mutationOptions } = options
     ? options.mutation &&
       'mutationKey' in options.mutation &&
@@ -291,50 +278,49 @@ export const getCreateVotesboardCommentMutationOptions = <
     : { mutation: { mutationKey } };
 
   const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof createVotesboardComment>>,
-    { votesboardId: number; data: VotesboardCommentCreateRequest }
+    Awaited<ReturnType<typeof createPollComment>>,
+    { pollId: number; data: PollCommentCreateRequest }
   > = (props) => {
-    const { votesboardId, data } = props ?? {};
+    const { pollId, data } = props ?? {};
 
-    return createVotesboardComment(votesboardId, data);
+    return createPollComment(pollId, data);
   };
 
   return { mutationFn, ...mutationOptions };
 };
 
-export type CreateVotesboardCommentMutationResult = NonNullable<
-  Awaited<ReturnType<typeof createVotesboardComment>>
+export type CreatePollCommentMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createPollComment>>
 >;
-export type CreateVotesboardCommentMutationBody =
-  VotesboardCommentCreateRequest;
-export type CreateVotesboardCommentMutationError =
+export type CreatePollCommentMutationBody = PollCommentCreateRequest;
+export type CreatePollCommentMutationError =
   | ErrorResponse
   | ErrorResponse;
 
 /**
  * @summary 댓글 작성
  */
-export const useCreateVotesboardComment = <
+export const useCreatePollComment = <
   TError = ErrorResponse | ErrorResponse,
   TContext = unknown,
 >(
   options?: {
     mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof createVotesboardComment>>,
+      Awaited<ReturnType<typeof createPollComment>>,
       TError,
-      { votesboardId: number; data: VotesboardCommentCreateRequest },
+      { pollId: number; data: PollCommentCreateRequest },
       TContext
     >;
   },
   queryClient?: QueryClient,
 ): UseMutationResult<
-  Awaited<ReturnType<typeof createVotesboardComment>>,
+  Awaited<ReturnType<typeof createPollComment>>,
   TError,
-  { votesboardId: number; data: VotesboardCommentCreateRequest },
+  { pollId: number; data: PollCommentCreateRequest },
   TContext
 > => {
   const mutationOptions =
-    getCreateVotesboardCommentMutationOptions(options);
+    getCreatePollCommentMutationOptions(options);
 
   return useMutation(mutationOptions, queryClient);
 };
@@ -349,33 +335,33 @@ export const useCreateVotesboardComment = <
 
  * @summary 댓글 삭제 (소프트 삭제)
  */
-export const deleteVotesboardComment = (
-  votesboardId: number,
+export const deletePollComment = (
+  pollId: number,
   commentId: number,
 ) => {
-  return customInstance<DeleteVotesboardComment204>({
-    url: `/community/votesboard/${votesboardId}/comments/${commentId}`,
+  return customInstance<DeletePollComment204>({
+    url: `/community/polls/${pollId}/comments/${commentId}`,
     method: 'DELETE',
   });
 };
 
-export const getDeleteVotesboardCommentMutationOptions = <
+export const getDeletePollCommentMutationOptions = <
   TError = ErrorResponse | ErrorResponse | ErrorResponse,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof deleteVotesboardComment>>,
+    Awaited<ReturnType<typeof deletePollComment>>,
     TError,
-    { votesboardId: number; commentId: number },
+    { pollId: number; commentId: number },
     TContext
   >;
 }): UseMutationOptions<
-  Awaited<ReturnType<typeof deleteVotesboardComment>>,
+  Awaited<ReturnType<typeof deletePollComment>>,
   TError,
-  { votesboardId: number; commentId: number },
+  { pollId: number; commentId: number },
   TContext
 > => {
-  const mutationKey = ['deleteVotesboardComment'];
+  const mutationKey = ['deletePollComment'];
   const { mutation: mutationOptions } = options
     ? options.mutation &&
       'mutationKey' in options.mutation &&
@@ -385,22 +371,22 @@ export const getDeleteVotesboardCommentMutationOptions = <
     : { mutation: { mutationKey } };
 
   const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof deleteVotesboardComment>>,
-    { votesboardId: number; commentId: number }
+    Awaited<ReturnType<typeof deletePollComment>>,
+    { pollId: number; commentId: number }
   > = (props) => {
-    const { votesboardId, commentId } = props ?? {};
+    const { pollId, commentId } = props ?? {};
 
-    return deleteVotesboardComment(votesboardId, commentId);
+    return deletePollComment(pollId, commentId);
   };
 
   return { mutationFn, ...mutationOptions };
 };
 
-export type DeleteVotesboardCommentMutationResult = NonNullable<
-  Awaited<ReturnType<typeof deleteVotesboardComment>>
+export type DeletePollCommentMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deletePollComment>>
 >;
 
-export type DeleteVotesboardCommentMutationError =
+export type DeletePollCommentMutationError =
   | ErrorResponse
   | ErrorResponse
   | ErrorResponse;
@@ -408,27 +394,27 @@ export type DeleteVotesboardCommentMutationError =
 /**
  * @summary 댓글 삭제 (소프트 삭제)
  */
-export const useDeleteVotesboardComment = <
+export const useDeletePollComment = <
   TError = ErrorResponse | ErrorResponse | ErrorResponse,
   TContext = unknown,
 >(
   options?: {
     mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof deleteVotesboardComment>>,
+      Awaited<ReturnType<typeof deletePollComment>>,
       TError,
-      { votesboardId: number; commentId: number },
+      { pollId: number; commentId: number },
       TContext
     >;
   },
   queryClient?: QueryClient,
 ): UseMutationResult<
-  Awaited<ReturnType<typeof deleteVotesboardComment>>,
+  Awaited<ReturnType<typeof deletePollComment>>,
   TError,
-  { votesboardId: number; commentId: number },
+  { pollId: number; commentId: number },
   TContext
 > => {
   const mutationOptions =
-    getDeleteVotesboardCommentMutationOptions(options);
+    getDeletePollCommentMutationOptions(options);
 
   return useMutation(mutationOptions, queryClient);
 };
@@ -442,48 +428,44 @@ export const useDeleteVotesboardComment = <
 
  * @summary 댓글 수정
  */
-export const updateVotesboardComment = (
-  votesboardId: number,
+export const updatePollComment = (
+  pollId: number,
   commentId: number,
-  votesboardCommentUpdateRequest: VotesboardCommentUpdateRequest,
+  pollCommentUpdateRequest: PollCommentUpdateRequest,
 ) => {
-  return customInstance<VotesboardCommentCreateResponse>({
-    url: `/community/votesboard/${votesboardId}/comments/${commentId}`,
+  return customInstance<PollCommentCreateResponse>({
+    url: `/community/polls/${pollId}/comments/${commentId}`,
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    data: votesboardCommentUpdateRequest,
+    data: pollCommentUpdateRequest,
   });
 };
 
-export const getUpdateVotesboardCommentMutationOptions = <
-  TError =
-    | ErrorResponse
-    | ErrorResponse
-    | ErrorResponse
-    | ErrorResponse,
+export const getUpdatePollCommentMutationOptions = <
+  TError = ErrorResponse | ErrorResponse | ErrorResponse,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof updateVotesboardComment>>,
+    Awaited<ReturnType<typeof updatePollComment>>,
     TError,
     {
-      votesboardId: number;
+      pollId: number;
       commentId: number;
-      data: VotesboardCommentUpdateRequest;
+      data: PollCommentUpdateRequest;
     },
     TContext
   >;
 }): UseMutationOptions<
-  Awaited<ReturnType<typeof updateVotesboardComment>>,
+  Awaited<ReturnType<typeof updatePollComment>>,
   TError,
   {
-    votesboardId: number;
+    pollId: number;
     commentId: number;
-    data: VotesboardCommentUpdateRequest;
+    data: PollCommentUpdateRequest;
   },
   TContext
 > => {
-  const mutationKey = ['updateVotesboardComment'];
+  const mutationKey = ['updatePollComment'];
   const { mutation: mutationOptions } = options
     ? options.mutation &&
       'mutationKey' in options.mutation &&
@@ -493,28 +475,26 @@ export const getUpdateVotesboardCommentMutationOptions = <
     : { mutation: { mutationKey } };
 
   const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof updateVotesboardComment>>,
+    Awaited<ReturnType<typeof updatePollComment>>,
     {
-      votesboardId: number;
+      pollId: number;
       commentId: number;
-      data: VotesboardCommentUpdateRequest;
+      data: PollCommentUpdateRequest;
     }
   > = (props) => {
-    const { votesboardId, commentId, data } = props ?? {};
+    const { pollId, commentId, data } = props ?? {};
 
-    return updateVotesboardComment(votesboardId, commentId, data);
+    return updatePollComment(pollId, commentId, data);
   };
 
   return { mutationFn, ...mutationOptions };
 };
 
-export type UpdateVotesboardCommentMutationResult = NonNullable<
-  Awaited<ReturnType<typeof updateVotesboardComment>>
+export type UpdatePollCommentMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updatePollComment>>
 >;
-export type UpdateVotesboardCommentMutationBody =
-  VotesboardCommentUpdateRequest;
-export type UpdateVotesboardCommentMutationError =
-  | ErrorResponse
+export type UpdatePollCommentMutationBody = PollCommentUpdateRequest;
+export type UpdatePollCommentMutationError =
   | ErrorResponse
   | ErrorResponse
   | ErrorResponse;
@@ -522,39 +502,35 @@ export type UpdateVotesboardCommentMutationError =
 /**
  * @summary 댓글 수정
  */
-export const useUpdateVotesboardComment = <
-  TError =
-    | ErrorResponse
-    | ErrorResponse
-    | ErrorResponse
-    | ErrorResponse,
+export const useUpdatePollComment = <
+  TError = ErrorResponse | ErrorResponse | ErrorResponse,
   TContext = unknown,
 >(
   options?: {
     mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof updateVotesboardComment>>,
+      Awaited<ReturnType<typeof updatePollComment>>,
       TError,
       {
-        votesboardId: number;
+        pollId: number;
         commentId: number;
-        data: VotesboardCommentUpdateRequest;
+        data: PollCommentUpdateRequest;
       },
       TContext
     >;
   },
   queryClient?: QueryClient,
 ): UseMutationResult<
-  Awaited<ReturnType<typeof updateVotesboardComment>>,
+  Awaited<ReturnType<typeof updatePollComment>>,
   TError,
   {
-    votesboardId: number;
+    pollId: number;
     commentId: number;
-    data: VotesboardCommentUpdateRequest;
+    data: PollCommentUpdateRequest;
   },
   TContext
 > => {
   const mutationOptions =
-    getUpdateVotesboardCommentMutationOptions(options);
+    getUpdatePollCommentMutationOptions(options);
 
   return useMutation(mutationOptions, queryClient);
 };
