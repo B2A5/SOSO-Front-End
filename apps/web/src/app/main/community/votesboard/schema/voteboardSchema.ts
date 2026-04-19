@@ -8,8 +8,14 @@ import { CategoryEnum } from '../../constants/categories';
  * - '1d'  : 1일 뒤 마감
  * - '3d'  : 3일 뒤 마감
  * - '7d'  : 7일 뒤 마감
+ * - '14d' : 2주 뒤 마감
  */
-export const VOTE_DURATION_VALUES = ['1d', '3d', '7d'] as const;
+export const VOTE_DURATION_VALUES = [
+  '1d',
+  '3d',
+  '7d',
+  '14d',
+] as const;
 export type VoteDuration = (typeof VOTE_DURATION_VALUES)[number];
 
 /**

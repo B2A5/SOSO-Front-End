@@ -1,399 +1,248 @@
 'use client';
 
 import { useState } from 'react';
-import { motion } from 'motion/react';
 import type {
   VoteInfo,
-  VoteOptionResponse,
+  PollOptionResponse,
 } from '@/generated/api/models';
-import { useVote } from '@/app/main/community/votesboard/hooks/useVote';
+import { useVote } from '@/app/main/community/votesboard/hooks/useVote.mutate';
 import { cn } from '@/utils/cn';
+import { VoteSectionItem } from './VoteSectionItem';
 
 interface VoteSectionProps {
-  votesboardId: number;
+  pollId: number;
   voteInfo: VoteInfo;
-  voteOptions: VoteOptionResponse[];
+  options: PollOptionResponse[];
   hasVoted: boolean;
 }
 
 export function VoteSection({
-  votesboardId,
+  pollId,
   voteInfo,
-  voteOptions,
+  options,
   hasVoted,
 }: VoteSectionProps) {
   const {
-    totalVotes,
-    selectedOptionIds,
-    allowMultipleChoice,
-    allowRevote,
-    voteStatus,
+    participantCount,
+    myOptionIds,
+    canMultiSelect,
+    canRevote,
+    pollStatus,
   } = voteInfo;
 
   const [selectedOptions, setSelectedOptions] =
-    useState<number[]>(selectedOptionIds);
-  const { cast, change, isPending } = useVote(votesboardId);
+    useState<number[]>(myOptionIds);
+  const [showResults, setShowResults] = useState(hasVoted === true);
+
+  const { cast, change, isPending } = useVote(pollId);
 
   // 파생 상태
-  const isVotingClosed = voteStatus === 'COMPLETED';
-  const canVote = !isVotingClosed && !hasVoted;
-  const canRevote = !isVotingClosed && hasVoted && allowRevote;
+  const isVotingClosed = pollStatus === 'COMPLETED';
+  const canRevoteNow =
+    !isVotingClosed && hasVoted === true && canRevote;
 
-  // 이벤트 핸들러
+  // 옵션 선택 핸들러
   const handleOptionSelect = (optionId: number) => {
-    if (allowMultipleChoice) {
-      setSelectedOptions((prev) =>
-        prev.includes(optionId)
-          ? prev.filter((id) => id !== optionId)
-          : [...prev, optionId],
-      );
+    if (canMultiSelect) {
+      setSelectedOptions((prev) => {
+        if (prev.includes(optionId)) {
+          return prev.filter((id) => id !== optionId);
+        } else {
+          return [...prev, optionId];
+        }
+      });
     } else {
       setSelectedOptions([optionId]);
     }
   };
 
+  // 투표/재투표 제출
   const handleSubmit = () => {
     if (selectedOptions.length === 0) {
       alert('투표할 항목을 선택해주세요.');
       return;
     }
 
-    if (hasVoted) {
-      change(selectedOptions);
+    // 재투표 상황 디버깅
+    console.log('[VoteSection] 디버그 - 투표 참여 여부:', hasVoted);
+    console.log(
+      '[VoteSection] 디버그 - 결과 표시 여부:',
+      showResults,
+    );
+    console.log(
+      '[VoteSection] 디버그 - 서버에서 받은 선택 옵션:',
+      myOptionIds,
+    );
+    console.log(
+      '[VoteSection] 디버그 - 현재 선택된 옵션:',
+      selectedOptions,
+    );
+
+    // 재투표 상황: hasVoted=true이면서 showResults=false (재투표 버튼을 눌렀을 때)
+    const isRevoting = hasVoted === true && !showResults;
+    console.log(
+      '[VoteSection] 디버그 - 재투표 모드 여부:',
+      isRevoting,
+    );
+
+    if (isRevoting) {
+      console.log('[VoteSection] 재투표 API 호출 (PUT)');
+      change(selectedOptions); // 재투표 - PUT
     } else {
-      cast(selectedOptions);
+      console.log('[VoteSection] 첫 투표 API 호출 (POST)');
+      cast(selectedOptions); // 첫 투표 - POST
     }
+
+    setShowResults(true);
   };
 
+  // 재투표 시작
   const handleRevote = () => {
+    console.log('[VoteSection] 재투표 버튼 클릭');
+    console.log(
+      '[VoteSection] 변경 전 - 결과 표시 여부:',
+      showResults,
+    );
+    setShowResults(false);
     setSelectedOptions([]);
+    console.log(
+      '[VoteSection] 변경 후 - 다음 렌더링에서 결과 표시가 false가 됩니다',
+    );
   };
 
+  // 공유하기
   const handleShare = () => {
-    // TODO: 공유 기능 구현
     alert('공유 기능 준비 중입니다.');
   };
 
-  // 선언적 조건부 렌더링
-  if (isVotingClosed) {
-    return (
-      <VoteResultsView
-        totalVotes={totalVotes}
-        voteOptions={voteOptions}
-        selectedOptionIds={selectedOptionIds}
-      />
-    );
-  }
-
-  if (hasVoted && !canRevote) {
-    return (
-      <VoteCompletedView
-        totalVotes={totalVotes}
-        voteOptions={voteOptions}
-        selectedOptionIds={selectedOptionIds}
-        allowMultipleChoice={allowMultipleChoice}
-        onShare={handleShare}
-      />
-    );
-  }
-
-  if (hasVoted && canRevote) {
-    return (
-      <VoteCompletedView
-        totalVotes={totalVotes}
-        voteOptions={voteOptions}
-        selectedOptionIds={selectedOptionIds}
-        allowMultipleChoice={allowMultipleChoice}
-        onShare={handleShare}
-        onRevote={handleRevote}
-      />
-    );
-  }
-
-  return (
-    <VoteSelectionView
-      totalVotes={totalVotes}
-      voteOptions={voteOptions}
-      selectedOptions={selectedOptions}
-      allowMultipleChoice={allowMultipleChoice}
-      isPending={isPending}
-      onOptionSelect={handleOptionSelect}
-      onSubmit={handleSubmit}
-    />
+  // 정렬: sequence 순으로 통일
+  const sortedOptions = [...options].sort(
+    (a, b) => a.sequence - b.sequence,
   );
-}
 
-// ============================================
-// 하위 컴포넌트
-// ============================================
+  // 옵션 선택 여부 확인
+  const getIsSelected = (optionId: number): boolean => {
+    if (showResults) {
+      return myOptionIds.includes(optionId);
+    } else {
+      return selectedOptions.includes(optionId);
+    }
+  };
 
-/**
- * VoteHeader - 투표 헤더 정보
- */
-interface VoteHeaderProps {
-  totalVotes: number;
-  allowMultipleChoice: boolean;
-}
+  // 투표 모드 결정
+  const getVoteMode = (): 'result' | 'selection' => {
+    if (showResults) {
+      return 'result';
+    } else {
+      return 'selection';
+    }
+  };
 
-function VoteHeader({
-  totalVotes,
-  allowMultipleChoice,
-}: VoteHeaderProps) {
-  return (
-    <div className="mb-4 text-sm text-neutral-600 dark:text-neutral-400">
-      {totalVotes.toLocaleString()}명 참여 중
-      {!allowMultipleChoice && ' · 중복 참여 불가'}
-    </div>
-  );
-}
+  // 옵션 선택 핸들러 결정
+  const getOptionSelectHandler = (
+    optionId: number,
+  ): (() => void) | undefined => {
+    if (showResults) {
+      return undefined;
+    } else {
+      return () => handleOptionSelect(optionId);
+    }
+  };
 
-/**
- * VoteOption - 단일 투표 옵션
- */
-interface VoteOptionProps {
-  content: string;
-  isSelected: boolean;
-  onSelect?: () => void;
-  disabled?: boolean;
-}
+  // 버튼 스타일 계산
+  const getButtonClassName = (): string => {
+    const baseClass =
+      'w-full h-12 rounded-xl font-semibold text-white transition-colors';
 
-function VoteOption({
-  content,
-  isSelected,
-  onSelect,
-  disabled,
-}: VoteOptionProps) {
-  return (
-    <button
-      onClick={onSelect}
-      disabled={disabled}
-      className={cn(
-        'w-full px-4 py-3 rounded-lg text-left transition-colors',
-        'flex items-center gap-3',
-        isSelected
-          ? 'bg-soso-50 dark:bg-soso-900/20'
-          : 'bg-neutral-50 dark:bg-neutral-800',
-        !disabled && 'hover:bg-neutral-100 dark:hover:bg-neutral-700',
-        disabled && 'cursor-default',
-      )}
-    >
-      <div
-        className={cn(
-          'flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors',
-          isSelected
-            ? 'border-soso-500 bg-soso-500'
-            : 'border-neutral-300 dark:border-neutral-600',
-        )}
-      >
-        {isSelected && (
-          <div className="w-2.5 h-2.5 rounded-full bg-white" />
-        )}
-      </div>
-      <span className="font-medium">{content}</span>
-    </button>
-  );
-}
+    if (selectedOptions.length > 0 && !isPending) {
+      return cn(baseClass, 'bg-soso-500 hover:bg-soso-600');
+    } else {
+      return cn(
+        baseClass,
+        'bg-neutral-300 dark:bg-neutral-700 cursor-not-allowed',
+      );
+    }
+  };
 
-/**
- * VoteSelectionView - 투표 선택 화면
- */
-interface VoteSelectionViewProps {
-  totalVotes: number;
-  voteOptions: VoteOptionResponse[];
-  selectedOptions: number[];
-  allowMultipleChoice: boolean;
-  isPending: boolean;
-  onOptionSelect: (optionId: number) => void;
-  onSubmit: () => void;
-}
+  // 버튼 텍스트 결정
+  const getButtonText = (): string => {
+    if (isPending) {
+      return '투표 중...';
+    } else {
+      return '투표하기';
+    }
+  };
 
-function VoteSelectionView({
-  totalVotes,
-  voteOptions,
-  selectedOptions,
-  allowMultipleChoice,
-  isPending,
-  onOptionSelect,
-  onSubmit,
-}: VoteSelectionViewProps) {
-  return (
-    <section className="w-full px-4 py-6">
-      <VoteHeader
-        totalVotes={totalVotes}
-        allowMultipleChoice={allowMultipleChoice}
-      />
+  // 헤더 텍스트 생성
+  const getHeaderText = (): string => {
+    const participantText = `${participantCount.toLocaleString()}명 참여 중`;
 
-      <div className="space-y-2 mb-4">
-        {voteOptions
-          .sort((a, b) => a.sequence - b.sequence)
-          .map((option) => (
-            <VoteOption
-              key={option.id}
-              content={option.content}
-              isSelected={selectedOptions.includes(option.id)}
-              onSelect={() => onOptionSelect(option.id)}
-            />
-          ))}
-      </div>
+    if (!canMultiSelect && !showResults) {
+      return `${participantText} · 중복 참여 불가`;
+    } else {
+      return participantText;
+    }
+  };
 
-      <button
-        onClick={onSubmit}
-        disabled={selectedOptions.length === 0 || isPending}
-        className={cn(
-          'w-full h-12 rounded-xl font-semibold text-white transition-colors',
-          selectedOptions.length > 0
-            ? 'bg-soso-500 hover:bg-soso-600'
-            : 'bg-neutral-300 cursor-not-allowed',
-        )}
-      >
-        {isPending ? '투표 중...' : '투표하기'}
-      </button>
-    </section>
-  );
-}
-
-/**
- * VoteCompletedView - 투표 완료 화면
- */
-interface VoteCompletedViewProps {
-  totalVotes: number;
-  voteOptions: VoteOptionResponse[];
-  selectedOptionIds: number[];
-  allowMultipleChoice: boolean;
-  onShare: () => void;
-  onRevote?: () => void;
-}
-
-function VoteCompletedView({
-  totalVotes,
-  voteOptions,
-  selectedOptionIds,
-  allowMultipleChoice,
-  onShare,
-  onRevote,
-}: VoteCompletedViewProps) {
-  return (
-    <section className="w-full px-4 py-6">
-      <VoteHeader
-        totalVotes={totalVotes}
-        allowMultipleChoice={allowMultipleChoice}
-      />
-
-      <div className="space-y-2 mb-4">
-        {voteOptions
-          .sort((a, b) => a.sequence - b.sequence)
-          .map((option) => (
-            <VoteOption
-              key={option.id}
-              content={option.content}
-              isSelected={selectedOptionIds.includes(option.id)}
-              disabled
-            />
-          ))}
-      </div>
-
-      <div className="flex gap-2">
-        <button
-          onClick={onShare}
-          className="flex-1 h-12 rounded-xl font-semibold text-white bg-soso-500 hover:bg-soso-600 transition-colors"
-        >
-          공유하기
-        </button>
-
-        {onRevote && (
-          <button
-            onClick={onRevote}
-            className="flex-1 h-12 rounded-xl font-semibold text-neutral-700 bg-neutral-200 hover:bg-neutral-300 transition-colors"
-          >
-            재투표
-          </button>
-        )}
-      </div>
-    </section>
-  );
-}
-
-/**
- * VoteResultOption - 투표 결과 옵션
- */
-interface VoteResultOptionProps {
-  option: VoteOptionResponse;
-  isSelected: boolean;
-}
-
-function VoteResultOption({
-  option,
-  isSelected,
-}: VoteResultOptionProps) {
-  return (
-    <div className="relative">
-      <div className="flex items-center justify-between mb-1">
-        <div className="flex items-center gap-2">
-          <div
-            className={cn(
-              'flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center',
-              isSelected
-                ? 'border-soso-500 bg-soso-500'
-                : 'border-neutral-300 dark:border-neutral-600',
-            )}
-          >
-            {isSelected && (
-              <div className="w-2.5 h-2.5 rounded-full bg-white" />
-            )}
+  // 버튼 영역 렌더링
+  const renderButtonSection = () => {
+    if (showResults) {
+      // 투표 완료: 공유하기 + 재투표 버튼
+      if (canRevoteNow) {
+        return (
+          <div className="flex gap-2">
+            <button
+              onClick={handleShare}
+              className="flex-1 h-12 rounded-xl font-semibold text-white bg-soso-500 hover:bg-soso-600 transition-colors"
+            >
+              공유하기
+            </button>
+            <button
+              onClick={handleRevote}
+              className="flex-1 h-12 rounded-xl font-semibold text-neutral-700 dark:text-neutral-300 bg-neutral-200 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors"
+            >
+              재투표
+            </button>
           </div>
-          <span className="font-medium">{option.content}</span>
-        </div>
-        <span className="font-bold text-soso-600">
-          {option.percentage}%
-        </span>
-      </div>
+        );
+      }
+      return null;
+    } else {
+      // 투표 전: 투표하기 버튼
+      return (
+        <button
+          onClick={handleSubmit}
+          disabled={selectedOptions.length === 0 || isPending}
+          className={getButtonClassName()}
+        >
+          {getButtonText()}
+        </button>
+      );
+    }
+  };
 
-      <div className="h-2 bg-neutral-200 dark:bg-neutral-700 rounded-full overflow-hidden">
-        <motion.div
-          initial={{ width: 0 }}
-          animate={{ width: `${option.percentage}%` }}
-          transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
-          className={cn(
-            'h-full rounded-full',
-            isSelected ? 'bg-soso-500' : 'bg-neutral-400',
-          )}
-        />
-      </div>
-    </div>
-  );
-}
-
-/**
- * VoteResultsView - 투표 결과 화면
- */
-interface VoteResultsViewProps {
-  totalVotes: number;
-  voteOptions: VoteOptionResponse[];
-  selectedOptionIds: number[];
-}
-
-function VoteResultsView({
-  totalVotes,
-  voteOptions,
-  selectedOptionIds,
-}: VoteResultsViewProps) {
   return (
     <section className="w-full px-4 py-6">
+      {/* 헤더 */}
       <div className="mb-4 text-sm text-neutral-600 dark:text-neutral-400">
-        {totalVotes.toLocaleString()} 명 참여중
+        {getHeaderText()}
       </div>
 
-      <div className="space-y-3">
-        {voteOptions
-          .sort((a, b) => b.percentage - a.percentage)
-          .map((option) => (
-            <VoteResultOption
-              key={option.id}
-              option={option}
-              isSelected={selectedOptionIds.includes(option.id)}
-            />
-          ))}
+      {/* 투표 옵션 리스트 */}
+      <div className="space-y-2 mb-4">
+        {sortedOptions.map((option) => (
+          <VoteSectionItem
+            key={option.id}
+            option={option}
+            isSelected={getIsSelected(option.id)}
+            mode={getVoteMode()}
+            onSelect={getOptionSelectHandler(option.id)}
+          />
+        ))}
       </div>
+
+      {/* 버튼 영역 */}
+      {renderButtonSection()}
     </section>
   );
 }

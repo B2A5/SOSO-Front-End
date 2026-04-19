@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { useKakaoLogin } from '@/generated/api/endpoints/auth/auth';
 import type { KakaoLoginResponse } from '@/generated/api/models';
 import { useToast } from '@/hooks/ui/useToast';
@@ -19,6 +19,7 @@ export function useKakaoAuth() {
   const params = useSearchParams();
   const toast = useToast();
   const { login } = useAuth();
+  const hasProcessed = useRef(false);
 
   const REDIRECT_URI = process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI!;
   const CLIENT_ID = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY!;
@@ -78,6 +79,11 @@ export function useKakaoAuth() {
    */
   const handleKakaoCallback = useCallback(
     (code: string, state: string | null) => {
+      // URL에서 code/state 즉시 제거 (새로고침/뒤로가기 시 재처리 방지)
+      const cleanUrl =
+        window.location.origin + window.location.pathname;
+      window.history.replaceState({}, '', cleanUrl);
+
       try {
         // 검증 & 요청 데이터 준비
         const loginRequest = kakaoAuthService.validateCallback({
@@ -137,6 +143,9 @@ export function useKakaoAuth() {
    * URL 파라미터 감지 및 콜백 처리
    */
   useEffect(() => {
+    // 이미 처리한 경우 중복 실행 방지
+    if (hasProcessed.current) return;
+
     const code = params.get('code');
     const state = params.get('state');
     const error = params.get('error');
@@ -150,6 +159,7 @@ export function useKakaoAuth() {
 
     // 정상 콜백 처리
     if (code) {
+      hasProcessed.current = true;
       handleKakaoCallback(code, state);
     }
   }, [params, handleKakaoCallback, toast]);

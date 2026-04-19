@@ -3,7 +3,7 @@
 
 import { useParams, notFound } from 'next/navigation';
 import { Header } from '@/components/header/Header';
-import { useGetVotesboard } from '@/generated/api/endpoints/votesboard/votesboard';
+import { useGetPoll } from '@/generated/api/endpoints/poll/poll';
 import { VoteboardFormSkeleton } from '../../components/VoteBoardForm.Skeleton';
 import { VoteboardForm } from '../../components/VoteboardForm';
 
@@ -25,7 +25,7 @@ export default function VoteboardEditPage() {
   const voteId = Number(params.votesboardId);
 
   // 투표 게시글 상세 데이터 조회
-  const { data, isLoading, error } = useGetVotesboard(voteId);
+  const { data, isLoading, error } = useGetPoll(voteId);
 
   if (!isLoading && (!data || error)) {
     notFound();
