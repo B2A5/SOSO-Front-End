@@ -142,7 +142,7 @@ export function VoteSection({
               onClick={handleRevote}
               className="flex-1 h-12 rounded-xl font-semibold text-neutral-700 dark:text-neutral-300 bg-neutral-200 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors"
             >
-              재투표
+              다시 투표하기
             </button>
           </div>
         )
