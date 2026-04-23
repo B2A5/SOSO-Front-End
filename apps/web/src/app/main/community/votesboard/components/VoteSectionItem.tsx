@@ -2,6 +2,7 @@
 
 import type { PollOptionResponse } from '@/generated/api/models';
 import { cn } from '@/utils/cn';
+import { Check } from 'lucide-react';
 
 /**
  * VoteSectionItem - 투표 옵션 아이템
@@ -30,7 +31,7 @@ export function VoteSectionItem({
             'absolute inset-y-0 left-0 rounded-lg transition-all duration-300',
             isSelected
               ? 'bg-soso-400 dark:bg-soso-600'
-              : 'bg-neutral-300 dark:bg-neutral-700',
+              : 'bg-neutral-0 dark:bg-neutral-700',
           )}
         />
 
@@ -42,7 +43,7 @@ export function VoteSectionItem({
                 'flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center',
                 isSelected
                   ? 'border-soso-500 bg-soso-500'
-                  : 'border-neutral-400 dark:border-neutral-500',
+                  : 'border-neutral-0 dark:border-neutral-500',
               )}
             >
               {isSelected && (
@@ -63,26 +64,18 @@ export function VoteSectionItem({
     <button
       onClick={onSelect}
       className={cn(
-        'w-full px-4 py-3 rounded-lg text-left transition-colors',
-        'flex items-center gap-3',
+        'w-full px-[14px] py-[13px] rounded-lg text-left transition-colors',
+
+        'flex items-center gap-3 justify-between',
         isSelected
-          ? 'bg-soso-50 dark:bg-soso-900/20'
-          : 'bg-neutral-50 dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-700',
+          ? 'bg-white border border-soso-500 dark:bg-soso-900/20'
+          : 'bg-offwhite dark:bg-neutral-800 hover:bg-neutral-0 dark:hover:bg-neutral-700',
       )}
     >
-      <div
-        className={cn(
-          'flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors',
-          isSelected
-            ? 'border-soso-500 bg-soso-500'
-            : 'border-neutral-300 dark:border-neutral-600',
-        )}
-      >
-        {isSelected && (
-          <div className="w-2.5 h-2.5 rounded-full bg-white" />
-        )}
-      </div>
       <span className="font-medium">{option.content}</span>
+      <Check
+        className={cn('w-6 h-6', isSelected ? 'block ' : 'hidden')}
+      />
     </button>
   );
 }

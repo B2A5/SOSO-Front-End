@@ -61,7 +61,7 @@ export function updateVoteOptionCounts(
   prevSelectedIds: number[],
 ): PollOptionResponse[] {
   switch (action.type) {
-    case 'CAST':
+    case 'CAST': //투표
       // 선택된 옵션들 +1
       return options.map((option) => ({
         ...option,
@@ -70,7 +70,7 @@ export function updateVoteOptionCounts(
           : option.voteCount,
       }));
 
-    case 'CHANGE':
+    case 'CHANGE': // 재투표
       // 이전 선택 -1, 새 선택 +1
       return options.map((option) => {
         const wasSelected = prevSelectedIds.includes(option.id);
@@ -83,7 +83,7 @@ export function updateVoteOptionCounts(
         return { ...option, voteCount: newCount };
       });
 
-    case 'CANCEL':
+    case 'CANCEL': // 투표 취소
       // 이전 선택 -1
       return options.map((option) => ({
         ...option,

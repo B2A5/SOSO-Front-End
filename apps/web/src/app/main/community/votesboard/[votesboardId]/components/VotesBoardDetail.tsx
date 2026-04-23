@@ -104,6 +104,7 @@ export default function VoteBoardDetail({
             {/* 투표 섹션 */}
             <VoteSection
               pollId={votesboardId}
+              title={title}
               hasVoted={hasVoted ?? false}
               voteInfo={voteInfo}
               options={options}
