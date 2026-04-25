@@ -134,13 +134,13 @@ export function VoteSection({
           <div className="flex gap-2">
             <button
               onClick={handleShare}
-              className="flex-1 h-12 rounded-xl font-semibold text-white bg-soso-500 hover:bg-soso-600 transition-colors"
+              className="flex-1 h-12 rounded-xl font-semibold text-white bg-soso-600 hover:bg-soso-600 transition-colors"
             >
               공유하기
             </button>
             <button
               onClick={handleRevote}
-              className="flex-1 h-12 rounded-xl font-semibold text-neutral-700 dark:text-neutral-300 bg-neutral-200 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors"
+              className="flex-1 h-12 rounded-xl font-semibold text-neutral-700 dark:text-neutral-300 bg-neutral-50 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors"
             >
               다시 투표하기
             </button>
@@ -153,8 +153,8 @@ export function VoteSection({
           className={cn(
             'w-full h-12 rounded-xl font-semibold text-white transition-colors',
             selected.length > 0 && !isPending
-              ? 'bg-soso-500 hover:bg-soso-600'
-              : 'bg-neutral-300 dark:bg-neutral-700 cursor-not-allowed',
+              ? 'bg-soso-600 hover:bg-soso-700'
+              : 'bg-neutral-100 text-neutral-700 dark:bg-neutral-700 cursor-not-allowed',
           )}
         >
           {isPending ? '투표 중...' : '투표하기'}
