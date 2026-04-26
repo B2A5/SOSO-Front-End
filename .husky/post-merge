@@ -6,7 +6,7 @@ echo "🔄 브랜치 병합 후 정리 작업을 시작합니다..."
 # package.json이나 pnpm-lock.yaml이 변경되었는지 확인
 if git diff HEAD@{1} --name-only | grep -E "(package\.json|pnpm-lock\.yaml)" > /dev/null; then
   echo "📦 의존성이 변경되었을 수 있습니다. 업데이트를 진행합니다..."
-  pnpm install
+  CI=true pnpm install
   echo "✅ 의존성 업데이트가 완료되었습니다!"
 else
   echo "📦 의존성 변경이 감지되지 않았습니다."

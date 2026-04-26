@@ -13,10 +13,12 @@ import { useMemo, useState } from 'react';
  * ImageSliderProps - 이미지 슬라이더 컴포넌트의 props
  * @property {string[]} images - 슬라이드에 표시할 이미지 URL 배열
  * @property {string} [className] - 외부에서 전달할 추가 클래스 이름
+ * @property {string} [blurDataURL] - 이미지 블러 URL
  */
 interface ImageSliderProps {
   images: string[];
   className?: string;
+  blurDataUrls?: (string | undefined)[] | undefined;
 }
 
 // url과 UUID를 함께 담는 타입 정의
@@ -28,6 +30,7 @@ interface SliderImage {
 export default function ImageSlider({
   images,
   className,
+  blurDataUrls,
 }: ImageSliderProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [loaded, setLoaded] = useState(false);
@@ -70,7 +73,7 @@ export default function ImageSlider({
       {/* 스켈레톤 로딩 */}
       <div
         className={twMerge(
-          'absolute inset-0 h-[200px] md:h-[300px] rounded-lg bg-neutral-100 animate-pulse transition-opacity duration-300',
+          'absolute inset-0 h-[200px] md:h-[300px] rounded-lg bg-neutral-200 animate-pulse transition-opacity duration-300',
           loaded && 'opacity-0 pointer-events-none',
         )}
       />
@@ -85,7 +88,7 @@ export default function ImageSlider({
             : 'opacity-100 scale-100 translate-y-0',
         )}
       >
-        {sliderImages.map((img) => (
+        {sliderImages.map((img, idx) => (
           <div
             key={img.id}
             className="keen-slider__slide relative h-[200px] md:h-[300px]"
@@ -95,7 +98,11 @@ export default function ImageSlider({
               alt="슬라이드 이미지"
               fill
               sizes="(max-width: 768px) 100vw, 600px"
-              className="w-full h-[200px] object-cover"
+              className="object-cover"
+              priority={idx === 0}
+              placeholder={blurDataUrls?.[idx] ? 'blur' : 'empty'}
+              blurDataURL={blurDataUrls?.[idx]}
+              draggable={false}
             />
           </div>
         ))}
