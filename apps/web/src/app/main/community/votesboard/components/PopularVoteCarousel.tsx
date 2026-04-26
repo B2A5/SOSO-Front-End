@@ -49,7 +49,7 @@ function useDragScroll() {
 
 function VoteCardSkeleton() {
   return (
-    <div className="min-w-[80vw] sm:min-w-[45vw] rounded-2xl bg-neutral-100 dark:bg-neutral-800 animate-pulse h-72" />
+    <div className="min-w-[80vw] sm:min-w-[45vw] rounded-2xl bg-neutral-0 dark:bg-neutral-800 animate-pulse h-72" />
   );
 }
 
