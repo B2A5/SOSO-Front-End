@@ -9,6 +9,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { useAuthGuard } from '@/hooks/useAuth';
+import { useScrollContainerRef } from '@/app/main/community/ScrollContainer';
 
 interface CommentInputProps {
   /** 댓글이 달릴 게시글 ID */
@@ -33,6 +34,7 @@ export default function CommentInput({
   const queryClient = useQueryClient();
   const toast = useToast();
   const { requireAuth } = useAuthGuard();
+  const scrollContainerRef = useScrollContainerRef();
 
   const { mutate, isPending } = useMutation({
     mutationFn: (content: string) =>
@@ -42,6 +44,10 @@ export default function CommentInput({
       setValue('');
       queryClient.invalidateQueries({
         queryKey: getGetFreeboardCommentsByCursorQueryKey(postId),
+      });
+      scrollContainerRef?.current?.scrollTo({
+        top: 0,
+        behavior: 'smooth',
       });
     },
     onError: () => {
