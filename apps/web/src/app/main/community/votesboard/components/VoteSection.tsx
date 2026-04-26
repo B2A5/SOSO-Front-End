@@ -151,29 +151,29 @@ export function VoteSection({
 
       <AnimatePresence mode="wait" initial={false}>
         {mode.type === 'result' ? (
-          canRevoteNow && (
-            <motion.div
-              key="result-actions"
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.2 }}
-              className="flex gap-2"
+          <motion.div
+            key="result-actions"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.2 }}
+            className="flex gap-2"
+          >
+            <Button
+              onClick={handleShare}
+              className="flex-1 h-12 rounded-xl font-semibold text-white bg-soso-600 hover:bg-soso-600 transition-colors"
             >
-              <Button
-                onClick={handleShare}
-                className="flex-1 h-12 rounded-xl font-semibold text-white bg-soso-600 hover:bg-soso-600 transition-colors"
-              >
-                공유하기
-              </Button>
+              공유하기
+            </Button>
+            {canRevoteNow && (
               <button
                 onClick={handleRevote}
-                className="flex-1 h-12 rounded-xl font-semibold border border-neutral-100 text-neutral-900 dark:text-neutral-300  dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors"
+                className="flex-1 h-12 rounded-xl font-semibold border border-neutral-100 text-neutral-900 dark:text-neutral-300 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors"
               >
                 다시 투표하기
               </button>
-            </motion.div>
-          )
+            )}
+          </motion.div>
         ) : (
           <motion.button
             key="vote-button"
