@@ -32,6 +32,7 @@ interface CommunityPostListProps<T extends BoardSummary> {
   renderItem: (item: T, index: number) => React.ReactNode; // 각 아이템 렌더링 함수
   storageKey: string; // 스크롤 위치 저장용 키
   className?: string; // 컨테이너 추가 클래스
+  header?: React.ReactNode; // 리스트 상단에 렌더링할 콘텐츠 (스크롤 컨테이너 내부)
 }
 
 export default function CommunityPostList<T extends BoardSummary>({
@@ -46,6 +47,7 @@ export default function CommunityPostList<T extends BoardSummary>({
   renderItem,
   storageKey,
   className,
+  header,
 }: CommunityPostListProps<T>) {
   return (
     <InfiniteScroll
@@ -57,6 +59,7 @@ export default function CommunityPostList<T extends BoardSummary>({
       error={error}
       className="flex-1 overflow-y-auto px-4"
     >
+      {header}
       {/* 초기 로딩 스켈레톤 */}
       <InfiniteScroll.Skeleton
         className={cn('flex flex-col gap-4', className)}

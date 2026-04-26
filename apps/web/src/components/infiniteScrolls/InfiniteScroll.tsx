@@ -14,6 +14,12 @@ interface InfiniteScrollProps<T> {
   error?: Error | null; // API 에러 (옵셔널)
   className?: string; // 컨테이너 추가 클래스
   children: React.ReactNode; // 내부에 포함될 컴포넌트들 (Skeleton, Empty, Error, Contents, Trigger)
+  /**
+   * 외부 스크롤 컨테이너 ref.
+   * 제공 시 VirtualList와 IntersectionObserver가 이 ref를 스크롤 컨테이너로 사용.
+   * 미제공 시 내부 parentRef를 fallback으로 사용 (기존 동작 유지).
+   */
+  scrollContainerRef?: React.RefObject<HTMLElement>;
 }
 
 interface InfiniteScrollContext<T> {
@@ -23,7 +29,8 @@ interface InfiniteScrollContext<T> {
   isFetchingNextPage: boolean; // 다음 페이지 로딩 상태
   initialLoading: boolean; // 초기 로딩 상태
   error?: Error | null; // API 에러
-  parentRef: React.RefObject<HTMLDivElement | null>; // 스크롤 컨테이너 ref
+  parentRef: React.RefObject<HTMLDivElement | null>; // InfiniteScroll 내부 콘텐츠 컨테이너 ref
+  scrollContainerRef: React.RefObject<HTMLElement | null>; // VirtualList·IntersectionObserver가 사용할 스크롤 컨테이너 ref
   triggerRef: React.RefObject<HTMLDivElement | null>; // 로딩 트리거 ref
 }
 
@@ -108,10 +115,15 @@ function InfiniteScrollContainer<T>({
   initialLoading = false,
   error = null,
   className,
+  scrollContainerRef: externalScrollRef,
 }: InfiniteScrollProps<T>) {
   // refs
   const parentRef = React.useRef<HTMLDivElement>(null);
   const triggerRef = React.useRef<HTMLDivElement>(null);
+
+  // 외부 ref가 제공되면 그것을, 없으면 내부 parentRef를 스크롤 컨테이너로 사용
+  const scrollContainerRef: React.RefObject<HTMLElement> =
+    externalScrollRef ?? (parentRef as React.RefObject<HTMLElement>);
 
   const contextValue: InfiniteScrollContext<T> = {
     items,
@@ -121,6 +133,7 @@ function InfiniteScrollContainer<T>({
     fetchNextPage,
     error,
     parentRef,
+    scrollContainerRef,
     triggerRef,
   };
 
@@ -324,7 +337,7 @@ function InfiniteScrollContents<T>({
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
-    parentRef,
+    scrollContainerRef,
     triggerRef,
   } = useInfiniteScrollContext<T>();
 
@@ -335,7 +348,7 @@ function InfiniteScrollContents<T>({
     fetchNextPage,
     isFetching: isFetchingNextPage,
     threshold,
-    rootRef: parentRef,
+    rootRef: scrollContainerRef, // 단일 스크롤 컨테이너를 IntersectionObserver root로 사용
   });
 
   if (initialLoading || items.length === 0) {
@@ -346,7 +359,9 @@ function InfiniteScrollContents<T>({
       {virtualScroll ? (
         <VirtualList<T>
           items={items}
-          parentRef={parentRef as React.RefObject<HTMLDivElement>}
+          parentRef={
+            scrollContainerRef as React.RefObject<HTMLDivElement>
+          }
           gap={gap}
           estimateSize={virtualScroll.estimateSize ?? 60}
           overscan={virtualScroll.overscan ?? 3}

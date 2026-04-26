@@ -1,5 +1,11 @@
 'use client';
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { rafThrottle } from '@/utils/rafThrottle';
 
@@ -48,6 +54,24 @@ export function VirtualList<T>({
       ? Number(sessionStorage.getItem(storageKey) ?? 0)
       : 0;
 
+  // scrollMargin: 스크롤 컨테이너 상단에서 이 VirtualList 컨테이너 상단까지의 거리.
+  // 스크롤 컨테이너가 VirtualList보다 위에서 시작하는 경우(예: 게시글 내용이 위에 있을 때)
+  // 이 값 없이는 어떤 아이템이 화면에 보여야 하는지 계산이 틀려 상단에 빈 공간이 생김.
+  const listContainerRef = useRef<HTMLDivElement>(null);
+  const [scrollMargin, setScrollMargin] = useState(0);
+
+  useLayoutEffect(() => {
+    const scrollEl = parentRef.current;
+    const listEl = listContainerRef.current;
+    if (!scrollEl || !listEl) return;
+
+    const margin =
+      listEl.getBoundingClientRect().top -
+      scrollEl.getBoundingClientRect().top +
+      scrollEl.scrollTop;
+    setScrollMargin(margin);
+  }, [parentRef]);
+
   // useVirtualizer에 넘기는 함수를 useCallback으로 안정화:
   // setOptions는 매 렌더마다 호출되는데, 함수 레퍼런스가 바뀌면
   // 내부적으로 notifyListeners를 트리거해 무한 리렌더가 발생함
@@ -73,6 +97,8 @@ export function VirtualList<T>({
     getItemKey: getItemKeyFn,
     initialOffset: savedOffset,
     gap,
+    scrollMargin,
+    useFlushSync: false,
   });
 
   // virtualizerRef: useEffect deps에 virtualizer 객체를 넣으면
@@ -165,6 +191,7 @@ export function VirtualList<T>({
 
   return (
     <div
+      ref={listContainerRef}
       style={{
         height: virtualizer.getTotalSize(),
         position: 'relative',
@@ -181,7 +208,9 @@ export function VirtualList<T>({
             top: 0,
             left: 0,
             width: '100%',
-            transform: `translateY(${row.start}px)`,
+            // scrollMargin만큼 빼서 스크롤 컨테이너 기준 절대 위치를
+            // VirtualList 컨테이너 기준 상대 위치로 변환
+            transform: `translateY(${row.start - scrollMargin}px)`,
           }}
         >
           {renderItem(items[row.index], row.index)}

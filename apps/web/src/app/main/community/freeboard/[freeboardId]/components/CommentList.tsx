@@ -6,12 +6,12 @@ import type { FreeboardCommentSummary } from '@/generated/api/models';
 import { InfiniteScroll } from '@/components/infiniteScrolls/InfiniteScroll';
 import CommentItem from './CommentItem';
 import Skeleton from '@/components/loadings/Skeleton';
-import { cn } from '@/utils/cn';
 import { formatCappedCount } from '@/utils/formatCount';
 import {
   getFreeboardCommentsByCursor,
   getGetFreeboardCommentsByCursorQueryKey,
 } from '@/generated/api/endpoints/freeboard-comment/freeboard-comment';
+import { useScrollContainerRef } from '@/app/main/community/ScrollContainer';
 
 interface CommentListProps {
   postId: number;
@@ -22,6 +22,7 @@ export default function CommentList({
   postId,
   initialCount,
 }: CommentListProps) {
+  const scrollContainerRef = useScrollContainerRef();
   const {
     data,
     fetchNextPage,
@@ -90,10 +91,7 @@ export default function CommentList({
           isFetchingNextPage={isFetchingNextPage}
           initialLoading={isLoading}
           error={error as Error | null}
-          className={cn(
-            'max-h-[60vh] overflow-y-auto overflow-x-hidden',
-            '[&::-webkit-scrollbar]:hidden [scrollbar-width:none] [-ms-overflow-style:none]',
-          )}
+          scrollContainerRef={scrollContainerRef ?? undefined}
         >
           <InfiniteScroll.Skeleton
             skeletonCount={3}
