@@ -144,6 +144,7 @@ export function SelectContent({
 
   return (
     <PopoverContent
+      matchTriggerWidth
       {...props}
       className={className}
       onKeyDown={handleKeyDown}

@@ -4,6 +4,10 @@ import {
   createFreeboardComment,
   getGetFreeboardCommentsByCursorQueryKey,
 } from '@/generated/api/endpoints/freeboard-comment/freeboard-comment';
+import {
+  getGetFreeboardPostQueryKey,
+  getGetFreeboardPostsByCursorQueryKey,
+} from '@/generated/api/endpoints/freeboard/freeboard';
 import { useToast } from '@/hooks/ui/useToast';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useRef, useState } from 'react';
@@ -44,6 +48,13 @@ export default function CommentInput({
       setValue('');
       queryClient.invalidateQueries({
         queryKey: getGetFreeboardCommentsByCursorQueryKey(postId),
+      });
+      // 게시글 상세(commentCount) 및 목록 캐시 동기화
+      queryClient.invalidateQueries({
+        queryKey: getGetFreeboardPostQueryKey(postId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: getGetFreeboardPostsByCursorQueryKey(),
       });
       scrollContainerRef?.current?.scrollTo({
         top: 0,
