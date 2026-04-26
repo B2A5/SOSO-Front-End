@@ -12,6 +12,7 @@ import { PollSummary } from '@/generated/api/models';
 import FloatingCategoryMenu from '@/components/buttons/FloatingCategoryMenu';
 import CommunityPostList from '../components/CommunityPostList';
 import { VoteBoardCard } from './components/VoteBoardCard';
+import { PopularVoteCarousel } from './components/PopularVoteCarousel';
 import {
   getPollsByCursor,
   getGetPollsByCursorQueryKey,
@@ -99,6 +100,7 @@ export default function VotesboardClientPage() {
       />
 
       <CommunityPostList<PollSummary>
+        header={<PopularVoteCarousel />}
         items={allVotePosts}
         hasNextPage={hasNextPage || false}
         fetchNextPage={fetchNextPage}

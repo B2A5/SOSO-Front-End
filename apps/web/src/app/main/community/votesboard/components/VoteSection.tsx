@@ -18,6 +18,8 @@ interface VoteSectionProps {
   voteInfo: VoteInfo;
   options: PollOptionResponse[];
   hasVoted: boolean;
+  /** card 모드: 선택/액션 비활성화, 버튼 숨김 (캐러셀 미리보기용) */
+  mode?: 'default' | 'card';
 }
 
 type VoteMode =
@@ -30,7 +32,9 @@ export function VoteSection({
   voteInfo,
   options,
   hasVoted,
+  mode: displayMode = 'default',
 }: VoteSectionProps) {
+  const isCardMode = displayMode === 'card';
   const {
     participantCount,
     myOptionIds,
@@ -145,59 +149,61 @@ export function VoteSection({
               }
               mode={mode.type}
               onSelect={
-                isSelecting
-                  ? () => handleOptionSelect(option.id)
-                  : undefined
+                isCardMode || !isSelecting
+                  ? undefined
+                  : () => handleOptionSelect(option.id)
               }
             />
           ))}
         </div>
 
-        <AnimatePresence mode="wait" initial={false}>
-          {mode.type === 'result' ? (
-            <motion.div
-              key="result-actions"
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.2 }}
-              className="flex gap-2"
-            >
-              <Button
-                onClick={handleShare}
-                className="flex-1 h-12 rounded-xl font-semibold text-white bg-soso-600 hover:bg-soso-600 transition-colors"
+        {!isCardMode && (
+          <AnimatePresence mode="wait" initial={false}>
+            {mode.type === 'result' ? (
+              <motion.div
+                key="result-actions"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.2 }}
+                className="flex gap-2"
               >
-                공유하기
-              </Button>
-              {canRevoteNow && (
-                <button
-                  onClick={handleRevote}
-                  className="flex-1 h-12 rounded-xl font-semibold border border-neutral-100 text-neutral-900 dark:text-neutral-300 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors"
+                <Button
+                  onClick={handleShare}
+                  className="flex-1 h-12 rounded-xl font-semibold text-white bg-soso-600 hover:bg-soso-600 transition-colors"
                 >
-                  다시 투표하기
-                </button>
-              )}
-            </motion.div>
-          ) : (
-            <motion.button
-              key="vote-button"
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.2 }}
-              onClick={handleSubmit}
-              disabled={selected.length === 0 || isPending}
-              className={cn(
-                'w-full h-12 rounded-xl font-semibold text-white transition-colors',
-                selected.length > 0 && !isPending
-                  ? 'bg-soso-600 hover:bg-soso-700'
-                  : 'bg-neutral-50 text-neutral-700 dark:bg-neutral-700 cursor-not-allowed',
-              )}
-            >
-              {isPending ? '투표 중...' : '투표하기'}
-            </motion.button>
-          )}
-        </AnimatePresence>
+                  공유하기
+                </Button>
+                {canRevoteNow && (
+                  <button
+                    onClick={handleRevote}
+                    className="flex-1 h-12 rounded-xl font-semibold border border-neutral-100 text-neutral-900 dark:text-neutral-300 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors"
+                  >
+                    다시 투표하기
+                  </button>
+                )}
+              </motion.div>
+            ) : (
+              <motion.button
+                key="vote-button"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.2 }}
+                onClick={handleSubmit}
+                disabled={selected.length === 0 || isPending}
+                className={cn(
+                  'w-full h-12 rounded-xl font-semibold text-white transition-colors',
+                  selected.length > 0 && !isPending
+                    ? 'bg-soso-600 hover:bg-soso-700'
+                    : 'bg-neutral-50 text-neutral-700 dark:bg-neutral-700 cursor-not-allowed',
+                )}
+              >
+                {isPending ? '투표 중...' : '투표하기'}
+              </motion.button>
+            )}
+          </AnimatePresence>
+        )}
       </section>
 
       <VoteShareDrawer
