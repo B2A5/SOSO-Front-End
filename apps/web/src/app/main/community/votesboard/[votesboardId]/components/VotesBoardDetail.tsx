@@ -28,6 +28,7 @@ export default function VoteBoardDetail({
   const { data: votesBoardDetail } = useSuspenseQuery({
     queryKey: getGetPollQueryKey(votesboardId),
     queryFn: () => getPoll(votesboardId),
+    staleTime: 0, // SSR prefetch는 auth 미포함이므로 마운트 시 항상 재조회
   });
 
   const {

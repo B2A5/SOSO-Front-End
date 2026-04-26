@@ -29,13 +29,23 @@ export const AXIOS_INSTANCE = Axios.create({
  * HTTPS 환경(프록시 활성화)에서만 작동
  * HTTP 환경(CSR only)에서는 모든 요청을 백엔드로 직접 전송
  */
-AXIOS_INSTANCE.interceptors.request.use((config) => {
+AXIOS_INSTANCE.interceptors.request.use(async (config) => {
   const proxyEnabled =
     process.env.NEXT_PUBLIC_ENABLE_PROXY !== 'false';
   const isBrowser = typeof window !== 'undefined';
 
-  // SSR에서는 절대 URL 그대로 사용 (상대 경로로 바꾸면 Invalid URL 발생)
+  // SSR: 브라우저 쿠키를 next/headers에서 읽어 요청 헤더에 주입
   if (!isBrowser) {
+    try {
+      const { cookies } = await import('next/headers');
+      const cookieStore = cookies();
+      const cookieHeader = cookieStore.toString();
+      if (cookieHeader) {
+        config.headers.Cookie = cookieHeader;
+      }
+    } catch {
+      // 빌드 타임 등 request context 밖에서는 무시
+    }
     return config;
   }
 

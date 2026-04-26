@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type {
   VoteInfo,
   PollOptionResponse,
@@ -44,6 +44,20 @@ export function VoteSection({
       : { type: 'selection', selected: [] },
   );
 
+  // 유저가 "다시 투표하기"로 의도적으로 selection으로 돌아간 경우 추적
+  const isIntentionalRevoteRef = useRef(false);
+
+  // SSR → 클라이언트 재조회 후 hasVoted가 false→true로 바뀔 때 mode 동기화
+  useEffect(() => {
+    if (
+      hasVoted &&
+      mode.type === 'selection' &&
+      !isIntentionalRevoteRef.current
+    ) {
+      setMode({ type: 'result' });
+    }
+  }, [hasVoted, mode.type]);
+
   const { cast, change, isPending } = useVote(pollId);
 
   const isVotingClosed = pollStatus === 'COMPLETED';
@@ -76,6 +90,7 @@ export function VoteSection({
       alert('투표할 항목을 선택해주세요.');
       return;
     }
+    isIntentionalRevoteRef.current = false;
     if (hasVoted && isSelecting) {
       change(selected);
     } else {
@@ -85,6 +100,7 @@ export function VoteSection({
   };
 
   const handleRevote = () => {
+    isIntentionalRevoteRef.current = true;
     setMode({ type: 'selection', selected: [] });
   };
 
