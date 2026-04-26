@@ -12,6 +12,7 @@
 export type VoteInfoVoteStatus =
   (typeof VoteInfoVoteStatus)[keyof typeof VoteInfoVoteStatus];
 
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 export const VoteInfoVoteStatus = {
   IN_PROGRESS: 'IN_PROGRESS',
   COMPLETED: 'COMPLETED',

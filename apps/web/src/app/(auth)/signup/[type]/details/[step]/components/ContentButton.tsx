@@ -25,7 +25,7 @@ function ContentButton({
     <Button
       size="md"
       variant={'outlined'}
-      className={twMerge(SelectClass, 'w-min')}
+      className={twMerge(SelectClass, 'w-full')}
       onClick={onClick}
     >
       {label}

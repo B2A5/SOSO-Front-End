@@ -4,7 +4,7 @@ import { MoreVertical } from 'lucide-react';
 import type { FreeboardCommentSummary } from '@/generated/api/models';
 import BottomSheetMenu from '@/components/BottomSheet';
 import { useOverlay } from '@/hooks/ui/useOverlay';
-import { UserProfile } from './UserProfile';
+import { UserProfile } from '@/components/users/UserProfile';
 import { relativeTime } from '@/utils/relativeTime';
 import LikeButtonComment from './LikeButtonComment';
 

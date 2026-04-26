@@ -1,4 +1,4 @@
-import { VotePostSummaryResponseVoteStatus } from '@/generated/api/models/votePostSummaryResponseVoteStatus';
+import { VoteInfoPollStatus } from '@/generated/api/models/voteInfoPollStatus';
 import { twMerge } from 'tailwind-merge';
 
 /**
@@ -34,19 +34,19 @@ const VOTE_STATUS_LABELS: Record<VoteChipType, string> = {
  * 투표 상태 타입 반환
  */
 export function getVoteChipType(
-  voteStatus: VotePostSummaryResponseVoteStatus,
-  endTime: string,
+  pollStatus: VoteInfoPollStatus,
+  closedAt: string,
 ): VoteChipType {
   if (
-    voteStatus === VotePostSummaryResponseVoteStatus.COMPLETED ||
-    voteStatus === VotePostSummaryResponseVoteStatus.DELETED
+    pollStatus === VoteInfoPollStatus.COMPLETED ||
+    pollStatus === VoteInfoPollStatus.DELETED
   ) {
     return 'completed';
   }
 
-  if (voteStatus === VotePostSummaryResponseVoteStatus.IN_PROGRESS) {
+  if (pollStatus === VoteInfoPollStatus.IN_PROGRESS) {
     const now = new Date();
-    const endDate = new Date(endTime);
+    const endDate = new Date(closedAt);
 
     // 투표 마감 시간 비교
     if (endDate <= now) {
@@ -83,15 +83,15 @@ export function getVoteChipColor(statusType: VoteChipType): string {
 }
 
 interface VoteStatusChipProps {
-  voteStatus: VotePostSummaryResponseVoteStatus;
-  endTime: string;
+  pollStatus: VoteInfoPollStatus;
+  closedAt: string;
 }
 
 export function VoteStatusChip({
-  voteStatus,
-  endTime,
+  pollStatus,
+  closedAt,
 }: VoteStatusChipProps) {
-  const statusType = getVoteChipType(voteStatus, endTime);
+  const statusType = getVoteChipType(pollStatus, closedAt);
 
   return (
     <span

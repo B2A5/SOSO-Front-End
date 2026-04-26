@@ -14,7 +14,7 @@ export default function LogoImage({
         width={200}
         height={150}
         priority
-        className={twMerge('max-w-[200px] w-auto h-auto', className)}
+        className={twMerge('w-[200px] h-auto', className)}
       />
     </div>
   );

@@ -1,7 +1,7 @@
 import {
-  getGetVotePostsByCursorQueryKey,
-  getVotePostsByCursor,
-} from '@/generated/api/endpoints/voteboard/voteboard';
+  getGetPollsByCursorQueryKey,
+  getPollsByCursor,
+} from '@/generated/api/endpoints/poll/poll';
 import {
   HydrationBoundary,
   QueryClient,
@@ -22,12 +22,12 @@ export default async function VotesboardPage() {
   const queryClient = new QueryClient();
 
   await queryClient.prefetchInfiniteQuery({
-    queryKey: getGetVotePostsByCursorQueryKey({
+    queryKey: getGetPollsByCursorQueryKey({
       status: undefined,
       sort: 'LATEST',
     }),
     queryFn: async ({ signal }) =>
-      getVotePostsByCursor(
+      getPollsByCursor(
         { status: undefined, sort: 'LATEST', size: 10 },
         signal,
       ),

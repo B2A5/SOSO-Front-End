@@ -43,3 +43,27 @@ export function relativeTime(createdAt: string): string {
   const years = Math.floor(diffDays / 365);
   return `${years}년 전`;
 }
+
+/**
+ * createdAt과 updatedAt을 비교하여 수정 여부에 따른 시간 표시를 반환하는 유틸 함수
+ *
+ */
+export function formatTimeAgo(
+  createdAt: string,
+  updatedAt: string,
+): string {
+  const created = new Date(createdAt);
+  const updated = new Date(updatedAt);
+
+  // updatedAt이 createdAt보다 크면 수정된 것으로 간주
+  const isEdited = updated.getTime() > created.getTime();
+
+  if (isEdited) {
+    // 수정된 경우: updatedAt 기준으로 상대 시간 계산
+    const timeText = relativeTime(updatedAt);
+    return `${timeText} 수정됨`;
+  }
+
+  // 수정되지 않은 경우: createdAt 기준으로 상대 시간 반환
+  return relativeTime(createdAt);
+}

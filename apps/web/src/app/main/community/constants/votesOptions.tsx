@@ -1,7 +1,7 @@
-import { GetVotePostListStatus } from '@/generated/api/models';
+import { GetPollsByCursorStatus } from '@/generated/api/models';
 import { TabItem } from '@/types/tab.types';
 
-export type VoteState = GetVotePostListStatus | null;
+export type VoteState = GetPollsByCursorStatus | null;
 
 export const VOTE_STATES: TabItem<VoteState>[] = [
   { label: '진행중', value: 'IN_PROGRESS' },

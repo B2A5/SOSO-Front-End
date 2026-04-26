@@ -22,7 +22,6 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
-  DeleteFreeboardPost204,
   ErrorResponse,
   FreeboardCreateRequest,
   FreeboardCreateResponse,
@@ -30,7 +29,6 @@ import type {
   FreeboardDetailResponse,
   FreeboardUpdateRequest,
   GetFreeboardPostsByCursorParams,
-  HardDeleteFreeboardPost204,
 } from '../../models';
 
 import { customInstance } from '../../../../lib/api-client';
@@ -523,7 +521,7 @@ export function useGetFreeboardPost<
  * @summary 자유게시판 글 삭제 (소프트 삭제)
  */
 export const deleteFreeboardPost = (freeboardId: number) => {
-  return customInstance<DeleteFreeboardPost204>({
+  return customInstance<void>({
     url: `/community/freeboard/${freeboardId}`,
     method: 'DELETE',
   });
@@ -744,7 +742,7 @@ export const useUpdateFreeboardPost = <
  * @summary 자유게시판 글 영구 삭제
  */
 export const hardDeleteFreeboardPost = (freeboardId: number) => {
-  return customInstance<HardDeleteFreeboardPost204>({
+  return customInstance<void>({
     url: `/community/freeboard/${freeboardId}/force`,
     method: 'DELETE',
   });

@@ -92,6 +92,14 @@ export interface PopoverContentProps {
    * 커스텀 키보드 네비게이션을 구현할 때 사용합니다
    */
   onKeyDown?: (e: React.KeyboardEvent) => void;
+
+  /**
+   * 항상 DOM에 렌더링하고 CSS로만 숨길지 여부
+   * true일 경우 닫혀있을 때도 DOM에 존재하며 visibility: hidden으로 숨겨집니다.
+   * 초기 렌더링 시 children의 useEffect/useLayoutEffect가 실행되어야 할 때 유용합니다.
+   * @default false
+   */
+  alwaysRender?: boolean;
 }
 
 // ============================================
@@ -307,6 +315,7 @@ export function PopoverContent({
   closeOnEscape = true,
   closeOnOutsideClick = true,
   onKeyDown,
+  alwaysRender = false,
 }: PopoverContentProps) {
   const {
     open,
@@ -384,6 +393,38 @@ export function PopoverContent({
     });
   }, [open, side, align, sideOffset, alignOffset, triggerRef]);
 
+  // alwaysRender 모드: 항상 렌더링하되 CSS로 숨김
+  if (alwaysRender) {
+    return (
+      <motion.div
+        ref={contentRef}
+        id={contentId}
+        aria-labelledby={triggerId}
+        aria-hidden={!open}
+        tabIndex={-1}
+        animate={open ? 'open' : 'closed'}
+        variants={contentVariants}
+        style={{
+          ...positionStyles,
+          visibility: open ? 'visible' : 'hidden',
+          pointerEvents: open ? 'auto' : 'none',
+        }}
+        onKeyDown={onKeyDown}
+        className={twMerge(
+          'min-w-[8rem] overflow-hidden rounded-md',
+          'bg-white dark:bg-neutral-800',
+          'border border-neutral-100 dark:border-neutral-700',
+          'shadow-lg',
+          'p-1',
+          className,
+        )}
+      >
+        {children}
+      </motion.div>
+    );
+  }
+
+  // 기본 모드: AnimatePresence로 조건부 렌더링
   return (
     <AnimatePresence>
       {open && (
@@ -391,6 +432,7 @@ export function PopoverContent({
           ref={contentRef}
           id={contentId}
           aria-labelledby={triggerId}
+          aria-hidden={false}
           tabIndex={-1}
           initial="closed"
           animate="open"

@@ -134,7 +134,7 @@ export function PillChipsTab<T = string>({
         role="tablist"
         className="
           flex gap-2 p-3 overflow-x-auto scrollbar-hide
-          bg-neutral-50 dark:bg-neutral-900
+          bg-neutral-0 dark:bg-neutral-900
         "
         style={{
           scrollbarWidth: 'none',
@@ -155,7 +155,7 @@ export function PillChipsTab<T = string>({
               className={twMerge(
                 // 기본 스타일
                 'px-3 py-1 rounded-full text-sm font-medium whitespace-nowrap',
-                'transition-all duration-200 ease-in-out flex-shrink-0',
+                'transition-all duration-200 ease-in-out shrink-0',
                 'border border-neutral-200 dark:border-neutral-700',
 
                 // 포커스 스타일

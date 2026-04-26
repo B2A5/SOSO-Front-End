@@ -1,17 +1,17 @@
-// src/components/CommunityCard.tsx
 import Image from 'next/image';
 import Card from '@/components/Card';
 import { CategoryChip } from '@/components/chips/CategoryChip';
 import { Category } from '../../constants/categories';
 import { LaptopMinimalCheck, MessageSquareMore } from 'lucide-react';
-//import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { formatCount } from '@/utils/formatCount';
-import type { VoteboardSummary } from '@/generated/api/models';
+import type { PollSummary } from '@/generated/api/models';
 import { formatVoteDeadline } from '@/utils/vote-deadline';
 import { VoteStatusChip } from '@/components/chips/VoteStatusChip';
 import { cn } from '@/utils/cn';
+
 export interface VoteBoardCardProps {
-  post: VoteboardSummary;
+  post: PollSummary;
 }
 
 export function VoteBoardCard({ post }: VoteBoardCardProps) {
@@ -26,16 +26,12 @@ export function VoteBoardCard({ post }: VoteBoardCardProps) {
     hasVoted,
   } = post;
 
-  const { totalVotes, voteStatus, endTime } = voteInfo;
+  const { participantCount, pollStatus, closedAt } = voteInfo;
 
-  // const router = useRouter();
+  const router = useRouter();
 
   const handleOnClick = () => {
-    console.warn(
-      '추후 투표 상세 페이지로 이동할 예정입니다. => postId:',
-      postId,
-    );
-    //router.push(`/main/community/votesboard/${postId}`);
+    router.push(`/main/community/votesboard/${postId}`);
   };
 
   return (
@@ -45,7 +41,7 @@ export function VoteBoardCard({ post }: VoteBoardCardProps) {
     >
       <div className="flex items-center gap-1">
         <CategoryChip category={category as Category} />
-        <VoteStatusChip voteStatus={voteStatus} endTime={endTime} />
+        <VoteStatusChip pollStatus={pollStatus} closedAt={closedAt} />
       </div>
 
       <div className="flex flex-row justify-between items-center gap-4">
@@ -71,13 +67,13 @@ export function VoteBoardCard({ post }: VoteBoardCardProps) {
       <section className="flex justify-between items-center">
         {/* 남은시간 */}
         <span className="text-neutral-500 text-xs">
-          {formatVoteDeadline(endTime)}
+          {formatVoteDeadline(closedAt)}
         </span>
         <div className="flex items-center gap-2">
           {/* 득표수 */}
           <div
             className="flex items-center gap-1"
-            aria-label={`투표수 ${totalVotes ?? 0}개`}
+            aria-label={`투표수 ${participantCount ?? 0}개`}
           >
             <LaptopMinimalCheck
               className={cn(
@@ -85,7 +81,9 @@ export function VoteBoardCard({ post }: VoteBoardCardProps) {
                 hasVoted ? 'text-primary-500' : 'text-neutral-500',
               )}
             />
-            <span className="text-xs">{formatCount(totalVotes)}</span>
+            <span className="text-xs">
+              {formatCount(participantCount)}
+            </span>
           </div>
           {/* 댓글 */}
           <div
