@@ -78,6 +78,8 @@ export function VoteSection({
     (a, b) => a.sequence - b.sequence,
   );
 
+  const maxPercentage = Math.max(...options.map((o) => o.percentage));
+
   const handleOptionSelect = (optionId: number) => {
     if (!isSelecting) return;
     if (canMultiSelect) {
@@ -146,6 +148,11 @@ export function VoteSection({
                 isSelecting
                   ? selected.includes(option.id)
                   : myOptionIds.includes(option.id)
+              }
+              isTopOption={
+                !isSelecting && maxPercentage > 0
+                  ? option.percentage === maxPercentage
+                  : false
               }
               mode={mode.type}
               onSelect={

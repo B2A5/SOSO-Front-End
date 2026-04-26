@@ -111,7 +111,7 @@ export function PopularVoteCarousel() {
   if (!isLoading && polls.length === 0) return null;
 
   return (
-    <div className="flex flex-col gap-2 mb-2 border border-neutral-100 dark:border-neutral-700 rounded-2xl bg-white dark:bg-neutral-800 shadow-sm">
+    <div className="flex flex-col gap-2 mb-4 border border-neutral-100 dark:border-neutral-700 rounded-2xl bg-white dark:bg-neutral-800 shadow-sm">
       {/* 헤더 */}
       <div className="flex items-center justify-between px-4 pt-3 pb-2">
         <span className="text-sm font-semibold text-soso-600">
