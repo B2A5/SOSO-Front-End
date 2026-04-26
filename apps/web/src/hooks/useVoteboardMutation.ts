@@ -102,7 +102,7 @@ export function useVoteboardMutation(voteboardId?: number) {
     data: VoteboardFormData,
     deleteImageIds?: number[],
   ) => {
-    const closedAt = buildEndTimeFromDuration(data.duration);
+    const closedAt = buildEndTimeFromDuration(data.duration!);
 
     if (voteboardId) {
       // 수정 모드: PollUpdateRequest
