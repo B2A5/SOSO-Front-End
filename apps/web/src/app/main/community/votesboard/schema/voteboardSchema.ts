@@ -72,9 +72,12 @@ export const voteboardSchema = z.object({
    * - 실제 closedAt(yyyy-MM-ddTHH:mm:ss)은 submit 시점에
    *   현재 시간을 기준으로 계산해서 서버로 전송합니다.
    */
-  duration: z.enum(VOTE_DURATION_VALUES, {
-    message: '마감 기간을 선택해주세요.',
-  }),
+  duration: z
+    .enum(VOTE_DURATION_VALUES, {
+      message: '마감 기간을 선택해주세요.',
+    })
+    .optional()
+    .refine((v) => v !== undefined, '마감 기간을 선택해주세요.'),
 
   /**
    * 재투표 허용 여부

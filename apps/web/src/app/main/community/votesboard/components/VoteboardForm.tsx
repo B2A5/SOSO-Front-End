@@ -61,7 +61,7 @@ export function VoteboardForm({
         initialData?.category ??
         initialCategory ??
         CATEGORIES[0].value,
-      duration: '3d',
+      duration: undefined,
       canMultiSelect: initialData?.voteInfo?.canMultiSelect ?? false,
       canRevote: initialData?.voteInfo?.canRevote ?? false,
       options: initialData?.options ?? [
@@ -147,7 +147,7 @@ export function VoteboardForm({
       <form
         id="vote-form"
         aria-label={isEdit ? '투표 게시글 수정' : '투표 게시글 작성'}
-        className="flex flex-col gap-4 w-full p-1 transition-transform duration-300 ease-in-out"
+        className="flex flex-col gap-4 w-full px-1 transition-transform duration-300 ease-in-out"
         onSubmit={handleSubmit(onSubmit)}
       >
         <div>
@@ -347,7 +347,7 @@ export function VoteboardForm({
         </div>
 
         {/* 버튼 */}
-        <div className="sticky bottom-0 left-0 right-0 bg-white/90 dark:bg-neutral-900/90 pt-2">
+        <div className="sticky bottom-0 left-0 right-0 bg-white/90 dark:bg-neutral-900/90">
           <Button
             type="submit"
             disabled={!isValid || isPending}

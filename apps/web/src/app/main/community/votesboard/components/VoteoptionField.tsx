@@ -39,7 +39,7 @@ export function VoteboardOptionField({
 }: VoteboardOptionFieldProps) {
   return (
     <motion.div
-      className="flex items-start gap-2"
+      className="flex items-start justify-between gap-2"
       layout
       transition={{ duration: 0.2 }}
     >
@@ -55,26 +55,23 @@ export function VoteboardOptionField({
         />
       </motion.div>
 
-      {/* X 버튼: 높이 46px 박스 안에서 세로 가운데 정렬 */}
-      <div className="h-[46px] flex items-center">
-        <AnimatePresence initial={false}>
-          {canRemove && (
-            <motion.button
-              key="remove"
-              type="button"
-              onClick={onRemove}
-              aria-label={`옵션 ${index + 1} 삭제`}
-              className="text-xs text-neutral-400"
-              initial={{ opacity: 0, x: 8 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 8 }}
-              transition={{ duration: 0.15 }}
-            >
-              <X className="inline-block w-4 h-4" />
-            </motion.button>
-          )}
-        </AnimatePresence>
-      </div>
+      <AnimatePresence initial={false}>
+        {canRemove && (
+          <motion.button
+            key="remove"
+            type="button"
+            onClick={onRemove}
+            aria-label={`옵션 ${index + 1} 삭제`}
+            className="h-[46px] flex items-center text-xs text-neutral-400"
+            initial={{ opacity: 0, x: 8 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 8 }}
+            transition={{ duration: 0.15 }}
+          >
+            <X className="w-4 h-4" />
+          </motion.button>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
