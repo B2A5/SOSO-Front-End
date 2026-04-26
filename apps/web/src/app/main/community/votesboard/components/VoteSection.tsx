@@ -7,7 +7,9 @@ import type {
 } from '@/generated/api/models';
 import { useVote } from '@/app/main/community/votesboard/hooks/useVote.mutate';
 import { cn } from '@/utils/cn';
+import { AnimatePresence, motion } from 'motion/react';
 import { VoteSectionItem } from './VoteSectionItem';
+import { Button } from '@/components/buttons/Button';
 
 interface VoteSectionProps {
   pollId: number;
@@ -45,7 +47,9 @@ export function VoteSection({
   const { cast, change, isPending } = useVote(pollId);
 
   const isVotingClosed = pollStatus === 'COMPLETED';
-  const canRevoteNow = !isVotingClosed && hasVoted && canRevote;
+  // hasVoted는 서버 응답 기준이라 재조회 전까지 지연될 수 있어 mode로 보완
+  const isVoted = hasVoted || mode.type === 'result';
+  const canRevoteNow = !isVotingClosed && isVoted && canRevote;
   const isSelecting = mode.type === 'selection';
   const selected = isSelecting ? mode.selected : [];
 
@@ -129,37 +133,51 @@ export function VoteSection({
         ))}
       </div>
 
-      {mode.type === 'result' ? (
-        canRevoteNow && (
-          <div className="flex gap-2">
-            <button
-              onClick={handleShare}
-              className="flex-1 h-12 rounded-xl font-semibold text-white bg-soso-600 hover:bg-soso-600 transition-colors"
+      <AnimatePresence mode="wait" initial={false}>
+        {mode.type === 'result' ? (
+          canRevoteNow && (
+            <motion.div
+              key="result-actions"
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.2 }}
+              className="flex gap-2"
             >
-              공유하기
-            </button>
-            <button
-              onClick={handleRevote}
-              className="flex-1 h-12 rounded-xl font-semibold text-neutral-700 dark:text-neutral-300 bg-neutral-50 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors"
-            >
-              다시 투표하기
-            </button>
-          </div>
-        )
-      ) : (
-        <button
-          onClick={handleSubmit}
-          disabled={selected.length === 0 || isPending}
-          className={cn(
-            'w-full h-12 rounded-xl font-semibold text-white transition-colors',
-            selected.length > 0 && !isPending
-              ? 'bg-soso-600 hover:bg-soso-700'
-              : 'bg-neutral-100 text-neutral-700 dark:bg-neutral-700 cursor-not-allowed',
-          )}
-        >
-          {isPending ? '투표 중...' : '투표하기'}
-        </button>
-      )}
+              <Button
+                onClick={handleShare}
+                className="flex-1 h-12 rounded-xl font-semibold text-white bg-soso-600 hover:bg-soso-600 transition-colors"
+              >
+                공유하기
+              </Button>
+              <button
+                onClick={handleRevote}
+                className="flex-1 h-12 rounded-xl font-semibold border border-neutral-100 text-neutral-900 dark:text-neutral-300  dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors"
+              >
+                다시 투표하기
+              </button>
+            </motion.div>
+          )
+        ) : (
+          <motion.button
+            key="vote-button"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.2 }}
+            onClick={handleSubmit}
+            disabled={selected.length === 0 || isPending}
+            className={cn(
+              'w-full h-12 rounded-xl font-semibold text-white transition-colors',
+              selected.length > 0 && !isPending
+                ? 'bg-soso-600 hover:bg-soso-700'
+                : 'bg-neutral-50 text-neutral-700 dark:bg-neutral-700 cursor-not-allowed',
+            )}
+          >
+            {isPending ? '투표 중...' : '투표하기'}
+          </motion.button>
+        )}
+      </AnimatePresence>
     </section>
   );
 }

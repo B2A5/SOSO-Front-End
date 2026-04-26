@@ -22,14 +22,12 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
-  DeleteFreeboardComment204,
   ErrorResponse,
   FreeboardCommentCreateRequest,
   FreeboardCommentCreateResponse,
   FreeboardCommentCursorResponse,
   FreeboardCommentUpdateRequest,
   GetFreeboardCommentsByCursorParams,
-  HardDeleteFreeboardComment204,
 } from '../../models';
 
 import { customInstance } from '../../../../lib/api-client';
@@ -354,7 +352,7 @@ export const deleteFreeboardComment = (
   freeboardId: number,
   commentId: number,
 ) => {
-  return customInstance<DeleteFreeboardComment204>({
+  return customInstance<void>({
     url: `/community/freeboard/${freeboardId}/comments/${commentId}`,
     method: 'DELETE',
   });
@@ -573,7 +571,7 @@ export const hardDeleteFreeboardComment = (
   freeboardId: number,
   commentId: number,
 ) => {
-  return customInstance<HardDeleteFreeboardComment204>({
+  return customInstance<void>({
     url: `/community/freeboard/${freeboardId}/comments/${commentId}/force`,
     method: 'DELETE',
   });

@@ -8,6 +8,7 @@ import {
   useCancelVote,
   getGetPollQueryKey,
 } from '@/generated/api/endpoints/poll/poll';
+import type { PollDetailResponse } from '@/generated/api/models';
 
 export interface UseVoteReturn {
   cast: (voteOptionIds: number[]) => void;
@@ -28,28 +29,37 @@ export function useVote(pollId: number): UseVoteReturn {
 
   const voteQueryKey = getGetPollQueryKey(pollId);
 
-  const onSettled = () => {
+  const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: voteQueryKey });
   };
 
+  // POST /vote → PollDetailResponse: 캐시를 응답으로 즉시 교체하고 백그라운드 재조회
   const castVoteMutation = useCastVote({
     mutation: {
+      onSuccess: (data: PollDetailResponse) => {
+        queryClient.setQueryData<PollDetailResponse>(
+          voteQueryKey,
+          data,
+        );
+      },
       onError: () => toast(VOTE_ERROR_MESSAGES.CAST, 'error'),
-      onSettled,
+      onSettled: invalidate,
     },
   });
 
+  // PUT /vote → void: 재조회로 동기화
   const changeVoteMutation = useChangeVote({
     mutation: {
       onError: () => toast(VOTE_ERROR_MESSAGES.CHANGE, 'error'),
-      onSettled,
+      onSettled: invalidate,
     },
   });
 
+  // DELETE /vote → void: 재조회로 동기화
   const cancelVoteMutation = useCancelVote({
     mutation: {
       onError: () => toast(VOTE_ERROR_MESSAGES.CANCEL, 'error'),
-      onSettled,
+      onSettled: invalidate,
     },
   });
 

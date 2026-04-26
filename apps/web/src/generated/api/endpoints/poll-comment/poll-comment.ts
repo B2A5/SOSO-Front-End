@@ -22,7 +22,6 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
-  DeletePollComment204,
   ErrorResponse,
   GetPollCommentsByCursorParams,
   PollCommentCreateRequest,
@@ -339,7 +338,7 @@ export const deletePollComment = (
   pollId: number,
   commentId: number,
 ) => {
-  return customInstance<DeletePollComment204>({
+  return customInstance<void>({
     url: `/community/polls/${pollId}/comments/${commentId}`,
     method: 'DELETE',
   });

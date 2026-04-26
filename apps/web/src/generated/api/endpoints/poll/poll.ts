@@ -147,7 +147,7 @@ export const castVote = (
   voteRequest: VoteRequest,
   signal?: AbortSignal,
 ) => {
-  return customInstance<void>({
+  return customInstance<PollDetailResponse>({
     url: `/community/polls/${pollId}/vote`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
