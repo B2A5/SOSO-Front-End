@@ -16,8 +16,7 @@ import { useLoadingDelay } from '../../hooks/useLoadingDelay';
 type Variant = 'filled' | 'outlined' | 'bottom' | 'ghost';
 type Size = 'sm' | 'md' | 'lg';
 
-export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   /** 색상·테마 */
   variant?: Variant;
   /** 크기 */
