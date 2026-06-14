@@ -23,6 +23,7 @@
     "noEmit": true,
     "allowJs": true,
     "skipLibCheck": true,
+    "moduleResolution": "bundler",
     "incremental": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,

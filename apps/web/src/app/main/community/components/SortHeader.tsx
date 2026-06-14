@@ -42,7 +42,9 @@ export function SortHeader({
         <Select.Trigger
           className="border-none text-neutral-800 dark:text-white justify-end text-sm"
           placeholder="정렬 선택"
-        />
+        >
+          {sortOptions.find((o) => o.value === currentValue)?.label}
+        </Select.Trigger>
         <Select.Portal>
           <Select.Content>
             {sortOptions.map((option) => (

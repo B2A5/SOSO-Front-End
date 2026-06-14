@@ -76,6 +76,7 @@ const nextConfig = {
       },
     ],
   },
+  serverExternalPackages: ['sharp'],
   experimental: {
     typedRoutes: false,
   },

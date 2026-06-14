@@ -102,7 +102,7 @@ export const voteboardSchema = z.object({
         content: z
           .string()
           .min(1, '옵션은 최소 1자 이상이어야 합니다.')
-          .max(50, '옵션은 최대 50자까지 입력 가능합니다.')
+          .max(10, '옵션은 최대 10자까지 입력 가능합니다.')
           .refine(
             (v) => v.trim().length > 0,
             '공백만 입력할 수 없습니다.',

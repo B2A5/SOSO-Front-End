@@ -5,6 +5,7 @@ import { Header } from '@/components/header/Header';
 import { BoardSwitcherTab } from './components/BoardSwitcherTab';
 import type { CommunityTabValue } from '@/types/tab.types';
 import Drawer from '@/components/Drawer';
+import { CommunityScrollContainer } from './ScrollContainer';
 
 /**
  * 커뮤니티 공통 레이아웃
@@ -59,7 +60,9 @@ export default function CommunityLayout({
           </Header.Right>
         </Header>
       ) : null}
-      <div className="flex-1 overflow-y-auto">{children}</div>
+      <CommunityScrollContainer className="flex-1 overflow-y-auto">
+        {children}
+      </CommunityScrollContainer>
     </div>
   );
 }

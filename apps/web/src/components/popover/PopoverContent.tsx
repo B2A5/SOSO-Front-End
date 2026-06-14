@@ -94,6 +94,12 @@ export interface PopoverContentProps {
   onKeyDown?: (e: React.KeyboardEvent) => void;
 
   /**
+   * 드롭다운 너비를 트리거 너비에 맞출지 여부
+   * @default false
+   */
+  matchTriggerWidth?: boolean;
+
+  /**
    * 항상 DOM에 렌더링하고 CSS로만 숨길지 여부
    * true일 경우 닫혀있을 때도 DOM에 존재하며 visibility: hidden으로 숨겨집니다.
    * 초기 렌더링 시 children의 useEffect/useLayoutEffect가 실행되어야 할 때 유용합니다.
@@ -138,6 +144,7 @@ interface PositionConfig {
   sideOffset: number;
   alignOffset: number;
   triggerRect: DOMRect;
+  matchTriggerWidth?: boolean;
 }
 
 function calculateFixedPosition({
@@ -146,11 +153,16 @@ function calculateFixedPosition({
   sideOffset,
   alignOffset,
   triggerRect,
+  matchTriggerWidth,
 }: PositionConfig): CSSProperties {
   const styles: CSSProperties = {
     position: 'fixed',
     zIndex: 50,
   };
+
+  if (matchTriggerWidth) {
+    styles.minWidth = `${triggerRect.width}px`;
+  }
 
   // Side positioning
   switch (side) {
@@ -316,6 +328,7 @@ export function PopoverContent({
   closeOnOutsideClick = true,
   onKeyDown,
   alwaysRender = false,
+  matchTriggerWidth = false,
 }: PopoverContentProps) {
   const {
     open,
@@ -382,6 +395,7 @@ export function PopoverContent({
         sideOffset,
         alignOffset,
         triggerRect,
+        matchTriggerWidth,
       });
     }
 
@@ -391,7 +405,15 @@ export function PopoverContent({
       sideOffset,
       alignOffset,
     });
-  }, [open, side, align, sideOffset, alignOffset, triggerRef]);
+  }, [
+    open,
+    side,
+    align,
+    sideOffset,
+    alignOffset,
+    triggerRef,
+    matchTriggerWidth,
+  ]);
 
   // alwaysRender 모드: 항상 렌더링하되 CSS로 숨김
   if (alwaysRender) {

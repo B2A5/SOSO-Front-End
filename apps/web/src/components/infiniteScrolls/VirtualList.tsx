@@ -1,5 +1,11 @@
 'use client';
-import React, { useEffect } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { rafThrottle } from '@/utils/rafThrottle';
 
@@ -48,24 +54,66 @@ export function VirtualList<T>({
       ? Number(sessionStorage.getItem(storageKey) ?? 0)
       : 0;
 
+  // scrollMargin: 스크롤 컨테이너 상단에서 이 VirtualList 컨테이너 상단까지의 거리.
+  // 스크롤 컨테이너가 VirtualList보다 위에서 시작하는 경우(예: 게시글 내용이 위에 있을 때)
+  // 이 값 없이는 어떤 아이템이 화면에 보여야 하는지 계산이 틀려 상단에 빈 공간이 생김.
+  const listContainerRef = useRef<HTMLDivElement>(null);
+  const [scrollMargin, setScrollMargin] = useState(0);
+
+  useLayoutEffect(() => {
+    const scrollEl = parentRef.current;
+    const listEl = listContainerRef.current;
+    if (!scrollEl || !listEl) return;
+
+    const margin =
+      listEl.getBoundingClientRect().top -
+      scrollEl.getBoundingClientRect().top +
+      scrollEl.scrollTop;
+    setScrollMargin(margin);
+  }, [parentRef]);
+
+  // useVirtualizer에 넘기는 함수를 useCallback으로 안정화:
+  // setOptions는 매 렌더마다 호출되는데, 함수 레퍼런스가 바뀌면
+  // 내부적으로 notifyListeners를 트리거해 무한 리렌더가 발생함
+  const getScrollElement = useCallback(
+    () => parentRef.current,
+    [parentRef],
+  );
+  const estimateSizeFn = useCallback(
+    () => estimateSize,
+    [estimateSize],
+  );
+  const getItemKeyFn = useCallback(
+    (index: number) => getItemKey(items[index], index),
+    [getItemKey, items],
+  );
+
   // Virtualizer 설정
   const virtualizer = useVirtualizer({
     count: items.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => estimateSize,
+    getScrollElement,
+    estimateSize: estimateSizeFn,
     overscan,
-    getItemKey: (index) => getItemKey(items[index], index),
+    getItemKey: getItemKeyFn,
     initialOffset: savedOffset,
     gap,
+    scrollMargin,
+    useFlushSync: false,
   });
+
+  // virtualizerRef: useEffect deps에 virtualizer 객체를 넣으면
+  // 렌더마다 새 인스턴스로 인식되어 effect가 재실행됨.
+  // ref를 통해 항상 최신 virtualizer를 참조하되 deps는 안정적으로 유지
+  const virtualizerRef = useRef(virtualizer);
+  virtualizerRef.current = virtualizer;
 
   // 스크롤 위치 저장 및 이탈 직전 보장
   useEffect(() => {
     const scrollContainerElement = parentRef.current;
     if (!scrollContainerElement) return;
 
-    // 초기 측정
-    virtualizer.measure();
+    // 마운트 직후 아이템 크기 초기 측정
+    virtualizerRef.current.measure();
 
     // 스크롤 중 저장: 프레임당 1회
     const saveScrollPosition = rafThrottle((offset: number) => {
@@ -73,20 +121,22 @@ export function VirtualList<T>({
     });
 
     const handleScroll = () => {
-      if (virtualizer.scrollOffset !== null) {
-        saveScrollPosition(virtualizer.scrollOffset);
+      if (virtualizerRef.current.scrollOffset !== null) {
+        saveScrollPosition(virtualizerRef.current.scrollOffset);
       }
     };
 
     scrollContainerElement.addEventListener('scroll', handleScroll, {
       passive: true,
     });
+
+    // 탭 전환·페이지 이탈 시 최신 위치를 즉시 flush
     const flushLatestPosition = () => {
       saveScrollPosition.flush();
-      if (virtualizer.scrollOffset !== null) {
+      if (virtualizerRef.current.scrollOffset !== null) {
         sessionStorage.setItem(
           storageKey,
-          String(virtualizer.scrollOffset),
+          String(virtualizerRef.current.scrollOffset),
         );
       }
     };
@@ -108,7 +158,7 @@ export function VirtualList<T>({
       window.removeEventListener('beforeunload', flushLatestPosition);
       flushLatestPosition();
     };
-  }, [parentRef, storageKey, virtualizer]);
+  }, [parentRef, storageKey]);
 
   // 부모 컨테이너 리사이즈 대응
   useEffect(() => {
@@ -117,7 +167,7 @@ export function VirtualList<T>({
 
     // 측정 빈도 제한: 프레임당 1회
     const measureOnNextAnimationFrame = rafThrottle(() => {
-      virtualizer.measure();
+      virtualizerRef.current.measure();
     });
 
     // 부모 컨테이너 크기 변화 감지
@@ -137,10 +187,11 @@ export function VirtualList<T>({
       window.removeEventListener('resize', handleWindowResize);
       measureOnNextAnimationFrame.cancel?.();
     };
-  }, [parentRef, virtualizer]);
+  }, [parentRef]);
 
   return (
     <div
+      ref={listContainerRef}
       style={{
         height: virtualizer.getTotalSize(),
         position: 'relative',
@@ -157,7 +208,9 @@ export function VirtualList<T>({
             top: 0,
             left: 0,
             width: '100%',
-            transform: `translateY(${row.start}px)`,
+            // scrollMargin만큼 빼서 스크롤 컨테이너 기준 절대 위치를
+            // VirtualList 컨테이너 기준 상대 위치로 변환
+            transform: `translateY(${row.start - scrollMargin}px)`,
           }}
         >
           {renderItem(items[row.index], row.index)}

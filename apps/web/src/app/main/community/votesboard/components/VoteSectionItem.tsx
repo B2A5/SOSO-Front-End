@@ -11,6 +11,7 @@ interface VoteSectionItemProps {
   isIndex?: boolean; //@todo: 버튼 라벨이 필요하다면 추가 예정
   option: PollOptionResponse;
   isSelected: boolean;
+  isTopOption?: boolean;
   mode: 'selection' | 'result';
   onSelect?: () => void;
 }
@@ -18,6 +19,7 @@ interface VoteSectionItemProps {
 export const VoteSectionItem = memo(function VoteSectionItem({
   option,
   isSelected,
+  isTopOption = false,
   mode,
   onSelect,
 }: VoteSectionItemProps) {
@@ -32,7 +34,7 @@ export const VoteSectionItem = memo(function VoteSectionItem({
           'relative w-full px-[14px] py-[13px] rounded-lg text-left overflow-hidden',
           'flex items-center justify-between gap-2.5',
           isResult
-            ? isSelected
+            ? isTopOption
               ? 'bg-soso-0'
               : 'bg-neutral-0'
             : isSelected
@@ -50,7 +52,7 @@ export const VoteSectionItem = memo(function VoteSectionItem({
               transition={{ duration: 0.6, ease: 'easeOut' }}
               className={cn(
                 'absolute inset-y-0 left-0 rounded-lg',
-                isSelected ? 'bg-soso-300' : 'bg-neutral-100',
+                isTopOption ? 'bg-soso-300' : 'bg-neutral-100',
               )}
             />
           )}
